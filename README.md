@@ -17,7 +17,7 @@ ctchargen new --auto                     # one character, policy decides, JSON t
 ctchargen new --seed 42 --service navy   # interactive: you answer each choice
 ctchargen batch --count 20 --auto -o npcs.jsonl
 ctchargen render character.json          # Markdown character sheet
-ctchargen render --history character.json# the full generation transcript
+ctchargen render --history character.json   # the full generation transcript
 ctchargen replay character.json          # verify a record reproduces exactly
 ctchargen version
 ```
