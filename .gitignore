@@ -1,0 +1,28 @@
+# Go build artefacts. The bare root binary is what `go build ./cmd/...`
+# writes with no -o. Anchored, so it cannot match the cmd/ctchargen
+# package directory.
+/ctchargen
+*.exe
+*.test
+*.out
+/bin/
+/dist/
+
+# Editor
+.vscode/
+.idea/
+
+# Coverage
+coverage.out
+coverage.html
+
+# Source PDFs. The rules (Classic Traveller Books 1-3) are purchased
+# artifacts held in ~/Documents/Traveller/Classic/ and never enter or
+# leave this repository.
+*.pdf
+
+# Local worktrees for spike / experimental work
+/.worktrees/
+
+# brew bundle lockfile (regenerated locally)
+Brewfile.lock.json

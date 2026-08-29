@@ -7,9 +7,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `ctchargen`: a Go CLI that generates rules-accurate Classic Traveller
 characters (Books 1–3, © 1977 text), sibling to `philoserf/t5chargen`.
 
-**Status: pre-code.** `docs/PRD.md` is the v1 contract — read it before doing
-any work here. No build, test, or lint commands exist yet; once code lands
-this is a standard Go module (standard `go` toolchain).
+**Status: scaffolded, pre-engine.** `docs/PRD.md` is the v1 contract — read
+it before doing any work here. The Go module, gate, and a stub
+`cmd/ctchargen` exist; no engine code does yet.
+
+## Commands
+
+```sh
+task          # the full gate: check (modernize + gofumpt + prettier + vet + golangci-lint) + test
+task fmt      # format Go (gofumpt -extra) and JSON/Markdown (prettier)
+task test     # go test -race ./...
+task deps     # install the toolchain (brew bundle)
+task hooks    # install the tracked pre-push hook (runs `task`)
+go test -race ./cmd/ctchargen -run TestRun   # a single test
+```
+
+CI (`.github/workflows/ci.yml`) runs exactly `task` — never add checks to CI
+that the local `task` gate doesn't run. golangci-lint runs with
+`default: all` and a curated disable list (`.golangci.yml`); fix findings
+rather than adding disables.
 
 ## Authority model — the most important rule
 

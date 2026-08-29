@@ -1,0 +1,11 @@
+# Generated fixtures (when they arrive with milestone 1). These are the
+# engine's own output, compared byte for byte by the golden tests;
+# reformatting them makes the tests fail and, worse, would let a formatter
+# rather than the engine decide what a character record looks like.
+chargen/testdata/
+render/testdata/
+
+# Local scratch. `.issues` is ignored globally (~/.gitignore), so these are
+# working notes rather than source; formatting them only makes `task` fail
+# on files the repo does not carry.
+.issues/
