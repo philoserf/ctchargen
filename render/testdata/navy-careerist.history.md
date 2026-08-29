@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 3 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
+Seed 3 (go-math-rand-v2-pcg), engine 0.3.0, policy 3.
 
 ## characteristics
 
@@ -81,4 +81,26 @@ Seed 3 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 - (60) reenlist-intent: chose yes (by policy; options: yes, no)
 - (61) reenlistment: threw 1+4 = 5 against 6+: failure
 - (62) → reenlistment denied; must leave the service (p. 6) [from 61]
-- (63) → leaves the service after 4 term(s), age 34
+- (63) → aging: turning 34 (pp. 7, 9; E005)
+- (64) aging strength save: threw 4+6 = 10 against 8+: success
+- (65) aging dexterity save: threw 5+1 = 6 against 7+: failure
+- (66) → -1 dexterity (5 → 4), aging (p. 9) [from 65]
+- (67) aging endurance save: threw 2+4 = 6 against 8+: failure
+- (68) → -1 endurance (6 → 5), aging (p. 9) [from 67]
+- (69) → leaves the service after 4 term(s), age 34
+
+## muster-out
+
+- (70) mustering out: 4 rolls (4 terms + 0 for rank), at most 3 on the cash table (pp. 7, 9)
+- (71) muster-table: chose cash (by policy; options: benefits, cash)
+- (72) cash table: threw 1 = 1
+- (73) → CR 1000 cash (Table 2 row 1; p. 9) [from 72]
+- (74) muster-table: chose cash (by policy; options: benefits, cash)
+- (75) cash table: threw 5 = 5
+- (76) → CR 20000 cash (Table 2 row 5; p. 9) [from 75]
+- (77) muster-table: chose cash (by policy; options: benefits, cash)
+- (78) cash table: threw 4 = 4
+- (79) → CR 10000 cash (Table 2 row 4; p. 9) [from 78]
+- (80) muster-table: chose benefits (by policy; options: benefits)
+- (81) benefits table: threw 1 = 1
+- (82) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 81]

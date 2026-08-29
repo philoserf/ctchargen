@@ -31,6 +31,20 @@
     "Captain"
   ],
   "auto_skills": [{ "rank": 4, "skill": "Pilot" }],
+  "retirement_pay": true,
+  "muster": {
+    "page": 9,
+    "benefits": [
+      { "passage": "low" },
+      { "characteristic": "intelligence", "delta": 1 },
+      { "characteristic": "education", "delta": 1 },
+      { "weapon": "gun" },
+      { "weapon": "blade" },
+      { "passage": "low" },
+      { "ship": "free_trader" }
+    ],
+    "cash": [1000, 5000, 10000, 20000, 20000, 40000, 40000]
+  },
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

@@ -58,6 +58,13 @@ func fixtures() []fixture {
 		{Name: "draftee", Seed: 7, Auto: true, Decider: chargen.AutoPolicy{}},
 		{Name: "death-in-service", Seed: 2, Auto: true, Decider: chargen.AutoPolicy{}},
 		{Name: "civilian-declined-draft", Seed: 1, Auto: false, Decider: declineDecider{}},
+		// Milestone 3 paths: a hereditary title assumed, a medical-crisis
+		// death (E006/E007), a scout ship in constructive possession, and
+		// a twice-received Free Trader.
+		{Name: "duke", Seed: 4, Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "medical-crisis-death", Seed: 8, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "scout-ship", Seed: 46, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "free-trader", Seed: 145, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
 	}
 }
 

@@ -35,6 +35,20 @@
     { "rank": 5, "characteristic": "social_standing", "delta": 1 },
     { "rank": 6, "characteristic": "social_standing", "delta": 1 }
   ],
+  "retirement_pay": true,
+  "muster": {
+    "page": 9,
+    "benefits": [
+      { "passage": "low" },
+      { "characteristic": "intelligence", "delta": 1 },
+      { "characteristic": "education", "delta": 2 },
+      { "weapon": "blade" },
+      { "travellers_aid": true },
+      { "passage": "high" },
+      { "characteristic": "social_standing", "delta": 2 }
+    ],
+    "cash": [1000, 5000, 5000, 10000, 20000, 50000, 50000]
+  },
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

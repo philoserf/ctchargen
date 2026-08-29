@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 7 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
+Seed 7 (go-math-rand-v2-pcg), engine 0.3.0, policy 3.
 
 ## characteristics
 
@@ -88,49 +88,76 @@ Seed 7 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 - (67) reenlist-intent: chose yes (by policy; options: yes, no)
 - (68) reenlistment: threw 6+1 = 7 against 4+: success
 - (69) → reenlists for another term [from 68]
+- (70) → aging: turning 34 (pp. 7, 9; E005)
+- (71) aging strength save: threw 2+5 = 7 against 8+: failure
+- (72) → -1 strength (7 → 6), aging (p. 9) [from 71]
+- (73) aging dexterity save: threw 1+4 = 5 against 7+: failure
+- (74) → -1 dexterity (6 → 5), aging (p. 9) [from 73]
+- (75) aging endurance save: threw 1+3 = 4 against 8+: failure
+- (76) → -1 endurance (4 → 3), aging (p. 9) [from 75]
 
 ## term-5
 
-- (70) term 5 begins, age 34
-- (71) survival: threw 2+5, DM +2 (intelligence 7+) = 9 against 5+: success
-- (72) promotion-attempt: chose yes (by policy; options: yes, no)
-- (73) promotion: threw 1+4 = 5 against 10+: failure
-- (74) → promotion denied this term (one attempt per term, p. 6) [from 73]
-- (75) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
-- (76) skill table service_skills: threw 1 = 1
-- (77) → Steward-3 [from 76]
-- (78) reenlist-intent: chose yes (by policy; options: yes, no)
-- (79) reenlistment: threw 3+6 = 9 against 4+: success
-- (80) → reenlists for another term [from 79]
+- (77) term 5 begins, age 34
+- (78) survival: threw 6+4, DM +2 (intelligence 7+) = 12 against 5+: success
+- (79) promotion-attempt: chose yes (by policy; options: yes, no)
+- (80) promotion: threw 4+3 = 7 against 10+: failure
+- (81) → promotion denied this term (one attempt per term, p. 6) [from 80]
+- (82) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
+- (83) skill table service_skills: threw 6 = 6
+- (84) → Jack-of-all-Trades-2 [from 83]
+- (85) reenlist-intent: chose yes (by policy; options: yes, no)
+- (86) reenlistment: threw 6+5 = 11 against 4+: success
+- (87) → reenlists for another term [from 86]
+- (88) → aging: turning 38 (pp. 7, 9; E005)
+- (89) aging strength save: threw 5+5 = 10 against 8+: success
+- (90) aging dexterity save: threw 5+6 = 11 against 7+: success
+- (91) aging endurance save: threw 4+2 = 6 against 8+: failure
+- (92) → -1 endurance (3 → 2), aging (p. 9) [from 91]
 
 ## term-6
 
-- (81) term 6 begins, age 38
-- (82) survival: threw 4+4, DM +2 (intelligence 7+) = 10 against 5+: success
-- (83) promotion-attempt: chose yes (by policy; options: yes, no)
-- (84) promotion: threw 3+6 = 9 against 10+: failure
-- (85) → promotion denied this term (one attempt per term, p. 6) [from 84]
-- (86) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
-- (87) skill table service_skills: threw 6 = 6
-- (88) → Jack-of-all-Trades-2 [from 87]
-- (89) reenlist-intent: chose yes (by policy; options: yes, no)
-- (90) reenlistment: threw 5+5 = 10 against 4+: success
-- (91) → reenlists for another term [from 90]
+- (93) term 6 begins, age 38
+- (94) survival: threw 2+2, DM +2 (intelligence 7+) = 6 against 5+: success
+- (95) promotion-attempt: chose yes (by policy; options: yes, no)
+- (96) promotion: threw 2+5 = 7 against 10+: failure
+- (97) → promotion denied this term (one attempt per term, p. 6) [from 96]
+- (98) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
+- (99) skill table service_skills: threw 3 = 3
+- (100) → +1 strength (6 → 7), applied immediately (p. 12) [from 99]
+- (101) reenlist-intent: chose yes (by policy; options: yes, no)
+- (102) reenlistment: threw 1+2 = 3 against 4+: failure
+- (103) → reenlistment denied; must leave the service (p. 6) [from 102]
+- (104) → aging: turning 42 (pp. 7, 9; E005)
+- (105) aging strength save: threw 3+6 = 9 against 8+: success
+- (106) aging dexterity save: threw 1+5 = 6 against 7+: failure
+- (107) → -1 dexterity (5 → 4), aging (p. 9) [from 106]
+- (108) aging endurance save: threw 2+1 = 3 against 8+: failure
+- (109) → -1 endurance (2 → 1), aging (p. 9) [from 108]
+- (110) → leaves the service after 6 term(s), age 42
 
-## term-7
+## muster-out
 
-- (92) term 7 begins, age 42
-- (93) survival: threw 5+5, DM +2 (intelligence 7+) = 12 against 5+: success
-- (94) promotion-attempt: chose yes (by policy; options: yes, no)
-- (95) promotion: threw 6+4 = 10 against 10+: success
-- (96) → promoted to 2nd Officer (rank 3); +1 skill eligibility (p. 6) [from 95]
-- (97) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
-- (98) skill table service_skills: threw 2 = 2
-- (99) → Vacc Suit-3 [from 98]
-- (100) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
-- (101) skill table service_skills: threw 2 = 2
-- (102) → Vacc Suit-4 [from 101]
-- (103) → voluntary service caps at 7 terms; must attempt to leave (p. 7)
-- (104) reenlistment: threw 2+2 = 4 against 4+: success
-- (105) → chooses to leave the service [from 104]
-- (106) → leaves the service after 7 term(s), age 46
+- (111) mustering out: 7 rolls (6 terms + 1 for rank), at most 3 on the cash table (pp. 7, 9)
+- (112) muster-table: chose cash (by policy; options: benefits, cash)
+- (113) cash table: threw 4 = 4
+- (114) → CR 20000 cash (Table 2 row 4; p. 9) [from 113]
+- (115) muster-table: chose cash (by policy; options: benefits, cash)
+- (116) cash table: threw 3 = 3
+- (117) → CR 10000 cash (Table 2 row 3; p. 9) [from 116]
+- (118) muster-table: chose cash (by policy; options: benefits, cash)
+- (119) cash table: threw 3 = 3
+- (120) → CR 10000 cash (Table 2 row 3; p. 9) [from 119]
+- (121) muster-table: chose benefits (by policy; options: benefits)
+- (122) benefits table: threw 6 = 6
+- (123) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 122]
+- (124) muster-table: chose benefits (by policy; options: benefits)
+- (125) benefits table: threw 1 = 1
+- (126) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 125]
+- (127) muster-table: chose benefits (by policy; options: benefits)
+- (128) benefits table: threw 6 = 6
+- (129) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 128]
+- (130) muster-table: chose benefits (by policy; options: benefits)
+- (131) benefits table: threw 1 = 1
+- (132) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 131]
+- (133) → retired after 6 terms: CR 6000 per year retirement pay (pp. 7, 21)

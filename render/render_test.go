@@ -50,6 +50,10 @@ func TestGoldenRenders(t *testing.T) {
 		{"draftee", 7, "", true, chargen.AutoPolicy{}},
 		{"death-in-service", 2, "", true, chargen.AutoPolicy{}},
 		{"civilian-declined-draft", 1, "", false, declineDecider{}},
+		{"duke", 4, "", true, chargen.AutoPolicy{}},
+		{"medical-crisis-death", 8, "scouts", true, chargen.AutoPolicy{}},
+		{"scout-ship", 46, "scouts", true, chargen.AutoPolicy{}},
+		{"free-trader", 145, "merchants", true, chargen.AutoPolicy{}},
 	}
 
 	for _, f := range fixtures {

@@ -50,10 +50,23 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 		}
 	}
 
+	aging, err := loadAgingTable()
+	if err != nil {
+		return nil, err
+	}
+
+	titles, err := loadNobility()
+	if err != nil {
+		return nil, err
+	}
+
 	g := &generator{
-		reg:     reg,
-		stream:  dice.New(cfg.Seed),
-		decider: decider,
+		reg:        reg,
+		stream:     dice.New(cfg.Seed),
+		decider:    decider,
+		agingTable: aging,
+		nobility:   titles,
+		nextAging:  34, // aging begins at age 34, the end of term 4 (p. 7)
 		char: &Character{
 			SchemaVersion: SchemaVersion,
 			Ruleset:       Ruleset,
@@ -77,11 +90,14 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 }
 
 type generator struct {
-	reg     *service.Registry
-	stream  *dice.Stream
-	decider Decider
-	char    *Character
-	seq     int
+	reg        *service.Registry
+	stream     *dice.Stream
+	decider    Decider
+	agingTable *agingTable
+	nobility   *nobility
+	nextAging  int
+	char       *Character
+	seq        int
 }
 
 func (g *generator) run() error {
@@ -93,7 +109,9 @@ func (g *generator) run() error {
 	}
 
 	if civilian {
-		return nil // declined the draft: an 18-year-old civilian, a valid record
+		// Declined the draft: an 18-year-old civilian, a valid record —
+		// who may still hold a hereditary title (p. 4).
+		return g.title("enlistment")
 	}
 
 	g.char.Service = svc.Name
@@ -105,10 +123,25 @@ func (g *generator) run() error {
 			return err
 		}
 
-		if left {
+		if g.char.Death != nil {
 			return nil
 		}
+
+		if left {
+			break
+		}
 	}
+
+	if err := g.musterOut(svc); err != nil {
+		return err
+	}
+
+	// Muster-out characteristic alterations (p. 23) change the UPP too.
+	g.char.UPP = g.char.Characteristics.UPP()
+
+	g.retirement(svc, "muster-out")
+
+	return g.title("muster-out")
 }
 
 // characteristics rolls 2D for each of the six, in order (p. 4), and
@@ -224,7 +257,18 @@ func (g *generator) term(svc *service.Service, term int) (bool, error) {
 
 	g.char.Age += 4 // each term is 4 years (p. 5)
 	g.char.Terms = term
+
+	// Aging closes the term (E005), after the reenlistment throw; it can
+	// end the generation in a medical crisis (pp. 7-8).
+	if err := g.aging(step, term); err != nil {
+		return false, err
+	}
+
 	g.char.UPP = g.char.Characteristics.UPP()
+
+	if g.char.Death != nil {
+		return true, nil
+	}
 
 	if !stays {
 		g.outcome(step, fmt.Sprintf("leaves the service after %d term(s), age %d", term, g.char.Age), 0)

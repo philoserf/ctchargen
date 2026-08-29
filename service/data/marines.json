@@ -35,6 +35,20 @@
     { "rank": 0, "skill": "Cutlass", "category": "blade" },
     { "rank": 1, "skill": "Revolver", "category": "gun" }
   ],
+  "retirement_pay": true,
+  "muster": {
+    "page": 9,
+    "benefits": [
+      { "passage": "low" },
+      { "characteristic": "intelligence", "delta": 2 },
+      { "characteristic": "education", "delta": 1 },
+      { "weapon": "blade" },
+      { "travellers_aid": true },
+      { "passage": "high" },
+      { "characteristic": "social_standing", "delta": 2 }
+    ],
+    "cash": [2000, 5000, 5000, 10000, 20000, 30000, 40000]
+  },
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

@@ -18,14 +18,14 @@ import (
 const (
 	// SchemaVersion tracks the shape of the records the engine writes
 	// (docs/character.schema.json).
-	SchemaVersion = "1"
+	SchemaVersion = "2"
 	// EngineVersion changes when generation behaviour changes: rules,
 	// dice-stream consumption order, or the RNG construction.
-	EngineVersion = "0.2.0"
+	EngineVersion = "0.3.0"
 	// PolicyVersion identifies the POLICY.md decision table the auto mode
 	// applies. Never verified on replay: recorded choices are reapplied,
 	// the policy is not consulted.
-	PolicyVersion = "2"
+	PolicyVersion = "3"
 	// Ruleset pins the pages every rule was read from.
 	Ruleset = "Classic Traveller Books 1-3, © 1977 text, FFE reprints"
 )
@@ -99,6 +99,17 @@ func (c *Characteristics) UPP() string {
 	return string(digits)
 }
 
+// applyAging reduces a characteristic with a floor of 0, not 1: aging is
+// one of the two ways a value may fall below 1 (p. 4), and a zero is a
+// medical crisis (pp. 7-8).
+func (c *Characteristics) applyAging(name string, loss int) (int, int) {
+	before := c.Get(name)
+	after := max(before-loss, 0)
+	c.set(name, after)
+
+	return before, after
+}
+
 func (c *Characteristics) set(name string, v int) {
 	switch name {
 	case service.Strength:
@@ -131,6 +142,44 @@ type Skill struct {
 type Death struct {
 	Term  int    `json:"term"`
 	Cause string `json:"cause"`
+}
+
+// Passages are travel tickets received at mustering out, by class
+// (values CR 10,000 / 8,000 / 1,000, sellable at 90%; pp. 21-22).
+type Passages struct {
+	High   int `json:"high"`
+	Middle int `json:"middle"`
+	Low    int `json:"low"`
+}
+
+// Ship is a starship benefit (pp. 22-23). A Free Trader (Type A, Book 2
+// p. 19) starts owing 40 years of payments; each additional receipt pays
+// off 10 years and ages the ship 10 years. A Scout ship (Type S, Book 2
+// p. 18) is constructive possession: no title, no sale, no mortgage,
+// duplicates lost.
+type Ship struct {
+	Class                  string `json:"class"`
+	Book2Page              int    `json:"book2_page"`
+	Receipts               int    `json:"receipts"`
+	AgeYears               int    `json:"age_years"`
+	PaymentYearsRemaining  int    `json:"payment_years_remaining"`
+	ConstructivePossession bool   `json:"constructive_possession"`
+}
+
+// Benefits is everything mustering out conferred (FR6, FR8).
+type Benefits struct {
+	Cash          int      `json:"cash"` // integer credits
+	Passages      Passages `json:"passages"`
+	TravellersAid bool     `json:"travellers_aid"`
+	Weapons       []string `json:"weapons"` // physical weapons received (p. 22)
+	Ship          *Ship    `json:"ship,omitempty"`
+}
+
+// Title records hereditary-title eligibility (Social Standing 11+, p. 4)
+// and the choice (FR7). The title is Book 3 p. 22's designation.
+type Title struct {
+	Title   string `json:"title"`
+	Assumed bool   `json:"assumed"`
 }
 
 // EventDM is one applied die modification, with the rule that granted it.
@@ -176,8 +225,11 @@ type Character struct {
 	Inputs        Inputs   `json:"inputs"`
 	Errata        []string `json:"errata"`
 
-	Name            string          `json:"name"`
-	Age             int             `json:"age"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+	// AgeMonths is the fraction of a year beyond Age (0-11), accrued only
+	// by medical-crisis recovery (1D months, pp. 7-8).
+	AgeMonths       int             `json:"age_months"`
 	Terms           int             `json:"terms"`
 	Service         string          `json:"service"` // "" for a civilian who declined the draft
 	Drafted         bool            `json:"drafted"`
@@ -186,9 +238,19 @@ type Character struct {
 	Characteristics Characteristics `json:"characteristics"`
 	UPP             string          `json:"upp"`
 	Skills          []Skill         `json:"skills"`
+	Benefits        Benefits        `json:"benefits"`
+	RetirementPay   int             `json:"retirement_pay"` // CR per year (pp. 7, 21)
+	Title           *Title          `json:"title,omitempty"`
 	Death           *Death          `json:"death,omitempty"`
 
 	Events []Event `json:"events"`
+}
+
+// AddAgeMonths ages the character by whole months, carrying into years.
+func (c *Character) AddAgeMonths(months int) {
+	c.AgeMonths += months
+	c.Age += c.AgeMonths / 12
+	c.AgeMonths %= 12
 }
 
 // AddSkill raises the named skill by one level, creating it at level 1 on

@@ -1,8 +1,8 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
-  "engine_version": "0.2.0",
-  "policy_version": "2",
+  "engine_version": "0.3.0",
+  "policy_version": "3",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
     "seed": 8
@@ -15,10 +15,12 @@
   "errata": [
     "E001",
     "E002",
-    "E004"
+    "E004",
+    "E005"
   ],
   "name": "",
   "age": 34,
+  "age_months": 0,
   "terms": 4,
   "service": "Marines",
   "drafted": false,
@@ -27,12 +29,12 @@
   "characteristics": {
     "strength": 3,
     "dexterity": 9,
-    "endurance": 12,
-    "intelligence": 7,
+    "endurance": 11,
+    "intelligence": 9,
     "education": 8,
     "social_standing": 7
   },
-  "upp": "39C787",
+  "upp": "39B987",
   "skills": [
     {
       "name": "Cutlass",
@@ -63,6 +65,17 @@
       "category": "gun"
     }
   ],
+  "benefits": {
+    "cash": 55000,
+    "passages": {
+      "high": 1,
+      "middle": 0,
+      "low": 0
+    },
+    "travellers_aid": false,
+    "weapons": null
+  },
+  "retirement_pay": 0,
   "events": [
     {
       "seq": 1,
@@ -884,7 +897,208 @@
       "seq": 75,
       "kind": "outcome",
       "step": "term-4",
+      "text": "aging: turning 34 (pp. 7, 9; E005)"
+    },
+    {
+      "seq": 76,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging strength save",
+      "dice": [
+        5,
+        5
+      ],
+      "target": "8+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 77,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging dexterity save",
+      "dice": [
+        3,
+        5
+      ],
+      "target": "7+",
+      "total": 8,
+      "success": true
+    },
+    {
+      "seq": 78,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging endurance save",
+      "dice": [
+        1,
+        3
+      ],
+      "target": "8+",
+      "total": 4,
+      "success": false
+    },
+    {
+      "seq": 79,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "-1 endurance (12 → 11), aging (p. 9)",
+      "ref": 78
+    },
+    {
+      "seq": 80,
+      "kind": "outcome",
+      "step": "term-4",
       "text": "leaves the service after 4 term(s), age 34"
+    },
+    {
+      "seq": 81,
+      "kind": "step",
+      "step": "muster-out",
+      "text": "mustering out: 5 rolls (4 terms + 1 for rank), at most 3 on the cash table (pp. 7, 9)"
+    },
+    {
+      "seq": 82,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 83,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 84,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 5000 cash (Table 2 row 2; p. 9)",
+      "ref": 83
+    },
+    {
+      "seq": 85,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 86,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 87,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 30000 cash (Table 2 row 6; p. 9)",
+      "ref": 86
+    },
+    {
+      "seq": 88,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 89,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 90,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 20000 cash (Table 2 row 5; p. 9)",
+      "ref": 89
+    },
+    {
+      "seq": 91,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits"
+      ],
+      "picked": "benefits"
+    },
+    {
+      "seq": 92,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "benefits table",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 93,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "high passage (CR 10,000, sellable at 90%; pp. 21-22)",
+      "ref": 92
+    },
+    {
+      "seq": 94,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits"
+      ],
+      "picked": "benefits"
+    },
+    {
+      "seq": 95,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "benefits table",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 96,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "+2 intelligence (7 → 9), applied immediately (p. 23)",
+      "ref": 95
     }
   ]
 }

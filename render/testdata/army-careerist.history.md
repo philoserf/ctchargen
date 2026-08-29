@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 2 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
+Seed 2 (go-math-rand-v2-pcg), engine 0.3.0, policy 3.
 
 ## characteristics
 
@@ -89,3 +89,23 @@ Seed 2 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 - (71) reenlistment: threw 2+3 = 5 against 7+: failure
 - (72) → reenlistment denied; must leave the service (p. 6) [from 71]
 - (73) → leaves the service after 3 term(s), age 30
+
+## muster-out
+
+- (74) mustering out: 5 rolls (3 terms + 2 for rank), at most 3 on the cash table (pp. 7, 9)
+- (75) muster-table: chose cash (by policy; options: benefits, cash)
+- (76) cash table: threw 5 = 5
+- (77) → CR 10000 cash (Table 2 row 5; p. 9) [from 76]
+- (78) muster-table: chose cash (by policy; options: benefits, cash)
+- (79) cash table: threw 6 = 6
+- (80) → CR 20000 cash (Table 2 row 6; p. 9) [from 79]
+- (81) muster-table: chose cash (by policy; options: benefits, cash)
+- (82) cash table: threw 3 = 3
+- (83) → CR 10000 cash (Table 2 row 3; p. 9) [from 82]
+- (84) muster-table: chose benefits (by policy; options: benefits)
+- (85) benefits table: threw 4 = 4
+- (86) muster-weapon: chose Body Pistol (by policy; options: Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun)
+- (87) → weapon benefit: Body Pistol (type declared immediately; p. 9, p. 22) [from 85]
+- (88) muster-table: chose benefits (by policy; options: benefits)
+- (89) benefits table: threw 1 = 1
+- (90) → low passage (CR 1,000, sellable at 90%; pp. 21-22) [from 89]

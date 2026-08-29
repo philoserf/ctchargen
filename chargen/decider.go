@@ -3,6 +3,8 @@ package chargen
 import (
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 )
 
 // Errors the procedure reports.
@@ -30,7 +32,16 @@ const (
 	ChoiceSkillTable    = "skill-table"
 	ChoiceWeapon        = "weapon"
 	ChoiceReenlist      = "reenlist-intent"
+	ChoiceMusterTable   = "muster-table"
+	ChoiceBenefitDM     = "benefit-dm"
+	ChoiceCashDM        = "cash-dm"
+	ChoiceMusterWeapon  = "muster-weapon"
+	ChoiceTitle         = "assume-title"
 )
+
+// ExpertisePrefix marks a muster-weapon option that takes +1 expertise in
+// an already-received benefit weapon in lieu of another weapon (p. 22).
+const ExpertisePrefix = "expertise: "
 
 // Yes and No are the picks for the boolean choice points.
 const (
@@ -81,14 +92,34 @@ func (AutoPolicy) Decide(c Choice) (Decision, error) {
 		// First-listed in Book 1: services in the order of p. 5, weapons
 		// in the order of the pp. 12-13 lists.
 		pick = c.Options[0]
-	case ChoiceSubmitToDraft, ChoiceCommission, ChoicePromotion, ChoiceReenlist:
+	case ChoiceSubmitToDraft, ChoiceCommission, ChoicePromotion, ChoiceReenlist,
+		ChoiceBenefitDM, ChoiceCashDM, ChoiceTitle:
 		// A rejected character submits to the draft; a serving character
 		// attempts every commission and promotion open to him and
-		// reenlists while the rules allow it.
+		// reenlists while the rules allow it; the optional muster DMs are
+		// always taken; an eligible title is assumed.
 		pick = Yes
 	case ChoiceSkillTable:
 		// Every eligibility goes to the service's Service Skills table.
 		pick = "service_skills"
+	case ChoiceMusterTable:
+		// Cash while the three-roll cap allows, then material benefits.
+		pick = "benefits"
+		if slices.Contains(c.Options, "cash") {
+			pick = "cash"
+		}
+	case ChoiceMusterWeapon:
+		// Take +1 expertise in the first-listed already-received weapon
+		// when the option exists; otherwise the first-listed weapon.
+		pick = c.Options[0]
+
+		for _, option := range c.Options {
+			if strings.HasPrefix(option, ExpertisePrefix) {
+				pick = option
+
+				break
+			}
+		}
 	default:
 		return Decision{}, fmt.Errorf("auto policy v%s %w %q", PolicyVersion, ErrCannotDecide, c.Label)
 	}

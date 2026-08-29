@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 34 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
+Seed 34 (go-math-rand-v2-pcg), engine 0.3.0, policy 3.
 
 ## characteristics
 
@@ -57,3 +57,16 @@ Seed 34 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 - (39) reenlistment: threw 1+1 = 2 against 3+: failure
 - (40) → reenlistment denied; must leave the service (p. 6) [from 39]
 - (41) → leaves the service after 3 term(s), age 30
+
+## muster-out
+
+- (42) mustering out: 3 rolls (3 terms + 0 for rank), at most 3 on the cash table (pp. 7, 9)
+- (43) muster-table: chose cash (by policy; options: benefits, cash)
+- (44) cash table: threw 4 = 4
+- (45) → CR 30000 cash (Table 2 row 4; p. 9) [from 44]
+- (46) muster-table: chose cash (by policy; options: benefits, cash)
+- (47) cash table: threw 5 = 5
+- (48) → CR 50000 cash (Table 2 row 5; p. 9) [from 47]
+- (49) muster-table: chose cash (by policy; options: benefits, cash)
+- (50) cash table: threw 1 = 1
+- (51) → CR 20000 cash (Table 2 row 1; p. 9) [from 50]

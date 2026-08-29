@@ -36,6 +36,12 @@ func TestSchemaMatchesStructs(t *testing.T) {
 	checkKeys(t, "skills item", properties(t, items(t, child(t, root, "skills"))), reflect.TypeFor[chargen.Skill]())
 	checkKeys(t, "death", properties(t, child(t, root, "death")), reflect.TypeFor[chargen.Death]())
 
+	benefits := properties(t, child(t, root, "benefits"))
+	checkKeys(t, "benefits", benefits, reflect.TypeFor[chargen.Benefits]())
+	checkKeys(t, "passages", properties(t, child(t, benefits, "passages")), reflect.TypeFor[chargen.Passages]())
+	checkKeys(t, "ship", properties(t, child(t, benefits, "ship")), reflect.TypeFor[chargen.Ship]())
+	checkKeys(t, "title", properties(t, child(t, root, "title")), reflect.TypeFor[chargen.Title]())
+
 	event := properties(t, items(t, child(t, root, "events")))
 	checkKeys(t, "events item", event, reflect.TypeFor[chargen.Event]())
 	checkKeys(t, "dms item", properties(t, items(t, child(t, event, "dms"))), reflect.TypeFor[chargen.EventDM]())

@@ -109,8 +109,30 @@ type AutoSkill struct {
 	Delta          int    `json:"delta,omitempty"`
 }
 
+// Benefit is one row of the service's Mustering Out Table 1 (p. 9):
+// exactly one of a passage, a characteristic alteration, a weapon benefit
+// (category, weapon chosen on receipt, p. 22), Travellers' Aid
+// membership, or a ship — or nothing at all (the table's "—" rows).
+type Benefit struct {
+	Passage        string `json:"passage,omitempty"` // "low", "middle", "high"
+	Characteristic string `json:"characteristic,omitempty"`
+	Delta          int    `json:"delta,omitempty"`
+	Weapon         string `json:"weapon,omitempty"` // "blade" or "gun"
+	TravellersAid  bool   `json:"travellers_aid,omitempty"`
+	Ship           string `json:"ship,omitempty"` // "scout" or "free_trader"
+}
+
+// Muster is the service's two mustering-out tables (p. 9): Table 1
+// material benefits and Table 2 cash, each indexed by one die (a +1 DM
+// can reach row 7).
+type Muster struct {
+	Page     int       `json:"page"`
+	Benefits []Benefit `json:"benefits"`
+	Cash     []int     `json:"cash"`
+}
+
 // Service is one column of the Prior Service Table plus the service's
-// ranks and skills tables.
+// ranks, skills tables, and mustering-out tables.
 type Service struct {
 	Name             string      `json:"name"`
 	PriorServicePage int         `json:"prior_service_page"`
@@ -123,6 +145,8 @@ type Service struct {
 	Reenlist         ThrowSpec   `json:"reenlist"`
 	Ranks            []string    `json:"ranks"`
 	AutoSkills       []AutoSkill `json:"auto_skills"`
+	RetirementPay    bool        `json:"retirement_pay"` // Navy, Marines, Army, Merchants only (p. 21)
+	Muster           Muster      `json:"muster"`
 	Skills           SkillTables `json:"skills"`
 }
 
@@ -287,7 +311,95 @@ func validateService(svc *Service) error {
 		return err
 	}
 
+	if err := validateMuster(&svc.Muster); err != nil {
+		return err
+	}
+
 	return validateTables(&svc.Skills)
+}
+
+func validateMuster(m *Muster) error {
+	// Seven rows each: one die plus the possible +1 DM (p. 9).
+	if len(m.Benefits) != 7 || len(m.Cash) != 7 {
+		return fmt.Errorf("%w: muster tables want 7 rows each, got %d benefits and %d cash",
+			ErrInvalidData, len(m.Benefits), len(m.Cash))
+	}
+
+	for i, amount := range m.Cash {
+		if amount <= 0 {
+			return fmt.Errorf("%w: muster cash row %d is %d", ErrInvalidData, i+1, amount)
+		}
+	}
+
+	for i, b := range m.Benefits {
+		if err := validateBenefit(b); err != nil {
+			return fmt.Errorf("muster benefit row %d: %w", i+1, err)
+		}
+	}
+
+	return nil
+}
+
+func validateBenefit(b Benefit) error {
+	if err := validateBenefitFields(b); err != nil {
+		return err
+	}
+
+	set := 0
+	kinds := []bool{b.Passage != "", b.Characteristic != "", b.Weapon != "", b.TravellersAid, b.Ship != ""}
+
+	for _, present := range kinds {
+		if present {
+			set++
+		}
+	}
+
+	if set > 1 {
+		return fmt.Errorf("%w: benefit row sets %d kinds, want at most one", ErrInvalidData, set)
+	}
+
+	return nil
+}
+
+func validateBenefitFields(b Benefit) error {
+	if err := validateEnum("passage", b.Passage, "low", "middle", "high"); err != nil {
+		return err
+	}
+
+	if err := validateEnum("weapon category", b.Weapon, "blade", "gun"); err != nil {
+		return err
+	}
+
+	if err := validateEnum("ship", b.Ship, "scout", "free_trader"); err != nil {
+		return err
+	}
+
+	return validateBenefitAlteration(b)
+}
+
+// validateEnum accepts the empty string (field absent) or a listed value.
+func validateEnum(label, v string, allowed ...string) error {
+	if v == "" || slices.Contains(allowed, v) {
+		return nil
+	}
+
+	return fmt.Errorf("%w: %s %q", ErrInvalidData, label, v)
+}
+
+func validateBenefitAlteration(b Benefit) error {
+	if b.Characteristic == "" {
+		if b.Delta != 0 {
+			return fmt.Errorf("%w: delta without a characteristic", ErrInvalidData)
+		}
+
+		return nil
+	}
+
+	if !validCharacteristic(b.Characteristic) || b.Delta < 1 || b.Delta > 2 {
+		return fmt.Errorf("%w: alteration %s %+d", ErrInvalidData, b.Characteristic, b.Delta)
+	}
+
+	return nil
 }
 
 func validateAutoSkills(svc *Service) error {

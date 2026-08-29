@@ -37,7 +37,75 @@ func Sheet(c *chargen.Character) string {
 		fmt.Fprintf(&b, "%s\n", strings.Join(parts, ", "))
 	}
 
+	if lines := possessions(c); len(lines) > 0 {
+		b.WriteString("\n## Possessions\n\n")
+
+		for _, line := range lines {
+			fmt.Fprintf(&b, "- %s\n", line)
+		}
+	}
+
 	return b.String()
+}
+
+func possessions(c *chargen.Character) []string {
+	var lines []string
+
+	if c.Benefits.Cash > 0 {
+		lines = append(lines, fmt.Sprintf("CR %d", c.Benefits.Cash))
+	}
+
+	lines = append(lines, passageLines(c.Benefits.Passages)...)
+
+	for _, w := range c.Benefits.Weapons {
+		lines = append(lines, w+" (weapon)")
+	}
+
+	if c.Benefits.TravellersAid {
+		lines = append(lines, "Travellers' Aid Society membership")
+	}
+
+	if ship := c.Benefits.Ship; ship != nil {
+		if ship.ConstructivePossession {
+			lines = append(lines, ship.Class+", constructive possession")
+		} else {
+			lines = append(lines, fmt.Sprintf("%s, %d years old, %d years of payments remaining",
+				ship.Class, ship.AgeYears, ship.PaymentYearsRemaining))
+		}
+	}
+
+	if c.RetirementPay > 0 {
+		lines = append(lines, fmt.Sprintf("Retirement pay: CR %d per year", c.RetirementPay))
+	}
+
+	if c.Title != nil && c.Title.Assumed {
+		lines = append(lines, "Hereditary title: "+c.Title.Title)
+	}
+
+	return lines
+}
+
+func passageLines(p chargen.Passages) []string {
+	var lines []string
+
+	classes := []struct {
+		count int
+		name  string
+	}{
+		{p.High, "high passage"},
+		{p.Middle, "middle passage"},
+		{p.Low, "low passage"},
+	}
+	for _, class := range classes {
+		switch {
+		case class.count == 1:
+			lines = append(lines, "1 "+class.name)
+		case class.count > 1:
+			lines = append(lines, fmt.Sprintf("%d %ss", class.count, class.name))
+		}
+	}
+
+	return lines
 }
 
 func statusLine(c *chargen.Character) string {

@@ -13,6 +13,20 @@
   "reenlist": { "target": "5+", "dms": [] },
   "ranks": [],
   "auto_skills": [],
+  "retirement_pay": false,
+  "muster": {
+    "page": 9,
+    "benefits": [
+      { "passage": "low" },
+      { "characteristic": "intelligence", "delta": 1 },
+      { "characteristic": "education", "delta": 1 },
+      { "weapon": "gun" },
+      { "passage": "high" },
+      {},
+      {}
+    ],
+    "cash": [1000, 5000, 10000, 10000, 10000, 50000, 100000]
+  },
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

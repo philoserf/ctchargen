@@ -5,61 +5,78 @@
   "policy_version": "3",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
-    "seed": 3
+    "seed": 8
   },
   "inputs": {
     "auto": true,
     "name": "",
-    "service": "navy"
+    "service": "scouts"
   },
   "errata": [
     "E001",
     "E002",
-    "E005"
+    "E004",
+    "E005",
+    "E007",
+    "E006"
   ],
   "name": "",
-  "age": 34,
+  "age": 42,
   "age_months": 0,
-  "terms": 4,
-  "service": "Navy",
+  "terms": 6,
+  "service": "Scouts",
   "drafted": false,
   "rank": 0,
   "characteristics": {
-    "strength": 5,
-    "dexterity": 4,
-    "endurance": 5,
-    "intelligence": 9,
-    "education": 9,
-    "social_standing": 4
+    "strength": 0,
+    "dexterity": 9,
+    "endurance": 11,
+    "intelligence": 7,
+    "education": 8,
+    "social_standing": 7
   },
-  "upp": "545994",
+  "upp": "09B787",
   "skills": [
     {
-      "name": "Forward Observer",
+      "name": "Pilot",
+      "level": 1
+    },
+    {
+      "name": "Jack-of-all-Trades",
       "level": 2
     },
     {
-      "name": "Body Pistol",
-      "level": 2,
-      "category": "gun"
+      "name": "Navigation",
+      "level": 1
     },
     {
-      "name": "Dagger",
-      "level": 1,
-      "category": "blade"
+      "name": "Air/Raft",
+      "level": 1
+    },
+    {
+      "name": "Mechanical",
+      "level": 2
+    },
+    {
+      "name": "Vacc Suit",
+      "level": 1
     }
   ],
   "benefits": {
-    "cash": 31000,
+    "cash": 0,
     "passages": {
       "high": 0,
       "middle": 0,
-      "low": 1
+      "low": 0
     },
     "travellers_aid": false,
     "weapons": null
   },
   "retirement_pay": 0,
+  "death": {
+    "term": 6,
+    "cause": "medical crisis: failed the 8+ saving throw after strength fell to zero"
+  },
   "events": [
     {
       "seq": 1,
@@ -73,10 +90,10 @@
       "step": "characteristics",
       "label": "strength",
       "dice": [
-        2,
-        3
+        1,
+        2
       ],
-      "total": 5
+      "total": 3
     },
     {
       "seq": 3,
@@ -84,10 +101,10 @@
       "step": "characteristics",
       "label": "dexterity",
       "dice": [
-        1,
+        5,
         4
       ],
-      "total": 5
+      "total": 9
     },
     {
       "seq": 4,
@@ -95,10 +112,10 @@
       "step": "characteristics",
       "label": "endurance",
       "dice": [
-        4,
-        2
+        6,
+        6
       ],
-      "total": 6
+      "total": 12
     },
     {
       "seq": 5,
@@ -106,10 +123,10 @@
       "step": "characteristics",
       "label": "intelligence",
       "dice": [
-        6,
-        3
+        1,
+        6
       ],
-      "total": 9
+      "total": 7
     },
     {
       "seq": 6,
@@ -117,10 +134,10 @@
       "step": "characteristics",
       "label": "education",
       "dice": [
-        6,
-        3
+        4,
+        4
       ],
-      "total": 9
+      "total": 8
     },
     {
       "seq": 7,
@@ -128,16 +145,16 @@
       "step": "characteristics",
       "label": "social_standing",
       "dice": [
-        1,
-        3
+        3,
+        4
       ],
-      "total": 4
+      "total": 7
     },
     {
       "seq": 8,
       "kind": "outcome",
       "step": "characteristics",
-      "text": "UPP 556994 (p. 8)"
+      "text": "UPP 39C787 (p. 8)"
     },
     {
       "seq": 9,
@@ -149,97 +166,67 @@
       "seq": 10,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "enlistment attempt forced to navy by input, not choice"
+      "text": "enlistment attempt forced to scouts by input, not choice"
     },
     {
       "seq": 11,
       "kind": "throw",
       "step": "enlistment",
-      "label": "enlistment Navy",
+      "label": "enlistment Scouts",
       "dice": [
         5,
-        2
+        5
       ],
       "dms": [
         {
-          "source": "intelligence 8+",
+          "source": "intelligence 6+",
           "value": 1
-        },
-        {
-          "source": "education 9+",
-          "value": 2
         }
       ],
-      "target": "8+",
-      "total": 10,
+      "target": "7+",
+      "total": 11,
       "success": true
     },
     {
       "seq": 12,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "enlisted in the Navy",
+      "text": "enlisted in the Scouts",
       "ref": 11
     },
     {
       "seq": 13,
+      "kind": "outcome",
+      "step": "enlistment",
+      "text": "Pilot-1, rank and service skills (p. 23; E004)"
+    },
+    {
+      "seq": 14,
       "kind": "step",
       "step": "term-1",
       "text": "term 1 begins, age 18"
     },
     {
-      "seq": 14,
+      "seq": 15,
       "kind": "throw",
       "step": "term-1",
       "label": "survival",
       "dice": [
-        6,
+        5,
         6
       ],
       "dms": [
         {
-          "source": "intelligence 7+",
+          "source": "endurance 9+",
           "value": 2
         }
       ],
-      "target": "5+",
-      "total": 14,
+      "target": "7+",
+      "total": 13,
       "success": true
     },
     {
-      "seq": 15,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "commission-attempt",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
       "seq": 16,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "commission",
-      "dice": [
-        2,
-        6
-      ],
-      "target": "10+",
-      "total": 8,
-      "success": false
-    },
-    {
-      "seq": 17,
-      "kind": "outcome",
-      "step": "term-1",
-      "text": "commission denied this term (one attempt per term until successful, p. 5)",
-      "ref": 16
-    },
-    {
-      "seq": 18,
       "kind": "choice",
       "step": "term-1",
       "label": "skill-table",
@@ -253,7 +240,38 @@
       "picked": "service_skills"
     },
     {
+      "seq": 17,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "skill table service_skills",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 18,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "Jack-of-all-Trades-1",
+      "ref": 17
+    },
+    {
       "seq": 19,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 20,
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
@@ -263,65 +281,14 @@
       "total": 3
     },
     {
-      "seq": 20,
+      "seq": 21,
       "kind": "outcome",
       "step": "term-1",
-      "text": "Forward Observer-1",
-      "ref": 19
-    },
-    {
-      "seq": 21,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
+      "text": "Navigation-1",
+      "ref": 20
     },
     {
       "seq": 22,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "skill table service_skills",
-      "dice": [
-        5
-      ],
-      "total": 5
-    },
-    {
-      "seq": 23,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Body Pistol",
-        "Automatic Pistol",
-        "Revolver",
-        "Carbine",
-        "Rifle",
-        "Laser Carbine",
-        "Laser Rifle",
-        "Automatic Rifle",
-        "Submachine Gun",
-        "Shotgun"
-      ],
-      "picked": "Body Pistol"
-    },
-    {
-      "seq": 24,
-      "kind": "outcome",
-      "step": "term-1",
-      "text": "gun expertise: Body Pistol-1 (weapon chosen immediately, pp. 11-13)",
-      "ref": 22
-    },
-    {
-      "seq": 25,
       "kind": "choice",
       "step": "term-1",
       "label": "reenlist-intent",
@@ -333,55 +300,86 @@
       "picked": "yes"
     },
     {
-      "seq": 26,
+      "seq": 23,
       "kind": "throw",
       "step": "term-1",
       "label": "reenlistment",
       "dice": [
         5,
-        5
+        1
       ],
-      "target": "6+",
-      "total": 10,
+      "target": "3+",
+      "total": 6,
       "success": true
     },
     {
-      "seq": 27,
+      "seq": 24,
       "kind": "outcome",
       "step": "term-1",
       "text": "reenlists for another term",
-      "ref": 26
+      "ref": 23
     },
     {
-      "seq": 28,
+      "seq": 25,
       "kind": "step",
       "step": "term-2",
       "text": "term 2 begins, age 22"
     },
     {
-      "seq": 29,
+      "seq": 26,
       "kind": "throw",
       "step": "term-2",
       "label": "survival",
       "dice": [
-        2,
+        4,
         2
       ],
       "dms": [
         {
-          "source": "intelligence 7+",
+          "source": "endurance 9+",
           "value": 2
         }
       ],
-      "target": "5+",
-      "total": 6,
+      "target": "7+",
+      "total": 8,
       "success": true
+    },
+    {
+      "seq": 27,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 28,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        1
+      ],
+      "total": 1
+    },
+    {
+      "seq": 29,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "Air/Raft-1",
+      "ref": 28
     },
     {
       "seq": 30,
       "kind": "choice",
       "step": "term-2",
-      "label": "commission-attempt",
+      "label": "reenlist-intent",
       "by": "policy",
       "options": [
         "yes",
@@ -393,144 +391,49 @@
       "seq": 31,
       "kind": "throw",
       "step": "term-2",
-      "label": "commission",
+      "label": "reenlistment",
       "dice": [
-        6,
-        1
+        3,
+        4
       ],
-      "target": "10+",
+      "target": "3+",
       "total": 7,
-      "success": false
+      "success": true
     },
     {
       "seq": 32,
       "kind": "outcome",
       "step": "term-2",
-      "text": "commission denied this term (one attempt per term until successful, p. 5)",
+      "text": "reenlists for another term",
       "ref": 31
     },
     {
       "seq": 33,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 34,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "skill table service_skills",
-      "dice": [
-        3
-      ],
-      "total": 3
-    },
-    {
-      "seq": 35,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "Forward Observer-2",
-      "ref": 34
-    },
-    {
-      "seq": 36,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
-      "seq": 37,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "reenlistment",
-      "dice": [
-        4,
-        3
-      ],
-      "target": "6+",
-      "total": 7,
-      "success": true
-    },
-    {
-      "seq": 38,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "reenlists for another term",
-      "ref": 37
-    },
-    {
-      "seq": 39,
       "kind": "step",
       "step": "term-3",
       "text": "term 3 begins, age 26"
     },
     {
-      "seq": 40,
+      "seq": 34,
       "kind": "throw",
       "step": "term-3",
       "label": "survival",
       "dice": [
-        1,
-        5
+        4,
+        6
       ],
       "dms": [
         {
-          "source": "intelligence 7+",
+          "source": "endurance 9+",
           "value": 2
         }
       ],
-      "target": "5+",
-      "total": 8,
+      "target": "7+",
+      "total": 12,
       "success": true
     },
     {
-      "seq": 41,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "commission-attempt",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
-      "seq": 42,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "commission",
-      "dice": [
-        2,
-        5
-      ],
-      "target": "10+",
-      "total": 7,
-      "success": false
-    },
-    {
-      "seq": 43,
-      "kind": "outcome",
-      "step": "term-3",
-      "text": "commission denied this term (one attempt per term until successful, p. 5)",
-      "ref": 42
-    },
-    {
-      "seq": 44,
+      "seq": 35,
       "kind": "choice",
       "step": "term-3",
       "label": "skill-table",
@@ -544,44 +447,24 @@
       "picked": "service_skills"
     },
     {
-      "seq": 45,
+      "seq": 36,
       "kind": "throw",
       "step": "term-3",
       "label": "skill table service_skills",
       "dice": [
-        5
+        4
       ],
-      "total": 5
+      "total": 4
     },
     {
-      "seq": 46,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Body Pistol",
-        "Automatic Pistol",
-        "Revolver",
-        "Carbine",
-        "Rifle",
-        "Laser Carbine",
-        "Laser Rifle",
-        "Automatic Rifle",
-        "Submachine Gun",
-        "Shotgun"
-      ],
-      "picked": "Body Pistol"
-    },
-    {
-      "seq": 47,
+      "seq": 37,
       "kind": "outcome",
       "step": "term-3",
-      "text": "gun expertise: Body Pistol-2 (weapon chosen immediately, pp. 11-13)",
-      "ref": 45
+      "text": "Mechanical-1",
+      "ref": 36
     },
     {
-      "seq": 48,
+      "seq": 38,
       "kind": "choice",
       "step": "term-3",
       "label": "reenlist-intent",
@@ -593,55 +476,86 @@
       "picked": "yes"
     },
     {
-      "seq": 49,
+      "seq": 39,
       "kind": "throw",
       "step": "term-3",
       "label": "reenlistment",
       "dice": [
-        3,
-        3
+        6,
+        4
       ],
-      "target": "6+",
-      "total": 6,
+      "target": "3+",
+      "total": 10,
       "success": true
     },
     {
-      "seq": 50,
+      "seq": 40,
       "kind": "outcome",
       "step": "term-3",
       "text": "reenlists for another term",
-      "ref": 49
+      "ref": 39
     },
     {
-      "seq": 51,
+      "seq": 41,
       "kind": "step",
       "step": "term-4",
       "text": "term 4 begins, age 30"
     },
     {
-      "seq": 52,
+      "seq": 42,
       "kind": "throw",
       "step": "term-4",
       "label": "survival",
       "dice": [
-        2,
-        4
+        4,
+        6
       ],
       "dms": [
         {
-          "source": "intelligence 7+",
+          "source": "endurance 9+",
           "value": 2
         }
       ],
-      "target": "5+",
-      "total": 8,
+      "target": "7+",
+      "total": 12,
       "success": true
     },
     {
-      "seq": 53,
+      "seq": 43,
       "kind": "choice",
       "step": "term-4",
-      "label": "commission-attempt",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 44,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "skill table service_skills",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 45,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "Vacc Suit-1",
+      "ref": 44
+    },
+    {
+      "seq": 46,
+      "kind": "choice",
+      "step": "term-4",
+      "label": "reenlist-intent",
       "by": "policy",
       "options": [
         "yes",
@@ -650,29 +564,106 @@
       "picked": "yes"
     },
     {
-      "seq": 54,
+      "seq": 47,
       "kind": "throw",
       "step": "term-4",
-      "label": "commission",
+      "label": "reenlistment",
       "dice": [
-        2,
-        1
+        1,
+        5
       ],
-      "target": "10+",
-      "total": 3,
+      "target": "3+",
+      "total": 6,
+      "success": true
+    },
+    {
+      "seq": 48,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "reenlists for another term",
+      "ref": 47
+    },
+    {
+      "seq": 49,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "aging: turning 34 (pp. 7, 9; E005)"
+    },
+    {
+      "seq": 50,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging strength save",
+      "dice": [
+        3,
+        3
+      ],
+      "target": "8+",
+      "total": 6,
       "success": false
     },
     {
-      "seq": 55,
+      "seq": 51,
       "kind": "outcome",
       "step": "term-4",
-      "text": "commission denied this term (one attempt per term until successful, p. 5)",
-      "ref": 54
+      "text": "-1 strength (3 → 2), aging (p. 9)",
+      "ref": 50
+    },
+    {
+      "seq": 52,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging dexterity save",
+      "dice": [
+        5,
+        6
+      ],
+      "target": "7+",
+      "total": 11,
+      "success": true
+    },
+    {
+      "seq": 53,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "aging endurance save",
+      "dice": [
+        4,
+        5
+      ],
+      "target": "8+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 54,
+      "kind": "step",
+      "step": "term-5",
+      "text": "term 5 begins, age 34"
+    },
+    {
+      "seq": 55,
+      "kind": "throw",
+      "step": "term-5",
+      "label": "survival",
+      "dice": [
+        3,
+        3
+      ],
+      "dms": [
+        {
+          "source": "endurance 9+",
+          "value": 2
+        }
+      ],
+      "target": "7+",
+      "total": 8,
+      "success": true
     },
     {
       "seq": 56,
       "kind": "choice",
-      "step": "term-4",
+      "step": "term-5",
       "label": "skill-table",
       "by": "policy",
       "options": [
@@ -686,7 +677,7 @@
     {
       "seq": 57,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-5",
       "label": "skill table service_skills",
       "dice": [
         4
@@ -695,36 +686,15 @@
     },
     {
       "seq": 58,
-      "kind": "choice",
-      "step": "term-4",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Dagger",
-        "Blade",
-        "Foil",
-        "Cutlass",
-        "Sword",
-        "Broadsword",
-        "Spear",
-        "Halberd",
-        "Pike",
-        "Cudgel",
-        "Bayonet"
-      ],
-      "picked": "Dagger"
-    },
-    {
-      "seq": 59,
       "kind": "outcome",
-      "step": "term-4",
-      "text": "blade expertise: Dagger-1 (weapon chosen immediately, pp. 11-13)",
+      "step": "term-5",
+      "text": "Mechanical-2",
       "ref": 57
     },
     {
-      "seq": 60,
+      "seq": 59,
       "kind": "choice",
-      "step": "term-4",
+      "step": "term-5",
       "label": "reenlist-intent",
       "by": "policy",
       "options": [
@@ -734,210 +704,223 @@
       "picked": "yes"
     },
     {
-      "seq": 61,
+      "seq": 60,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-5",
       "label": "reenlistment",
       "dice": [
-        1,
-        4
+        2,
+        2
       ],
-      "target": "6+",
-      "total": 5,
-      "success": false
+      "target": "3+",
+      "total": 4,
+      "success": true
+    },
+    {
+      "seq": 61,
+      "kind": "outcome",
+      "step": "term-5",
+      "text": "reenlists for another term",
+      "ref": 60
     },
     {
       "seq": 62,
       "kind": "outcome",
-      "step": "term-4",
-      "text": "reenlistment denied; must leave the service (p. 6)",
-      "ref": 61
+      "step": "term-5",
+      "text": "aging: turning 38 (pp. 7, 9; E005)"
     },
     {
       "seq": 63,
-      "kind": "outcome",
-      "step": "term-4",
-      "text": "aging: turning 34 (pp. 7, 9; E005)"
+      "kind": "throw",
+      "step": "term-5",
+      "label": "aging strength save",
+      "dice": [
+        2,
+        5
+      ],
+      "target": "8+",
+      "total": 7,
+      "success": false
     },
     {
       "seq": 64,
-      "kind": "throw",
-      "step": "term-4",
-      "label": "aging strength save",
-      "dice": [
-        4,
-        6
-      ],
-      "target": "8+",
-      "total": 10,
-      "success": true
+      "kind": "outcome",
+      "step": "term-5",
+      "text": "-1 strength (2 → 1), aging (p. 9)",
+      "ref": 63
     },
     {
       "seq": 65,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-5",
       "label": "aging dexterity save",
       "dice": [
         5,
-        1
+        3
       ],
       "target": "7+",
-      "total": 6,
-      "success": false
+      "total": 8,
+      "success": true
     },
     {
       "seq": 66,
-      "kind": "outcome",
-      "step": "term-4",
-      "text": "-1 dexterity (5 → 4), aging (p. 9)",
-      "ref": 65
-    },
-    {
-      "seq": 67,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-5",
       "label": "aging endurance save",
       "dice": [
-        2,
-        4
+        5,
+        1
       ],
       "target": "8+",
       "total": 6,
       "success": false
     },
     {
-      "seq": 68,
+      "seq": 67,
       "kind": "outcome",
-      "step": "term-4",
-      "text": "-1 endurance (6 → 5), aging (p. 9)",
-      "ref": 67
+      "step": "term-5",
+      "text": "-1 endurance (12 → 11), aging (p. 9)",
+      "ref": 66
+    },
+    {
+      "seq": 68,
+      "kind": "step",
+      "step": "term-6",
+      "text": "term 6 begins, age 38"
     },
     {
       "seq": 69,
-      "kind": "outcome",
-      "step": "term-4",
-      "text": "leaves the service after 4 term(s), age 34"
+      "kind": "throw",
+      "step": "term-6",
+      "label": "survival",
+      "dice": [
+        3,
+        2
+      ],
+      "dms": [
+        {
+          "source": "endurance 9+",
+          "value": 2
+        }
+      ],
+      "target": "7+",
+      "total": 7,
+      "success": true
     },
     {
       "seq": 70,
-      "kind": "step",
-      "step": "muster-out",
-      "text": "mustering out: 4 rolls (4 terms + 0 for rank), at most 3 on the cash table (pp. 7, 9)"
+      "kind": "choice",
+      "step": "term-6",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
     },
     {
       "seq": 71,
-      "kind": "choice",
-      "step": "muster-out",
-      "label": "muster-table",
-      "by": "policy",
-      "options": [
-        "benefits",
-        "cash"
+      "kind": "throw",
+      "step": "term-6",
+      "label": "skill table service_skills",
+      "dice": [
+        6
       ],
-      "picked": "cash"
+      "total": 6
     },
     {
       "seq": 72,
-      "kind": "throw",
-      "step": "muster-out",
-      "label": "cash table",
-      "dice": [
-        1
-      ],
-      "total": 1
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "Jack-of-all-Trades-2",
+      "ref": 71
     },
     {
       "seq": 73,
-      "kind": "outcome",
-      "step": "muster-out",
-      "text": "CR 1000 cash (Table 2 row 1; p. 9)",
-      "ref": 72
+      "kind": "choice",
+      "step": "term-6",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
     },
     {
       "seq": 74,
-      "kind": "choice",
-      "step": "muster-out",
-      "label": "muster-table",
-      "by": "policy",
-      "options": [
-        "benefits",
-        "cash"
+      "kind": "throw",
+      "step": "term-6",
+      "label": "reenlistment",
+      "dice": [
+        5,
+        6
       ],
-      "picked": "cash"
+      "target": "3+",
+      "total": 11,
+      "success": true
     },
     {
       "seq": 75,
-      "kind": "throw",
-      "step": "muster-out",
-      "label": "cash table",
-      "dice": [
-        5
-      ],
-      "total": 5
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "reenlists for another term",
+      "ref": 74
     },
     {
       "seq": 76,
       "kind": "outcome",
-      "step": "muster-out",
-      "text": "CR 20000 cash (Table 2 row 5; p. 9)",
-      "ref": 75
+      "step": "term-6",
+      "text": "aging: turning 42 (pp. 7, 9; E005)"
     },
     {
       "seq": 77,
-      "kind": "choice",
-      "step": "muster-out",
-      "label": "muster-table",
-      "by": "policy",
-      "options": [
-        "benefits",
-        "cash"
+      "kind": "throw",
+      "step": "term-6",
+      "label": "aging strength save",
+      "dice": [
+        2,
+        2
       ],
-      "picked": "cash"
+      "target": "8+",
+      "total": 4,
+      "success": false
     },
     {
       "seq": 78,
-      "kind": "throw",
-      "step": "muster-out",
-      "label": "cash table",
-      "dice": [
-        4
-      ],
-      "total": 4
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "-1 strength (1 → 0), aging (p. 9)",
+      "ref": 77
     },
     {
       "seq": 79,
       "kind": "outcome",
-      "step": "muster-out",
-      "text": "CR 10000 cash (Table 2 row 4; p. 9)",
-      "ref": 78
+      "step": "term-6",
+      "text": "strength reduced to zero: medical crisis (pp. 7-8)"
     },
     {
       "seq": 80,
-      "kind": "choice",
-      "step": "muster-out",
-      "label": "muster-table",
-      "by": "policy",
-      "options": [
-        "benefits"
+      "kind": "throw",
+      "step": "term-6",
+      "label": "medical crisis save",
+      "dice": [
+        5,
+        2
       ],
-      "picked": "benefits"
+      "target": "8+",
+      "total": 7,
+      "success": false
     },
     {
       "seq": 81,
-      "kind": "throw",
-      "step": "muster-out",
-      "label": "benefits table",
-      "dice": [
-        1
-      ],
-      "total": 1
-    },
-    {
-      "seq": 82,
       "kind": "outcome",
-      "step": "muster-out",
-      "text": "low passage (CR 1,000, sellable at 90%; pp. 21-22)",
-      "ref": 81
+      "step": "term-6",
+      "text": "died of the medical crisis, term 6 (E006)",
+      "ref": 80
     }
   ]
 }

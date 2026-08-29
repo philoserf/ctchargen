@@ -1,8 +1,8 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
-  "engine_version": "0.2.0",
-  "policy_version": "2",
+  "engine_version": "0.3.0",
+  "policy_version": "3",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
     "seed": 3
@@ -18,6 +18,7 @@
   ],
   "name": "",
   "age": 30,
+  "age_months": 0,
   "terms": 3,
   "service": "Other",
   "drafted": false,
@@ -46,6 +47,17 @@
       "category": "blade"
     }
   ],
+  "benefits": {
+    "cash": 110000,
+    "passages": {
+      "high": 0,
+      "middle": 0,
+      "low": 0
+    },
+    "travellers_aid": false,
+    "weapons": null
+  },
+  "retirement_pay": 0,
   "events": [
     {
       "seq": 1,
@@ -478,6 +490,153 @@
       "kind": "outcome",
       "step": "term-3",
       "text": "leaves the service after 3 term(s), age 30"
+    },
+    {
+      "seq": 42,
+      "kind": "step",
+      "step": "muster-out",
+      "text": "mustering out: 3 rolls (3 terms + 0 for rank), at most 3 on the cash table (pp. 7, 9)"
+    },
+    {
+      "seq": 43,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 44,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "cash-dm",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 45,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        5
+      ],
+      "dms": [
+        {
+          "source": "gambling skill",
+          "value": 1
+        }
+      ],
+      "total": 6
+    },
+    {
+      "seq": 46,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 50000 cash (Table 2 row 6; p. 9)",
+      "ref": 45
+    },
+    {
+      "seq": 47,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 48,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "cash-dm",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 49,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        2
+      ],
+      "dms": [
+        {
+          "source": "gambling skill",
+          "value": 1
+        }
+      ],
+      "total": 3
+    },
+    {
+      "seq": 50,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 10000 cash (Table 2 row 3; p. 9)",
+      "ref": 49
+    },
+    {
+      "seq": 51,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 52,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "cash-dm",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 53,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        5
+      ],
+      "dms": [
+        {
+          "source": "gambling skill",
+          "value": 1
+        }
+      ],
+      "total": 6
+    },
+    {
+      "seq": 54,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 50000 cash (Table 2 row 6; p. 9)",
+      "ref": 53
     }
   ]
 }

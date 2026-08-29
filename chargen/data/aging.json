@@ -1,0 +1,33 @@
+{
+  "page": 9,
+  "rounds": [
+    {
+      "from_age": 34,
+      "through_age": 46,
+      "throws": [
+        { "characteristic": "strength", "loss": 1, "save": "8+" },
+        { "characteristic": "dexterity", "loss": 1, "save": "7+" },
+        { "characteristic": "endurance", "loss": 1, "save": "8+" }
+      ]
+    },
+    {
+      "from_age": 50,
+      "through_age": 62,
+      "throws": [
+        { "characteristic": "strength", "loss": 1, "save": "9+" },
+        { "characteristic": "dexterity", "loss": 1, "save": "8+" },
+        { "characteristic": "endurance", "loss": 1, "save": "9+" }
+      ]
+    },
+    {
+      "from_age": 66,
+      "through_age": 0,
+      "throws": [
+        { "characteristic": "strength", "loss": 2, "save": "9+" },
+        { "characteristic": "dexterity", "loss": 2, "save": "9+" },
+        { "characteristic": "endurance", "loss": 2, "save": "9+" },
+        { "characteristic": "intelligence", "loss": 1, "save": "9+" }
+      ]
+    }
+  ]
+}

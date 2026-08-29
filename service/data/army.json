@@ -35,6 +35,20 @@
     { "rank": 0, "skill": "Rifle", "category": "gun" },
     { "rank": 1, "skill": "Submachine Gun", "category": "gun" }
   ],
+  "retirement_pay": true,
+  "muster": {
+    "page": 9,
+    "benefits": [
+      { "passage": "low" },
+      { "characteristic": "intelligence", "delta": 1 },
+      { "characteristic": "education", "delta": 2 },
+      { "weapon": "gun" },
+      { "passage": "high" },
+      { "passage": "middle" },
+      { "characteristic": "social_standing", "delta": 1 }
+    ],
+    "cash": [2000, 5000, 10000, 10000, 10000, 20000, 30000]
+  },
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

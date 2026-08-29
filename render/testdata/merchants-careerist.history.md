@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 2 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
+Seed 2 (go-math-rand-v2-pcg), engine 0.3.0, policy 3.
 
 ## characteristics
 
@@ -93,4 +93,34 @@ Seed 2 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 - (72) reenlist-intent: chose yes (by policy; options: yes, no)
 - (73) reenlistment: threw 1+1 = 2 against 4+: failure
 - (74) → reenlistment denied; must leave the service (p. 6) [from 73]
-- (75) → leaves the service after 4 term(s), age 34
+- (75) → aging: turning 34 (pp. 7, 9; E005)
+- (76) aging strength save: threw 3+1 = 4 against 8+: failure
+- (77) → -1 strength (10 → 9), aging (p. 9) [from 76]
+- (78) aging dexterity save: threw 4+6 = 10 against 7+: success
+- (79) aging endurance save: threw 3+2 = 5 against 8+: failure
+- (80) → -1 endurance (7 → 6), aging (p. 9) [from 79]
+- (81) → leaves the service after 4 term(s), age 34
+
+## muster-out
+
+- (82) mustering out: 6 rolls (4 terms + 2 for rank), at most 3 on the cash table (pp. 7, 9)
+- (83) muster-table: chose cash (by policy; options: benefits, cash)
+- (84) cash table: threw 6 = 6
+- (85) → CR 40000 cash (Table 2 row 6; p. 9) [from 84]
+- (86) muster-table: chose cash (by policy; options: benefits, cash)
+- (87) cash table: threw 2 = 2
+- (88) → CR 5000 cash (Table 2 row 2; p. 9) [from 87]
+- (89) muster-table: chose cash (by policy; options: benefits, cash)
+- (90) cash table: threw 3 = 3
+- (91) → CR 10000 cash (Table 2 row 3; p. 9) [from 90]
+- (92) muster-table: chose benefits (by policy; options: benefits)
+- (93) benefits table: threw 4 = 4
+- (94) muster-weapon: chose Body Pistol (by policy; options: Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun)
+- (95) → weapon benefit: Body Pistol (type declared immediately; p. 9, p. 22) [from 93]
+- (96) muster-table: chose benefits (by policy; options: benefits)
+- (97) benefits table: threw 3 = 3
+- (98) → +1 education (10 → 11), applied immediately (p. 23) [from 97]
+- (99) muster-table: chose benefits (by policy; options: benefits)
+- (100) benefits table: threw 4 = 4
+- (101) muster-weapon: chose expertise: Body Pistol (by policy; options: Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun, expertise: Body Pistol)
+- (102) → +1 expertise in lieu of another weapon: Body Pistol-4 (p. 22) [from 100]

@@ -1,8 +1,8 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
-  "engine_version": "0.2.0",
-  "policy_version": "2",
+  "engine_version": "0.3.0",
+  "policy_version": "3",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
     "seed": 2
@@ -19,6 +19,7 @@
   ],
   "name": "",
   "age": 30,
+  "age_months": 0,
   "terms": 3,
   "service": "Army",
   "drafted": false,
@@ -59,6 +60,19 @@
       "category": "gun"
     }
   ],
+  "benefits": {
+    "cash": 40000,
+    "passages": {
+      "high": 0,
+      "middle": 0,
+      "low": 1
+    },
+    "travellers_aid": false,
+    "weapons": [
+      "Body Pistol"
+    ]
+  },
+  "retirement_pay": 0,
   "events": [
     {
       "seq": 1,
@@ -911,6 +925,175 @@
       "kind": "outcome",
       "step": "term-3",
       "text": "leaves the service after 3 term(s), age 30"
+    },
+    {
+      "seq": 74,
+      "kind": "step",
+      "step": "muster-out",
+      "text": "mustering out: 5 rolls (3 terms + 2 for rank), at most 3 on the cash table (pp. 7, 9)"
+    },
+    {
+      "seq": 75,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 76,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 77,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 10000 cash (Table 2 row 5; p. 9)",
+      "ref": 76
+    },
+    {
+      "seq": 78,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 79,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 80,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 20000 cash (Table 2 row 6; p. 9)",
+      "ref": 79
+    },
+    {
+      "seq": 81,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits",
+        "cash"
+      ],
+      "picked": "cash"
+    },
+    {
+      "seq": 82,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "cash table",
+      "dice": [
+        3
+      ],
+      "total": 3
+    },
+    {
+      "seq": 83,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "CR 10000 cash (Table 2 row 3; p. 9)",
+      "ref": 82
+    },
+    {
+      "seq": 84,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits"
+      ],
+      "picked": "benefits"
+    },
+    {
+      "seq": 85,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "benefits table",
+      "dice": [
+        4
+      ],
+      "total": 4
+    },
+    {
+      "seq": 86,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-weapon",
+      "by": "policy",
+      "options": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "picked": "Body Pistol"
+    },
+    {
+      "seq": 87,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "weapon benefit: Body Pistol (type declared immediately; p. 9, p. 22)",
+      "ref": 85
+    },
+    {
+      "seq": 88,
+      "kind": "choice",
+      "step": "muster-out",
+      "label": "muster-table",
+      "by": "policy",
+      "options": [
+        "benefits"
+      ],
+      "picked": "benefits"
+    },
+    {
+      "seq": 89,
+      "kind": "throw",
+      "step": "muster-out",
+      "label": "benefits table",
+      "dice": [
+        1
+      ],
+      "total": 1
+    },
+    {
+      "seq": 90,
+      "kind": "outcome",
+      "step": "muster-out",
+      "text": "low passage (CR 1,000, sellable at 90%; pp. 21-22)",
+      "ref": 89
     }
   ]
 }

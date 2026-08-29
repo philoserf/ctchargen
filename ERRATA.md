@@ -41,6 +41,40 @@ rank-specific entries accrue **on attaining the rank**; each entry
 accrues once, adding to expertise levels in the normal manner as the box
 says. Stamped on records that received any such grant.
 
+## E005 — Aging's position in the per-term dice stream (pp. 7, 9)
+
+Aging strikes "when a character turns 34 (… at the end of the 4th term of
+service)" and each 4 years after, but the book never fixes where the
+throws sit relative to the reenlistment throw — and stream order is
+load-bearing for replay. The reading: aging rounds are made at the very
+end of the term, after the reenlistment throw, saving throws in the Aging
+Table's row order (strength, dexterity, endurance, intelligence). Applied
+per term as the ages are crossed, never batched at muster out — the
+Jamison example batches "for simplicity" and says so (p. 25). Stamped on
+records that made any aging throw.
+
+## E006 — The failed medical-crisis saving throw (pp. 7–8)
+
+P. 7–8 state what happens on a successful 8+ saving throw (immediate
+recovery to 1, plus 1D months of age) and on absent medical care
+(incapacitation for the rolled months), but never state the failed
+throw's outcome. The reading: the character does not survive — death,
+recorded with term and cause. Stamped on records with a medical-crisis
+death.
+
+## E007 — The medical-expertise DM has no referent (p. 7)
+
+The crisis saving throw "may be modified by the expertise of attending
+medical personnel," but solo generation has no attending physician: no DM
+applies. Stamped on records that made any crisis saving throw.
+
+## Noted discrepancy (not stamped): the Jamison example's merchant muster rolls (pp. 9, 25)
+
+Jamison's Table 1 rolls read row 6 as "+1 education" and row 3 as "one
+middle passage," but the p. 9 Merchant column prints row 6 as a low
+passage and row 3 as +1 education (middle passage appears nowhere in the
+Merchant column). The held table governs; the example is illustration.
+
 ## Normalizations (not stamped)
 
 Spelling is normalized to the skill descriptions' own names (pp. 13–20),
