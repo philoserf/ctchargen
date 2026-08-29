@@ -37,16 +37,23 @@ func TestGoldenRenders(t *testing.T) {
 	fixtures := []struct {
 		name    string
 		seed    uint64
+		service string
 		auto    bool
 		decider chargen.Decider
 	}{
-		{"other-careerist", 3, true, chargen.AutoPolicy{}},
-		{"death-in-service", 5, true, chargen.AutoPolicy{}},
-		{"civilian-declined-draft", 175, false, declineDecider{}},
+		{"navy-careerist", 3, "navy", true, chargen.AutoPolicy{}},
+		{"marines-careerist", 8, "marines", true, chargen.AutoPolicy{}},
+		{"army-careerist", 2, "army", true, chargen.AutoPolicy{}},
+		{"scouts-careerist", 34, "scouts", true, chargen.AutoPolicy{}},
+		{"merchants-careerist", 2, "merchants", true, chargen.AutoPolicy{}},
+		{"other-careerist", 3, "other", true, chargen.AutoPolicy{}},
+		{"draftee", 7, "", true, chargen.AutoPolicy{}},
+		{"death-in-service", 2, "", true, chargen.AutoPolicy{}},
+		{"civilian-declined-draft", 1, "", false, declineDecider{}},
 	}
 
 	for _, f := range fixtures {
-		char, err := chargen.Generate(chargen.Config{Seed: f.seed, Auto: f.auto}, f.decider)
+		char, err := chargen.Generate(chargen.Config{Seed: f.seed, Service: f.service, Auto: f.auto}, f.decider)
 		if err != nil {
 			t.Fatalf("Generate(%s): %v", f.name, err)
 		}

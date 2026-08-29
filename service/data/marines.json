@@ -1,0 +1,72 @@
+{
+  "name": "Marines",
+  "prior_service_page": 10,
+  "skills_page": 11,
+  "enlistment": {
+    "target": "9+",
+    "dms": [
+      { "characteristic": "intelligence", "min": 8, "dm": 1 },
+      { "characteristic": "strength", "min": 8, "dm": 2 }
+    ]
+  },
+  "draft_number": 2,
+  "survival": {
+    "target": "6+",
+    "dms": [{ "characteristic": "endurance", "min": 8, "dm": 2 }]
+  },
+  "commission": {
+    "target": "9+",
+    "dms": [{ "characteristic": "education", "min": 7, "dm": 1 }]
+  },
+  "promotion": {
+    "target": "9+",
+    "dms": [{ "characteristic": "social_standing", "min": 8, "dm": 1 }]
+  },
+  "reenlist": { "target": "6+", "dms": [] },
+  "ranks": [
+    "Lieutenant",
+    "Captain",
+    "Force Cmdr",
+    "Lt Colonel",
+    "Colonel",
+    "Brigadier"
+  ],
+  "auto_skills": [
+    { "rank": 0, "skill": "Cutlass", "category": "blade" },
+    { "rank": 1, "skill": "Revolver", "category": "gun" }
+  ],
+  "skills": {
+    "personal_development": [
+      { "characteristic": "strength", "delta": 1 },
+      { "characteristic": "dexterity", "delta": 1 },
+      { "characteristic": "endurance", "delta": 1 },
+      { "skill": "Gambling" },
+      { "skill": "Brawling" },
+      { "weapon": "blade" }
+    ],
+    "service_skills": [
+      { "skill": "ATV" },
+      { "skill": "Vacc Suit" },
+      { "weapon": "blade" },
+      { "weapon": "blade" },
+      { "weapon": "gun" },
+      { "weapon": "gun" }
+    ],
+    "advanced_education": [
+      { "skill": "ATV" },
+      { "skill": "Mechanical" },
+      { "skill": "Electronic" },
+      { "skill": "Tactics" },
+      { "weapon": "blade" },
+      { "weapon": "gun" }
+    ],
+    "advanced_education_8": [
+      { "skill": "Medical" },
+      { "skill": "Tactics" },
+      { "skill": "Tactics" },
+      { "skill": "Computer" },
+      { "skill": "Leader" },
+      { "skill": "Administration" }
+    ]
+  }
+}

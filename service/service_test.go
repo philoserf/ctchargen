@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/philoserf/ctchargen/service"
@@ -12,8 +13,17 @@ func TestLoadValidates(t *testing.T) {
 		t.Fatalf("Load() error: %v", err)
 	}
 
-	if got := reg.Names(); len(got) == 0 {
-		t.Fatal("Load() produced no services")
+	// All six services, in the book's order (p. 5, p. 10).
+	want := []string{"Navy", "Marines", "Army", "Scouts", "Merchants", "Other"}
+	if got := reg.Names(); !slices.Equal(got, want) {
+		t.Fatalf("Names() = %v, want %v", got, want)
+	}
+
+	// Every draft number resolves (p. 5: the draft can land anywhere).
+	for n := 1; n <= 6; n++ {
+		if _, err := reg.ByDraftNumber(n); err != nil {
+			t.Errorf("ByDraftNumber(%d): %v", n, err)
+		}
 	}
 }
 

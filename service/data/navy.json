@@ -1,0 +1,72 @@
+{
+  "name": "Navy",
+  "prior_service_page": 10,
+  "skills_page": 11,
+  "enlistment": {
+    "target": "8+",
+    "dms": [
+      { "characteristic": "intelligence", "min": 8, "dm": 1 },
+      { "characteristic": "education", "min": 9, "dm": 2 }
+    ]
+  },
+  "draft_number": 1,
+  "survival": {
+    "target": "5+",
+    "dms": [{ "characteristic": "intelligence", "min": 7, "dm": 2 }]
+  },
+  "commission": {
+    "target": "10+",
+    "dms": [{ "characteristic": "social_standing", "min": 9, "dm": 1 }]
+  },
+  "promotion": {
+    "target": "8+",
+    "dms": [{ "characteristic": "education", "min": 8, "dm": 1 }]
+  },
+  "reenlist": { "target": "6+", "dms": [] },
+  "ranks": [
+    "Ensign",
+    "Lieutenant",
+    "Lt Cmdr",
+    "Commander",
+    "Captain",
+    "Admiral"
+  ],
+  "auto_skills": [
+    { "rank": 5, "characteristic": "social_standing", "delta": 1 },
+    { "rank": 6, "characteristic": "social_standing", "delta": 1 }
+  ],
+  "skills": {
+    "personal_development": [
+      { "characteristic": "strength", "delta": 1 },
+      { "characteristic": "dexterity", "delta": 1 },
+      { "characteristic": "endurance", "delta": 1 },
+      { "characteristic": "social_standing", "delta": 1 },
+      { "characteristic": "intelligence", "delta": 1 },
+      { "characteristic": "education", "delta": 1 }
+    ],
+    "service_skills": [
+      { "skill": "Ship's Boat" },
+      { "skill": "Vacc Suit" },
+      { "skill": "Forward Observer" },
+      { "weapon": "blade" },
+      { "weapon": "gun" },
+      { "skill": "Gunnery" }
+    ],
+    "advanced_education": [
+      { "skill": "Vacc Suit" },
+      { "skill": "Mechanical" },
+      { "skill": "Electronic" },
+      { "skill": "Engineer" },
+      { "skill": "Gunnery" },
+      { "skill": "Jack-of-all-Trades" }
+    ],
+    "advanced_education_8": [
+      { "skill": "Medical" },
+      { "skill": "Navigation" },
+      { "skill": "Engineer" },
+      { "skill": "Computer" },
+      { "skill": "Pilot" },
+      { "skill": "Administration" }
+    ]
+  }
+}

@@ -35,27 +35,36 @@ func (declineDecider) Decide(c chargen.Choice) (chargen.Decision, error) {
 	return d, nil
 }
 
-// Fixtures shared with the render package's goldens: name, seed, and how
-// the choices are made.
+// Fixtures shared with the render package's goldens: name, seed, forced
+// service, and how the choices are made. One careerist per service (via
+// --service force), a draftee into a commissioned service (the first-term
+// commission bar, p. 5), a death, and a civilian who declined the draft.
 type fixture struct {
 	Name    string
 	Seed    uint64
+	Service string
 	Auto    bool
 	Decider chargen.Decider
 }
 
 func fixtures() []fixture {
 	return []fixture{
-		{Name: "other-careerist", Seed: 3, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "death-in-service", Seed: 5, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "civilian-declined-draft", Seed: 175, Auto: false, Decider: declineDecider{}},
+		{Name: "navy-careerist", Seed: 3, Service: "navy", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "marines-careerist", Seed: 8, Service: "marines", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "army-careerist", Seed: 2, Service: "army", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "scouts-careerist", Seed: 34, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "merchants-careerist", Seed: 2, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "other-careerist", Seed: 3, Service: "other", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "draftee", Seed: 7, Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "death-in-service", Seed: 2, Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "civilian-declined-draft", Seed: 1, Auto: false, Decider: declineDecider{}},
 	}
 }
 
 func generate(t *testing.T, f fixture) *chargen.Character {
 	t.Helper()
 
-	char, err := chargen.Generate(chargen.Config{Seed: f.Seed, Auto: f.Auto}, f.Decider)
+	char, err := chargen.Generate(chargen.Config{Seed: f.Seed, Service: f.Service, Auto: f.Auto}, f.Decider)
 	if err != nil {
 		t.Fatalf("Generate(%s): %v", f.Name, err)
 	}

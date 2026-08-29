@@ -45,18 +45,22 @@ func statusLine(c *chargen.Character) string {
 		return fmt.Sprintf("Civilian (declined the draft), age %d. UPP %s.", c.Age, c.UPP)
 	}
 
-	drafted := ""
+	who := c.Service
+	if c.RankTitle != "" {
+		who += " " + c.RankTitle
+	}
+
 	if c.Drafted {
-		drafted = ", drafted"
+		who += ", drafted"
 	}
 
 	if c.Death != nil {
-		return fmt.Sprintf("%s%s — died in service, term %d (%s), age %d. UPP %s.",
-			c.Service, drafted, c.Death.Term, c.Death.Cause, c.Age, c.UPP)
+		return fmt.Sprintf("%s — died in service, term %d (%s), age %d. UPP %s.",
+			who, c.Death.Term, c.Death.Cause, c.Age, c.UPP)
 	}
 
-	return fmt.Sprintf("%s%s, %d %s, age %d. UPP %s.",
-		c.Service, drafted, c.Terms, plural(c.Terms, "term"), c.Age, c.UPP)
+	return fmt.Sprintf("%s, %d %s, age %d. UPP %s.",
+		who, c.Terms, plural(c.Terms, "term"), c.Age, c.UPP)
 }
 
 // History renders the generation record: every throw, choice, and outcome

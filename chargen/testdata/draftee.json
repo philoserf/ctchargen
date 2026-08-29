@@ -1,0 +1,1169 @@
+{
+  "schema_version": "1",
+  "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
+  "engine_version": "0.2.0",
+  "policy_version": "2",
+  "rng": {
+    "algorithm": "go-math-rand-v2-pcg",
+    "seed": 7
+  },
+  "inputs": {
+    "auto": true,
+    "name": "",
+    "service": ""
+  },
+  "errata": [
+    "E001",
+    "E002"
+  ],
+  "name": "",
+  "age": 46,
+  "terms": 7,
+  "service": "Merchants",
+  "drafted": true,
+  "rank": 3,
+  "rank_title": "2nd Officer",
+  "characteristics": {
+    "strength": 7,
+    "dexterity": 6,
+    "endurance": 4,
+    "intelligence": 7,
+    "education": 7,
+    "social_standing": 7
+  },
+  "upp": "764777",
+  "skills": [
+    {
+      "name": "Vacc Suit",
+      "level": 4
+    },
+    {
+      "name": "Jack-of-all-Trades",
+      "level": 2
+    },
+    {
+      "name": "Steward",
+      "level": 3
+    },
+    {
+      "name": "Electronic",
+      "level": 2
+    }
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "kind": "step",
+      "step": "characteristics",
+      "text": "roll 2D for each characteristic, in order (p. 4)"
+    },
+    {
+      "seq": 2,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "strength",
+      "dice": [
+        6,
+        1
+      ],
+      "total": 7
+    },
+    {
+      "seq": 3,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "dexterity",
+      "dice": [
+        5,
+        1
+      ],
+      "total": 6
+    },
+    {
+      "seq": 4,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "endurance",
+      "dice": [
+        2,
+        2
+      ],
+      "total": 4
+    },
+    {
+      "seq": 5,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "intelligence",
+      "dice": [
+        5,
+        2
+      ],
+      "total": 7
+    },
+    {
+      "seq": 6,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "education",
+      "dice": [
+        3,
+        4
+      ],
+      "total": 7
+    },
+    {
+      "seq": 7,
+      "kind": "throw",
+      "step": "characteristics",
+      "label": "social_standing",
+      "dice": [
+        4,
+        3
+      ],
+      "total": 7
+    },
+    {
+      "seq": 8,
+      "kind": "outcome",
+      "step": "characteristics",
+      "text": "UPP 764777 (p. 8)"
+    },
+    {
+      "seq": 9,
+      "kind": "step",
+      "step": "enlistment",
+      "text": "one enlistment attempt; rejection offers the draft (p. 5)"
+    },
+    {
+      "seq": 10,
+      "kind": "choice",
+      "step": "enlistment",
+      "label": "service",
+      "by": "policy",
+      "options": [
+        "Navy",
+        "Marines",
+        "Army",
+        "Scouts",
+        "Merchants",
+        "Other"
+      ],
+      "picked": "Navy"
+    },
+    {
+      "seq": 11,
+      "kind": "throw",
+      "step": "enlistment",
+      "label": "enlistment Navy",
+      "dice": [
+        2,
+        3
+      ],
+      "target": "8+",
+      "total": 5,
+      "success": false
+    },
+    {
+      "seq": 12,
+      "kind": "outcome",
+      "step": "enlistment",
+      "text": "rejected by the Navy",
+      "ref": 11
+    },
+    {
+      "seq": 13,
+      "kind": "choice",
+      "step": "enlistment",
+      "label": "submit-to-draft",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 14,
+      "kind": "throw",
+      "step": "enlistment",
+      "label": "draft",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 15,
+      "kind": "outcome",
+      "step": "enlistment",
+      "text": "drafted into the Merchants (draft number 5)",
+      "ref": 14
+    },
+    {
+      "seq": 16,
+      "kind": "step",
+      "step": "term-1",
+      "text": "term 1 begins, age 18"
+    },
+    {
+      "seq": 17,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "survival",
+      "dice": [
+        3,
+        4
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 18,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "draftees are not eligible for commission during their first term (p. 5)"
+    },
+    {
+      "seq": 19,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 20,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "skill table service_skills",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 21,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "Vacc Suit-1",
+      "ref": 20
+    },
+    {
+      "seq": 22,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 23,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "skill table service_skills",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 24,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "Jack-of-all-Trades-1",
+      "ref": 23
+    },
+    {
+      "seq": 25,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 26,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "reenlistment",
+      "dice": [
+        6,
+        1
+      ],
+      "target": "4+",
+      "total": 7,
+      "success": true
+    },
+    {
+      "seq": 27,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "reenlists for another term",
+      "ref": 26
+    },
+    {
+      "seq": 28,
+      "kind": "step",
+      "step": "term-2",
+      "text": "term 2 begins, age 22"
+    },
+    {
+      "seq": 29,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "survival",
+      "dice": [
+        4,
+        3
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 30,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "commission-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 31,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "commission",
+      "dice": [
+        2,
+        5
+      ],
+      "dms": [
+        {
+          "source": "intelligence 6+",
+          "value": 1
+        }
+      ],
+      "target": "4+",
+      "total": 8,
+      "success": true
+    },
+    {
+      "seq": 32,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "commissioned as 4th Officer (rank 1); +1 skill eligibility (pp. 5-6)",
+      "ref": 31
+    },
+    {
+      "seq": 33,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 34,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "promotion",
+      "dice": [
+        5,
+        6
+      ],
+      "target": "10+",
+      "total": 11,
+      "success": true
+    },
+    {
+      "seq": 35,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "promoted to 3rd Officer (rank 2); +1 skill eligibility (p. 6)",
+      "ref": 34
+    },
+    {
+      "seq": 36,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 37,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        1
+      ],
+      "total": 1
+    },
+    {
+      "seq": 38,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "Steward-1",
+      "ref": 37
+    },
+    {
+      "seq": 39,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 40,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 41,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "Vacc Suit-2",
+      "ref": 40
+    },
+    {
+      "seq": 42,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 43,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 44,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "Electronic-1",
+      "ref": 43
+    },
+    {
+      "seq": 45,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 46,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "reenlistment",
+      "dice": [
+        4,
+        6
+      ],
+      "target": "4+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 47,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "reenlists for another term",
+      "ref": 46
+    },
+    {
+      "seq": 48,
+      "kind": "step",
+      "step": "term-3",
+      "text": "term 3 begins, age 26"
+    },
+    {
+      "seq": 49,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "survival",
+      "dice": [
+        5,
+        1
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 8,
+      "success": true
+    },
+    {
+      "seq": 50,
+      "kind": "choice",
+      "step": "term-3",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 51,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "promotion",
+      "dice": [
+        3,
+        4
+      ],
+      "target": "10+",
+      "total": 7,
+      "success": false
+    },
+    {
+      "seq": 52,
+      "kind": "outcome",
+      "step": "term-3",
+      "text": "promotion denied this term (one attempt per term, p. 6)",
+      "ref": 51
+    },
+    {
+      "seq": 53,
+      "kind": "choice",
+      "step": "term-3",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 54,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "skill table service_skills",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 55,
+      "kind": "outcome",
+      "step": "term-3",
+      "text": "Electronic-2",
+      "ref": 54
+    },
+    {
+      "seq": 56,
+      "kind": "choice",
+      "step": "term-3",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 57,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "reenlistment",
+      "dice": [
+        6,
+        4
+      ],
+      "target": "4+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 58,
+      "kind": "outcome",
+      "step": "term-3",
+      "text": "reenlists for another term",
+      "ref": 57
+    },
+    {
+      "seq": 59,
+      "kind": "step",
+      "step": "term-4",
+      "text": "term 4 begins, age 30"
+    },
+    {
+      "seq": 60,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "survival",
+      "dice": [
+        2,
+        5
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 61,
+      "kind": "choice",
+      "step": "term-4",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 62,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "promotion",
+      "dice": [
+        2,
+        4
+      ],
+      "target": "10+",
+      "total": 6,
+      "success": false
+    },
+    {
+      "seq": 63,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "promotion denied this term (one attempt per term, p. 6)",
+      "ref": 62
+    },
+    {
+      "seq": 64,
+      "kind": "choice",
+      "step": "term-4",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 65,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "skill table service_skills",
+      "dice": [
+        1
+      ],
+      "total": 1
+    },
+    {
+      "seq": 66,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "Steward-2",
+      "ref": 65
+    },
+    {
+      "seq": 67,
+      "kind": "choice",
+      "step": "term-4",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 68,
+      "kind": "throw",
+      "step": "term-4",
+      "label": "reenlistment",
+      "dice": [
+        6,
+        1
+      ],
+      "target": "4+",
+      "total": 7,
+      "success": true
+    },
+    {
+      "seq": 69,
+      "kind": "outcome",
+      "step": "term-4",
+      "text": "reenlists for another term",
+      "ref": 68
+    },
+    {
+      "seq": 70,
+      "kind": "step",
+      "step": "term-5",
+      "text": "term 5 begins, age 34"
+    },
+    {
+      "seq": 71,
+      "kind": "throw",
+      "step": "term-5",
+      "label": "survival",
+      "dice": [
+        2,
+        5
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 72,
+      "kind": "choice",
+      "step": "term-5",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 73,
+      "kind": "throw",
+      "step": "term-5",
+      "label": "promotion",
+      "dice": [
+        1,
+        4
+      ],
+      "target": "10+",
+      "total": 5,
+      "success": false
+    },
+    {
+      "seq": 74,
+      "kind": "outcome",
+      "step": "term-5",
+      "text": "promotion denied this term (one attempt per term, p. 6)",
+      "ref": 73
+    },
+    {
+      "seq": 75,
+      "kind": "choice",
+      "step": "term-5",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 76,
+      "kind": "throw",
+      "step": "term-5",
+      "label": "skill table service_skills",
+      "dice": [
+        1
+      ],
+      "total": 1
+    },
+    {
+      "seq": 77,
+      "kind": "outcome",
+      "step": "term-5",
+      "text": "Steward-3",
+      "ref": 76
+    },
+    {
+      "seq": 78,
+      "kind": "choice",
+      "step": "term-5",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 79,
+      "kind": "throw",
+      "step": "term-5",
+      "label": "reenlistment",
+      "dice": [
+        3,
+        6
+      ],
+      "target": "4+",
+      "total": 9,
+      "success": true
+    },
+    {
+      "seq": 80,
+      "kind": "outcome",
+      "step": "term-5",
+      "text": "reenlists for another term",
+      "ref": 79
+    },
+    {
+      "seq": 81,
+      "kind": "step",
+      "step": "term-6",
+      "text": "term 6 begins, age 38"
+    },
+    {
+      "seq": 82,
+      "kind": "throw",
+      "step": "term-6",
+      "label": "survival",
+      "dice": [
+        4,
+        4
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 83,
+      "kind": "choice",
+      "step": "term-6",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 84,
+      "kind": "throw",
+      "step": "term-6",
+      "label": "promotion",
+      "dice": [
+        3,
+        6
+      ],
+      "target": "10+",
+      "total": 9,
+      "success": false
+    },
+    {
+      "seq": 85,
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "promotion denied this term (one attempt per term, p. 6)",
+      "ref": 84
+    },
+    {
+      "seq": 86,
+      "kind": "choice",
+      "step": "term-6",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 87,
+      "kind": "throw",
+      "step": "term-6",
+      "label": "skill table service_skills",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 88,
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "Jack-of-all-Trades-2",
+      "ref": 87
+    },
+    {
+      "seq": 89,
+      "kind": "choice",
+      "step": "term-6",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 90,
+      "kind": "throw",
+      "step": "term-6",
+      "label": "reenlistment",
+      "dice": [
+        5,
+        5
+      ],
+      "target": "4+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 91,
+      "kind": "outcome",
+      "step": "term-6",
+      "text": "reenlists for another term",
+      "ref": 90
+    },
+    {
+      "seq": 92,
+      "kind": "step",
+      "step": "term-7",
+      "text": "term 7 begins, age 42"
+    },
+    {
+      "seq": 93,
+      "kind": "throw",
+      "step": "term-7",
+      "label": "survival",
+      "dice": [
+        5,
+        5
+      ],
+      "dms": [
+        {
+          "source": "intelligence 7+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 12,
+      "success": true
+    },
+    {
+      "seq": 94,
+      "kind": "choice",
+      "step": "term-7",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 95,
+      "kind": "throw",
+      "step": "term-7",
+      "label": "promotion",
+      "dice": [
+        6,
+        4
+      ],
+      "target": "10+",
+      "total": 10,
+      "success": true
+    },
+    {
+      "seq": 96,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "promoted to 2nd Officer (rank 3); +1 skill eligibility (p. 6)",
+      "ref": 95
+    },
+    {
+      "seq": 97,
+      "kind": "choice",
+      "step": "term-7",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 98,
+      "kind": "throw",
+      "step": "term-7",
+      "label": "skill table service_skills",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 99,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "Vacc Suit-3",
+      "ref": 98
+    },
+    {
+      "seq": 100,
+      "kind": "choice",
+      "step": "term-7",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 101,
+      "kind": "throw",
+      "step": "term-7",
+      "label": "skill table service_skills",
+      "dice": [
+        2
+      ],
+      "total": 2
+    },
+    {
+      "seq": 102,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "Vacc Suit-4",
+      "ref": 101
+    },
+    {
+      "seq": 103,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "voluntary service caps at 7 terms; must attempt to leave (p. 7)"
+    },
+    {
+      "seq": 104,
+      "kind": "throw",
+      "step": "term-7",
+      "label": "reenlistment",
+      "dice": [
+        2,
+        2
+      ],
+      "target": "4+",
+      "total": 4,
+      "success": true
+    },
+    {
+      "seq": 105,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "chooses to leave the service",
+      "ref": 104
+    },
+    {
+      "seq": 106,
+      "kind": "outcome",
+      "step": "term-7",
+      "text": "leaves the service after 7 term(s), age 46"
+    }
+  ]
+}

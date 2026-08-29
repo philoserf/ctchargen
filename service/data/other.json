@@ -12,6 +12,7 @@
   "promotion": null,
   "reenlist": { "target": "5+", "dms": [] },
   "ranks": [],
+  "auto_skills": [],
   "skills": {
     "personal_development": [
       { "characteristic": "strength", "delta": 1 },

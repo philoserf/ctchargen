@@ -1,11 +1,11 @@
 {
   "schema_version": "1",
   "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
-  "engine_version": "0.1.0",
-  "policy_version": "1",
+  "engine_version": "0.2.0",
+  "policy_version": "2",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
-    "seed": 175
+    "seed": 1
   },
   "inputs": {
     "auto": false,
@@ -20,14 +20,14 @@
   "drafted": false,
   "rank": 0,
   "characteristics": {
-    "strength": 5,
-    "dexterity": 3,
-    "endurance": 3,
-    "intelligence": 3,
-    "education": 7,
+    "strength": 7,
+    "dexterity": 12,
+    "endurance": 8,
+    "intelligence": 6,
+    "education": 6,
     "social_standing": 9
   },
-  "upp": "533379",
+  "upp": "7C8669",
   "skills": [],
   "events": [
     {
@@ -41,54 +41,54 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "strength",
-      "dice": [3, 2],
-      "total": 5
+      "dice": [6, 1],
+      "total": 7
     },
     {
       "seq": 3,
       "kind": "throw",
       "step": "characteristics",
       "label": "dexterity",
-      "dice": [1, 2],
-      "total": 3
+      "dice": [6, 6],
+      "total": 12
     },
     {
       "seq": 4,
       "kind": "throw",
       "step": "characteristics",
       "label": "endurance",
-      "dice": [1, 2],
-      "total": 3
+      "dice": [2, 6],
+      "total": 8
     },
     {
       "seq": 5,
       "kind": "throw",
       "step": "characteristics",
       "label": "intelligence",
-      "dice": [1, 2],
-      "total": 3
+      "dice": [5, 1],
+      "total": 6
     },
     {
       "seq": 6,
       "kind": "throw",
       "step": "characteristics",
       "label": "education",
-      "dice": [3, 4],
-      "total": 7
+      "dice": [4, 2],
+      "total": 6
     },
     {
       "seq": 7,
       "kind": "throw",
       "step": "characteristics",
       "label": "social_standing",
-      "dice": [4, 5],
+      "dice": [3, 6],
       "total": 9
     },
     {
       "seq": 8,
       "kind": "outcome",
       "step": "characteristics",
-      "text": "UPP 533379 (p. 8)"
+      "text": "UPP 7C8669 (p. 8)"
     },
     {
       "seq": 9,
@@ -102,24 +102,24 @@
       "step": "enlistment",
       "label": "service",
       "by": "player",
-      "options": ["Other"],
-      "picked": "Other"
+      "options": ["Navy", "Marines", "Army", "Scouts", "Merchants", "Other"],
+      "picked": "Navy"
     },
     {
       "seq": 11,
       "kind": "throw",
       "step": "enlistment",
-      "label": "enlistment Other",
-      "dice": [1, 1],
-      "target": "3+",
-      "total": 2,
+      "label": "enlistment Navy",
+      "dice": [3, 3],
+      "target": "8+",
+      "total": 6,
       "success": false
     },
     {
       "seq": 12,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "rejected by the Other",
+      "text": "rejected by the Navy",
       "ref": 11
     },
     {

@@ -1,11 +1,11 @@
 {
   "schema_version": "1",
   "ruleset": "Classic Traveller Books 1-3, © 1977 text, FFE reprints",
-  "engine_version": "0.1.0",
-  "policy_version": "1",
+  "engine_version": "0.2.0",
+  "policy_version": "2",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
-    "seed": 5
+    "seed": 2
   },
   "inputs": {
     "auto": true,
@@ -18,37 +18,23 @@
     "E003"
   ],
   "name": "",
-  "age": 30,
-  "terms": 3,
+  "age": 18,
+  "terms": 0,
   "service": "Other",
-  "drafted": false,
+  "drafted": true,
   "rank": 0,
   "characteristics": {
-    "strength": 9,
-    "dexterity": 3,
-    "endurance": 4,
-    "intelligence": 6,
-    "education": 12,
-    "social_standing": 5
+    "strength": 8,
+    "dexterity": 7,
+    "endurance": 7,
+    "intelligence": 7,
+    "education": 10,
+    "social_standing": 8
   },
-  "upp": "9346C5",
-  "skills": [
-    {
-      "name": "Dagger",
-      "level": 2,
-      "category": "blade"
-    },
-    {
-      "name": "Bribery",
-      "level": 1
-    },
-    {
-      "name": "Brawling",
-      "level": 1
-    }
-  ],
+  "upp": "8777A8",
+  "skills": [],
   "death": {
-    "term": 4,
+    "term": 1,
     "cause": "failed the survival throw"
   },
   "events": [
@@ -64,10 +50,10 @@
       "step": "characteristics",
       "label": "strength",
       "dice": [
-        5,
-        4
+        2,
+        6
       ],
-      "total": 9
+      "total": 8
     },
     {
       "seq": 3,
@@ -75,10 +61,10 @@
       "step": "characteristics",
       "label": "dexterity",
       "dice": [
-        2,
-        1
+        4,
+        3
       ],
-      "total": 3
+      "total": 7
     },
     {
       "seq": 4,
@@ -87,9 +73,9 @@
       "label": "endurance",
       "dice": [
         1,
-        3
+        6
       ],
-      "total": 4
+      "total": 7
     },
     {
       "seq": 5,
@@ -97,10 +83,10 @@
       "step": "characteristics",
       "label": "intelligence",
       "dice": [
-        2,
+        3,
         4
       ],
-      "total": 6
+      "total": 7
     },
     {
       "seq": 6,
@@ -108,10 +94,10 @@
       "step": "characteristics",
       "label": "education",
       "dice": [
-        6,
+        4,
         6
       ],
-      "total": 12
+      "total": 10
     },
     {
       "seq": 7,
@@ -119,16 +105,16 @@
       "step": "characteristics",
       "label": "social_standing",
       "dice": [
-        2,
-        3
+        4,
+        4
       ],
-      "total": 5
+      "total": 8
     },
     {
       "seq": 8,
       "kind": "outcome",
       "step": "characteristics",
-      "text": "UPP 9346C5 (p. 8)"
+      "text": "UPP 8777A8 (p. 8)"
     },
     {
       "seq": 9,
@@ -143,374 +129,95 @@
       "label": "service",
       "by": "policy",
       "options": [
+        "Navy",
+        "Marines",
+        "Army",
+        "Scouts",
+        "Merchants",
         "Other"
       ],
-      "picked": "Other"
+      "picked": "Navy"
     },
     {
       "seq": 11,
       "kind": "throw",
       "step": "enlistment",
-      "label": "enlistment Other",
+      "label": "enlistment Navy",
       "dice": [
-        5,
-        6
+        2,
+        2
       ],
-      "target": "3+",
-      "total": 11,
-      "success": true
+      "dms": [
+        {
+          "source": "education 9+",
+          "value": 2
+        }
+      ],
+      "target": "8+",
+      "total": 6,
+      "success": false
     },
     {
       "seq": 12,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "enlisted in the Other",
+      "text": "rejected by the Navy",
       "ref": 11
     },
     {
       "seq": 13,
-      "kind": "step",
-      "step": "term-1",
-      "text": "term 1 begins, age 18"
+      "kind": "choice",
+      "step": "enlistment",
+      "label": "submit-to-draft",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
     },
     {
       "seq": 14,
       "kind": "throw",
-      "step": "term-1",
-      "label": "survival",
-      "dice": [
-        3,
-        6
-      ],
-      "target": "5+",
-      "total": 9,
-      "success": true
-    },
-    {
-      "seq": 15,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 16,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "skill table service_skills",
-      "dice": [
-        4
-      ],
-      "total": 4
-    },
-    {
-      "seq": 17,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Dagger",
-        "Blade",
-        "Foil",
-        "Cutlass",
-        "Sword",
-        "Broadsword",
-        "Spear",
-        "Halberd",
-        "Pike",
-        "Cudgel",
-        "Bayonet"
-      ],
-      "picked": "Dagger"
-    },
-    {
-      "seq": 18,
-      "kind": "outcome",
-      "step": "term-1",
-      "text": "blade expertise: Dagger-1 (weapon chosen immediately, pp. 11-13)",
-      "ref": 16
-    },
-    {
-      "seq": 19,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 20,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "skill table service_skills",
+      "step": "enlistment",
+      "label": "draft",
       "dice": [
         6
       ],
       "total": 6
     },
     {
-      "seq": 21,
+      "seq": 15,
       "kind": "outcome",
-      "step": "term-1",
-      "text": "Bribery-1",
-      "ref": 20
+      "step": "enlistment",
+      "text": "drafted into the Other (draft number 6)",
+      "ref": 14
     },
     {
-      "seq": 22,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
-      "seq": 23,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "reenlistment",
-      "dice": [
-        5,
-        2
-      ],
-      "target": "5+",
-      "total": 7,
-      "success": true
-    },
-    {
-      "seq": 24,
-      "kind": "outcome",
-      "step": "term-1",
-      "text": "reenlists for another term",
-      "ref": 23
-    },
-    {
-      "seq": 25,
+      "seq": 16,
       "kind": "step",
-      "step": "term-2",
-      "text": "term 2 begins, age 22"
+      "step": "term-1",
+      "text": "term 1 begins, age 18"
     },
     {
-      "seq": 26,
+      "seq": 17,
       "kind": "throw",
-      "step": "term-2",
-      "label": "survival",
-      "dice": [
-        5,
-        1
-      ],
-      "target": "5+",
-      "total": 6,
-      "success": true
-    },
-    {
-      "seq": 27,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 28,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "skill table service_skills",
-      "dice": [
-        3
-      ],
-      "total": 3
-    },
-    {
-      "seq": 29,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "Brawling-1",
-      "ref": 28
-    },
-    {
-      "seq": 30,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
-      "seq": 31,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "reenlistment",
-      "dice": [
-        4,
-        5
-      ],
-      "target": "5+",
-      "total": 9,
-      "success": true
-    },
-    {
-      "seq": 32,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "reenlists for another term",
-      "ref": 31
-    },
-    {
-      "seq": 33,
-      "kind": "step",
-      "step": "term-3",
-      "text": "term 3 begins, age 26"
-    },
-    {
-      "seq": 34,
-      "kind": "throw",
-      "step": "term-3",
+      "step": "term-1",
       "label": "survival",
       "dice": [
         1,
-        6
+        3
       ],
       "target": "5+",
-      "total": 7,
-      "success": true
-    },
-    {
-      "seq": 35,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 36,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "skill table service_skills",
-      "dice": [
-        4
-      ],
-      "total": 4
-    },
-    {
-      "seq": 37,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Dagger",
-        "Blade",
-        "Foil",
-        "Cutlass",
-        "Sword",
-        "Broadsword",
-        "Spear",
-        "Halberd",
-        "Pike",
-        "Cudgel",
-        "Bayonet"
-      ],
-      "picked": "Dagger"
-    },
-    {
-      "seq": 38,
-      "kind": "outcome",
-      "step": "term-3",
-      "text": "blade expertise: Dagger-2 (weapon chosen immediately, pp. 11-13)",
-      "ref": 36
-    },
-    {
-      "seq": 39,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": [
-        "yes",
-        "no"
-      ],
-      "picked": "yes"
-    },
-    {
-      "seq": 40,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "reenlistment",
-      "dice": [
-        2,
-        5
-      ],
-      "target": "5+",
-      "total": 7,
-      "success": true
-    },
-    {
-      "seq": 41,
-      "kind": "outcome",
-      "step": "term-3",
-      "text": "reenlists for another term",
-      "ref": 40
-    },
-    {
-      "seq": 42,
-      "kind": "step",
-      "step": "term-4",
-      "text": "term 4 begins, age 30"
-    },
-    {
-      "seq": 43,
-      "kind": "throw",
-      "step": "term-4",
-      "label": "survival",
-      "dice": [
-        2,
-        1
-      ],
-      "target": "5+",
-      "total": 3,
+      "total": 4,
       "success": false
     },
     {
-      "seq": 44,
+      "seq": 18,
       "kind": "outcome",
-      "step": "term-4",
-      "text": "died in service, term 4 (survival failure is death, p. 5)",
-      "ref": 43
+      "step": "term-1",
+      "text": "died in service, term 1 (survival failure is death, p. 5)",
+      "ref": 17
     }
   ]
 }

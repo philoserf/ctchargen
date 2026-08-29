@@ -16,6 +16,14 @@ var appliedErrata = []string{
 	"E002", // per-term order is the exposition's, not the Jamison example's (pp. 5-6, 24)
 }
 
+// stampErratum records a data-dependent ERRATA.md reading (one whose
+// ambiguity this particular generation actually crossed).
+func (g *generator) stampErratum(id string) {
+	if !slices.Contains(g.char.Errata, id) {
+		g.char.Errata = append(g.char.Errata, id)
+	}
+}
+
 // Config is the caller's inputs to one generation.
 type Config struct {
 	Seed uint64
@@ -89,6 +97,7 @@ func (g *generator) run() error {
 	}
 
 	g.char.Service = svc.Name
+	g.grantAutoSkills(svc, "enlistment", 0) // service-wide entries accrue on entering (p. 23; E004)
 
 	for term := 1; ; term++ {
 		left, err := g.term(svc, term)
@@ -193,16 +202,18 @@ func (g *generator) term(svc *service.Service, term int) (bool, error) {
 	if !ok {
 		g.char.Death = &Death{Term: term, Cause: "failed the survival throw"}
 		g.char.Terms = term - 1
-		g.char.Errata = append(g.char.Errata, "E003") // age of the dead: start of the fatal term
+		g.stampErratum("E003") // age of the dead: start of the fatal term
 		g.outcome(step, fmt.Sprintf("died in service, term %d (survival failure is death, p. 5)", term), seq)
 
 		return true, nil
 	}
 
-	// Commissions and promotions arrive with milestone 2; Other, the one
-	// milestone-1 service, has neither (p. 10).
+	bonus, err := g.commissionAndPromotion(svc, step, term)
+	if err != nil {
+		return false, err
+	}
 
-	if err := g.skills(&svc.Skills, step, term); err != nil {
+	if err := g.skills(&svc.Skills, step, term, bonus); err != nil {
 		return false, err
 	}
 
@@ -222,12 +233,136 @@ func (g *generator) term(svc *service.Service, term int) (bool, error) {
 	return !stays, nil
 }
 
+// commissionAndPromotion is the term's one commission attempt (until
+// achieved; not draftees' first term; p. 5) and, once commissioned —
+// including in the very term of the commission — its one promotion
+// attempt (p. 6). It reports the extra skill eligibility earned: 1 on
+// commission, 1 on promotion (p. 6).
+func (g *generator) commissionAndPromotion(svc *service.Service, step string, term int) (int, error) {
+	if svc.Commission == nil {
+		return 0, nil // non-existent in the Scout and Other services (p. 6, p. 10)
+	}
+
+	bonus := 0
+
+	if g.char.Rank == 0 {
+		earned, err := g.commission(svc, step, term)
+		if err != nil {
+			return 0, err
+		}
+
+		bonus += earned
+	}
+
+	if g.char.Rank >= 1 && g.char.Rank < len(svc.Ranks) {
+		earned, err := g.promotion(svc, step)
+		if err != nil {
+			return 0, err
+		}
+
+		bonus += earned
+	}
+
+	return bonus, nil
+}
+
+func (g *generator) commission(svc *service.Service, step string, term int) (int, error) {
+	if g.char.Drafted && term == 1 {
+		g.outcome(step, "draftees are not eligible for commission during their first term (p. 5)", 0)
+
+		return 0, nil
+	}
+
+	attempt, err := g.choose(Choice{Step: step, Label: ChoiceCommission, Options: []string{Yes, No}})
+	if err != nil {
+		return 0, err
+	}
+
+	if attempt == No {
+		return 0, nil
+	}
+
+	_, ok, seq, err := g.targetThrow(step, "commission", *svc.Commission)
+	if err != nil {
+		return 0, err
+	}
+
+	if !ok {
+		g.outcome(step, "commission denied this term (one attempt per term until successful, p. 5)", seq)
+
+		return 0, nil
+	}
+
+	g.char.Rank = 1
+	g.char.RankTitle = svc.Ranks[0]
+	g.outcome(step, fmt.Sprintf("commissioned as %s (rank 1); +1 skill eligibility (pp. 5-6)", g.char.RankTitle), seq)
+	g.grantAutoSkills(svc, step, 1)
+
+	return 1, nil
+}
+
+func (g *generator) promotion(svc *service.Service, step string) (int, error) {
+	attempt, err := g.choose(Choice{Step: step, Label: ChoicePromotion, Options: []string{Yes, No}})
+	if err != nil {
+		return 0, err
+	}
+
+	if attempt == No {
+		return 0, nil
+	}
+
+	_, ok, seq, err := g.targetThrow(step, "promotion", *svc.Promotion)
+	if err != nil {
+		return 0, err
+	}
+
+	if !ok {
+		g.outcome(step, "promotion denied this term (one attempt per term, p. 6)", seq)
+
+		return 0, nil
+	}
+
+	g.char.Rank++
+	g.char.RankTitle = svc.Ranks[g.char.Rank-1]
+	text := fmt.Sprintf("promoted to %s (rank %d); +1 skill eligibility (p. 6)", g.char.RankTitle, g.char.Rank)
+	g.outcome(step, text, seq)
+	g.grantAutoSkills(svc, step, g.char.Rank)
+
+	return 1, nil
+}
+
+// grantAutoSkills accrues the Rank and Service Skills box's entries for
+// the given rank (0 = on entering the service), automatically and outside
+// eligibility (p. 23; timing reading E004).
+func (g *generator) grantAutoSkills(svc *service.Service, step string, rank int) {
+	for _, auto := range svc.AutoSkills {
+		if auto.Rank != rank {
+			continue
+		}
+
+		g.stampErratum("E004")
+
+		if auto.Characteristic != "" {
+			before, after := g.char.Characteristics.Apply(auto.Characteristic, auto.Delta)
+			text := fmt.Sprintf("%+d %s (%d → %d), rank and service skills (p. 23; E004)",
+				auto.Delta, auto.Characteristic, before, after)
+			g.outcome(step, text, 0)
+
+			continue
+		}
+
+		level := g.char.AddSkill(auto.Skill, auto.Category)
+		g.outcome(step, fmt.Sprintf("%s-%d, rank and service skills (p. 23; E004)", auto.Skill, level), 0)
+	}
+}
+
 // skills spends the term's eligibility: 2 for the initial term, 1 per
-// subsequent term (p. 6), each one die on a declared table (p. 11).
-func (g *generator) skills(tables *service.SkillTables, step string, term int) error {
-	eligibility := 1
+// subsequent term, plus 1 for a commission and 1 for a promotion received
+// this term (p. 6), each one die on a declared table (p. 11).
+func (g *generator) skills(tables *service.SkillTables, step string, term, bonus int) error {
+	eligibility := 1 + bonus
 	if term == 1 {
-		eligibility = 2
+		eligibility = 2 + bonus
 	}
 
 	for range eligibility {

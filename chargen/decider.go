@@ -25,6 +25,8 @@ var (
 const (
 	ChoiceService       = "service"
 	ChoiceSubmitToDraft = "submit-to-draft"
+	ChoiceCommission    = "commission-attempt"
+	ChoicePromotion     = "promotion-attempt"
 	ChoiceSkillTable    = "skill-table"
 	ChoiceWeapon        = "weapon"
 	ChoiceReenlist      = "reenlist-intent"
@@ -79,8 +81,9 @@ func (AutoPolicy) Decide(c Choice) (Decision, error) {
 		// First-listed in Book 1: services in the order of p. 5, weapons
 		// in the order of the pp. 12-13 lists.
 		pick = c.Options[0]
-	case ChoiceSubmitToDraft, ChoiceReenlist:
+	case ChoiceSubmitToDraft, ChoiceCommission, ChoicePromotion, ChoiceReenlist:
 		// A rejected character submits to the draft; a serving character
+		// attempts every commission and promotion open to him and
 		// reenlists while the rules allow it.
 		pick = Yes
 	case ChoiceSkillTable:

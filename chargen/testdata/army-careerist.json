@@ -5,40 +5,48 @@
   "policy_version": "2",
   "rng": {
     "algorithm": "go-math-rand-v2-pcg",
-    "seed": 8
+    "seed": 2
   },
   "inputs": {
     "auto": true,
     "name": "",
-    "service": "marines"
+    "service": "army"
   },
-  "errata": ["E001", "E002", "E004"],
+  "errata": [
+    "E001",
+    "E002",
+    "E004"
+  ],
   "name": "",
-  "age": 34,
-  "terms": 4,
-  "service": "Marines",
+  "age": 30,
+  "terms": 3,
+  "service": "Army",
   "drafted": false,
-  "rank": 2,
-  "rank_title": "Captain",
+  "rank": 4,
+  "rank_title": "Lt Colonel",
   "characteristics": {
-    "strength": 3,
-    "dexterity": 9,
-    "endurance": 12,
+    "strength": 8,
+    "dexterity": 7,
+    "endurance": 7,
     "intelligence": 7,
-    "education": 8,
-    "social_standing": 7
+    "education": 10,
+    "social_standing": 8
   },
-  "upp": "39C787",
+  "upp": "8777A8",
   "skills": [
     {
-      "name": "Cutlass",
-      "level": 1,
-      "category": "blade"
-    },
-    {
-      "name": "Revolver",
+      "name": "Rifle",
       "level": 1,
       "category": "gun"
+    },
+    {
+      "name": "Submachine Gun",
+      "level": 1,
+      "category": "gun"
+    },
+    {
+      "name": "Forward Observer",
+      "level": 1
     },
     {
       "name": "Dagger",
@@ -46,16 +54,8 @@
       "category": "blade"
     },
     {
-      "name": "Vacc Suit",
-      "level": 2
-    },
-    {
-      "name": "ATV",
-      "level": 1
-    },
-    {
       "name": "Body Pistol",
-      "level": 1,
+      "level": 4,
       "category": "gun"
     }
   ],
@@ -71,31 +71,43 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "strength",
-      "dice": [1, 2],
-      "total": 3
+      "dice": [
+        2,
+        6
+      ],
+      "total": 8
     },
     {
       "seq": 3,
       "kind": "throw",
       "step": "characteristics",
       "label": "dexterity",
-      "dice": [5, 4],
-      "total": 9
+      "dice": [
+        4,
+        3
+      ],
+      "total": 7
     },
     {
       "seq": 4,
       "kind": "throw",
       "step": "characteristics",
       "label": "endurance",
-      "dice": [6, 6],
-      "total": 12
+      "dice": [
+        1,
+        6
+      ],
+      "total": 7
     },
     {
       "seq": 5,
       "kind": "throw",
       "step": "characteristics",
       "label": "intelligence",
-      "dice": [1, 6],
+      "dice": [
+        3,
+        4
+      ],
       "total": 7
     },
     {
@@ -103,22 +115,28 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "education",
-      "dice": [4, 4],
-      "total": 8
+      "dice": [
+        4,
+        6
+      ],
+      "total": 10
     },
     {
       "seq": 7,
       "kind": "throw",
       "step": "characteristics",
       "label": "social_standing",
-      "dice": [3, 4],
-      "total": 7
+      "dice": [
+        4,
+        4
+      ],
+      "total": 8
     },
     {
       "seq": 8,
       "kind": "outcome",
       "step": "characteristics",
-      "text": "UPP 39C787 (p. 8)"
+      "text": "UPP 8777A8 (p. 8)"
     },
     {
       "seq": 9,
@@ -130,30 +148,43 @@
       "seq": 10,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "enlistment attempt forced to marines by input, not choice"
+      "text": "enlistment attempt forced to army by input, not choice"
     },
     {
       "seq": 11,
       "kind": "throw",
       "step": "enlistment",
-      "label": "enlistment Marines",
-      "dice": [5, 5],
-      "target": "9+",
-      "total": 10,
+      "label": "enlistment Army",
+      "dice": [
+        2,
+        2
+      ],
+      "dms": [
+        {
+          "source": "dexterity 6+",
+          "value": 1
+        },
+        {
+          "source": "endurance 5+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 7,
       "success": true
     },
     {
       "seq": 12,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "enlisted in the Marines",
+      "text": "enlisted in the Army",
       "ref": 11
     },
     {
       "seq": 13,
       "kind": "outcome",
       "step": "enlistment",
-      "text": "Cutlass-1, rank and service skills (p. 23; E004)"
+      "text": "Rifle-1, rank and service skills (p. 23; E004)"
     },
     {
       "seq": 14,
@@ -166,15 +197,18 @@
       "kind": "throw",
       "step": "term-1",
       "label": "survival",
-      "dice": [5, 6],
+      "dice": [
+        6,
+        1
+      ],
       "dms": [
         {
-          "source": "endurance 8+",
+          "source": "education 6+",
           "value": 2
         }
       ],
-      "target": "6+",
-      "total": 13,
+      "target": "5+",
+      "total": 9,
       "success": true
     },
     {
@@ -183,7 +217,10 @@
       "step": "term-1",
       "label": "commission-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -191,15 +228,18 @@
       "kind": "throw",
       "step": "term-1",
       "label": "commission",
-      "dice": [6, 3],
+      "dice": [
+        3,
+        4
+      ],
       "dms": [
         {
-          "source": "education 7+",
+          "source": "endurance 7+",
           "value": 1
         }
       ],
-      "target": "9+",
-      "total": 10,
+      "target": "5+",
+      "total": 8,
       "success": true
     },
     {
@@ -213,7 +253,7 @@
       "seq": 19,
       "kind": "outcome",
       "step": "term-1",
-      "text": "Revolver-1, rank and service skills (p. 23; E004)"
+      "text": "Submachine Gun-1, rank and service skills (p. 23; E004)"
     },
     {
       "seq": 20,
@@ -221,7 +261,10 @@
       "step": "term-1",
       "label": "promotion-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -229,16 +272,25 @@
       "kind": "throw",
       "step": "term-1",
       "label": "promotion",
-      "dice": [5, 1],
-      "target": "9+",
-      "total": 6,
-      "success": false
+      "dice": [
+        5,
+        5
+      ],
+      "dms": [
+        {
+          "source": "education 7+",
+          "value": 1
+        }
+      ],
+      "target": "6+",
+      "total": 11,
+      "success": true
     },
     {
       "seq": 22,
       "kind": "outcome",
       "step": "term-1",
-      "text": "promotion denied this term (one attempt per term, p. 6)",
+      "text": "promoted to Captain (rank 2); +1 skill eligibility (p. 6)",
       "ref": 21
     },
     {
@@ -260,11 +312,44 @@
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
-      "dice": [4],
-      "total": 4
+      "dice": [
+        3
+      ],
+      "total": 3
     },
     {
       "seq": 25,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "Forward Observer-1",
+      "ref": 24
+    },
+    {
+      "seq": 26,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 27,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "skill table service_skills",
+      "dice": [
+        4
+      ],
+      "total": 4
+    },
+    {
+      "seq": 28,
       "kind": "choice",
       "step": "term-1",
       "label": "weapon",
@@ -285,40 +370,11 @@
       "picked": "Dagger"
     },
     {
-      "seq": 26,
-      "kind": "outcome",
-      "step": "term-1",
-      "text": "blade expertise: Dagger-1 (weapon chosen immediately, pp. 11-13)",
-      "ref": 24
-    },
-    {
-      "seq": 27,
-      "kind": "choice",
-      "step": "term-1",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 28,
-      "kind": "throw",
-      "step": "term-1",
-      "label": "skill table service_skills",
-      "dice": [2],
-      "total": 2
-    },
-    {
       "seq": 29,
       "kind": "outcome",
       "step": "term-1",
-      "text": "Vacc Suit-1",
-      "ref": 28
+      "text": "blade expertise: Dagger-1 (weapon chosen immediately, pp. 11-13)",
+      "ref": 27
     },
     {
       "seq": 30,
@@ -339,58 +395,369 @@
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
-      "dice": [1],
-      "total": 1
+      "dice": [
+        5
+      ],
+      "total": 5
     },
     {
       "seq": 32,
-      "kind": "outcome",
+      "kind": "choice",
       "step": "term-1",
-      "text": "ATV-1",
-      "ref": 31
+      "label": "weapon",
+      "by": "policy",
+      "options": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "picked": "Body Pistol"
     },
     {
       "seq": 33,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "gun expertise: Body Pistol-1 (weapon chosen immediately, pp. 11-13)",
+      "ref": 31
+    },
+    {
+      "seq": 34,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 35,
+      "kind": "throw",
+      "step": "term-1",
+      "label": "skill table service_skills",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 36,
+      "kind": "choice",
+      "step": "term-1",
+      "label": "weapon",
+      "by": "policy",
+      "options": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "picked": "Body Pistol"
+    },
+    {
+      "seq": 37,
+      "kind": "outcome",
+      "step": "term-1",
+      "text": "gun expertise: Body Pistol-2 (weapon chosen immediately, pp. 11-13)",
+      "ref": 35
+    },
+    {
+      "seq": 38,
       "kind": "choice",
       "step": "term-1",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
-      "seq": 34,
+      "seq": 39,
       "kind": "throw",
       "step": "term-1",
       "label": "reenlistment",
-      "dice": [3, 4],
-      "target": "6+",
-      "total": 7,
+      "dice": [
+        5,
+        6
+      ],
+      "target": "7+",
+      "total": 11,
       "success": true
     },
     {
-      "seq": 35,
+      "seq": 40,
       "kind": "outcome",
       "step": "term-1",
       "text": "reenlists for another term",
-      "ref": 34
+      "ref": 39
     },
     {
-      "seq": 36,
+      "seq": 41,
       "kind": "step",
       "step": "term-2",
       "text": "term 2 begins, age 22"
     },
     {
-      "seq": 37,
+      "seq": 42,
       "kind": "throw",
       "step": "term-2",
       "label": "survival",
-      "dice": [4, 6],
+      "dice": [
+        5,
+        6
+      ],
       "dms": [
         {
-          "source": "endurance 8+",
+          "source": "education 6+",
           "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 13,
+      "success": true
+    },
+    {
+      "seq": 43,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 44,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "promotion",
+      "dice": [
+        1,
+        5
+      ],
+      "dms": [
+        {
+          "source": "education 7+",
+          "value": 1
+        }
+      ],
+      "target": "6+",
+      "total": 7,
+      "success": true
+    },
+    {
+      "seq": 45,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "promoted to Major (rank 3); +1 skill eligibility (p. 6)",
+      "ref": 44
+    },
+    {
+      "seq": 46,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 47,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        4
+      ],
+      "total": 4
+    },
+    {
+      "seq": 48,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "weapon",
+      "by": "policy",
+      "options": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
+      ],
+      "picked": "Dagger"
+    },
+    {
+      "seq": 49,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "blade expertise: Dagger-2 (weapon chosen immediately, pp. 11-13)",
+      "ref": 47
+    },
+    {
+      "seq": 50,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "skill-table",
+      "by": "policy",
+      "options": [
+        "personal_development",
+        "service_skills",
+        "advanced_education",
+        "advanced_education_8"
+      ],
+      "picked": "service_skills"
+    },
+    {
+      "seq": 51,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "skill table service_skills",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 52,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "weapon",
+      "by": "policy",
+      "options": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "picked": "Body Pistol"
+    },
+    {
+      "seq": 53,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "gun expertise: Body Pistol-3 (weapon chosen immediately, pp. 11-13)",
+      "ref": 51
+    },
+    {
+      "seq": 54,
+      "kind": "choice",
+      "step": "term-2",
+      "label": "reenlist-intent",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 55,
+      "kind": "throw",
+      "step": "term-2",
+      "label": "reenlistment",
+      "dice": [
+        5,
+        2
+      ],
+      "target": "7+",
+      "total": 7,
+      "success": true
+    },
+    {
+      "seq": 56,
+      "kind": "outcome",
+      "step": "term-2",
+      "text": "reenlists for another term",
+      "ref": 55
+    },
+    {
+      "seq": 57,
+      "kind": "step",
+      "step": "term-3",
+      "text": "term 3 begins, age 26"
+    },
+    {
+      "seq": 58,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "survival",
+      "dice": [
+        4,
+        2
+      ],
+      "dms": [
+        {
+          "source": "education 6+",
+          "value": 2
+        }
+      ],
+      "target": "5+",
+      "total": 8,
+      "success": true
+    },
+    {
+      "seq": 59,
+      "kind": "choice",
+      "step": "term-3",
+      "label": "promotion-attempt",
+      "by": "policy",
+      "options": [
+        "yes",
+        "no"
+      ],
+      "picked": "yes"
+    },
+    {
+      "seq": 60,
+      "kind": "throw",
+      "step": "term-3",
+      "label": "promotion",
+      "dice": [
+        6,
+        5
+      ],
+      "dms": [
+        {
+          "source": "education 7+",
+          "value": 1
         }
       ],
       "target": "6+",
@@ -398,207 +765,14 @@
       "success": true
     },
     {
-      "seq": 38,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "promotion-attempt",
-      "by": "policy",
-      "options": ["yes", "no"],
-      "picked": "yes"
-    },
-    {
-      "seq": 39,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "promotion",
-      "dice": [4, 6],
-      "target": "9+",
-      "total": 10,
-      "success": true
-    },
-    {
-      "seq": 40,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "promoted to Captain (rank 2); +1 skill eligibility (p. 6)",
-      "ref": 39
-    },
-    {
-      "seq": 41,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 42,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "skill table service_skills",
-      "dice": [4],
-      "total": 4
-    },
-    {
-      "seq": 43,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Dagger",
-        "Blade",
-        "Foil",
-        "Cutlass",
-        "Sword",
-        "Broadsword",
-        "Spear",
-        "Halberd",
-        "Pike",
-        "Cudgel",
-        "Bayonet"
-      ],
-      "picked": "Dagger"
-    },
-    {
-      "seq": 44,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "blade expertise: Dagger-2 (weapon chosen immediately, pp. 11-13)",
-      "ref": 42
-    },
-    {
-      "seq": 45,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "skill-table",
-      "by": "policy",
-      "options": [
-        "personal_development",
-        "service_skills",
-        "advanced_education",
-        "advanced_education_8"
-      ],
-      "picked": "service_skills"
-    },
-    {
-      "seq": 46,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "skill table service_skills",
-      "dice": [4],
-      "total": 4
-    },
-    {
-      "seq": 47,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "weapon",
-      "by": "policy",
-      "options": [
-        "Dagger",
-        "Blade",
-        "Foil",
-        "Cutlass",
-        "Sword",
-        "Broadsword",
-        "Spear",
-        "Halberd",
-        "Pike",
-        "Cudgel",
-        "Bayonet"
-      ],
-      "picked": "Dagger"
-    },
-    {
-      "seq": 48,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "blade expertise: Dagger-3 (weapon chosen immediately, pp. 11-13)",
-      "ref": 46
-    },
-    {
-      "seq": 49,
-      "kind": "choice",
-      "step": "term-2",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": ["yes", "no"],
-      "picked": "yes"
-    },
-    {
-      "seq": 50,
-      "kind": "throw",
-      "step": "term-2",
-      "label": "reenlistment",
-      "dice": [6, 2],
-      "target": "6+",
-      "total": 8,
-      "success": true
-    },
-    {
-      "seq": 51,
-      "kind": "outcome",
-      "step": "term-2",
-      "text": "reenlists for another term",
-      "ref": 50
-    },
-    {
-      "seq": 52,
-      "kind": "step",
-      "step": "term-3",
-      "text": "term 3 begins, age 26"
-    },
-    {
-      "seq": 53,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "survival",
-      "dice": [1, 5],
-      "dms": [
-        {
-          "source": "endurance 8+",
-          "value": 2
-        }
-      ],
-      "target": "6+",
-      "total": 8,
-      "success": true
-    },
-    {
-      "seq": 54,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "promotion-attempt",
-      "by": "policy",
-      "options": ["yes", "no"],
-      "picked": "yes"
-    },
-    {
-      "seq": 55,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "promotion",
-      "dice": [3, 3],
-      "target": "9+",
-      "total": 6,
-      "success": false
-    },
-    {
-      "seq": 56,
+      "seq": 61,
       "kind": "outcome",
       "step": "term-3",
-      "text": "promotion denied this term (one attempt per term, p. 6)",
-      "ref": 55
+      "text": "promoted to Lt Colonel (rank 4); +1 skill eligibility (p. 6)",
+      "ref": 60
     },
     {
-      "seq": 57,
+      "seq": 62,
       "kind": "choice",
       "step": "term-3",
       "label": "skill-table",
@@ -612,15 +786,17 @@
       "picked": "service_skills"
     },
     {
-      "seq": 58,
+      "seq": 63,
       "kind": "throw",
       "step": "term-3",
       "label": "skill table service_skills",
-      "dice": [5],
+      "dice": [
+        5
+      ],
       "total": 5
     },
     {
-      "seq": 59,
+      "seq": 64,
       "kind": "choice",
       "step": "term-3",
       "label": "weapon",
@@ -640,90 +816,16 @@
       "picked": "Body Pistol"
     },
     {
-      "seq": 60,
-      "kind": "outcome",
-      "step": "term-3",
-      "text": "gun expertise: Body Pistol-1 (weapon chosen immediately, pp. 11-13)",
-      "ref": 58
-    },
-    {
-      "seq": 61,
-      "kind": "choice",
-      "step": "term-3",
-      "label": "reenlist-intent",
-      "by": "policy",
-      "options": ["yes", "no"],
-      "picked": "yes"
-    },
-    {
-      "seq": 62,
-      "kind": "throw",
-      "step": "term-3",
-      "label": "reenlistment",
-      "dice": [6, 4],
-      "target": "6+",
-      "total": 10,
-      "success": true
-    },
-    {
-      "seq": 63,
-      "kind": "outcome",
-      "step": "term-3",
-      "text": "reenlists for another term",
-      "ref": 62
-    },
-    {
-      "seq": 64,
-      "kind": "step",
-      "step": "term-4",
-      "text": "term 4 begins, age 30"
-    },
-    {
       "seq": 65,
-      "kind": "throw",
-      "step": "term-4",
-      "label": "survival",
-      "dice": [5, 3],
-      "dms": [
-        {
-          "source": "endurance 8+",
-          "value": 2
-        }
-      ],
-      "target": "6+",
-      "total": 10,
-      "success": true
+      "kind": "outcome",
+      "step": "term-3",
+      "text": "gun expertise: Body Pistol-4 (weapon chosen immediately, pp. 11-13)",
+      "ref": 63
     },
     {
       "seq": 66,
       "kind": "choice",
-      "step": "term-4",
-      "label": "promotion-attempt",
-      "by": "policy",
-      "options": ["yes", "no"],
-      "picked": "yes"
-    },
-    {
-      "seq": 67,
-      "kind": "throw",
-      "step": "term-4",
-      "label": "promotion",
-      "dice": [3, 4],
-      "target": "9+",
-      "total": 7,
-      "success": false
-    },
-    {
-      "seq": 68,
-      "kind": "outcome",
-      "step": "term-4",
-      "text": "promotion denied this term (one attempt per term, p. 6)",
-      "ref": 67
-    },
-    {
-      "seq": 69,
-      "kind": "choice",
-      "step": "term-4",
+      "step": "term-3",
       "label": "skill-table",
       "by": "policy",
       "options": [
@@ -735,51 +837,80 @@
       "picked": "service_skills"
     },
     {
-      "seq": 70,
+      "seq": 67,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-3",
       "label": "skill table service_skills",
-      "dice": [2],
-      "total": 2
+      "dice": [
+        4
+      ],
+      "total": 4
     },
     {
-      "seq": 71,
-      "kind": "outcome",
-      "step": "term-4",
-      "text": "Vacc Suit-2",
-      "ref": 70
-    },
-    {
-      "seq": 72,
+      "seq": 68,
       "kind": "choice",
-      "step": "term-4",
+      "step": "term-3",
+      "label": "weapon",
+      "by": "policy",
+      "options": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
+      ],
+      "picked": "Dagger"
+    },
+    {
+      "seq": 69,
+      "kind": "outcome",
+      "step": "term-3",
+      "text": "blade expertise: Dagger-3 (weapon chosen immediately, pp. 11-13)",
+      "ref": 67
+    },
+    {
+      "seq": 70,
+      "kind": "choice",
+      "step": "term-3",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
-      "seq": 73,
+      "seq": 71,
       "kind": "throw",
-      "step": "term-4",
+      "step": "term-3",
       "label": "reenlistment",
-      "dice": [2, 2],
-      "target": "6+",
-      "total": 4,
+      "dice": [
+        2,
+        3
+      ],
+      "target": "7+",
+      "total": 5,
       "success": false
     },
     {
-      "seq": 74,
+      "seq": 72,
       "kind": "outcome",
-      "step": "term-4",
+      "step": "term-3",
       "text": "reenlistment denied; must leave the service (p. 6)",
-      "ref": 73
+      "ref": 71
     },
     {
-      "seq": 75,
+      "seq": 73,
       "kind": "outcome",
-      "step": "term-4",
-      "text": "leaves the service after 4 term(s), age 34"
+      "step": "term-3",
+      "text": "leaves the service after 3 term(s), age 30"
     }
   ]
 }

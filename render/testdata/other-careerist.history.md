@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 3 (go-math-rand-v2-pcg), engine 0.1.0, policy 1.
+Seed 3 (go-math-rand-v2-pcg), engine 0.2.0, policy 2.
 
 ## characteristics
 
@@ -16,7 +16,7 @@ Seed 3 (go-math-rand-v2-pcg), engine 0.1.0, policy 1.
 ## enlistment
 
 - (9) one enlistment attempt; rejection offers the draft (p. 5)
-- (10) service: chose Other (by policy; options: Other)
+- (10) → enlistment attempt forced to other by input, not choice
 - (11) enlistment Other: threw 5+2 = 7 against 3+: success
 - (12) → enlisted in the Other [from 11]
 

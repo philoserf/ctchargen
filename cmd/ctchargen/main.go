@@ -28,7 +28,7 @@ const (
 )
 
 const usage = `usage:
-  ctchargen new [--seed N] [--auto] [--name X] [-o file] [--force]
+  ctchargen new [--seed N] [--auto] [--service navy] [--name X] [-o file] [--force]
   ctchargen render [--history] character.json
   ctchargen replay [--ignore-provenance] character.json
   ctchargen batch --count 20 --auto [-o dir|file.jsonl]
@@ -82,6 +82,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdout, stderr io.
 	fs.SetOutput(stderr)
 	seed := fs.Uint64("seed", 0, "RNG seed (default: drawn from the OS)")
 	auto := fs.Bool("auto", false, "apply the fixed default policy (POLICY.md) to every choice")
+	svc := fs.String("service", "", "force the enlistment attempt only; a failed throw still goes to the draft (p. 5)")
 	name := fs.String("name", "", "character name (blank by default; the book's naming section is advice, not a table)")
 	outPath := fs.String("o", "", "write the JSON record to this file instead of stdout")
 	force := fs.Bool("force", false, "overwrite an existing output file")
@@ -108,7 +109,9 @@ func runNew(args []string, seedSource func() (uint64, error), stdout, stderr io.
 		return exitError
 	}
 
-	char, err := chargen.Generate(chargen.Config{Seed: *seed, Name: *name, Auto: true}, chargen.AutoPolicy{})
+	cfg := chargen.Config{Seed: *seed, Name: *name, Service: *svc, Auto: true}
+
+	char, err := chargen.Generate(cfg, chargen.AutoPolicy{})
 	if err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 

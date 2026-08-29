@@ -12,7 +12,11 @@
     "name": "",
     "service": "marines"
   },
-  "errata": ["E001", "E002", "E004"],
+  "errata": [
+    "E001",
+    "E002",
+    "E004"
+  ],
   "name": "",
   "age": 34,
   "terms": 4,
@@ -71,7 +75,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "strength",
-      "dice": [1, 2],
+      "dice": [
+        1,
+        2
+      ],
       "total": 3
     },
     {
@@ -79,7 +86,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "dexterity",
-      "dice": [5, 4],
+      "dice": [
+        5,
+        4
+      ],
       "total": 9
     },
     {
@@ -87,7 +97,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "endurance",
-      "dice": [6, 6],
+      "dice": [
+        6,
+        6
+      ],
       "total": 12
     },
     {
@@ -95,7 +108,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "intelligence",
-      "dice": [1, 6],
+      "dice": [
+        1,
+        6
+      ],
       "total": 7
     },
     {
@@ -103,7 +119,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "education",
-      "dice": [4, 4],
+      "dice": [
+        4,
+        4
+      ],
       "total": 8
     },
     {
@@ -111,7 +130,10 @@
       "kind": "throw",
       "step": "characteristics",
       "label": "social_standing",
-      "dice": [3, 4],
+      "dice": [
+        3,
+        4
+      ],
       "total": 7
     },
     {
@@ -137,7 +159,10 @@
       "kind": "throw",
       "step": "enlistment",
       "label": "enlistment Marines",
-      "dice": [5, 5],
+      "dice": [
+        5,
+        5
+      ],
       "target": "9+",
       "total": 10,
       "success": true
@@ -166,7 +191,10 @@
       "kind": "throw",
       "step": "term-1",
       "label": "survival",
-      "dice": [5, 6],
+      "dice": [
+        5,
+        6
+      ],
       "dms": [
         {
           "source": "endurance 8+",
@@ -183,7 +211,10 @@
       "step": "term-1",
       "label": "commission-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -191,7 +222,10 @@
       "kind": "throw",
       "step": "term-1",
       "label": "commission",
-      "dice": [6, 3],
+      "dice": [
+        6,
+        3
+      ],
       "dms": [
         {
           "source": "education 7+",
@@ -221,7 +255,10 @@
       "step": "term-1",
       "label": "promotion-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -229,7 +266,10 @@
       "kind": "throw",
       "step": "term-1",
       "label": "promotion",
-      "dice": [5, 1],
+      "dice": [
+        5,
+        1
+      ],
       "target": "9+",
       "total": 6,
       "success": false
@@ -260,7 +300,9 @@
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
-      "dice": [4],
+      "dice": [
+        4
+      ],
       "total": 4
     },
     {
@@ -310,7 +352,9 @@
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
-      "dice": [2],
+      "dice": [
+        2
+      ],
       "total": 2
     },
     {
@@ -339,7 +383,9 @@
       "kind": "throw",
       "step": "term-1",
       "label": "skill table service_skills",
-      "dice": [1],
+      "dice": [
+        1
+      ],
       "total": 1
     },
     {
@@ -355,7 +401,10 @@
       "step": "term-1",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -363,7 +412,10 @@
       "kind": "throw",
       "step": "term-1",
       "label": "reenlistment",
-      "dice": [3, 4],
+      "dice": [
+        3,
+        4
+      ],
       "target": "6+",
       "total": 7,
       "success": true
@@ -386,7 +438,10 @@
       "kind": "throw",
       "step": "term-2",
       "label": "survival",
-      "dice": [4, 6],
+      "dice": [
+        4,
+        6
+      ],
       "dms": [
         {
           "source": "endurance 8+",
@@ -403,7 +458,10 @@
       "step": "term-2",
       "label": "promotion-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -411,7 +469,10 @@
       "kind": "throw",
       "step": "term-2",
       "label": "promotion",
-      "dice": [4, 6],
+      "dice": [
+        4,
+        6
+      ],
       "target": "9+",
       "total": 10,
       "success": true
@@ -442,7 +503,9 @@
       "kind": "throw",
       "step": "term-2",
       "label": "skill table service_skills",
-      "dice": [4],
+      "dice": [
+        4
+      ],
       "total": 4
     },
     {
@@ -492,7 +555,9 @@
       "kind": "throw",
       "step": "term-2",
       "label": "skill table service_skills",
-      "dice": [4],
+      "dice": [
+        4
+      ],
       "total": 4
     },
     {
@@ -529,7 +594,10 @@
       "step": "term-2",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -537,7 +605,10 @@
       "kind": "throw",
       "step": "term-2",
       "label": "reenlistment",
-      "dice": [6, 2],
+      "dice": [
+        6,
+        2
+      ],
       "target": "6+",
       "total": 8,
       "success": true
@@ -560,7 +631,10 @@
       "kind": "throw",
       "step": "term-3",
       "label": "survival",
-      "dice": [1, 5],
+      "dice": [
+        1,
+        5
+      ],
       "dms": [
         {
           "source": "endurance 8+",
@@ -577,7 +651,10 @@
       "step": "term-3",
       "label": "promotion-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -585,7 +662,10 @@
       "kind": "throw",
       "step": "term-3",
       "label": "promotion",
-      "dice": [3, 3],
+      "dice": [
+        3,
+        3
+      ],
       "target": "9+",
       "total": 6,
       "success": false
@@ -616,7 +696,9 @@
       "kind": "throw",
       "step": "term-3",
       "label": "skill table service_skills",
-      "dice": [5],
+      "dice": [
+        5
+      ],
       "total": 5
     },
     {
@@ -652,7 +734,10 @@
       "step": "term-3",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -660,7 +745,10 @@
       "kind": "throw",
       "step": "term-3",
       "label": "reenlistment",
-      "dice": [6, 4],
+      "dice": [
+        6,
+        4
+      ],
       "target": "6+",
       "total": 10,
       "success": true
@@ -683,7 +771,10 @@
       "kind": "throw",
       "step": "term-4",
       "label": "survival",
-      "dice": [5, 3],
+      "dice": [
+        5,
+        3
+      ],
       "dms": [
         {
           "source": "endurance 8+",
@@ -700,7 +791,10 @@
       "step": "term-4",
       "label": "promotion-attempt",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -708,7 +802,10 @@
       "kind": "throw",
       "step": "term-4",
       "label": "promotion",
-      "dice": [3, 4],
+      "dice": [
+        3,
+        4
+      ],
       "target": "9+",
       "total": 7,
       "success": false
@@ -739,7 +836,9 @@
       "kind": "throw",
       "step": "term-4",
       "label": "skill table service_skills",
-      "dice": [2],
+      "dice": [
+        2
+      ],
       "total": 2
     },
     {
@@ -755,7 +854,10 @@
       "step": "term-4",
       "label": "reenlist-intent",
       "by": "policy",
-      "options": ["yes", "no"],
+      "options": [
+        "yes",
+        "no"
+      ],
       "picked": "yes"
     },
     {
@@ -763,7 +865,10 @@
       "kind": "throw",
       "step": "term-4",
       "label": "reenlistment",
-      "dice": [2, 2],
+      "dice": [
+        2,
+        2
+      ],
       "target": "6+",
       "total": 4,
       "success": false

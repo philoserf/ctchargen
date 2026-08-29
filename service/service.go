@@ -96,6 +96,19 @@ func (t *SkillTables) Table(name string) ([]SkillResult, bool) {
 	return nil, false
 }
 
+// AutoSkill is one row of the Rank and Service Skills box (p. 23): a
+// skill or characteristic alteration that accrues automatically, without
+// eligibility, by virtue of a specific service (Rank 0) or a specific
+// rank (Rank 1-6). Skill names a specific skill or weapon — never a
+// category choice — with Category set when it is a weapon.
+type AutoSkill struct {
+	Rank           int    `json:"rank"`
+	Skill          string `json:"skill,omitempty"`
+	Category       string `json:"category,omitempty"`
+	Characteristic string `json:"characteristic,omitempty"`
+	Delta          int    `json:"delta,omitempty"`
+}
+
 // Service is one column of the Prior Service Table plus the service's
 // ranks and skills tables.
 type Service struct {
@@ -109,6 +122,7 @@ type Service struct {
 	Promotion        *ThrowSpec  `json:"promotion"`
 	Reenlist         ThrowSpec   `json:"reenlist"`
 	Ranks            []string    `json:"ranks"`
+	AutoSkills       []AutoSkill `json:"auto_skills"`
 	Skills           SkillTables `json:"skills"`
 }
 
@@ -269,7 +283,45 @@ func validateService(svc *Service) error {
 		return err
 	}
 
+	if err := validateAutoSkills(svc); err != nil {
+		return err
+	}
+
 	return validateTables(&svc.Skills)
+}
+
+func validateAutoSkills(svc *Service) error {
+	for i, auto := range svc.AutoSkills {
+		if auto.Rank < 0 || auto.Rank > len(svc.Ranks) {
+			return fmt.Errorf("%w: auto skill %d at rank %d, service has %d ranks", ErrInvalidData, i, auto.Rank, len(svc.Ranks))
+		}
+
+		if err := validateAutoSkill(auto); err != nil {
+			return fmt.Errorf("auto skill %d: %w", i, err)
+		}
+	}
+
+	return nil
+}
+
+func validateAutoSkill(auto AutoSkill) error {
+	hasSkill := auto.Skill != ""
+	hasAlteration := auto.Characteristic != ""
+
+	if hasSkill == hasAlteration {
+		return fmt.Errorf("%w: want exactly one of skill or characteristic", ErrInvalidData)
+	}
+
+	if hasAlteration && (!validCharacteristic(auto.Characteristic) || auto.Delta != 1) {
+		return fmt.Errorf("%w: alteration %s %+d (p. 23 grants only +1)",
+			ErrInvalidData, auto.Characteristic, auto.Delta)
+	}
+
+	if auto.Category != "" && (auto.Category != "blade" && auto.Category != "gun" || !hasSkill) {
+		return fmt.Errorf("%w: category %q", ErrInvalidData, auto.Category)
+	}
+
+	return nil
 }
 
 func validateThrows(svc *Service) error {

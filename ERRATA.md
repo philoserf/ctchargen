@@ -31,12 +31,29 @@ Survival failure is death (p. 5); the book does not state the dead
 character's age. The record keeps the age at the start of the fatal term
 and records the term and cause (FR8). Stamped on records with a death.
 
+## E004 — Rank and Service Skills timing (p. 23)
+
+The box's own rule — the skills accrue "as soon as he becomes eligible" —
+leaves _when_ underspecified for the service-wide entries (Marine
+Cutlass-1, Army Rifle-1, Scout Pilot-1). The reading: service-wide
+entries accrue **on entering the service** (enlistment or draft);
+rank-specific entries accrue **on attaining the rank**; each entry
+accrues once, adding to expertise levels in the normal manner as the box
+says. Stamped on records that received any such grant.
+
 ## Normalizations (not stamped)
 
-Spelling is normalized to the skills list's own names, so one skill
-accumulates under one name:
+Spelling is normalized to the skill descriptions' own names (pp. 13–20),
+so one skill accumulates under one name:
 
 - "Electronics" (Other, Advanced Education 8+ table row 3, p. 11) is
   recorded as **Electronic** (the tables' and the Jamison example's
   spelling, pp. 11, 25).
 - "Jack-o-T" (p. 11) is recorded as **Jack-of-all-Trades** (p. 20).
+- "Admin" (p. 11) is recorded as **Administration** (p. 14).
+- "Fwd Obsv" (p. 11) is recorded as **Forward Observer** (p. 16).
+- "Engnrng" (p. 11) is recorded as **Engineer** (p. 20).
+- "SMG-1" (Army Lieutenant, p. 23 box) is recorded as **Submachine Gun**
+  (the guns list's name, p. 13).
+- "Rifl3-1" (Army, p. 23 box) is a reprint typo, recorded as **Rifle**
+  (p. 13).

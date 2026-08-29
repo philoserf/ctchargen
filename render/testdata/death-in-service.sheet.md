@@ -1,7 +1,7 @@
 # Unnamed
 
-Other — died in service, term 4 (failed the survival throw), age 30. UPP 9346C5.
+Other, drafted — died in service, term 1 (failed the survival throw), age 18. UPP 8777A8.
 
 ## Skills
 
-Dagger-2, Bribery-1, Brawling-1
+None.

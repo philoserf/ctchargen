@@ -21,11 +21,11 @@ const (
 	SchemaVersion = "1"
 	// EngineVersion changes when generation behaviour changes: rules,
 	// dice-stream consumption order, or the RNG construction.
-	EngineVersion = "0.1.0"
+	EngineVersion = "0.2.0"
 	// PolicyVersion identifies the POLICY.md decision table the auto mode
 	// applies. Never verified on replay: recorded choices are reapplied,
 	// the policy is not consulted.
-	PolicyVersion = "1"
+	PolicyVersion = "2"
 	// Ruleset pins the pages every rule was read from.
 	Ruleset = "Classic Traveller Books 1-3, © 1977 text, FFE reprints"
 )
