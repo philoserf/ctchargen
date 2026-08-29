@@ -1,0 +1,49 @@
+{
+  "name": "Other",
+  "prior_service_page": 10,
+  "skills_page": 11,
+  "enlistment": { "target": "3+", "dms": [] },
+  "draft_number": 6,
+  "survival": {
+    "target": "5+",
+    "dms": [{ "characteristic": "intelligence", "min": 9, "dm": 2 }]
+  },
+  "commission": null,
+  "promotion": null,
+  "reenlist": { "target": "5+", "dms": [] },
+  "ranks": [],
+  "skills": {
+    "personal_development": [
+      { "characteristic": "strength", "delta": 1 },
+      { "characteristic": "dexterity", "delta": 1 },
+      { "characteristic": "endurance", "delta": 1 },
+      { "weapon": "blade" },
+      { "skill": "Brawling" },
+      { "characteristic": "social_standing", "delta": -1 }
+    ],
+    "service_skills": [
+      { "skill": "Forgery" },
+      { "skill": "Gambling" },
+      { "skill": "Brawling" },
+      { "weapon": "blade" },
+      { "weapon": "gun" },
+      { "skill": "Bribery" }
+    ],
+    "advanced_education": [
+      { "skill": "Streetwise" },
+      { "skill": "Mechanical" },
+      { "skill": "Electronic" },
+      { "skill": "Gambling" },
+      { "skill": "Brawling" },
+      { "skill": "Forgery" }
+    ],
+    "advanced_education_8": [
+      { "skill": "Medical" },
+      { "skill": "Forgery" },
+      { "skill": "Electronic" },
+      { "skill": "Computer" },
+      { "skill": "Streetwise" },
+      { "skill": "Jack-of-all-Trades" }
+    ]
+  }
+}

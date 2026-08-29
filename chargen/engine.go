@@ -1,0 +1,420 @@
+package chargen
+
+import (
+	"fmt"
+	"slices"
+
+	"github.com/philoserf/ctchargen/dice"
+	"github.com/philoserf/ctchargen/service"
+)
+
+// Errata identifiers stamped into every record this engine writes: the
+// ERRATA.md readings that are wired into the procedure itself and so
+// applied to every generation.
+var appliedErrata = []string{
+	"E001", // the draft is optional: "may submit" governs over "must submit" (p. 5)
+	"E002", // per-term order is the exposition's, not the Jamison example's (pp. 5-6, 24)
+}
+
+// Config is the caller's inputs to one generation.
+type Config struct {
+	Seed uint64
+	Name string
+	// Service forces the enlistment attempt only: the throw is still
+	// made, and a failed throw still goes to the draft (p. 5).
+	Service string
+	// Auto records which mode ran; the record's choices carry who decided.
+	Auto bool
+}
+
+// Generate runs the whole prior-service procedure (Book 1 pp. 4-25) and
+// returns the completed record. Death and a declined draft are completed
+// generations, not errors.
+func Generate(cfg Config, decider Decider) (*Character, error) {
+	reg, err := service.Load()
+	if err != nil {
+		return nil, fmt.Errorf("loading rule data: %w", err)
+	}
+
+	if cfg.Service != "" {
+		if _, err := reg.Service(cfg.Service); err != nil {
+			return nil, fmt.Errorf("--service: %w", err)
+		}
+	}
+
+	g := &generator{
+		reg:     reg,
+		stream:  dice.New(cfg.Seed),
+		decider: decider,
+		char: &Character{
+			SchemaVersion: SchemaVersion,
+			Ruleset:       Ruleset,
+			EngineVersion: EngineVersion,
+			PolicyVersion: PolicyVersion,
+			RNG:           RNG{Algorithm: dice.Algorithm, Seed: cfg.Seed},
+			Inputs:        Inputs{Auto: cfg.Auto, Name: cfg.Name, Service: cfg.Service},
+			Errata:        slices.Clone(appliedErrata),
+			Name:          cfg.Name,
+			Age:           18, // all characters begin at age 18 (p. 4)
+			Skills:        []Skill{},
+			Events:        []Event{},
+		},
+	}
+
+	if err := g.run(); err != nil {
+		return nil, err
+	}
+
+	return g.char, nil
+}
+
+type generator struct {
+	reg     *service.Registry
+	stream  *dice.Stream
+	decider Decider
+	char    *Character
+	seq     int
+}
+
+func (g *generator) run() error {
+	g.characteristics()
+
+	svc, civilian, err := g.enlistment()
+	if err != nil {
+		return err
+	}
+
+	if civilian {
+		return nil // declined the draft: an 18-year-old civilian, a valid record
+	}
+
+	g.char.Service = svc.Name
+
+	for term := 1; ; term++ {
+		left, err := g.term(svc, term)
+		if err != nil {
+			return err
+		}
+
+		if left {
+			return nil
+		}
+	}
+}
+
+// characteristics rolls 2D for each of the six, in order (p. 4), and
+// derives the UPP (p. 8).
+func (g *generator) characteristics() {
+	step := "characteristics"
+	g.step(step, "roll 2D for each characteristic, in order (p. 4)")
+
+	for _, name := range service.CharacteristicNames {
+		total, _ := g.plainThrow(step, name)
+		g.char.Characteristics.set(name, total)
+	}
+
+	g.char.UPP = g.char.Characteristics.UPP()
+	g.outcome(step, fmt.Sprintf("UPP %s (p. 8)", g.char.UPP), 0)
+}
+
+// enlistment is the one enlistment attempt and, on rejection, the draft
+// (p. 5). The bool reports a civilian who declined the draft — a
+// completed generation with no service.
+func (g *generator) enlistment() (*service.Service, bool, error) {
+	step := "enlistment"
+	g.step(step, "one enlistment attempt; rejection offers the draft (p. 5)")
+
+	name := g.char.Inputs.Service
+	if name == "" {
+		picked, err := g.choose(Choice{Step: step, Label: ChoiceService, Options: g.reg.Names()})
+		if err != nil {
+			return nil, false, err
+		}
+
+		name = picked
+	} else {
+		g.outcome(step, "enlistment attempt forced to "+name+" by input, not choice", 0)
+	}
+
+	svc, err := g.reg.Service(name)
+	if err != nil {
+		return nil, false, fmt.Errorf("enlistment: %w", err)
+	}
+
+	_, ok, seq, err := g.targetThrow(step, "enlistment "+svc.Name, svc.Enlistment)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if ok {
+		g.outcome(step, "enlisted in the "+svc.Name, seq)
+
+		return svc, false, nil
+	}
+
+	g.outcome(step, "rejected by the "+svc.Name, seq)
+
+	submit, err := g.choose(Choice{Step: step, Label: ChoiceSubmitToDraft, Options: []string{Yes, No}})
+	if err != nil {
+		return nil, false, err
+	}
+
+	if submit == No {
+		g.outcome(step, "declined the draft; enters play an 18-year-old civilian (E001)", 0)
+
+		return nil, true, nil
+	}
+
+	roll, seq := g.plainRoll(step, "draft")
+
+	drafted, err := g.reg.ByDraftNumber(roll)
+	if err != nil {
+		return nil, false, fmt.Errorf("draft rolled %d: %w", roll, err)
+	}
+
+	g.char.Drafted = true
+	g.outcome(step, fmt.Sprintf("drafted into the %s (draft number %d)", drafted.Name, roll), seq)
+
+	return drafted, false, nil
+}
+
+// term is one 4-year term (p. 5), in the exposition's order (E002):
+// survival, commission, promotion, skills, reenlistment. It reports
+// whether the character left the service (death included).
+func (g *generator) term(svc *service.Service, term int) (bool, error) {
+	step := fmt.Sprintf("term-%d", term)
+	g.step(step, fmt.Sprintf("term %d begins, age %d", term, g.char.Age))
+
+	_, ok, seq, err := g.targetThrow(step, "survival", svc.Survival)
+	if err != nil {
+		return false, err
+	}
+
+	if !ok {
+		g.char.Death = &Death{Term: term, Cause: "failed the survival throw"}
+		g.char.Terms = term - 1
+		g.char.Errata = append(g.char.Errata, "E003") // age of the dead: start of the fatal term
+		g.outcome(step, fmt.Sprintf("died in service, term %d (survival failure is death, p. 5)", term), seq)
+
+		return true, nil
+	}
+
+	// Commissions and promotions arrive with milestone 2; Other, the one
+	// milestone-1 service, has neither (p. 10).
+
+	if err := g.skills(&svc.Skills, step, term); err != nil {
+		return false, err
+	}
+
+	stays, err := g.reenlistment(svc, step, term)
+	if err != nil {
+		return false, err
+	}
+
+	g.char.Age += 4 // each term is 4 years (p. 5)
+	g.char.Terms = term
+	g.char.UPP = g.char.Characteristics.UPP()
+
+	if !stays {
+		g.outcome(step, fmt.Sprintf("leaves the service after %d term(s), age %d", term, g.char.Age), 0)
+	}
+
+	return !stays, nil
+}
+
+// skills spends the term's eligibility: 2 for the initial term, 1 per
+// subsequent term (p. 6), each one die on a declared table (p. 11).
+func (g *generator) skills(tables *service.SkillTables, step string, term int) error {
+	eligibility := 1
+	if term == 1 {
+		eligibility = 2
+	}
+
+	for range eligibility {
+		options := service.TableNames[:3]
+		if g.char.Characteristics.Education >= 8 {
+			options = service.TableNames // the fourth table needs Education 8+ (p. 11)
+		}
+
+		table, err := g.choose(Choice{Step: step, Label: ChoiceSkillTable, Options: options})
+		if err != nil {
+			return err
+		}
+
+		rows, okTable := tables.Table(table)
+		if !okTable {
+			return fmt.Errorf("%w: skill table %q not in service data", ErrBadDecision, table)
+		}
+
+		roll, seq := g.plainRoll(step, "skill table "+table)
+
+		if err := g.applySkillResult(step, rows[roll-1], seq); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (g *generator) applySkillResult(step string, row service.SkillResult, ref int) error {
+	switch {
+	case row.Characteristic != "":
+		before, after := g.char.Characteristics.Apply(row.Characteristic, row.Delta)
+		text := fmt.Sprintf("%+d %s (%d → %d), applied immediately (p. 12)", row.Delta, row.Characteristic, before, after)
+		g.outcome(step, text, ref)
+	case row.Weapon != "":
+		options, err := g.reg.Weapons(row.Weapon)
+		if err != nil {
+			return fmt.Errorf("weapon expertise: %w", err)
+		}
+
+		weapon, err := g.choose(Choice{Step: step, Label: ChoiceWeapon, Category: row.Weapon, Options: options})
+		if err != nil {
+			return err
+		}
+
+		level := g.char.AddSkill(weapon, row.Weapon)
+		text := fmt.Sprintf("%s expertise: %s-%d (weapon chosen immediately, pp. 11-13)", row.Weapon, weapon, level)
+		g.outcome(step, text, ref)
+	default:
+		level := g.char.AddSkill(row.Skill, "")
+		g.outcome(step, fmt.Sprintf("%s-%d", row.Skill, level), ref)
+	}
+
+	return nil
+}
+
+// reenlistment is made every term whether or not the character wants to
+// stay (p. 6): failure forces him out, a 12 exactly forces him to stay
+// (pp. 6-7). Voluntary service caps at 7 terms (p. 7). It reports whether
+// the character stays for another term.
+func (g *generator) reenlistment(svc *service.Service, step string, term int) (bool, error) {
+	intent := No
+
+	if term < 7 {
+		picked, err := g.choose(Choice{Step: step, Label: ChoiceReenlist, Options: []string{Yes, No}})
+		if err != nil {
+			return false, err
+		}
+
+		intent = picked
+	} else {
+		g.outcome(step, "voluntary service caps at 7 terms; must attempt to leave (p. 7)", 0)
+	}
+
+	total, ok, seq, err := g.targetThrow(step, "reenlistment", svc.Reenlist)
+	if err != nil {
+		return false, err
+	}
+
+	switch {
+	case !ok:
+		g.outcome(step, "reenlistment denied; must leave the service (p. 6)", seq)
+
+		return false, nil
+	case total == 12:
+		g.outcome(step, "threw 12 exactly; must serve another term regardless of desires (pp. 6-7)", seq)
+
+		return true, nil
+	case intent == No:
+		g.outcome(step, "chooses to leave the service", seq)
+
+		return false, nil
+	default:
+		g.outcome(step, "reenlists for another term", seq)
+
+		return true, nil
+	}
+}
+
+// --- event helpers ---
+
+func (g *generator) next() int {
+	g.seq++
+
+	return g.seq
+}
+
+func (g *generator) step(step, text string) {
+	g.char.Events = append(g.char.Events, Event{Seq: g.next(), Kind: "step", Step: step, Text: text})
+}
+
+func (g *generator) outcome(step, text string, ref int) {
+	g.char.Events = append(g.char.Events, Event{Seq: g.next(), Kind: "outcome", Step: step, Text: text, Ref: ref})
+}
+
+// plainThrow is a 2D throw with no target (the characteristic rolls). It
+// reports the total and the event's sequence number.
+func (g *generator) plainThrow(step, label string) (int, int) {
+	d1, d2 := g.stream.Two()
+	seq := g.next()
+	g.char.Events = append(g.char.Events, Event{
+		Seq: seq, Kind: "throw", Step: step, Label: label,
+		Dice: []int{d1, d2}, Total: d1 + d2,
+	})
+
+	return d1 + d2, seq
+}
+
+// plainRoll is a single-die roll (draft, skills tables; FR9). It reports
+// the value and the event's sequence number.
+func (g *generator) plainRoll(step, label string) (int, int) {
+	v := g.stream.One()
+	seq := g.next()
+	g.char.Events = append(g.char.Events, Event{
+		Seq: seq, Kind: "throw", Step: step, Label: label,
+		Dice: []int{v}, Total: v,
+	})
+
+	return v, seq
+}
+
+// targetThrow is a 2D throw against a Prior Service Table cell, with its
+// cumulative characteristic DMs (pp. 5, 10). It reports the DM-modified
+// total, whether the target was met, and the event's sequence number.
+func (g *generator) targetThrow(step, label string, spec service.ThrowSpec) (int, bool, int, error) {
+	target, err := dice.ParseTarget(spec.Target)
+	if err != nil {
+		return 0, false, 0, fmt.Errorf("%s %s: %w", step, label, err)
+	}
+
+	d1, d2 := g.stream.Two()
+	total := d1 + d2
+
+	var dms []EventDM
+
+	for _, dm := range spec.DMs {
+		if g.char.Characteristics.Get(dm.Characteristic) >= dm.Min {
+			dms = append(dms, EventDM{Source: fmt.Sprintf("%s %d+", dm.Characteristic, dm.Min), Value: dm.DM})
+			total += dm.DM
+		}
+	}
+
+	success := target.Met(total)
+	seq := g.next()
+	g.char.Events = append(g.char.Events, Event{
+		Seq: seq, Kind: "throw", Step: step, Label: label,
+		Dice: []int{d1, d2}, DMs: dms, Target: spec.Target, Total: total, Success: &success,
+	})
+
+	return total, success, seq, nil
+}
+
+func (g *generator) choose(ch Choice) (string, error) {
+	decision, err := g.decider.Decide(ch)
+	if err != nil {
+		return "", fmt.Errorf("choice %s at %s: %w", ch.Label, ch.Step, err)
+	}
+
+	if !slices.Contains(ch.Options, decision.Pick) {
+		return "", fmt.Errorf("%w: choice %s at %s: pick %q not among %v",
+			ErrBadDecision, ch.Label, ch.Step, decision.Pick, ch.Options)
+	}
+
+	g.char.Events = append(g.char.Events, Event{
+		Seq: g.next(), Kind: "choice", Step: ch.Step, Label: ch.Label,
+		By: decision.By, Options: ch.Options, Picked: decision.Pick,
+	})
+
+	return decision.Pick, nil
+}

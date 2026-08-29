@@ -7,9 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `ctchargen`: a Go CLI that generates rules-accurate Classic Traveller
 characters (Books 1–3, © 1977 text), sibling to `philoserf/t5chargen`.
 
-**Status: scaffolded, pre-engine.** `docs/PRD.md` is the v1 contract — read
-it before doing any work here. The Go module, gate, and a stub
-`cmd/ctchargen` exist; no engine code does yet.
+**Status: milestone 1 complete** (walking skeleton — dice, event log,
+record/schema, render, `new --auto`/`render`/`version`, the Other service
+only). `docs/PRD.md` is the v1 contract — read it before doing any work
+here. `COVERAGE.md` maps rules to implementation; `ERRATA.md` holds the
+recorded readings; `POLICY.md` is the auto-mode decision table. Golden
+fixtures move only via `task goldens`, never by hand.
 
 ## Commands
 
