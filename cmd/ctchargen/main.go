@@ -1,17 +1,19 @@
 // Command ctchargen generates Classic Traveller characters (Books 1-3,
 // © 1977 text). See docs/PRD.md for the v1 contract.
 //
-// Implemented subcommands: new (auto mode), render, version.
+// Implemented subcommands: new, batch, render, replay, version.
 package main
 
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -29,14 +31,15 @@ const (
 
 const usage = `usage:
   ctchargen new [--seed N] [--auto] [--service navy] [--name X] [-o file] [--force]
+                (without --auto the player answers each choice; --auto applies POLICY.md)
+  ctchargen batch --count 20 --auto [--seed N] [--service navy] [-o dir|file.jsonl] [--force]
   ctchargen render [--history] character.json
   ctchargen replay [--ignore-provenance] character.json
-  ctchargen batch --count 20 --auto [-o dir|file.jsonl]
   ctchargen version
 `
 
 func main() {
-	os.Exit(run(os.Args[1:], randomSeed, os.Stdout, os.Stderr))
+	os.Exit(run(os.Args[1:], randomSeed, os.Stdin, os.Stdout, os.Stderr))
 }
 
 // randomSeed draws a seed from the OS entropy source: the one deliberate
@@ -51,7 +54,7 @@ func randomSeed() (uint64, error) {
 	return binary.LittleEndian.Uint64(buf[:]), nil
 }
 
-func run(args []string, seedSource func() (uint64, error), stdout, stderr io.Writer) int {
+func run(args []string, seedSource func() (uint64, error), stdin io.Reader, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		fmt.Fprint(stderr, usage)
 
@@ -60,15 +63,15 @@ func run(args []string, seedSource func() (uint64, error), stdout, stderr io.Wri
 
 	switch args[0] {
 	case "new":
-		return runNew(args[1:], seedSource, stdout, stderr)
+		return runNew(args[1:], seedSource, stdin, stdout, stderr)
+	case "batch":
+		return runBatch(args[1:], seedSource, stdout, stderr)
 	case "render":
 		return runRender(args[1:], stdout, stderr)
+	case "replay":
+		return runReplay(args[1:], stdout, stderr)
 	case "version":
 		return runVersion(stdout)
-	case "batch", "replay":
-		fmt.Fprintf(stderr, "ctchargen %s: not yet implemented (see docs/PRD.md)\n", args[0])
-
-		return exitError
 	default:
 		fmt.Fprintf(stderr, "ctchargen: unknown command %q\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -77,7 +80,7 @@ func run(args []string, seedSource func() (uint64, error), stdout, stderr io.Wri
 	}
 }
 
-func runNew(args []string, seedSource func() (uint64, error), stdout, stderr io.Writer) int {
+func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("new", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	seed := fs.Uint64("seed", 0, "RNG seed (default: drawn from the OS)")
@@ -97,21 +100,20 @@ func runNew(args []string, seedSource func() (uint64, error), stdout, stderr io.
 		return exitUsage
 	}
 
-	if !*auto {
-		fmt.Fprintln(stderr, "ctchargen new: interactive mode is not yet implemented; use --auto")
-
-		return exitError
-	}
-
 	if err := resolveSeed(fs, seed, seedSource); err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 
 		return exitError
 	}
 
-	cfg := chargen.Config{Seed: *seed, Name: *name, Service: *svc, Auto: true}
+	var decider chargen.Decider = chargen.AutoPolicy{}
+	if !*auto {
+		decider = newPrompter(stdin, stderr)
+	}
 
-	char, err := chargen.Generate(cfg, chargen.AutoPolicy{})
+	cfg := chargen.Config{Seed: *seed, Name: *name, Service: *svc, Auto: *auto}
+
+	char, err := chargen.Generate(cfg, decider)
 	if err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 
@@ -123,6 +125,160 @@ func runNew(args []string, seedSource func() (uint64, error), stdout, stderr io.
 
 		return exitError
 	}
+
+	return exitOK
+}
+
+// runBatch generates count characters, each member's seed derived from
+// the base seed plus its index and recorded in its record (docs/PRD.md,
+// CLI sketch). Output is JSONL to stdout or a file, or one JSON file per
+// character when -o names a directory.
+func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("batch", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	count := fs.Int("count", 0, "number of characters to generate")
+	seed := fs.Uint64("seed", 0, "base RNG seed (default: drawn from the OS); member i uses seed+i")
+	auto := fs.Bool("auto", false, "required: batch applies the fixed default policy (POLICY.md)")
+	svc := fs.String("service", "", "force each member's enlistment attempt only (p. 5)")
+	outPath := fs.String("o", "", "JSONL file, or an existing directory for one file per character")
+	force := fs.Bool("force", false, "overwrite existing output files")
+
+	if err := fs.Parse(args); err != nil {
+		return exitUsage
+	}
+
+	if fs.NArg() != 0 || *count < 1 || !*auto {
+		fmt.Fprintln(stderr, "ctchargen batch: requires --count N (≥1) and --auto, with flags before any filename")
+
+		return exitUsage
+	}
+
+	if err := resolveSeed(fs, seed, seedSource); err != nil {
+		fmt.Fprintf(stderr, "ctchargen batch: %v\n", err)
+
+		return exitError
+	}
+
+	chars := make([]*chargen.Character, 0, *count)
+
+	for i := range *count {
+		memberSeed := *seed + uint64(i) // #nosec G115 -- count is small; uint64 wraparound would be harmless and recorded
+		cfg := chargen.Config{Seed: memberSeed, Service: *svc, Auto: true}
+
+		char, err := chargen.Generate(cfg, chargen.AutoPolicy{})
+		if err != nil {
+			fmt.Fprintf(stderr, "ctchargen batch: member %d: %v\n", i, err)
+
+			return exitError
+		}
+
+		chars = append(chars, char)
+	}
+
+	if err := emitBatch(chars, *outPath, *force, stdout); err != nil {
+		fmt.Fprintf(stderr, "ctchargen batch: %v\n", err)
+
+		return exitError
+	}
+
+	return exitOK
+}
+
+func emitBatch(chars []*chargen.Character, outPath string, force bool, stdout io.Writer) error {
+	if outPath != "" {
+		if info, err := os.Stat(outPath); err == nil && info.IsDir() {
+			return writeBatchDir(chars, outPath, force)
+		}
+	}
+
+	lines, err := batchJSONL(chars)
+	if err != nil {
+		return err
+	}
+
+	if outPath == "" {
+		if _, err := stdout.Write(lines); err != nil {
+			return fmt.Errorf("writing batch: %w", err)
+		}
+
+		return nil
+	}
+
+	return writeFile(outPath, lines, force)
+}
+
+// batchJSONL renders one compact JSON record per line.
+func batchJSONL(chars []*chargen.Character) ([]byte, error) {
+	var out []byte
+
+	for _, char := range chars {
+		line, err := json.Marshal(char)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling batch record: %w", err)
+		}
+
+		out = append(out, line...)
+		out = append(out, '\n')
+	}
+
+	return out, nil
+}
+
+func writeBatchDir(chars []*chargen.Character, dir string, force bool) error {
+	for i, char := range chars {
+		record, err := char.MarshalRecord()
+		if err != nil {
+			return fmt.Errorf("member %d: %w", i, err)
+		}
+
+		path := filepath.Join(dir, fmt.Sprintf("character-%04d.json", i))
+		if err := writeFile(path, record, force); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// runReplay re-runs the engine from the record's seed, inputs, and
+// recorded choices, exiting non-zero at the first mismatch (docs/PRD.md,
+// Replay and provenance contract).
+func runReplay(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("replay", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	ignore := fs.Bool("ignore-provenance", false, "waive the version match — and nothing else")
+
+	if err := fs.Parse(args); err != nil {
+		return exitUsage
+	}
+
+	if fs.NArg() != 1 {
+		fmt.Fprintln(stderr, "ctchargen replay: want exactly one character.json (flags precede the filename)")
+
+		return exitUsage
+	}
+
+	data, err := os.ReadFile(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(stderr, "ctchargen replay: %v\n", err)
+
+		return exitError
+	}
+
+	char, err := chargen.UnmarshalRecord(data)
+	if err != nil {
+		fmt.Fprintf(stderr, "ctchargen replay: %v\n", err)
+
+		return exitError
+	}
+
+	if err := chargen.Replay(char, *ignore); err != nil {
+		fmt.Fprintf(stderr, "ctchargen replay: %v\n", err)
+
+		return exitError
+	}
+
+	fmt.Fprintf(stdout, "replay verified: %d events reproduced from seed %d\n", len(char.Events), char.RNG.Seed)
 
 	return exitOK
 }

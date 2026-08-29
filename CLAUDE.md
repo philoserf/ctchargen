@@ -7,11 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `ctchargen`: a Go CLI that generates rules-accurate Classic Traveller
 characters (Books 1–3, © 1977 text), sibling to `philoserf/t5chargen`.
 
-**Status: milestone 3 complete** (all six services; aging with medical
-crises; retirement pay; mustering out with ships and titles; the full
-pp. 4–25 procedure). Milestone 4 remains: interactive mode, `batch`, and
-the `replay` subcommand (the replay library already exists and is
-golden-tested).
+**Status: all four PRD milestones complete** — the full pp. 4–25
+procedure across all six services, aging/medical crises, mustering out
+with ships and titles, interactive and auto modes, `batch`, and `replay`
+verification.
 `docs/PRD.md` is the v1 contract — read it before doing any work
 here. `COVERAGE.md` maps rules to implementation; `ERRATA.md` holds the
 recorded readings; `POLICY.md` is the auto-mode decision table. Golden

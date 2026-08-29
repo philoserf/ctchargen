@@ -40,8 +40,8 @@ rows carry their milestone instead of an implementation.
 | Scout ship: Type S, constructive possession, duplicates lost                                                  | 23; B2 18    | `chargen/muster.go` `shipBenefit`                                          | `scout-ship` fixture                                                      |
 | Titles: Social 11+ may assume; Book 3 nobility range                                                          | 4; B3 22     | `chargen/muster.go` `title`, `chargen/data/nobility.json`                  | `duke` fixture                                                            |
 
-## Pending
+| Interactive mode: every choice point prompted | — | `cmd/ctchargen/prompter.go` | `TestNewInteractive` |
+| Batch: member seeds = base + index, JSONL or per-file, `--auto` required | — | `cmd/ctchargen/main.go` `runBatch` | `TestBatchJSONLDerivesSeeds`, `TestBatchToDirectory` |
+| Replay subcommand: recompute all throws, non-zero exit at first mismatch, `--ignore-provenance` waives versions only | — | `chargen/replay.go`, `cmd/ctchargen/main.go` `runReplay` | `TestReplayRoundTrip`, `TestReplayRoundTripViaCLI` |
 
-| Rule                                       | Page | Arrives with |
-| ------------------------------------------ | ---- | ------------ |
-| Interactive mode, batch, replay subcommand | —    | milestone 4  |
+All four PRD milestones are implemented; nothing is pending.
