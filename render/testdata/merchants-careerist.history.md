@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 2 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 2 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 
@@ -42,7 +42,7 @@ Seed 2 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (30) → Electronic-1 [from 29]
 - (31) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education, advanced_education_8)
 - (32) skill table service_skills: threw 6 = 6
-- (33) → Jack-of-all-Trades-1 [from 32]
+- (33) → Jack of all Trades-1 [from 32]
 - (34) reenlist-intent: chose yes (by policy; options: yes, no)
 - (35) reenlistment: threw 5+6 = 11 against 4+: success
 - (36) → reenlists for another term [from 35]

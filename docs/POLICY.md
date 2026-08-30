@@ -24,7 +24,7 @@ Changing any row below is a `policy_version` bump.
 | `benefit-dm`         | Yes — the rank 5–6 +1 on Table 1 is always taken (p. 9).                                                                                            |
 | `cash-dm`            | Yes — the gambling +1 on Table 2 is always taken (p. 9).                                                                                            |
 | `muster-weapon`      | +1 expertise in the first-listed already-received benefit weapon when the option exists (p. 22); otherwise the first-listed weapon of the category. |
-| `assume-title`       | Yes — an eligible hereditary title is assumed (p. 4; Book 3 p. 22).                                                                                 |
+| `assume-title`       | Yes — an eligible hereditary title is assumed (p. 5; Book 3 p. 22).                                                                                 |
 
 ## History
 

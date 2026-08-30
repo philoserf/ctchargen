@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 4 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 4 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 
@@ -203,4 +203,4 @@ Seed 4 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (170) → +1 intelligence (10 → 11), applied immediately (p. 23) [from 169]
 - (171) → retired after 7 terms: CR 8000 per year retirement pay (pp. 7, 21)
 - (172) assume-title: chose yes (by policy; options: yes, no)
-- (173) → assumes the hereditary title duke/duchess (Social Standing 15; p. 4, Book 3 p. 22)
+- (173) → assumes the hereditary title duke/duchess (Social Standing 15; p. 5, Book 3 p. 22)

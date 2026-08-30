@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 34 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 34 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 
@@ -27,7 +27,7 @@ Seed 34 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (15) survival: threw 4+2, DM +2 (endurance 9+) = 8 against 7+: success
 - (16) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (17) skill table service_skills: threw 6 = 6
-- (18) → Jack-of-all-Trades-1 [from 17]
+- (18) → Jack of all Trades-1 [from 17]
 - (19) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (20) skill table service_skills: threw 3 = 3
 - (21) → Navigation-1 [from 20]

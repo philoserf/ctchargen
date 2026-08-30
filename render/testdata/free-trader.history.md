@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 145 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 145 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 
@@ -41,7 +41,7 @@ Seed 145 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (29) → Steward-2 [from 28]
 - (30) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (31) skill table service_skills: threw 6 = 6
-- (32) → Jack-of-all-Trades-1 [from 31]
+- (32) → Jack of all Trades-1 [from 31]
 - (33) reenlist-intent: chose yes (by policy; options: yes, no)
 - (34) reenlistment: threw 1+6 = 7 against 4+: success
 - (35) → reenlists for another term [from 34]
@@ -59,7 +59,7 @@ Seed 145 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (44) → gun expertise: Body Pistol-1 (weapon chosen immediately, pp. 11-13) [from 42]
 - (45) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (46) skill table service_skills: threw 6 = 6
-- (47) → Jack-of-all-Trades-2 [from 46]
+- (47) → Jack of all Trades-2 [from 46]
 - (48) reenlist-intent: chose yes (by policy; options: yes, no)
 - (49) reenlistment: threw 1+6 = 7 against 4+: success
 - (50) → reenlists for another term [from 49]
