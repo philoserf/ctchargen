@@ -108,9 +108,21 @@ func passageLines(p chargen.Passages) []string {
 	return lines
 }
 
+// ageText renders the age, carrying the months when there are any. Only a
+// medical-crisis recovery accrues them (1D months, pp. 7-8), and the sheet
+// is the artefact taken to the table, so it must not round away a
+// fraction the record keeps and the schema requires.
+func ageText(c *chargen.Character) string {
+	if c.AgeMonths == 0 {
+		return fmt.Sprintf("age %d", c.Age)
+	}
+
+	return fmt.Sprintf("age %d years %d months", c.Age, c.AgeMonths)
+}
+
 func statusLine(c *chargen.Character) string {
 	if c.Service == "" {
-		return fmt.Sprintf("Civilian (declined the draft), age %d. UPP %s.", c.Age, c.UPP)
+		return fmt.Sprintf("Civilian (declined the draft), %s. UPP %s.", ageText(c), c.UPP)
 	}
 
 	who := c.Service
@@ -123,12 +135,12 @@ func statusLine(c *chargen.Character) string {
 	}
 
 	if c.Death != nil {
-		return fmt.Sprintf("%s — died in service, term %d (%s), age %d. UPP %s.",
-			who, c.Death.Term, c.Death.Cause, c.Age, c.UPP)
+		return fmt.Sprintf("%s — died in service, term %d (%s), %s. UPP %s.",
+			who, c.Death.Term, c.Death.Cause, ageText(c), c.UPP)
 	}
 
-	return fmt.Sprintf("%s, %d %s, age %d. UPP %s.",
-		who, c.Terms, plural(c.Terms, "term"), c.Age, c.UPP)
+	return fmt.Sprintf("%s, %d %s, %s. UPP %s.",
+		who, c.Terms, plural(c.Terms, "term"), ageText(c), c.UPP)
 }
 
 // History renders the generation record: every throw, choice, and outcome

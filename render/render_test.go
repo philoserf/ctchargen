@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -31,6 +32,27 @@ func (declineDecider) Decide(c chargen.Choice) (chargen.Decision, error) {
 	d.By = chargen.ByPlayer
 
 	return d, nil
+}
+
+// Every golden fixture is a whole number of years old — the one crisis
+// fixture is a death, not a recovery — so the months a medical-crisis
+// survivor accrues (1D months, pp. 7-8) reach the sheet through no golden.
+// Hence a hand-built record.
+func TestSheetCarriesRecoveryMonths(t *testing.T) {
+	char := &chargen.Character{
+		Service: "Scouts", Terms: 5, Age: 38, AgeMonths: 5, UPP: "77A643",
+		Skills: []chargen.Skill{}, Benefits: chargen.Benefits{Weapons: []string{}},
+	}
+
+	if got := render.Sheet(char); !strings.Contains(got, "age 38 years 5 months") {
+		t.Errorf("sheet does not carry the recovery months:\n%s", got)
+	}
+
+	char.AgeMonths = 0
+
+	if got := render.Sheet(char); !strings.Contains(got, "age 38.") {
+		t.Errorf("a whole-year age should read plainly:\n%s", got)
+	}
 }
 
 func TestGoldenRenders(t *testing.T) {
