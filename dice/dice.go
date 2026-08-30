@@ -18,10 +18,11 @@ import (
 // engine version bump.
 const Algorithm = "go-math-rand-v2-pcg"
 
-// Stream is a seeded source of six-sided dice.
+// Stream is a seeded source of six-sided dice. It does not keep the seed:
+// the record carries it (chargen.RNG), and one copy of a value replay
+// depends on is better than two that could disagree.
 type Stream struct {
-	seed uint64
-	rng  *rand.Rand
+	rng *rand.Rand
 }
 
 // New returns a stream seeded with the given value. The single recorded
@@ -30,11 +31,8 @@ type Stream struct {
 func New(seed uint64) *Stream {
 	// The deterministic seeded stream is the contract (FR9; replay depends
 	// on it), so the "weak" generator is the required one, not an oversight.
-	return &Stream{seed: seed, rng: rand.New(rand.NewPCG(seed, seed))} // #nosec G404
+	return &Stream{rng: rand.New(rand.NewPCG(seed, seed))} // #nosec G404
 }
-
-// Seed reports the seed the stream was created with.
-func (s *Stream) Seed() uint64 { return s.seed }
 
 // One rolls a single die (1-6).
 func (s *Stream) One() int { return s.rng.IntN(6) + 1 }
