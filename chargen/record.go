@@ -22,7 +22,7 @@ const (
 	// EngineVersion changes when generation behaviour changes: rules,
 	// dice-stream consumption order, or the RNG construction.
 	EngineVersion = "0.3.0"
-	// PolicyVersion identifies the POLICY.md decision table the auto mode
+	// PolicyVersion identifies the docs/POLICY.md decision table the auto mode
 	// applies. Never verified on replay: recorded choices are reapplied,
 	// the policy is not consulted.
 	PolicyVersion = "3"

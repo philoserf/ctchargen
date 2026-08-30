@@ -31,7 +31,7 @@ const (
 
 const usage = `usage:
   ctchargen new [--seed N] [--auto] [--service navy] [--name X] [-o file] [--force]
-                (without --auto the player answers each choice; --auto applies POLICY.md)
+                (without --auto the player answers each choice; --auto applies docs/POLICY.md)
   ctchargen batch --count 20 --auto [--seed N] [--service navy] [-o dir|file.jsonl] [--force]
   ctchargen render [--history] character.json
   ctchargen replay [--ignore-provenance] character.json
@@ -84,7 +84,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 	fs := flag.NewFlagSet("new", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	seed := fs.Uint64("seed", 0, "RNG seed (default: drawn from the OS)")
-	auto := fs.Bool("auto", false, "apply the fixed default policy (POLICY.md) to every choice")
+	auto := fs.Bool("auto", false, "apply the fixed default policy (docs/POLICY.md) to every choice")
 	svc := fs.String("service", "", "force the enlistment attempt only; a failed throw still goes to the draft (p. 5)")
 	name := fs.String("name", "", "character name (blank by default; the book's naming section is advice, not a table)")
 	outPath := fs.String("o", "", "write the JSON record to this file instead of stdout")
@@ -138,7 +138,7 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 	fs.SetOutput(stderr)
 	count := fs.Int("count", 0, "number of characters to generate")
 	seed := fs.Uint64("seed", 0, "base RNG seed (default: drawn from the OS); member i uses seed+i")
-	auto := fs.Bool("auto", false, "required: batch applies the fixed default policy (POLICY.md)")
+	auto := fs.Bool("auto", false, "required: batch applies the fixed default policy (docs/POLICY.md)")
 	svc := fs.String("service", "", "force each member's enlistment attempt only (p. 5)")
 	outPath := fs.String("o", "", "JSONL file, or an existing directory for one file per character")
 	force := fs.Bool("force", false, "overwrite existing output files")

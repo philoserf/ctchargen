@@ -6,9 +6,10 @@ terms, skills, aging, mustering out — or death, which is a completed
 generation too. Sibling to [t5chargen](https://github.com/philoserf/t5chargen).
 
 [`docs/PRD.md`](docs/PRD.md) is the v1 contract; all four milestones are
-implemented. `COVERAGE.md` maps every rule of Book 1 pp. 4–25 to its page
-cite, implementation, and test; `ERRATA.md` records every interpretation;
-`POLICY.md` is the auto mode's decision table.
+implemented. [`docs/COVERAGE.md`](docs/COVERAGE.md) maps every rule of Book 1
+pp. 4–25 to its page cite, implementation, and test;
+[`docs/ERRATA.md`](docs/ERRATA.md) records every interpretation;
+[`docs/POLICY.md`](docs/POLICY.md) is the auto mode's decision table.
 
 ## Usage
 

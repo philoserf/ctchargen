@@ -12,8 +12,9 @@ procedure across all six services, aging/medical crises, mustering out
 with ships and titles, interactive and auto modes, `batch`, and `replay`
 verification.
 `docs/PRD.md` is the v1 contract — read it before doing any work
-here. `COVERAGE.md` maps rules to implementation; `ERRATA.md` holds the
-recorded readings; `POLICY.md` is the auto-mode decision table. Golden
+here. `docs/COVERAGE.md` maps rules to implementation; `docs/ERRATA.md`
+holds the recorded readings; `docs/POLICY.md` is the auto-mode decision
+table. Golden
 fixtures move only via `task goldens`, never by hand.
 
 ## Commands
@@ -44,7 +45,7 @@ them.
   is mostly the 1981 revision and later editions; the held 1977 page governs
   even where it famously differs (e.g. survival failure is death, p. 5).
 - Every implemented rule carries a printed-page cite. Where the text is
-  ambiguous or silent, the chosen reading goes in `ERRATA.md` with the page
+  ambiguous or silent, the chosen reading goes in `docs/ERRATA.md` with the page
   cite — never applied silently. The PRD already enumerates several
   (draft "may vs. must", per-term step order, rank-skill timing, medical
   crisis gaps).
@@ -79,6 +80,8 @@ COVERAGE/ERRATA/POLICY documents) are adopted; its code is not.
 
 ## Project documents
 
+All project documents live in `docs/`:
+
 - `docs/PRD.md` — the contract; milestones live there.
-- `ERRATA.md`, `POLICY.md`, `COVERAGE.md`, `docs/character.schema.json` —
-  planned; created as milestones require them.
+- `docs/ERRATA.md`, `docs/POLICY.md`, `docs/COVERAGE.md`,
+  `docs/character.schema.json`.

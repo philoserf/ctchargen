@@ -9,14 +9,14 @@ import (
 )
 
 // Errata identifiers stamped into every record this engine writes: the
-// ERRATA.md readings that are wired into the procedure itself and so
+// docs/ERRATA.md readings that are wired into the procedure itself and so
 // applied to every generation.
 var appliedErrata = []string{
 	"E001", // the draft is optional: "may submit" governs over "must submit" (p. 5)
 	"E002", // per-term order is the exposition's, not the Jamison example's (pp. 5-6, 24)
 }
 
-// stampErratum records a data-dependent ERRATA.md reading (one whose
+// stampErratum records a data-dependent docs/ERRATA.md reading (one whose
 // ambiguity this particular generation actually crossed).
 func (g *generator) stampErratum(id string) {
 	if !slices.Contains(g.char.Errata, id) {
