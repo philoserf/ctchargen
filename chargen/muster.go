@@ -262,8 +262,17 @@ func (g *generator) weaponBenefit(step, category string, ref int) error {
 		categoryWeapons[w] = true
 	}
 
+	// One expertise option per distinct weapon held, in order of first
+	// receipt. Benefits.Weapons is append-only and a repeat receipt may
+	// take the same weapon again, so without this the same option is
+	// offered twice — indistinguishable on the prompt, and recorded twice
+	// in the choice event's account of what was on the table.
+	offered := map[string]bool{}
+
 	for _, received := range g.char.Benefits.Weapons {
-		if categoryWeapons[received] {
+		if categoryWeapons[received] && !offered[received] {
+			offered[received] = true
+
 			options = append(options, ExpertisePrefix+received)
 		}
 	}

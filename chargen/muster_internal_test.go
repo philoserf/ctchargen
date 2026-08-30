@@ -3,6 +3,8 @@ package chargen
 import (
 	"errors"
 	"testing"
+
+	"github.com/philoserf/ctchargen/service"
 )
 
 // The cross-kind ship case is unreachable through Generate — no service
@@ -70,6 +72,58 @@ func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
 				t.Errorf("held ship mutated: receipts now %d", tt.held.Receipts)
 			}
 		})
+	}
+}
+
+// Holding the same weapon twice is unreachable under the auto policy —
+// it always takes the expertise option once one exists, so Benefits.Weapons
+// never repeats within a category — which is why the fixtures cannot cover
+// this and an internal test must. A repeat receipt may take the same
+// weapon again (p. 22), and offering its expertise twice is one option the
+// player cannot tell from the other, recorded twice in the event's account
+// of what was on the table.
+func TestWeaponBenefitOffersEachExpertiseOnce(t *testing.T) {
+	reg, err := service.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	g := &generator{
+		reg:     reg,
+		decider: AutoPolicy{},
+		char: &Character{
+			Skills:   []Skill{},
+			Benefits: Benefits{Weapons: []string{"Dagger", "Dagger", "Cutlass"}},
+		},
+	}
+
+	if err := g.weaponBenefit("muster-out", "blade", 0); err != nil {
+		t.Fatalf("weaponBenefit: %v", err)
+	}
+
+	var choice *Event
+
+	for i := range g.char.Events {
+		if g.char.Events[i].Kind == "choice" {
+			choice = &g.char.Events[i]
+
+			break
+		}
+	}
+
+	if choice == nil {
+		t.Fatal("no choice event recorded")
+	}
+
+	counts := map[string]int{}
+	for _, option := range choice.Options {
+		counts[option]++
+	}
+
+	for _, weapon := range []string{"Dagger", "Cutlass"} {
+		if got := counts[ExpertisePrefix+weapon]; got != 1 {
+			t.Errorf("%s offered %d times, want once: %v", ExpertisePrefix+weapon, got, choice.Options)
+		}
 	}
 }
 
