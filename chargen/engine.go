@@ -79,6 +79,9 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 			Age:           18, // all characters begin at age 18 (p. 4)
 			Skills:        []Skill{},
 			Events:        []Event{},
+			// Empty, not nil: the schema declares benefits.weapons an
+			// array and requires it, and a nil slice marshals as null.
+			Benefits: Benefits{Weapons: []string{}},
 		},
 	}
 
