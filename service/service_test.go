@@ -61,13 +61,21 @@ func TestWeaponsListsInBookOrder(t *testing.T) {
 	}
 
 	blades, err := reg.Weapons("blade")
-	if err != nil || blades[0] != "Dagger" {
-		t.Errorf("Weapons(blade) starts %v (err %v), want Dagger first (p. 12)", blades[:1], err)
+	if err != nil {
+		t.Fatalf("Weapons(blade): %v", err)
+	}
+
+	if len(blades) == 0 || blades[0] != "Dagger" {
+		t.Errorf("Weapons(blade) = %v, want Dagger first (p. 12)", blades)
 	}
 
 	guns, err := reg.Weapons("gun")
-	if err != nil || guns[0] != "Body Pistol" {
-		t.Errorf("Weapons(gun) starts %v (err %v), want Body Pistol first (p. 13)", guns[:1], err)
+	if err != nil {
+		t.Fatalf("Weapons(gun): %v", err)
+	}
+
+	if len(guns) == 0 || guns[0] != "Body Pistol" {
+		t.Errorf("Weapons(gun) = %v, want Body Pistol first (p. 13)", guns)
 	}
 
 	if _, err := reg.Weapons("club"); err == nil {

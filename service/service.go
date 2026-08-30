@@ -238,7 +238,11 @@ func validateDraftNumbers(r *Registry) error {
 	var taken [7]string
 
 	for _, name := range r.order {
-		svc := r.services[strings.ToLower(name)]
+		svc, ok := r.services[strings.ToLower(name)]
+		if !ok {
+			return fmt.Errorf("%w: %s is in the book order with no loaded data", ErrInvalidData, name)
+		}
+
 		if prior := taken[svc.DraftNumber]; prior != "" {
 			return fmt.Errorf("%w: %s and %s both take draft number %d",
 				ErrInvalidData, prior, svc.Name, svc.DraftNumber)
