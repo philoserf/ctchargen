@@ -31,7 +31,7 @@ the dead get complete records too.
 ## Development
 
 ```sh
-task deps   # install the toolchain (brew bundle)
+task deps   # install the toolchain (brew bundle + pinned Go tools)
 task hooks  # install the pre-push gate
-task        # check (modernize + fmt + vet + lint) + test
+task        # check (modernize + fmt + vet + lint + nilaway) + test
 ```

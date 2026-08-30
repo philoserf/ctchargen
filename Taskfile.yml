@@ -9,13 +9,14 @@ tasks:
       - task: test
 
   check:
-    desc: Modernize gate + gofumpt + prettier + go vet + golangci-lint
+    desc: Modernize gate + gofumpt + prettier + go vet + golangci-lint + nilaway
     cmds:
       - task: modernize
       - task: fmt:check
       - task: fmt:check:docs
       - task: vet
       - task: lint
+      - task: nilaway
 
   # Apply Go modernizations (min/max, range over int, new(value), etc.)
   # and fail if the working tree is no longer clean against HEAD for *.go.
@@ -78,6 +79,17 @@ tasks:
     cmds:
       - golangci-lint run --fix
 
+  # NilAway proves the absence of nil dereferences across function
+  # boundaries, which golangci-lint does not attempt. It is upstream-
+  # flagged as experimental and can report false positives; prefer an
+  # explicit nil check that makes the guard real over a suppression
+  # comment, as chargen/engine.go's civilian branch does. Exits 3 on
+  # findings, so it gates like the rest.
+  nilaway:
+    desc: Run NilAway's cross-function nil analysis
+    cmds:
+      - nilaway ./...
+
   test:
     desc: Run all tests with race detector
     cmds:
@@ -102,10 +114,16 @@ tasks:
     cmds:
       - go mod tidy
 
+  # NilAway publishes no tagged releases and has no Homebrew formula, so
+  # it is pinned to a module pseudo-version here rather than living in the
+  # Brewfile with the rest. The version is part of what the gate means:
+  # an analyzer that moves on its own turns an unrelated change red.
+  # Keep it in step with .github/workflows/ci.yml.
   deps:
-    desc: Install the development toolchain from the Brewfile
+    desc: Install the development toolchain (Brewfile + pinned Go tools)
     cmds:
       - brew bundle --file=Brewfile
+      - go install go.uber.org/nilaway/cmd/nilaway@v0.0.0-20260808063849-8649a03c818a
 
   hooks:
     desc: Install git hooks (point core.hooksPath at the tracked .githooks/)

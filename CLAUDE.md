@@ -20,18 +20,27 @@ fixtures move only via `task goldens`, never by hand.
 ## Commands
 
 ```sh
-task          # the full gate: check (modernize + gofumpt + prettier + vet + golangci-lint) + test
+task          # the full gate: check (modernize + gofumpt + prettier + vet + golangci-lint + nilaway) + test
 task fmt      # format Go (gofumpt -extra) and JSON/Markdown (prettier)
 task test     # go test -race ./...
-task deps     # install the toolchain (brew bundle)
+task deps     # install the toolchain (brew bundle + pinned Go tools)
 task hooks    # install the tracked pre-push hook (runs `task`)
 go test -race ./cmd/ctchargen -run TestRun   # a single test
 ```
 
 CI (`.github/workflows/ci.yml`) runs exactly `task` — never add checks to CI
-that the local `task` gate doesn't run. golangci-lint runs with
-`default: all` and a curated disable list (`.golangci.yml`); fix findings
-rather than adding disables.
+that the local `task` gate doesn't run, and never add a tool to the gate
+without also installing it there. golangci-lint runs with `default: all`
+and a curated disable list (`.golangci.yml`); fix findings rather than
+adding disables.
+
+NilAway is part of the gate and is upstream-flagged as experimental, so it
+does report false positives. Answer one with a real nil check where that
+is honest — `run`'s `civilian || svc == nil` is the worked example — and
+reach for a suppression only when no such check exists. Note that it and
+golangci-lint can want opposite things: a nil-means-absent return that
+satisfies NilAway trips `nilnil`, and the sentinel error `nilnil` suggests
+would put a declined draft in the error channel, which the PRD forbids.
 
 ## Authority model — the most important rule
 

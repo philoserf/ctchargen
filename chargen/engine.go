@@ -111,7 +111,12 @@ func (g *generator) run() error {
 		return err
 	}
 
-	if civilian {
+	// svc is nil exactly when civilian is set. Both are tested because the
+	// pairing is a convention between two functions rather than something
+	// the type system carries, and the alternative encodings are barred:
+	// a nil service with no bool trips nilnil, and a sentinel error would
+	// put a declined draft in the error channel, where it does not belong.
+	if civilian || svc == nil {
 		// Declined the draft: an 18-year-old civilian, a valid record —
 		// who may still hold a hereditary title (p. 4).
 		return g.title("enlistment")
