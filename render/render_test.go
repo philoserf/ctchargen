@@ -19,10 +19,11 @@ import (
 // deliberately with `task goldens`.
 var update = flag.Bool("update", false, "rewrite the golden fixtures")
 
-// Every golden fixture is a whole number of years old — the one crisis
-// fixture is a death, not a recovery — so the months a medical-crisis
-// survivor accrues (1D months, pp. 7-8) reach the sheet through no golden.
-// Hence a hand-built record.
+// The medical-crisis-survivor golden now carries months to the sheet, so
+// this is no longer the only cover for them. It stays as the focused
+// check: it pins both spellings against each other — months present and
+// months absent — on one record, which no pair of goldens states as
+// plainly (1D months, pp. 7-8).
 func TestSheetCarriesRecoveryMonths(t *testing.T) {
 	char := &chargen.Character{
 		Service: "Scouts", Terms: 5, Age: 38, AgeMonths: 5, UPP: "77A643",

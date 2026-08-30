@@ -90,10 +90,56 @@ tasks:
     cmds:
       - nilaway ./...
 
+  # A ratchet on the number of *uncovered statements* per package, not on a
+  # coverage percentage. Percentages cannot do this job: a guarded branch
+  # adds one covered statement (the condition) and one uncovered (the body),
+  # so chargen's 795/878 becomes 796/880 — 90.55% to 90.45%, both of which
+  # `go test -cover` prints as 90.5%. That is the exact shape of the E009
+  # stamp, which shipped through a fully green gate with no test. Counting
+  # statements is integer-exact and trips on the first one.
+  #
+  # Ceilings are a ratchet in the same spirit as the unpinned toolchain: a
+  # gate that fails when something moves is doing its job. Lower one
+  # whenever coverage improves. Raise one only with a reason worth writing
+  # down in the commit that raises it.
+  #
+  # internal/fixture is absent by design: it is the golden-fixture roster,
+  # imported only by tests and declaring none of its own, so every one of
+  # its statements reads as uncovered no matter how hard the suite leans on
+  # it.
   test:
-    desc: Run all tests with race detector
+    desc: Run all tests with race detector, failing any package that gains an untested statement
     cmds:
-      - go test -race ./...
+      - |
+        set -eu
+        ceilings="chargen:83 cmd/ctchargen:68 dice:2 render:1 service:63"
+        profile=$(mktemp)
+        trap 'rm -f "$profile"' EXIT
+        go test -race -coverprofile="$profile" ./...
+        measured=$(awk 'NR>1 {
+          split($1, a, ":"); n = split(a[1], part, "/");
+          pkg = part[4]; for (i = 5; i < n; i++) pkg = pkg "/" part[i];
+          total[pkg] += $2; if ($3 > 0) covered[pkg] += $2
+        } END { for (p in total) printf "%s %d %d\n", p, total[p] - covered[p], total[p] }' "$profile")
+        failed=0
+        for entry in $ceilings; do
+          pkg=${entry%:*}
+          ceiling=${entry#*:}
+          got=$(printf '%s\n' "$measured" | awk -v p="$pkg" '$1 == p { print $2 }')
+          if [ -z "$got" ]; then
+            echo "coverage: no profile data for $pkg — is it still a package?" >&2
+            failed=1
+            continue
+          fi
+          if [ "$got" -gt "$ceiling" ]; then
+            echo "coverage: $pkg has $got uncovered statements, ceiling $ceiling — test the new code, or raise the ceiling deliberately" >&2
+            failed=1
+          elif [ "$got" -lt "$ceiling" ]; then
+            echo "coverage: $pkg down to $got uncovered statements (ceiling $ceiling) — lower the ceiling in Taskfile.yml" >&2
+            failed=1
+          fi
+        done
+        [ "$failed" -eq 0 ] || exit 1
 
   # The fixtures under chargen/testdata and render/testdata are the
   # engine's and renderer's own output, compared byte for byte.
