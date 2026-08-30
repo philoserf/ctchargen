@@ -4,4 +4,4 @@ Scouts — died in service, term 6 (medical crisis: failed the 8+ saving throw a
 
 ## Skills
 
-Pilot-1, Jack-of-all-Trades-2, Navigation-1, Air/Raft-1, Mechanical-2, Vacc Suit-1
+Pilot-1, Jack of all Trades-2, Navigation-1, Air/Raft-1, Mechanical-2, Vacc Suit-1

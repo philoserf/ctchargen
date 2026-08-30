@@ -399,7 +399,7 @@ func (g *generator) retirement(svc *service.Service, step string) {
 }
 
 // title is FR7: Social Standing 11+ may assume the hereditary title
-// (p. 4; Book 3 p. 22). The record stores the eligibility and the choice.
+// (p. 5; Book 3 p. 22). The record stores the eligibility and the choice.
 // Social Standing moves during a career, and the page never says when
 // eligibility is read; assessing it here — once, on leaving the service
 // after the p. 23 muster-out alterations, or at a declined draft — is
@@ -422,10 +422,10 @@ func (g *generator) title(step string) error {
 	g.char.Title = &Title{Title: name, Assumed: pick == Yes}
 
 	if pick == Yes {
-		text := fmt.Sprintf("assumes the hereditary title %s (Social Standing %d; p. 4, Book 3 p. 22)", name, social)
+		text := fmt.Sprintf("assumes the hereditary title %s (Social Standing %d; p. 5, Book 3 p. 22)", name, social)
 		g.outcome(step, text, 0)
 	} else {
-		g.outcome(step, fmt.Sprintf("eligible for the hereditary title %s but does not assume it (p. 4)", name), 0)
+		g.outcome(step, fmt.Sprintf("eligible for the hereditary title %s but does not assume it (p. 5)", name), 0)
 	}
 
 	return nil

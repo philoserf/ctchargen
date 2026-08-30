@@ -48,13 +48,13 @@
       { "skill": "Navigation" },
       { "skill": "Mechanical" },
       { "skill": "Electronic" },
-      { "skill": "Jack-of-all-Trades" }
+      { "skill": "Jack of all Trades" }
     ],
     "advanced_education": [
       { "skill": "Air/Raft" },
       { "skill": "Mechanical" },
       { "skill": "Electronic" },
-      { "skill": "Jack-of-all-Trades" },
+      { "skill": "Jack of all Trades" },
       { "skill": "Gunnery" },
       { "skill": "Medical" }
     ],
@@ -64,7 +64,7 @@
       { "skill": "Engineer" },
       { "skill": "Computer" },
       { "skill": "Pilot" },
-      { "skill": "Jack-of-all-Trades" }
+      { "skill": "Jack of all Trades" }
     ]
   }
 }

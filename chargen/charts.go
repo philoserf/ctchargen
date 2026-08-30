@@ -13,7 +13,7 @@ import (
 )
 
 // The charts that are not per-service: the Aging Table (Book 1 p. 9) and
-// the Nobility table (Book 3 p. 22, consulted because Book 1 p. 4 points
+// the Nobility table (Book 3 p. 22, consulted because Book 1 p. 5 points
 // there). Embedded data with load-time validation, like the service
 // tables (docs/PRD.md, Architecture notes).
 //
@@ -144,7 +144,7 @@ func validCharacteristic(name string) bool {
 }
 
 // nobility maps Social Standing 11-15 to the hereditary title (Book 3
-// p. 22; Book 1 p. 4 points there).
+// p. 22; Book 1 p. 5 points there).
 type nobility struct {
 	Book3Page int               `json:"book3_page"`
 	Titles    map[string]string `json:"titles"`

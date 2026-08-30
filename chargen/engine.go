@@ -130,7 +130,7 @@ func (g *generator) run() error {
 	// put a declined draft in the error channel, where it does not belong.
 	if civilian || svc == nil {
 		// Declined the draft: an 18-year-old civilian, a valid record —
-		// who may still hold a hereditary title (p. 4).
+		// who may still hold a hereditary title (p. 5).
 		return g.title("enlistment")
 	}
 
@@ -534,6 +534,13 @@ func (g *generator) reenlistment(svc *service.Service, step string, term int) (b
 
 		return false, nil
 	case total == 12:
+		if term >= 7 {
+			// Past the voluntary cap the 12 is the only thing still keeping
+			// him in, and p. 7 grants "an additional term" in the singular
+			// while p. 6 requires the throw again in that term: reading E009.
+			g.stampErratum("E009")
+		}
+
 		g.outcome(step, "threw 12 exactly; must serve another term regardless of desires (pp. 6-7)", seq)
 
 		return true, nil

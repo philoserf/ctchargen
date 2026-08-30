@@ -83,7 +83,9 @@ commission attempt (once per term until achieved; not draftees' first term;
 not Scouts or Other, p. 6, p. 10); promotion attempt (one per term, only if
 commissioned; p. 6); skills (FR4); reenlistment throw, made every term
 whether or not the character wants to stay — failure forces him out, a 12
-exactly forces him to stay, even past term 7 (pp. 6–7). Ranks per the Table
+exactly forces him to stay, even past term 7 — the page grants "an
+additional term" in the singular and is silent on a second 12, so the
+recurrence is a reading and goes in ERRATA.md (pp. 6–7). Ranks per the Table
 of Ranks (p. 10). Voluntary service caps at 7 terms; retirement is
 available after the 5th term (p. 7). The per-term order is an
 interpretation the book forces: the exposition presents survival,
@@ -142,7 +144,7 @@ or-later departure from Navy, Marines, Army, or Merchants only: CR 4,000
 per year at 5 terms, per the table, +CR 2,000 per term past 8 (pp. 7, 21).
 
 **FR7 — Titles.** Social Standing 11+ may assume the hereditary title
-(p. 4); the full range is Book 3's Nobility table, knight/dame at 11
+(p. 5); the full range is Book 3's Nobility table, knight/dame at 11
 through duke/duchess at 15 (Book 3 p. 22). Assuming it is a choice point;
 the record stores the eligibility and the choice.
 
@@ -290,7 +292,7 @@ table lives in `POLICY.md`; `policy_version` identifies it in every record.
 - `~/Documents/Traveller/Classic/Book 2 Starships.pdf` (Type S p. 18,
   Type A p. 19 — consulted only because Book 1 p. 22 points there).
 - `~/Documents/Traveller/Classic/Book 3 Worlds and Adventures.pdf`
-  (Nobility p. 22 — consulted only because Book 1 p. 4 points there).
+  (Nobility p. 22 — consulted only because Book 1 p. 5 points there).
 - Page cites are printed page numbers. In the held PDFs, printed page N is
   PDF page N+6 in Book 1 and N+5 in Books 2 and 3.
 - Everything else in the collection — the _Consolidated Errata_, the

@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 2 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 2 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 

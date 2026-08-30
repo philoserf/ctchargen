@@ -1,6 +1,6 @@
 # Generation record: Unnamed
 
-Seed 7 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
+Seed 7 (go-math-rand-v2-pcg), engine 0.6.0, policy 3.
 
 ## characteristics
 
@@ -33,7 +33,7 @@ Seed 7 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (21) → Vacc Suit-1 [from 20]
 - (22) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (23) skill table service_skills: threw 6 = 6
-- (24) → Jack-of-all-Trades-1 [from 23]
+- (24) → Jack of all Trades-1 [from 23]
 - (25) reenlist-intent: chose yes (by policy; options: yes, no)
 - (26) reenlistment: threw 6+1 = 7 against 4+: success
 - (27) → reenlists for another term [from 26]
@@ -105,7 +105,7 @@ Seed 7 (go-math-rand-v2-pcg), engine 0.5.0, policy 3.
 - (81) → promotion denied this term (one attempt per term, p. 6) [from 80]
 - (82) skill-table: chose service_skills (by policy; options: personal_development, service_skills, advanced_education)
 - (83) skill table service_skills: threw 6 = 6
-- (84) → Jack-of-all-Trades-2 [from 83]
+- (84) → Jack of all Trades-2 [from 83]
 - (85) reenlist-intent: chose yes (by policy; options: yes, no)
 - (86) reenlistment: threw 6+5 = 11 against 4+: success
 - (87) → reenlists for another term [from 86]

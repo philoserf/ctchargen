@@ -4,7 +4,7 @@ Merchants Captain, 7 terms, age 46. UPP 874979.
 
 ## Skills
 
-Steward-4, Jack-of-all-Trades-2, Body Pistol-4, Pilot-1, Vacc Suit-1
+Steward-4, Jack of all Trades-2, Body Pistol-4, Pilot-1, Vacc Suit-1
 
 ## Possessions
 

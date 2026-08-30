@@ -20,8 +20,14 @@ const (
 	// (docs/character.schema.json).
 	SchemaVersion = "2"
 	// EngineVersion changes when generation behaviour changes: rules,
-	// dice-stream consumption order, or the RNG construction.
-	EngineVersion = "0.5.0"
+	// dice-stream consumption order, the RNG construction — or the text of
+	// any event the log carries. That last one is easy to miss and is not
+	// cosmetic: Replay compares whole Event values, Text included, so an
+	// edited outcome string diverges every record written before it, and
+	// --ignore-provenance does not help (it waives the stamp check, not the
+	// event comparison). Bumping here turns that into an honest provenance
+	// mismatch naming both versions instead of a bare event divergence.
+	EngineVersion = "0.6.0"
 	// PolicyVersion identifies the docs/POLICY.md decision table the auto mode
 	// applies. Never verified on replay: recorded choices are reapplied,
 	// the policy is not consulted.
@@ -192,7 +198,7 @@ type Benefits struct {
 	Ship          *Ship    `json:"ship,omitempty"`
 }
 
-// Title records hereditary-title eligibility (Social Standing 11+, p. 4)
+// Title records hereditary-title eligibility (Social Standing 11+, p. 5)
 // and the choice (FR7). The title is Book 3 p. 22's designation.
 type Title struct {
 	Title   string `json:"title"`

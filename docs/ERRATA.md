@@ -68,10 +68,12 @@ The crisis saving throw "may be modified by the expertise of attending
 medical personnel," but solo generation has no attending physician: no DM
 applies. Stamped on records that made any crisis saving throw.
 
-## E008 — When hereditary-title eligibility is assessed (p. 4; Book 3 p. 22)
+## E008 — When hereditary-title eligibility is assessed (p. 5; Book 3 p. 22)
 
-"Characters with a social standing of 11+ … may assume the title" (p. 4),
-but the page fixes no moment at which the value is read, and Social
+"A character with a Social Standing of 11 or greater may assume his
+family's hereditary title" (p. 5, the Titles paragraph — it opens p. 5,
+after the naming discussion carries over from p. 4), but the page fixes
+no moment at which the value is read, and Social
 Standing is not fixed at 18: it rises by the Navy's personal-development
 table, the Navy flag ranks' Rank and Service Skills entries, and the
 Navy, Marines, and Army Table 1 row 7; it falls by the Other service's
@@ -92,6 +94,21 @@ no departure from service at which to read the value.
 Stamped on records where the assessment was made, which is every record
 whose character reached the end of generation with Social Standing 11+.
 
+## E009 — A 12 thrown past the voluntary cap (pp. 6–7)
+
+"Service beyond the seventh term is normally impossible, and retirement
+mandatory. However, persons who throw 12 (exactly) on the final
+reenlistment throw must serve **an additional term**" (p. 7) — the
+singular. The page does not say what happens if that additional term's own
+reenlistment throw is another 12, and p. 6 requires the throw "during each
+term of service" without exception.
+
+The reading: the rule applies again, each time. A character who keeps
+throwing 12 keeps serving, term 8, 9, and beyond, with the voluntary
+choice never offered again — the cap ended his say in it at term 7, and
+only the throw decides after that. Stamped on records where a 12 forced
+service past the seventh term, which is the only case the reading governs.
+
 ## Noted discrepancy (not stamped): the Jamison example's merchant muster rolls (pp. 9, 25)
 
 Jamison's Table 1 rolls read row 6 as "+1 education" and row 3 as "one
@@ -107,7 +124,9 @@ so one skill accumulates under one name:
 - "Electronics" (Other, Advanced Education 8+ table row 3, p. 11) is
   recorded as **Electronic** (the tables' and the Jamison example's
   spelling, pp. 11, 25).
-- "Jack-o-T" (p. 11) is recorded as **Jack-of-all-Trades** (p. 20).
+- "Jack-o-T" (p. 11) is recorded as **Jack of all Trades** (p. 20 — the
+  description's own heading, unhyphenated, as the other multi-word skills
+  are recorded: Forward Observer, Vacc Suit, Ship's Boat).
 - "Admin" (p. 11) is recorded as **Administration** (p. 14).
 - "Fwd Obsv" (p. 11) is recorded as **Forward Observer** (p. 16).
 - "Engnrng" (p. 11) is recorded as **Engineer** (p. 20).

@@ -60,7 +60,7 @@
       { "characteristic": "strength", "delta": 1 },
       { "weapon": "gun" },
       { "skill": "Electronic" },
-      { "skill": "Jack-of-all-Trades" }
+      { "skill": "Jack of all Trades" }
     ],
     "advanced_education": [
       { "skill": "Streetwise" },
