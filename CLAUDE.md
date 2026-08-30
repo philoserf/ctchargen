@@ -11,11 +11,10 @@ characters (Books 1–3, © 1977 text), sibling to `philoserf/t5chargen`.
 procedure across all six services, aging/medical crises, mustering out
 with ships and titles, interactive and auto modes, `batch`, and `replay`
 verification.
-`docs/PRD.md` is the v1 contract — read it before doing any work
-here. `docs/COVERAGE.md` maps rules to implementation; `docs/ERRATA.md`
-holds the recorded readings; `docs/POLICY.md` is the auto-mode decision
-table. Golden
-fixtures move only via `task goldens`, never by hand.
+`docs/PRD.md` is the v1 contract — read it before doing any work here.
+`docs/COVERAGE.md` maps rules to implementation; `docs/ERRATA.md` holds
+the recorded readings; `docs/POLICY.md` is the auto-mode decision table.
+Golden fixtures move only via `task goldens`, never by hand.
 
 ## Commands
 
@@ -41,6 +40,23 @@ reach for a suppression only when no such check exists. Note that it and
 golangci-lint can want opposite things: a nil-means-absent return that
 satisfies NilAway trips `nilnil`, and the sentinel error `nilnil` suggests
 would put a declined draft in the error channel, which the PRD forbids.
+
+**`fieldalignment` findings are declined, deliberately.** Running it
+reports ~27 struct-layout wins; do not act on them. `encoding/json`
+marshals in declaration order, so for `Character`, `Event`, `Benefits`,
+`Skill`, `Inputs`, and `Death` the field order _is_ the record's key
+order, and for the `service` and `charts` types it is the shape of the
+embedded rule tables. Reordering any of them rewrites every key in every
+record: replay-breaking (the comparison is byte-for-byte), an
+`engine_version` bump, all 26 fixtures moved, and both hand-maintained
+`docs/character.*.json` examples plus the schema's documented order out
+of step. The whole prize is ~96 bytes per `Character` on a program that
+allocates one per generated character and immediately serializes it — under
+2 KB on a `batch --count 20`. Field order here carries meaning the
+analyzer cannot see; the provenance block leads the record because that is
+what a reader and the schema expect first. This is why `govet` runs
+without it: `fieldalignment` is opt-in within `govet`, not accidentally
+missing.
 
 ## Authority model — the most important rule
 
