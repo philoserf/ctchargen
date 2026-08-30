@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"errors"
 	"slices"
 	"testing"
 
@@ -211,6 +212,78 @@ func TestEveryStrategyStaysTotal(t *testing.T) {
 			if !slices.Contains(options, decision.Pick) {
 				t.Errorf("%+v picked %q for %s, not among %v", policy, decision.Pick, label, options)
 			}
+		}
+	}
+}
+
+// Decide guards an empty options list because AutoPolicy is exported and
+// documented as total, so a caller reaching it directly must get an answer
+// or an error rather than an index-out-of-range. A strategy that picked by
+// position reopened that hole for every list shorter than the three tables
+// — `rounded` on a one-element list panicked — so the guard is checked at
+// the short end too, not only at zero.
+func TestSkillStrategiesDoNotIndexPastTheOptions(t *testing.T) {
+	for _, skills := range chargen.PolicyStrategies()["skills"] {
+		t.Run(skills, func(t *testing.T) {
+			for _, step := range []string{"term-1", "term-2", "term-3", "muster-out"} {
+				if _, err := (chargen.AutoPolicy{Skills: skills}).Decide(chargen.Choice{
+					Step: step, Label: chargen.ChoiceSkillTable, Options: []string{"personal_development"},
+				}); err != nil {
+					t.Errorf("%s: %v", step, err)
+				}
+			}
+		})
+	}
+}
+
+// The CLI answers a mistyped strategy, but Config is exported and its three
+// policy fields are copied verbatim into the record's inputs. Unchecked, an
+// unrecognised strategy would be stamped there as the policy that generated
+// the character while the default was silently applied, and a career length
+// outside 1-7 would write a record docs/character.schema.json rejects.
+func TestGenerateRefusesUnrecognisedPolicyInputs(t *testing.T) {
+	tests := []struct {
+		name string
+		cfg  chargen.Config
+	}{
+		{"an unknown skills strategy", chargen.Config{Seed: 3, Service: "navy", Auto: true, Skills: "bogus"}},
+		{"an unknown muster strategy", chargen.Config{Seed: 3, Service: "navy", Auto: true, Muster: "bogus"}},
+		{"a career past the 7-term cap", chargen.Config{Seed: 3, Service: "navy", Auto: true, CareerTerms: 99}},
+		{"a negative career", chargen.Config{Seed: 3, Service: "navy", Auto: true, CareerTerms: -1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			char, err := chargen.Generate(tt.cfg, chargen.NewAutoPolicy(tt.cfg))
+			if !errors.Is(err, chargen.ErrBadConfig) {
+				t.Fatalf("Generate = %v, want %v", err, chargen.ErrBadConfig)
+			}
+
+			if char != nil {
+				t.Error("a refused config still produced a record")
+			}
+		})
+	}
+}
+
+// The defaults must stay reachable through the same door: an empty
+// strategy and a zero career are what every existing caller passes.
+func TestGenerateAcceptsTheDefaultsAndEveryStrategy(t *testing.T) {
+	cfgs := []chargen.Config{{Seed: 3, Service: "navy", Auto: true}}
+	for _, skills := range chargen.PolicyStrategies()["skills"] {
+		cfgs = append(cfgs, chargen.Config{Seed: 3, Service: "navy", Auto: true, Skills: skills})
+	}
+
+	for _, muster := range chargen.PolicyStrategies()["muster"] {
+		cfgs = append(cfgs, chargen.Config{Seed: 3, Service: "navy", Auto: true, Muster: muster})
+	}
+
+	for term := 1; term <= 7; term++ {
+		cfgs = append(cfgs, chargen.Config{Seed: 3, Service: "navy", Auto: true, CareerTerms: term})
+	}
+
+	for _, cfg := range cfgs {
+		if _, err := chargen.Generate(cfg, chargen.NewAutoPolicy(cfg)); err != nil {
+			t.Errorf("Generate(%+v): %v", cfg, err)
 		}
 	}
 }

@@ -345,6 +345,70 @@ func TestPolicyFlagsReachTheRecord(t *testing.T) {
 	}
 }
 
+// --career is the one policy flag taking a number rather than a strategy
+// name, so nothing in the shared registry checks it and only its rejection
+// paths were exercised: the two statements that turn the number into a
+// config field were dark, and a --career that had quietly become a no-op
+// would have left the whole suite green.
+func TestCareerFlagShortensTheCareer(t *testing.T) {
+	code, stdout, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "--career", "2")
+	if code != exitOK {
+		t.Fatalf("new --career 2 = %d, stderr %q", code, tail(stderr))
+	}
+
+	var record struct {
+		Inputs struct {
+			CareerTerms int `json:"career_terms"`
+		} `json:"inputs"`
+		Events []struct {
+			Step   string `json:"step"`
+			Label  string `json:"label"`
+			Picked string `json:"picked"`
+		} `json:"events"`
+	}
+
+	if err := json.Unmarshal([]byte(stdout), &record); err != nil {
+		t.Fatalf("parsing the record: %v", err)
+	}
+
+	if record.Inputs.CareerTerms != 2 {
+		t.Errorf("inputs.career_terms = %d, want 2", record.Inputs.CareerTerms)
+	}
+
+	// Intent, not outcome: the throw still decides, so what is asserted is
+	// the answer the policy gave, not how many terms he actually served.
+	intent := map[string]string{}
+
+	for _, e := range record.Events {
+		if e.Label == "reenlist-intent" {
+			intent[e.Step] = e.Picked
+		}
+	}
+
+	if intent["term-1"] != "yes" || intent["term-2"] != "no" {
+		t.Errorf("reenlistment intents %v, want yes through term 1 and no at term 2", intent)
+	}
+}
+
+// `max` is the documented default, so naming it must be indistinguishable
+// from not naming it — down to the bytes, since the record would otherwise
+// carry a career_terms the character never had.
+func TestCareerMaxIsTheDefault(t *testing.T) {
+	code, explicit, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "--career", "max")
+	if code != exitOK {
+		t.Fatalf("new --career max = %d, stderr %q", code, tail(stderr))
+	}
+
+	code, plain, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy")
+	if code != exitOK {
+		t.Fatalf("new = %d, stderr %q", code, tail(stderr))
+	}
+
+	if explicit != plain {
+		t.Error("--career max produced a different record from the default")
+	}
+}
+
 // Everything past `render`'s argument count was dark: the file read, the
 // parse, both renderers, and the write. Assertions are on substance the
 // sheet and the transcript must carry — not on their wording, which would

@@ -70,6 +70,14 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 		}
 	}
 
+	// The policy selections are checked here for the same reason Service
+	// is: they are recorded verbatim in the character's inputs, and a
+	// value the policy does not recognise would be stamped there as the
+	// policy that generated him while the default was quietly applied.
+	if err := validatePolicyInputs(cfg); err != nil {
+		return nil, err
+	}
+
 	aging, err := agingOnce()
 	if err != nil {
 		return nil, err

@@ -32,18 +32,26 @@ const (
 	exitUsage = 2
 )
 
-const usage = `usage:
+// The strategy lists come from chargen.PolicyStrategies rather than being
+// spelled out here: it is the one registry the flag help and
+// docs/POLICY.md are both held to, and a copy in this string is the one
+// place a new strategy could go unmentioned with the gate still green.
+// The policy stanza follows the command list rather than splitting it, so
+// it cannot read as belonging to the subcommand printed under it.
+var usage = fmt.Sprintf(`usage:
   ctchargen new [--seed N] [--auto] [--service navy] [--name X] [-o file] [--force]
                 (without --auto the player answers each choice; --auto applies docs/POLICY.md)
   ctchargen batch --count 20 --auto [--seed N] [--service navy] [-o dir|file.jsonl] [--force]
-
-  policy flags, with --auto, select how it decides (docs/POLICY.md):
-                [--skills service|personal|advanced|rounded]
-                [--muster cash|benefits] [--career max|N]
   ctchargen render [--history] character.json
   ctchargen replay [--ignore-provenance] character.json
   ctchargen version
-`
+
+  policy flags, with --auto, select how it decides (docs/POLICY.md):
+                [--skills %s]
+                [--muster %s] [--career max|N]
+`,
+	strings.Join(chargen.PolicyStrategies()["skills"], "|"),
+	strings.Join(chargen.PolicyStrategies()["muster"], "|"))
 
 func main() {
 	os.Exit(run(os.Args[1:], randomSeed, os.Stdin, os.Stdout, os.Stderr))
@@ -157,12 +165,14 @@ var (
 	errPolicyWithoutAuto = errors.New("the policy flags select how --auto decides, so they need --auto")
 )
 
-// apply validates the selections and writes them into the config. Naming a
-// policy flag without --auto is refused rather than ignored: in interactive
-// mode the player decides, and quietly discarding a flag the user typed is
-// worse than saying no to it.
-func (p policyFlags) apply(cfg *chargen.Config, auto bool) error {
-	if (*p.skills != "" || *p.muster != "" || *p.career != "") && !auto {
+// apply validates the selections and writes them into the config, which is
+// also where the mode is read from — cfg.Auto is set before apply is
+// called, so the two cannot disagree. Naming a policy flag without --auto
+// is refused rather than ignored: in interactive mode the player decides,
+// and quietly discarding a flag the user typed is worse than saying no to
+// it.
+func (p policyFlags) apply(cfg *chargen.Config) error {
+	if (*p.skills != "" || *p.muster != "" || *p.career != "") && !cfg.Auto {
 		return errPolicyWithoutAuto
 	}
 
@@ -177,16 +187,18 @@ func (p policyFlags) apply(cfg *chargen.Config, auto bool) error {
 	return career(*p.career, &cfg.CareerTerms)
 }
 
-// named checks one flag against the strategies the policy publishes for it.
-func named(flag, value string, field *string) error {
+// named checks one flag against the strategies the policy publishes for
+// it. The parameter is `name`, not `flag`: the latter would shadow the
+// flag package this file is built on.
+func named(name, value string, field *string) error {
 	if value == "" {
 		return nil
 	}
 
-	allowed := chargen.PolicyStrategies()[flag]
+	allowed := chargen.PolicyStrategies()[name]
 	if !slices.Contains(allowed, value) {
 		return fmt.Errorf("%w: --%s %q, want one of %s",
-			errBadStrategy, flag, value, strings.Join(allowed, ", "))
+			errBadStrategy, name, value, strings.Join(allowed, ", "))
 	}
 
 	*field = value
@@ -235,7 +247,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 	// A mistyped strategy is a usage error, so it is answered before
 	// anything is drawn, reserved, or asked of the player.
 	cfg := chargen.Config{Name: *name, Service: *svc, Auto: *auto}
-	if err := policy.apply(&cfg, *auto); err != nil {
+	if err := policy.apply(&cfg); err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 
 		return exitUsage
@@ -310,7 +322,7 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 	chars := make([]*chargen.Character, 0, *count)
 
 	member := chargen.Config{Service: *svc, Auto: true}
-	if err := policy.apply(&member, true); err != nil {
+	if err := policy.apply(&member); err != nil {
 		fmt.Fprintf(stderr, "ctchargen batch: %v\n", err)
 
 		return exitUsage

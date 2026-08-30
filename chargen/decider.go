@@ -22,6 +22,9 @@ var (
 	// roll (service.ErrInvalidData is its counterpart for the service
 	// tables).
 	ErrInvalidChart = errors.New("invalid chart data")
+	// ErrBadConfig is a Config naming a policy strategy the auto policy
+	// does not offer, or a career length outside the rules' own cap.
+	ErrBadConfig = errors.New("invalid config")
 	// ErrProvenance is a record whose stamps do not match this build
 	// (replay --ignore-provenance waives the match).
 	ErrProvenance = errors.New("provenance mismatch")
@@ -176,6 +179,47 @@ func NewAutoPolicy(cfg Config) AutoPolicy {
 	return AutoPolicy{Skills: cfg.Skills, Muster: cfg.Muster, CareerTerms: cfg.CareerTerms}
 }
 
+// validatePolicyInputs refuses a Config naming a strategy the policy does
+// not offer, or a career length outside the 7-term voluntary cap (p. 7).
+// The CLI checks the same things to answer a typo before anything is drawn
+// or asked, but Config is exported and these three values are copied
+// verbatim into the record's `inputs`: unchecked, an unrecognised strategy
+// would be recorded as the policy that generated the character while the
+// default was silently applied, and a career length outside 1-7 would
+// write a record its own docs/character.schema.json rejects. Both checks
+// read PolicyStrategies, so the CLI's list and this one cannot drift.
+func validatePolicyInputs(cfg Config) error {
+	strategies := PolicyStrategies()
+
+	if err := validStrategy("skills", cfg.Skills, strategies["skills"]); err != nil {
+		return err
+	}
+
+	if err := validStrategy("muster", cfg.Muster, strategies["muster"]); err != nil {
+		return err
+	}
+
+	if cfg.CareerTerms < 0 || cfg.CareerTerms > maxCareerTerms {
+		return fmt.Errorf("%w: career terms %d, want 0 (serve while the rules allow) or 1-%d (p. 7)",
+			ErrBadConfig, cfg.CareerTerms, maxCareerTerms)
+	}
+
+	return nil
+}
+
+// maxCareerTerms is the rules' own cap: voluntary service ends after seven
+// terms (p. 7), so intending to leave after a later one names a term the
+// procedure never reaches.
+const maxCareerTerms = 7
+
+func validStrategy(name, value string, allowed []string) error {
+	if value == "" || slices.Contains(allowed, value) {
+		return nil
+	}
+
+	return fmt.Errorf("%w: %s %q, want one of %s", ErrBadConfig, name, value, strings.Join(allowed, ", "))
+}
+
 // Decide applies the docs/POLICY.md decision table.
 func (p AutoPolicy) Decide(c Choice) (Decision, error) {
 	// The engine guards this too (chargen.choose), but AutoPolicy is
@@ -245,6 +289,19 @@ func (p AutoPolicy) reenlistPick(c Choice) string {
 	return Yes
 }
 
+// The first three skills tables by name, in the book's order (p. 11).
+// Every strategy that means a particular table names it, the way the
+// default row always has: the engine rejects a pick outside the options
+// (chargen.choose), so a name that stopped being offered fails loudly,
+// where a pick by position would follow a reordered service.TableNames
+// silently — and would index out of range on any options list shorter
+// than the cycle, which is the panic Decide's own guard exists to bar.
+const (
+	tablePersonal = "personal_development"
+	tableService  = "service_skills"
+	tableAdvanced = "advanced_education"
+)
+
 // skillTablePick allocates one eligibility. Options holds the tables the
 // character may use: three, or four once Education has reached 8 (p. 11),
 // which is what lets "advanced" reach for the fourth without being told
@@ -252,22 +309,22 @@ func (p AutoPolicy) reenlistPick(c Choice) string {
 func (p AutoPolicy) skillTablePick(c Choice) string {
 	switch p.Skills {
 	case SkillsPersonal:
-		return c.Options[0]
+		return tablePersonal
 	case SkillsAdvanced:
-		// The last on offer is the most advanced the character may use.
+		// The one strategy that must pick by position: the fourth table is
+		// on offer only where Education has opened it, and taking the last
+		// is how it reaches that without being told the characteristic.
 		return c.Options[len(c.Options)-1]
 	case SkillsRounded:
 		// One term on each of the first three, in the book's order: a term
 		// improving himself, a term learning the trade, a term specialising.
 		// Every eligibility of a term goes to that term's table.
-		term := termOf(c.Step)
-		if term < 1 {
-			return c.Options[0]
-		}
+		cycle := []string{tablePersonal, tableService, tableAdvanced}
+		term := max(termOf(c.Step), 1)
 
-		return c.Options[(term-1)%3]
+		return cycle[(term-1)%len(cycle)]
 	default:
-		return "service_skills"
+		return tableService
 	}
 }
 
