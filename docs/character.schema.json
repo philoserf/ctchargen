@@ -207,9 +207,9 @@
   "$defs": {
     "characteristic": {
       "type": "integer",
-      "minimum": 1,
+      "minimum": 0,
       "maximum": 15,
-      "description": "Numeric value; 2-12 initially, 1-15 through play (p. 4)."
+      "description": "Numeric value; 2-12 initially, 1-15 through play (p. 4). Zero is reachable only by aging, which floors at 0 rather than 1, and signifies a medical crisis (pp. 7-8); a character who fails the crisis save dies with the zero intact."
     }
   }
 }
