@@ -72,6 +72,38 @@ func TestValidateRegistryWantsAllSix(t *testing.T) {
 	}
 }
 
+// The shipped data files name six distinct services, so only an internal
+// test can hand addService a collision. Left unguarded it is silent: the
+// map keeps whichever file ReadDir returned last, and Load then reports a
+// *different*, intact service as the missing one.
+func TestAddServiceRejectsARepeatedName(t *testing.T) {
+	r := &Registry{services: map[string]*Service{}, weapons: map[string][]string{}}
+
+	first := gambler("Navy", 1)
+	if err := r.addService("navy.json", first); err != nil {
+		t.Fatalf("first addService: %v", err)
+	}
+
+	err := r.addService("navy-copy.json", gambler("Navy", 2))
+	if err == nil {
+		t.Fatal("want an error for a repeated service name, got nil")
+	}
+
+	if !errors.Is(err, ErrInvalidData) {
+		t.Errorf("want ErrInvalidData, got %v", err)
+	}
+
+	if !strings.Contains(err.Error(), "navy-copy.json") {
+		t.Errorf("error does not name the offending file: %v", err)
+	}
+
+	// The refusal leaves the first file's service in place rather than
+	// half-applying the second.
+	if got := r.services["navy"]; got != first {
+		t.Errorf("stored service was replaced: %+v", got)
+	}
+}
+
 func TestRegistryGrants(t *testing.T) {
 	viaTable := &Service{Name: "Army"}
 	viaTable.Skills.AdvancedEducation = []SkillResult{{Skill: Gambling}}

@@ -7,6 +7,7 @@
 package service
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -190,10 +191,6 @@ func Load() (*Registry, error) {
 		}
 	}
 
-	if len(reg.order) != len(reg.services) {
-		return nil, fmt.Errorf("%w: a data file names a service outside the book's six", ErrInvalidData)
-	}
-
 	if err := validateRegistry(reg); err != nil {
 		return nil, err
 	}
@@ -314,6 +311,21 @@ func (r *Registry) Weapons(category string) ([]string, error) {
 	return append([]string(nil), list...), nil
 }
 
+// decodeStrict parses an embedded data file, rejecting unknown fields so a
+// misspelled key is a load-time failure rather than a silently zeroed
+// field — and a silently wrong rule. The charts are read the same way
+// (chargen.decodeStrict).
+func decodeStrict(raw []byte, dst any) error {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+
+	if err := dec.Decode(dst); err != nil {
+		return fmt.Errorf("decoding service data: %w", err)
+	}
+
+	return nil
+}
+
 func (r *Registry) loadServices() error {
 	entries, err := dataFS.ReadDir("data")
 	if err != nil {
@@ -331,11 +343,7 @@ func (r *Registry) loadServices() error {
 		}
 
 		svc := &Service{}
-
-		dec := json.NewDecoder(strings.NewReader(string(raw)))
-		dec.DisallowUnknownFields()
-
-		if err := dec.Decode(svc); err != nil {
+		if err := decodeStrict(raw, svc); err != nil {
 			return fmt.Errorf("parsing %s: %w", entry.Name(), err)
 		}
 
@@ -343,8 +351,27 @@ func (r *Registry) loadServices() error {
 			return fmt.Errorf("%s: %w", entry.Name(), err)
 		}
 
-		r.services[strings.ToLower(svc.Name)] = svc
+		if err := r.addService(entry.Name(), svc); err != nil {
+			return err
+		}
 	}
+
+	return nil
+}
+
+// addService stores a validated service, refusing a name a previous data
+// file already claimed. Without the check the map keeps whichever file
+// ReadDir returned last — so one service's column could silently stand in
+// for another's — and the collision resurfaces from validateRegistry as a
+// missing *other* service, pointing the reader at an intact file.
+func (r *Registry) addService(file string, svc *Service) error {
+	key := strings.ToLower(svc.Name)
+	if _, taken := r.services[key]; taken {
+		return fmt.Errorf("%w: %s names service %q, which another data file already loaded",
+			ErrInvalidData, file, svc.Name)
+	}
+
+	r.services[key] = svc
 
 	return nil
 }
@@ -362,10 +389,7 @@ func (r *Registry) loadWeapons() error {
 		Gun        []string `json:"gun"`
 	}
 
-	dec := json.NewDecoder(strings.NewReader(string(raw)))
-	dec.DisallowUnknownFields()
-
-	if err := dec.Decode(&parsed); err != nil {
+	if err := decodeStrict(raw, &parsed); err != nil {
 		return fmt.Errorf("parsing weapons.json: %w", err)
 	}
 
