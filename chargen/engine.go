@@ -174,7 +174,7 @@ func (g *generator) characteristics() {
 	step := "characteristics"
 	g.step(step, "roll 2D for each characteristic, in order (p. 4)")
 
-	for _, name := range service.CharacteristicNames {
+	for _, name := range service.CharacteristicNames() {
 		total, _ := g.plainThrow(step, name)
 		g.char.Characteristics.set(name, total)
 	}
@@ -446,14 +446,11 @@ func (g *generator) skills(tables *service.SkillTables, step string, term, bonus
 	}
 
 	for range eligibility {
-		// Cloned, not sliced: service.TableNames[:3] keeps the fourth name
-		// in its spare capacity, so a Decider that appends to the options
-		// it is handed would overwrite the package-level table's last
-		// entry for the rest of the process. The service package hands out
-		// copies for the same reason (Registry.Names, Registry.Weapons).
-		options := slices.Clone(service.TableNames[:3])
-		if g.char.Characteristics.Education >= 8 {
-			options = slices.Clone(service.TableNames) // the fourth table needs Education 8+ (p. 11)
+		// TableNames hands back a fresh slice, so this is already a copy
+		// no Decider can write through to the package's own.
+		options := service.TableNames()
+		if g.char.Characteristics.Education < 8 {
+			options = options[:3] // the fourth table needs Education 8+ (p. 11)
 		}
 
 		table, err := g.choose(Choice{Step: step, Label: ChoiceSkillTable, Options: options})

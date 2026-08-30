@@ -121,3 +121,21 @@ func TestReplayChecksProvenance(t *testing.T) {
 		t.Errorf("Replay with ignoreProvenance: %v", err)
 	}
 }
+
+// The RNG algorithm is one of the four stamps checkProvenance compares, so
+// the waiver must reach it too. It is reachable only through the final
+// byte comparison, whose message ("record altered outside the engine?")
+// is the one message that cannot be right here: every event matched,
+// which is the evidence that nothing was altered.
+func TestReplayWaivesTheAlgorithmStamp(t *testing.T) {
+	char := generate(t, fixture.All()[0])
+	char.RNG.Algorithm = "pcg64-elsewhere"
+
+	if err := chargen.Replay(char, false); err == nil {
+		t.Error("Replay accepted a foreign rng algorithm without --ignore-provenance")
+	}
+
+	if err := chargen.Replay(char, true); err != nil {
+		t.Errorf("Replay with ignoreProvenance: %v", err)
+	}
+}

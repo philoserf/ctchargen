@@ -61,9 +61,10 @@ func TestAutoPolicyIsTotal(t *testing.T) {
 	}
 }
 
-// The list is handed to callers that may append to it — the engine clones
-// package-level option slices for exactly this reason (service.TableNames
-// at chargen/engine.go) — so each call must yield a fresh one.
+// The list is handed to callers that may append to or write through it —
+// service.CharacteristicNames, service.TableNames, Registry.Names, and
+// Registry.Weapons all answer the same hazard the same way — so each call
+// must yield a fresh one.
 func TestChoiceLabelsAreNotShared(t *testing.T) {
 	first := chargen.ChoiceLabels()
 	first[0] = "rewritten"

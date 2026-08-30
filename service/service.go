@@ -44,9 +44,19 @@ const (
 	SocialStanding = "social_standing"
 )
 
+var characteristicNames = [...]string{Strength, Dexterity, Endurance, Intelligence, Education, SocialStanding}
+
 // CharacteristicNames is the rolled order (p. 4), used for validation and
 // for iterating in a stable order.
-var CharacteristicNames = []string{Strength, Dexterity, Endurance, Intelligence, Education, SocialStanding}
+//
+// A fresh slice each call, like Registry.Names, Registry.Weapons, and
+// chargen.ChoiceLabels: a caller that writes to what it is handed must not
+// reach the package's own copy. This one iterates the UPP's digits
+// (chargen.Characteristics.UPP) and the six opening throws, so a write
+// through it would reorder or rename them for the rest of the process —
+// producing records that are internally consistent, wrong, and, since
+// replay compares record against record, verified.
+func CharacteristicNames() []string { return slices.Clone(characteristicNames[:]) }
 
 // DM is one row of a throw's cumulative die modifications: +DM when the
 // named characteristic is at or above Min (p. 5: "If both stated
@@ -84,9 +94,27 @@ type SkillTables struct {
 	AdvancedEducation8  []SkillResult `json:"advanced_education_8"`
 }
 
+var tableNames = [...]string{"personal_development", "service_skills", "advanced_education", "advanced_education_8"}
+
 // TableNames is the four Acquired Skills tables in the book's order
 // (p. 11); the fourth is available only at Education 8+.
-var TableNames = []string{"personal_development", "service_skills", "advanced_education", "advanced_education_8"}
+//
+// A fresh slice each call, like CharacteristicNames. The engine slices
+// this down to the first three for a character below Education 8 and
+// hands the result to a Decider; because the slice is this caller's own,
+// the fourth name sitting in its spare capacity is the caller's too, and
+// a Decider that appends to its options cannot write through to the
+// package's copy.
+// make, not slices.Clone: the engine slices the result, and Clone's
+// documented nil return for a nil argument puts a nil in NilAway's flow
+// even though the argument here is a fixed four-element array. A nil check
+// on it would be a check on nothing; make simply cannot return one.
+func TableNames() []string {
+	out := make([]string, len(tableNames))
+	copy(out, tableNames[:])
+
+	return out
+}
 
 // Table looks a skills table up by its name from TableNames.
 func (t *SkillTables) Table(name string) ([]SkillResult, bool) {
@@ -257,7 +285,7 @@ func validateDraftNumbers(r *Registry) error {
 // nowhere; only the set as a whole has to be able to.
 func registryGrants(r *Registry, skill string) bool {
 	for _, svc := range r.services {
-		for _, table := range TableNames {
+		for _, table := range tableNames {
 			rows, _ := svc.Skills.Table(table)
 			for _, row := range rows {
 				if row.Skill == skill {
@@ -643,7 +671,7 @@ func validateRankStructure(svc *Service) error {
 }
 
 func validateTables(skills *SkillTables) error {
-	for _, name := range TableNames {
+	for _, name := range tableNames {
 		rows, _ := skills.Table(name)
 		if len(rows) != 6 {
 			return fmt.Errorf("%w: %s has %d rows, want 6 (one per die face)", ErrInvalidData, name, len(rows))
@@ -704,5 +732,5 @@ func validateAlteration(row SkillResult) error {
 }
 
 func validCharacteristic(name string) bool {
-	return slices.Contains(CharacteristicNames, name)
+	return slices.Contains(characteristicNames[:], name)
 }

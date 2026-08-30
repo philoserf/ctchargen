@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-// Errors the procedure reports.
+// Errors this package reports: the procedure's own, and the record
+// decoder's.
 var (
 	// ErrCannotDecide is a Decider presented with a choice point it has no
 	// rule for.
@@ -25,6 +26,9 @@ var (
 	ErrProvenance = errors.New("provenance mismatch")
 	// ErrDiverged is a replay that did not reproduce the record.
 	ErrDiverged = errors.New("replay diverged")
+	// ErrTrailingData is a record file holding more than the one record
+	// (UnmarshalRecord).
+	ErrTrailingData = errors.New("trailing data after the record")
 )
 
 // Choice labels: the procedure's choice points (FR10 records who decided
