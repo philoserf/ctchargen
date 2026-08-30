@@ -89,21 +89,41 @@ func run(args []string, seedSource func() (uint64, error), stdin io.Reader, stdo
 	}
 }
 
-// parseExit maps a flag.Parse failure onto an exit code. flag.ErrHelp is
-// the sentinel for a -h/--help the flag package has already answered by
-// printing the flag list: a handled request, not a usage error, and 0 is
-// what flag.ExitOnError would have exited with.
-func parseExit(err error) int {
+// newFlagSet builds a subcommand's flag set with its own output
+// discarded. The flag package writes a help request and a parse error to
+// the same place, and those are not the same kind of thing here; silencing
+// it lets reportParse pick the stream per outcome.
+func newFlagSet(name string) *flag.FlagSet {
+	fs := flag.NewFlagSet(name, flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+
+	return fs
+}
+
+// reportParse answers a flag.Parse failure and chooses where the answer
+// goes. flag.ErrHelp is the sentinel for -h/--help: a handled request, so
+// the flag list goes to stdout and the exit is clean — the same treatment
+// the top-level --help gets, so that redirecting either one captures it.
+// Anything else is a usage error, and goes to stderr with the flag list
+// after it.
+func reportParse(fs *flag.FlagSet, err error, stdout, stderr io.Writer) int {
 	if errors.Is(err, flag.ErrHelp) {
+		fmt.Fprintf(stdout, "usage: ctchargen %s [flags]\n", fs.Name())
+		fs.SetOutput(stdout)
+		fs.PrintDefaults()
+
 		return exitOK
 	}
+
+	fmt.Fprintf(stderr, "ctchargen %s: %v\n", fs.Name(), err)
+	fs.SetOutput(stderr)
+	fs.PrintDefaults()
 
 	return exitUsage
 }
 
 func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("new", flag.ContinueOnError)
-	fs.SetOutput(stderr)
+	fs := newFlagSet("new")
 	seed := fs.Uint64("seed", 0, "RNG seed (default: drawn from the OS)")
 	auto := fs.Bool("auto", false, "apply the fixed default policy (docs/POLICY.md) to every choice")
 	svc := fs.String("service", "", "force the enlistment attempt only; a failed throw still goes to the draft (p. 5)")
@@ -112,7 +132,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 	force := fs.Bool("force", false, "overwrite an existing output file")
 
 	if err := fs.Parse(args); err != nil {
-		return parseExit(err)
+		return reportParse(fs, err, stdout, stderr)
 	}
 
 	if fs.NArg() != 0 {
@@ -122,6 +142,13 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 	}
 
 	if err := resolveSeed(fs, seed, seedSource); err != nil {
+		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
+
+		return exitError
+	}
+
+	// Before the first prompt, not after the last one.
+	if err := reserveOutput(*outPath, *force); err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 
 		return exitError
@@ -155,8 +182,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 // CLI sketch). Output is JSONL to stdout or a file, or one JSON file per
 // character when -o names a directory.
 func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("batch", flag.ContinueOnError)
-	fs.SetOutput(stderr)
+	fs := newFlagSet("batch")
 	count := fs.Int("count", 0, "number of characters to generate")
 	seed := fs.Uint64("seed", 0, "base RNG seed (default: drawn from the OS); member i uses seed+i")
 	auto := fs.Bool("auto", false, "required: batch applies the fixed default policy (docs/POLICY.md)")
@@ -165,7 +191,7 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 	force := fs.Bool("force", false, "overwrite existing output files")
 
 	if err := fs.Parse(args); err != nil {
-		return parseExit(err)
+		return reportParse(fs, err, stdout, stderr)
 	}
 
 	if fs.NArg() != 0 || *count < 1 || !*auto {
@@ -312,12 +338,11 @@ func checkNoneExist(paths []string) error {
 // recorded choices, exiting non-zero at the first mismatch (docs/PRD.md,
 // Replay and provenance contract).
 func runReplay(args []string, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("replay", flag.ContinueOnError)
-	fs.SetOutput(stderr)
+	fs := newFlagSet("replay")
 	ignore := fs.Bool("ignore-provenance", false, "waive the version match — and nothing else")
 
 	if err := fs.Parse(args); err != nil {
-		return parseExit(err)
+		return reportParse(fs, err, stdout, stderr)
 	}
 
 	if fs.NArg() != 1 {
@@ -397,12 +422,38 @@ func emitRecord(char *chargen.Character, outPath string, force bool, stdout io.W
 // (docs/PRD.md, CLI sketch).
 var errExists = errors.New("use --force to overwrite")
 
+// refuseExisting reports an occupied path, or a path that cannot be
+// statted at all — which is not the same as a free one and must not be
+// treated as one.
+func refuseExisting(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		return fmt.Errorf("%s exists; %w", path, errExists)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("checking %s: %w", path, err)
+	}
+
+	return nil
+}
+
+// reserveOutput refuses an occupied destination before the caller spends
+// anything reaching it. An interactive generation is the player's
+// evening, and finding the collision afterwards throws the whole
+// playthrough away — so `new` asks first, as writeBatchDir does for the
+// batch directory. This races a concurrent writer, as any such check
+// does; writeFile's own check is still the guard, and this one exists to
+// fail at the right moment.
+func reserveOutput(path string, force bool) error {
+	if path == "" || force {
+		return nil
+	}
+
+	return refuseExisting(path)
+}
+
 func writeFile(path string, data []byte, force bool) error {
 	if !force {
-		if _, err := os.Stat(path); err == nil {
-			return fmt.Errorf("%s exists; %w", path, errExists)
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return fmt.Errorf("checking %s: %w", path, err)
+		if err := refuseExisting(path); err != nil {
+			return err
 		}
 	}
 
@@ -415,12 +466,11 @@ func writeFile(path string, data []byte, force bool) error {
 }
 
 func runRender(args []string, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("render", flag.ContinueOnError)
-	fs.SetOutput(stderr)
+	fs := newFlagSet("render")
 	history := fs.Bool("history", false, "render the generation record transcript instead of the sheet")
 
 	if err := fs.Parse(args); err != nil {
-		return parseExit(err)
+		return reportParse(fs, err, stdout, stderr)
 	}
 
 	if fs.NArg() != 1 {

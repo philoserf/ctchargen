@@ -7,29 +7,32 @@ import (
 	"github.com/philoserf/ctchargen/service"
 )
 
-// The cross-kind ship case is unreachable through Generate — no service
-// offers both ships, and validateOneShipKind now forbids one from doing
-// so — which is exactly why it needs an internal test: the guard exists
-// to turn a silent record corruption into a loud failure if that ever
-// changes.
-func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
-	tests := []struct {
-		name    string
-		held    *Ship
-		rolled  string
-		wantErr bool
-	}{
-		{name: "no ship yet, receives a scout", rolled: "scout"},
-		{name: "no ship yet, receives a free trader", rolled: "free_trader"},
+// wantReceipts is asserted on every accepted throw: Receipts means
+// "times received" in both classes, so a repeat of either kind counts,
+// even where — as for the scout — nothing is derived from the count.
+type shipBenefitCase struct {
+	name         string
+	held         *Ship
+	rolled       string
+	wantReceipts int
+	wantErr      bool
+}
+
+func shipBenefitCases() []shipBenefitCase {
+	return []shipBenefitCase{
+		{name: "no ship yet, receives a scout", rolled: "scout", wantReceipts: 1},
+		{name: "no ship yet, receives a free trader", rolled: "free_trader", wantReceipts: 1},
 		{
-			name:   "holds a scout, receives another",
-			held:   &Ship{Class: classScout, Receipts: 1, ConstructivePossession: true},
-			rolled: "scout",
+			name:         "holds a scout, receives another",
+			held:         &Ship{Class: classScout, Receipts: 1, ConstructivePossession: true},
+			rolled:       "scout",
+			wantReceipts: 2,
 		},
 		{
-			name:   "holds a free trader, receives another",
-			held:   &Ship{Class: classFreeTrader, Receipts: 1, PaymentYearsRemaining: 40},
-			rolled: "free_trader",
+			name:         "holds a free trader, receives another",
+			held:         &Ship{Class: classFreeTrader, Receipts: 1, PaymentYearsRemaining: 40},
+			rolled:       "free_trader",
+			wantReceipts: 2,
 		},
 		{
 			name:    "holds a scout, receives a free trader",
@@ -44,8 +47,15 @@ func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
 			wantErr: true,
 		},
 	}
+}
 
-	for _, tt := range tests {
+// The cross-kind ship case is unreachable through Generate — no service
+// offers both ships, and validateOneShipKind now forbids one from doing
+// so — which is exactly why it needs an internal test: the guard exists
+// to turn a silent record corruption into a loud failure if that ever
+// changes.
+func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
+	for _, tt := range shipBenefitCases() {
 		t.Run(tt.name, func(t *testing.T) {
 			g := &generator{char: &Character{Benefits: Benefits{Ship: tt.held}}}
 
@@ -55,6 +65,10 @@ func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
 			}
 
 			if !tt.wantErr {
+				if got := g.char.Benefits.Ship.Receipts; got != tt.wantReceipts {
+					t.Errorf("receipts = %d, want %d", got, tt.wantReceipts)
+				}
+
 				return
 			}
 

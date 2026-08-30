@@ -98,7 +98,10 @@ COVERAGE/ERRATA/POLICY documents) are adopted; its code is not.
 - Packages: `dice`, `chargen` (engine; all choice points go through a
   `Decider` interface so interactive and auto modes share one procedure),
   `service` (data-driven definitions of the six services), `render`,
-  `cmd/ctchargen`.
+  `cmd/ctchargen`. Plus `internal/fixture`, which is test support rather
+  than architecture: the one definition of the golden-fixture roster, so
+  the `chargen` and `render` golden trees cannot come to describe
+  different characters under the same name.
 - Tables/thresholds/labels are embedded data files (`go:embed`) with
   load-time validation; procedural mechanics are typed Go. No rules language.
 - The JSON character record is the source of truth; Markdown sheets are

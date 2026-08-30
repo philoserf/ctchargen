@@ -48,12 +48,13 @@ func TestRun(t *testing.T) {
 	}
 }
 
-// Asking for help is an answered request, not a usage error. The two
-// forms print to different places — the top level writes usage to stdout,
-// while a subcommand's flag list comes from the flag package, which writes
-// to the flag set's output — so the exit code is what both share.
+// Asking for help is an answered request, not a usage error: both forms
+// exit clean and both answer on stdout, so `ctchargen new -h > flags.txt`
+// captures the flag list the way `ctchargen --help > usage.txt` captures
+// the usage text. Neither may put a word on stderr — that stream is for
+// the usage errors, checked below.
 func TestHelpExitsClean(t *testing.T) {
-	code, stdout, _ := runCmd(t, "", "--help")
+	code, stdout, stderr := runCmd(t, "", "--help")
 	if code != exitOK {
 		t.Errorf("--help = %d, want %d", code, exitOK)
 	}
@@ -62,13 +63,43 @@ func TestHelpExitsClean(t *testing.T) {
 		t.Errorf("--help stdout = %q, want the usage text", stdout)
 	}
 
-	code, _, stderr := runCmd(t, "", "new", "-h")
+	if stderr != "" {
+		t.Errorf("--help wrote to stderr: %q", stderr)
+	}
+
+	code, stdout, stderr = runCmd(t, "", "new", "-h")
 	if code != exitOK {
 		t.Errorf("new -h = %d, want %d", code, exitOK)
 	}
 
+	if !strings.Contains(stdout, "-seed") {
+		t.Errorf("new -h did not print the flag list to stdout: %q", tail(stdout))
+	}
+
+	if stderr != "" {
+		t.Errorf("new -h wrote to stderr: %q", stderr)
+	}
+}
+
+// A parse error is the other half of the split: it is a usage error, so
+// it goes to stderr with the flag list after it, and stdout stays clean
+// for anything being piped.
+func TestUnknownFlagIsAUsageError(t *testing.T) {
+	code, stdout, stderr := runCmd(t, "", "new", "--nonesuch")
+	if code != exitUsage {
+		t.Errorf("new --nonesuch = %d, want %d", code, exitUsage)
+	}
+
+	if !strings.Contains(stderr, "not defined: -nonesuch") {
+		t.Errorf("stderr does not name the bad flag: %q", tail(stderr))
+	}
+
 	if !strings.Contains(stderr, "-seed") {
-		t.Errorf("new -h did not print the flag list: %q", tail(stderr))
+		t.Errorf("stderr does not carry the flag list: %q", tail(stderr))
+	}
+
+	if stdout != "" {
+		t.Errorf("a usage error wrote to stdout: %q", stdout)
 	}
 }
 
@@ -125,6 +156,44 @@ func TestNewInteractiveInputClosed(t *testing.T) {
 
 	if !strings.Contains(stderr, "standard input closed") {
 		t.Errorf("stderr %q does not explain the closed input", tail(stderr))
+	}
+}
+
+// An occupied -o is refused before the first prompt, not after the last
+// one: the collision is knowable up front, and discovering it afterwards
+// throws away a whole interactive playthrough. Empty stdin is the
+// discriminator — reaching the prompter at all would fail with "standard
+// input closed" instead.
+func TestNewRefusesAnOccupiedOutputBeforePrompting(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "taken.json")
+	if err := os.WriteFile(path, []byte("original\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	code, _, stderr := runCmd(t, "", "new", "--seed", "7", "-o", path)
+	if code != exitError {
+		t.Fatalf("new -o over an existing file = %d, want %d", code, exitError)
+	}
+
+	if !strings.Contains(stderr, "--force") {
+		t.Errorf("stderr %q does not name --force", tail(stderr))
+	}
+
+	if strings.Contains(stderr, "standard input closed") {
+		t.Error("generation started before the output path was checked")
+	}
+
+	if strings.Contains(stderr, "which service") {
+		t.Error("the player was prompted before the output path was checked")
+	}
+
+	data, err := os.ReadFile(filepath.Clean(path))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(data) != "original\n" {
+		t.Errorf("the existing file was touched: %q", data)
 	}
 }
 
