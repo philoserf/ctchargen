@@ -115,15 +115,16 @@ tasks:
       - go mod tidy
 
   # NilAway publishes no tagged releases and has no Homebrew formula, so
-  # it is pinned to a module pseudo-version here rather than living in the
-  # Brewfile with the rest. The version is part of what the gate means:
-  # an analyzer that moves on its own turns an unrelated change red.
-  # Keep it in step with .github/workflows/ci.yml.
+  # `task deps` installs it with `go install` rather than through the
+  # Brewfile; @latest resolves to its current tip commit. Unpinned like
+  # the rest of the toolchain, and for the same reason: an analyzer that
+  # moves should turn the gate red and be answered then, not silently
+  # left behind. Keep it in step with .github/workflows/ci.yml.
   deps:
-    desc: Install the development toolchain (Brewfile + pinned Go tools)
+    desc: Install the development toolchain (Brewfile + NilAway at tip)
     cmds:
       - brew bundle --file=Brewfile
-      - go install go.uber.org/nilaway/cmd/nilaway@v0.0.0-20260808063849-8649a03c818a
+      - go install go.uber.org/nilaway/cmd/nilaway@latest
 
   hooks:
     desc: Install git hooks (point core.hooksPath at the tracked .githooks/)

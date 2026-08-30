@@ -22,7 +22,7 @@ Golden fixtures move only via `task goldens`, never by hand.
 task          # the full gate: check (modernize + gofumpt + prettier + vet + golangci-lint + nilaway) + test
 task fmt      # format Go (gofumpt -extra) and JSON/Markdown (prettier)
 task test     # go test -race ./...
-task deps     # install the toolchain (brew bundle + pinned Go tools)
+task deps     # install the toolchain (brew bundle + NilAway at tip)
 task hooks    # install the tracked pre-push hook (runs `task`)
 go test -race ./cmd/ctchargen -run TestRun   # a single test
 ```
@@ -32,6 +32,14 @@ that the local `task` gate doesn't run, and never add a tool to the gate
 without also installing it there. golangci-lint runs with `default: all`
 and a curated disable list (`.golangci.yml`); fix findings rather than
 adding disables.
+
+**The toolchain is deliberately unpinned**, in the Brewfile and in CI alike:
+the gate is meant to fail when a tool moves rather than drift behind it. So
+a red gate on code you did not touch is expected occasionally and is the
+signal working — a new golangci-lint linter, a gofumpt reformat, a NilAway
+inference. Answer the finding, or adjust `.golangci.yml`; do not pin a tool
+to make it go away, and do not assume a failure belongs to the commit that
+surfaced it.
 
 NilAway is part of the gate and is upstream-flagged as experimental, so it
 does report false positives. Answer one with a real nil check where that
