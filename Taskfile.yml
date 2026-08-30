@@ -112,7 +112,7 @@ tasks:
     cmds:
       - |
         set -eu
-        ceilings="chargen:83 cmd/ctchargen:68 dice:2 render:1 service:63"
+        ceilings="chargen:83 cmd/ctchargen:49 dice:2 render:1 service:16"
         profile=$(mktemp)
         trap 'rm -f "$profile"' EXIT
         go test -race -coverprofile="$profile" ./...

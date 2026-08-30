@@ -267,6 +267,79 @@ func TestBatchToDirectoryIsAllOrNothing(t *testing.T) {
 	}
 }
 
+// Everything past `render`'s argument count was dark: the file read, the
+// parse, both renderers, and the write. Assertions are on substance the
+// sheet and the transcript must carry — not on their wording, which would
+// only make this a second copy of the render goldens.
+func TestRenderReadsARecord(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "char.json")
+
+	if code, _, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "-o", path); code != exitOK {
+		t.Fatalf("new: %q", stderr)
+	}
+
+	code, sheet, stderr := runCmd(t, "", "render", path)
+	if code != exitOK {
+		t.Fatalf("render = %d, stderr %q", code, tail(stderr))
+	}
+
+	for _, want := range []string{"UPP", "Navy", "## Skills"} {
+		if !strings.Contains(sheet, want) {
+			t.Errorf("sheet does not carry %q:\n%s", want, sheet)
+		}
+	}
+
+	code, history, stderr := runCmd(t, "", "render", "--history", path)
+	if code != exitOK {
+		t.Fatalf("render --history = %d, stderr %q", code, tail(stderr))
+	}
+
+	for _, want := range []string{"# Generation record", "Seed 3", "## characteristics", "- (1)"} {
+		if !strings.Contains(history, want) {
+			t.Errorf("history does not carry %q:\n%s", want, tail(history))
+		}
+	}
+
+	if history == sheet {
+		t.Error("--history rendered the sheet")
+	}
+}
+
+func TestRenderRejectsBadInput(t *testing.T) {
+	dir := t.TempDir()
+
+	notARecord := filepath.Join(dir, "garbage.json")
+	if err := os.WriteFile(notARecord, []byte("{\"nope\": true}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{"a file that is not there", filepath.Join(dir, "absent.json"), "absent.json"},
+		{"a file that is not a record", notARecord, "parsing character record"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			code, stdout, stderr := runCmd(t, "", "render", tt.path)
+			if code != exitError {
+				t.Errorf("render = %d, want %d", code, exitError)
+			}
+
+			if !strings.Contains(stderr, tt.want) {
+				t.Errorf("stderr %q does not explain the failure", tail(stderr))
+			}
+
+			// A failed render must not put half a sheet on the pipe.
+			if stdout != "" {
+				t.Errorf("failed render wrote to stdout: %q", stdout)
+			}
+		})
+	}
+}
+
 func TestReplayRoundTripViaCLI(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "char.json")
 
