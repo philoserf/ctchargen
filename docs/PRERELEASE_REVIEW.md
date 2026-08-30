@@ -4,11 +4,11 @@ The bar v1.0.0 has to clear, and where it stands. Every line is either
 verified with the evidence that verified it, or open with what closing it
 costs. Nothing here is aspirational: an item is met or it is not.
 
-**Released as `v1.0.0-alpha.1`.** The bar below is met, and the alpha is
+**Released as `v1.0.0-alpha.2`.** The bar below is met, and the alpha is
 where it gets tested against use rather than against its own suite: a
 prerelease of the v1 line, sorting before `v1.0.0`, so nothing here claims
 v1 stability yet. Go excludes prereleases from `@latest`, so it installs by
-name — `go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.1`
+name — `go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.2`
 — which is the intended friction for an alpha.
 
 `runVersion` reads `debug.ReadBuildInfo`, so `ctchargen version` reports
@@ -42,7 +42,7 @@ the only remaining instrument.
 
 ## Open
 
-None. The bar is met, which is what `v1.0.0-alpha.1` releases against. What
+None. The bar is met, which is what the alpha releases against. What
 stands between the alpha and `v1.0.0` is not another item on this list —
 see the note at the top.
 
@@ -91,9 +91,16 @@ in `docs/COVERAGE.md`.
 
 ## Versioning at the tag
 
-`EngineVersion` (0.6.0), `SchemaVersion` (2), and `PolicyVersion` (3) are
-independent of the release tag and stay where they are. They track record
-behaviour, not releases: `EngineVersion` changes when generation
+`EngineVersion` (0.6.0), `SchemaVersion` (3), and `PolicyVersion` (4) are
+independent of the release tag and move on their own schedule. They track
+record behaviour, not releases: `EngineVersion` changes when generation
 behaviour or **any event's text** changes — `Replay` compares whole
 `Event` values — and bumping it in sympathy with a release would move
 every golden and break replay of every existing record for nothing.
+
+That independence cuts the other way too, which is why `alpha.2` follows
+`alpha.1` so quickly. The policy strategies moved `schema_version` 2 → 3
+and `policy_version` 3 → 4, so a record written by `alpha.1` no longer
+replays against a build of this tree without `--ignore-provenance`.
+Leaving the only tag behind that change would make the break invisible to
+anyone who had installed the alpha.
