@@ -36,7 +36,28 @@ type Fixture struct {
 	Seed    uint64
 	Service string
 	Auto    bool
+
+	// The auto policy's selectable rows (docs/POLICY.md); zero values are
+	// the defaults.
+	Skills      string
+	Muster      string
+	CareerTerms int
+
+	// Decider answers the fixture's choice points. All fills it from the
+	// fixture's own Config unless the roster set one, which only the
+	// civilian does — so a fixture's strategy fields and the policy that
+	// actually decides cannot drift apart.
 	Decider chargen.Decider
+}
+
+// Config is the fixture's inputs as the engine takes them. One
+// construction, used by every golden suite, so a fixture cannot come to
+// mean different things in the chargen and render trees.
+func (f Fixture) Config() chargen.Config {
+	return chargen.Config{
+		Seed: f.Seed, Service: f.Service, Auto: f.Auto,
+		Skills: f.Skills, Muster: f.Muster, CareerTerms: f.CareerTerms,
+	}
 }
 
 // All is the golden set: one careerist per service (forced with the
@@ -55,25 +76,38 @@ type Fixture struct {
 // A fresh slice each call: callers are tests, and one filtering or
 // reordering its copy must not reach the others.
 func All() []Fixture {
-	return []Fixture{
-		{Name: "navy-careerist", Seed: 3, Service: "navy", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "marines-careerist", Seed: 8, Service: "marines", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "army-careerist", Seed: 2, Service: "army", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "scouts-careerist", Seed: 34, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "merchants-careerist", Seed: 2, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "other-careerist", Seed: 3, Service: "other", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "draftee", Seed: 7, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "death-in-service", Seed: 2, Auto: true, Decider: chargen.AutoPolicy{}},
+	set := []Fixture{
+		{Name: "navy-careerist", Seed: 3, Service: "navy", Auto: true},
+		{Name: "marines-careerist", Seed: 8, Service: "marines", Auto: true},
+		{Name: "army-careerist", Seed: 2, Service: "army", Auto: true},
+		{Name: "scouts-careerist", Seed: 34, Service: "scouts", Auto: true},
+		{Name: "merchants-careerist", Seed: 2, Service: "merchants", Auto: true},
+		{Name: "other-careerist", Seed: 3, Service: "other", Auto: true},
+		{Name: "draftee", Seed: 7, Auto: true},
+		{Name: "death-in-service", Seed: 2, Auto: true},
 		{Name: "civilian-declined-draft", Seed: 1, Auto: false, Decider: DeclineDecider{}},
-		{Name: "duke", Seed: 4, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "medical-crisis-death", Seed: 8, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "duke", Seed: 4, Auto: true},
+		{Name: "medical-crisis-death", Seed: 8, Service: "scouts", Auto: true},
 		// Strength to zero at 46, saved, recovered, and 6 months older for
 		// it — the top of the 1D, so the record sits at the busy end of the
 		// month field rather than at 1.
-		{Name: "medical-crisis-survivor", Seed: 231, Service: "navy", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "scout-ship", Seed: 46, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "free-trader", Seed: 145, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
+		{Name: "medical-crisis-survivor", Seed: 231, Service: "navy", Auto: true},
+		{Name: "scout-ship", Seed: 46, Service: "scouts", Auto: true},
+		{Name: "free-trader", Seed: 145, Service: "merchants", Auto: true},
+		// The one fixture built by a non-default policy: a term improving
+		// himself, a term learning the trade, a term specialising. It is what
+		// puts the selectable rows, and the inputs block that records them,
+		// in front of a real record.
+		{Name: "rounded-navy", Seed: 3, Service: "navy", Auto: true, Skills: chargen.SkillsRounded},
 	}
+
+	for i := range set {
+		if set[i].Decider == nil {
+			set[i].Decider = chargen.NewAutoPolicy(set[i].Config())
+		}
+	}
+
+	return set
 }
 
 // DeclineDecider plays the one path the auto policy never takes: refusing

@@ -40,7 +40,10 @@ func TestPolicyDocumentStatesTheStampedVersion(t *testing.T) {
 // the same list, so a thirteenth choice point cannot arrive with no
 // documented policy for it.
 func TestPolicyTableCoversEveryChoicePoint(t *testing.T) {
-	raw := readDoc(t, "../docs/POLICY.md")
+	// Only the decision table: the Strategies section below it also opens
+	// rows with a backticked lowercase name, and those are strategies, not
+	// choice points.
+	raw := docSection(t, "../docs/POLICY.md", "## Decision table")
 
 	// The first cell of each table row, which is the choice label.
 	rows := regexp.MustCompile("(?m)^\\| `([a-z-]+)`").FindAllStringSubmatch(raw, -1)
@@ -65,6 +68,83 @@ func TestPolicyTableCoversEveryChoicePoint(t *testing.T) {
 			t.Errorf("docs/POLICY.md has a row for %q, which is not a choice point the engine presents", label)
 		}
 	}
+}
+
+// The strategies the policy accepts and the strategies the document
+// describes must be the same set. A strategy the CLI takes but nothing
+// documents is undiscoverable; one the document describes but the policy
+// rejects is a promise the tool breaks when a reader follows it.
+//
+// Only the flags carrying a fixed set of names are checked. --career takes
+// a term number rather than named strategies, so it has no registry entry
+// and nothing here to compare.
+func TestPolicyStrategiesAreDocumented(t *testing.T) {
+	strategies := chargen.PolicyStrategies()
+	if len(strategies) == 0 {
+		t.Fatal("the strategy registry is empty; the check is broken, not the policy")
+	}
+
+	value := regexp.MustCompile("(?m)^\\| `([a-z_]+)`")
+
+	for flag, allowed := range strategies {
+		t.Run(flag, func(t *testing.T) {
+			section := docSection(t, "../docs/POLICY.md", "### `--"+flag+"`")
+
+			rows := value.FindAllStringSubmatch(section, -1)
+
+			documented := make([]string, 0, len(rows))
+			for _, row := range rows {
+				documented = append(documented, row[1])
+			}
+
+			if len(documented) == 0 {
+				t.Fatalf("docs/POLICY.md has no strategy table under --%s", flag)
+			}
+
+			for _, name := range allowed {
+				if !slices.Contains(documented, name) {
+					t.Errorf("--%s accepts %q, which docs/POLICY.md does not describe", flag, name)
+				}
+			}
+
+			for _, name := range documented {
+				if !slices.Contains(allowed, name) {
+					t.Errorf("docs/POLICY.md describes --%s %q, which the policy does not accept", flag, name)
+				}
+			}
+		})
+	}
+}
+
+// docSection returns one heading's text, up to the next heading at the
+// same level or above. The policy document has tables under several
+// headings and they must not be read as one.
+func docSection(t *testing.T, path, heading string) string {
+	t.Helper()
+
+	raw := readDoc(t, path)
+
+	start := strings.Index(raw, heading)
+	if start < 0 {
+		t.Fatalf("%s has no %q heading", path, heading)
+	}
+
+	rest := raw[start+len(heading):]
+
+	depth := strings.Count(strings.Fields(heading)[0], "#")
+
+	for end := range len(rest) {
+		if !strings.HasPrefix(rest[end:], "\n#") {
+			continue
+		}
+
+		level := len(rest[end+1:]) - len(strings.TrimLeft(rest[end+1:], "#"))
+		if level <= depth {
+			return rest[:end]
+		}
+	}
+
+	return rest
 }
 
 // COVERAGE.md's Test column is the claim that a rule is actually covered.

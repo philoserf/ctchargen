@@ -18,7 +18,7 @@ import (
 const (
 	// SchemaVersion tracks the shape of the records the engine writes
 	// (docs/character.schema.json).
-	SchemaVersion = "2"
+	SchemaVersion = "3"
 	// EngineVersion changes when generation behaviour changes: rules,
 	// dice-stream consumption order, the RNG construction — or the text of
 	// any event the log carries. That last one is easy to miss and is not
@@ -30,8 +30,10 @@ const (
 	EngineVersion = "0.6.0"
 	// PolicyVersion identifies the docs/POLICY.md decision table the auto mode
 	// applies. Never verified on replay: recorded choices are reapplied,
-	// the policy is not consulted.
-	PolicyVersion = "3"
+	// the policy is not consulted. It names the document, not the selection
+	// within it — which strategies were chosen is caller input, and lives
+	// in the record's inputs block.
+	PolicyVersion = "4"
 	// Ruleset pins the pages every rule was read from.
 	Ruleset = "Classic Traveller Books 1-3, © 1977 text, FFE reprints"
 )
@@ -48,6 +50,12 @@ type Inputs struct {
 	Auto    bool   `json:"auto"`
 	Name    string `json:"name"`
 	Service string `json:"service"` // --service: forces the enlistment attempt only
+	// The auto policy's selectable rows (docs/POLICY.md). Omitted when the
+	// default was used, so a default record's inputs block reads exactly as
+	// it always has.
+	Skills      string `json:"skills,omitempty"`
+	Muster      string `json:"muster,omitempty"`
+	CareerTerms int    `json:"career_terms,omitempty"`
 }
 
 // Characteristics are stored numeric (2-12 initially, 1-15 through play;

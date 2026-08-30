@@ -23,11 +23,17 @@ func Replay(rec *Character, ignoreProvenance bool) error {
 		}
 	}
 
+	// Every input the record carries, not just the ones that steer the
+	// engine: the regenerated record's inputs block is compared byte for
+	// byte, so an input left behind here reads as a divergence.
 	regen, err := Generate(Config{
-		Seed:    rec.RNG.Seed,
-		Name:    rec.Inputs.Name,
-		Service: rec.Inputs.Service,
-		Auto:    rec.Inputs.Auto,
+		Seed:        rec.RNG.Seed,
+		Name:        rec.Inputs.Name,
+		Service:     rec.Inputs.Service,
+		Auto:        rec.Inputs.Auto,
+		Skills:      rec.Inputs.Skills,
+		Muster:      rec.Inputs.Muster,
+		CareerTerms: rec.Inputs.CareerTerms,
 	}, &replayDecider{choices: recordedChoices(rec)})
 	if err != nil {
 		return fmt.Errorf("replay: %w", err)

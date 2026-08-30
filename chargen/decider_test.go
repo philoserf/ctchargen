@@ -73,3 +73,144 @@ func TestChoiceLabelsAreNotShared(t *testing.T) {
 		t.Error("ChoiceLabels handed out the same backing array twice")
 	}
 }
+
+// The three selectable rows of docs/POLICY.md. Each strategy is a pure
+// function of the Choice, so the cases hand it the choice the engine
+// would: Step carries the term, Options carry what the rules allow —
+// including the fourth skills table, which appears only once Education
+// has reached 8 (p. 11).
+type strategyCase struct {
+	name   string
+	policy chargen.AutoPolicy
+	choice chargen.Choice
+	want   string
+}
+
+func strategyCases() []strategyCase {
+	return append(skillTableCases(), musterAndCareerCases()...)
+}
+
+// The skill-table row, the one whose default suppresses two whole tables.
+func skillTableCases() []strategyCase {
+	threeTables := []string{"personal_development", "service_skills", "advanced_education"}
+	fourTables := append(slices.Clone(threeTables), "advanced_education_8")
+
+	return []strategyCase{
+		{
+			name:   "the default is unchanged by an empty policy",
+			choice: chargen.Choice{Step: "term-1", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "service_skills",
+		},
+		{
+			name:   "personal takes the first table",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsPersonal},
+			choice: chargen.Choice{Step: "term-2", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "personal_development",
+		},
+		{
+			name:   "advanced takes the fourth table once Education has opened it",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsAdvanced},
+			choice: chargen.Choice{Step: "term-2", Label: chargen.ChoiceSkillTable, Options: fourTables},
+			want:   "advanced_education_8",
+		},
+		{
+			name:   "advanced settles for the third when it has not",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsAdvanced},
+			choice: chargen.Choice{Step: "term-2", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "advanced_education",
+		},
+		{
+			name:   "rounded gives term 1 to personal development",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsRounded},
+			choice: chargen.Choice{Step: "term-1", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "personal_development",
+		},
+		{
+			name:   "rounded gives term 3 to advanced education",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsRounded},
+			choice: chargen.Choice{Step: "term-3", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "advanced_education",
+		},
+		{
+			name:   "rounded comes back around at term 4",
+			policy: chargen.AutoPolicy{Skills: chargen.SkillsRounded},
+			choice: chargen.Choice{Step: "term-4", Label: chargen.ChoiceSkillTable, Options: threeTables},
+			want:   "personal_development",
+		},
+	}
+}
+
+func musterAndCareerCases() []strategyCase {
+	return []strategyCase{
+		{
+			name:   "benefits never takes the cash table, even while it is offered",
+			policy: chargen.AutoPolicy{Muster: chargen.MusterBenefits},
+			choice: chargen.Choice{Step: "muster-out", Label: chargen.ChoiceMusterTable, Options: []string{"benefits", "cash"}},
+			want:   "benefits",
+		},
+		{
+			name:   "the default takes cash while the cap allows",
+			choice: chargen.Choice{Step: "muster-out", Label: chargen.ChoiceMusterTable, Options: []string{"benefits", "cash"}},
+			want:   "cash",
+		},
+		{
+			name:   "a career length leaves once its term is reached",
+			policy: chargen.AutoPolicy{CareerTerms: 3},
+			choice: chargen.Choice{Step: "term-3", Label: chargen.ChoiceReenlist, Options: []string{chargen.Yes, chargen.No}},
+			want:   chargen.No,
+		},
+		{
+			name:   "and stays before it",
+			policy: chargen.AutoPolicy{CareerTerms: 3},
+			choice: chargen.Choice{Step: "term-2", Label: chargen.ChoiceReenlist, Options: []string{chargen.Yes, chargen.No}},
+			want:   chargen.Yes,
+		},
+	}
+}
+
+func TestAutoPolicyStrategies(t *testing.T) {
+	for _, tt := range strategyCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			decision, err := tt.policy.Decide(tt.choice)
+			if err != nil {
+				t.Fatalf("Decide: %v", err)
+			}
+
+			if decision.Pick != tt.want {
+				t.Errorf("picked %q, want %q", decision.Pick, tt.want)
+			}
+
+			if !slices.Contains(tt.choice.Options, decision.Pick) {
+				t.Errorf("picked %q, which is not among %v", decision.Pick, tt.choice.Options)
+			}
+		})
+	}
+}
+
+// Whatever the strategies, the policy must still answer every choice point
+// the engine can present — that is what docs/POLICY.md means by total.
+func TestEveryStrategyStaysTotal(t *testing.T) {
+	policies := []chargen.AutoPolicy{
+		{Skills: chargen.SkillsPersonal},
+		{Skills: chargen.SkillsAdvanced},
+		{Skills: chargen.SkillsRounded},
+		{Muster: chargen.MusterBenefits},
+		{CareerTerms: 1},
+	}
+	for _, policy := range policies {
+		for _, label := range chargen.ChoiceLabels() {
+			options := offered(label)
+
+			decision, err := policy.Decide(chargen.Choice{Step: "term-2", Label: label, Options: options})
+			if err != nil {
+				t.Errorf("%+v cannot decide %s: %v", policy, label, err)
+
+				continue
+			}
+
+			if !slices.Contains(options, decision.Pick) {
+				t.Errorf("%+v picked %q for %s, not among %v", policy, decision.Pick, label, options)
+			}
+		}
+	}
+}

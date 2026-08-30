@@ -217,8 +217,9 @@ ctchargen version
 `--service` forces the _enlistment attempt_ only: the throw is still made,
 and a failed throw still goes to the draft, which can land anywhere — that
 is what one attempt plus a one-die draft means (p. 5). Interactive mode
-walks the procedure step by step; auto mode applies the fixed default
-policy. `new` writes JSON to stdout unless `-o`; `batch` emits JSONL (or
+walks the procedure step by step; auto mode applies the policy of
+POLICY.md, whose three selectable rows the --skills, --muster, and
+--career flags choose between. `new` writes JSON to stdout unless `-o`; `batch` emits JSONL (or
 one file per character with `-o dir`), requires `--auto`, and derives each
 member's seed from the base seed + index, recorded in each record. Existing
 files are never overwritten without `--force`. Flags precede the filename
@@ -231,8 +232,12 @@ service pick, draft submission, commission and promotion attempts, skill
 table allocation, weapon picks (including the muster-out
 weapon-vs-expertise option), reenlistment intent and when to retire, the
 Table 1/Table 2 split and the optional DMs, and title assumption — and
-deterministic, tie-breaking by first-listed order in Book 1. The decision
-table lives in `POLICY.md`; `policy_version` identifies it in every record.
+deterministic, tie-breaking by first-listed order in Book 1. Three of its
+rows are selectable and the rest are fixed; every strategy is a pure
+function of the choice it is handed, so the policy stays deterministic
+whichever is chosen. The decision table lives in `POLICY.md`;
+`policy_version` identifies the document in every record, and a record
+generated under a non-default strategy names it in the record's `inputs`.
 
 ## Decisions (2026-08-29)
 

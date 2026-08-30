@@ -17,6 +17,7 @@ and where it stands.
 
 ```sh
 ctchargen new --auto                     # one character, policy decides, JSON to stdout
+ctchargen new --auto --skills rounded    # ...and steer how the policy decides
 ctchargen new --seed 42 --service navy   # interactive: you answer each choice
 ctchargen batch --count 20 --auto -o npcs.jsonl
 ctchargen render character.json          # Markdown character sheet

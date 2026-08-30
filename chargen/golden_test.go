@@ -19,7 +19,7 @@ var update = flag.Bool("update", false, "rewrite the golden fixtures")
 func generate(t *testing.T, f fixture.Fixture) *chargen.Character {
 	t.Helper()
 
-	char, err := chargen.Generate(chargen.Config{Seed: f.Seed, Service: f.Service, Auto: f.Auto}, f.Decider)
+	char, err := chargen.Generate(f.Config(), f.Decider)
 	if err != nil {
 		t.Fatalf("Generate(%s): %v", f.Name, err)
 	}

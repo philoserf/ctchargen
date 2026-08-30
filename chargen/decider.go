@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -115,14 +116,68 @@ type Decider interface {
 	Decide(c Choice) (Decision, error)
 }
 
-// AutoPolicy is the fixed default policy of docs/POLICY.md: total (it can
-// decide every valid choice point) and deterministic, tie-breaking by
-// first-listed order in Book 1. PolicyVersion is the one place the
-// version lives; a copy here would only go stale.
-type AutoPolicy struct{}
+// Strategy names for the three configurable rows of docs/POLICY.md. The
+// empty string is the default in every case, so a zero AutoPolicy is the
+// policy this tool has always applied.
+const (
+	SkillsService  = "service"  // every eligibility to the Service Skills table
+	SkillsPersonal = "personal" // every eligibility to Personal Development
+	SkillsAdvanced = "advanced" // the most advanced table on offer
+	SkillsRounded  = "rounded"  // one term on each of the first three, in book order
+
+	MusterCash     = "cash"     // cash while the three-roll cap allows
+	MusterBenefits = "benefits" // material benefits only; the character musters out with nothing
+)
+
+// PolicyStrategies is every flag the auto policy accepts and the values it
+// accepts for it, in the order docs/POLICY.md lists them. It is the one
+// registry: the CLI validates against it and TestPolicyStrategiesAreDocumented
+// holds the document to it, the way ChoiceLabels serves the decision table
+// and the prompter's wording.
+//
+// A fresh map each call, for the reason Registry.Names and ChoiceLabels
+// hand out fresh slices.
+func PolicyStrategies() map[string][]string {
+	return map[string][]string{
+		"skills": {SkillsService, SkillsPersonal, SkillsAdvanced, SkillsRounded},
+		"muster": {MusterCash, MusterBenefits},
+	}
+}
+
+// AutoPolicy is the default policy of docs/POLICY.md: total (it can decide
+// every valid choice point) and deterministic, tie-breaking by first-listed
+// order in Book 1. PolicyVersion is the one place the version lives; a copy
+// here would only go stale.
+//
+// Three rows are selectable. Every strategy is a pure function of the
+// Choice it is handed — Step carries the term ("term-4"), and Options
+// carries what the rules currently allow, so the fourth skills table
+// appears only once Education has opened it and "cash" disappears once the
+// three-roll cap is spent. That keeps the policy free of per-character
+// state, which is what lets it stay a value type: a zero AutoPolicy is
+// still the default policy, and every caller that writes AutoPolicy{} is
+// unaffected.
+type AutoPolicy struct {
+	// Skills selects the skill-table row; "" is SkillsService.
+	Skills string
+	// Muster selects the muster-table row; "" is MusterCash.
+	Muster string
+	// CareerTerms is the term the character intends to leave after; 0
+	// serves while the rules allow. Intent only — the reenlistment throw
+	// is still required every term (p. 6) and a 12 still overrides it
+	// (pp. 6-7).
+	CareerTerms int
+}
+
+// NewAutoPolicy builds the policy a Config asks for. The Config is the one
+// source, so a record cannot come to name a policy the decider did not
+// actually apply.
+func NewAutoPolicy(cfg Config) AutoPolicy {
+	return AutoPolicy{Skills: cfg.Skills, Muster: cfg.Muster, CareerTerms: cfg.CareerTerms}
+}
 
 // Decide applies the docs/POLICY.md decision table.
-func (AutoPolicy) Decide(c Choice) (Decision, error) {
+func (p AutoPolicy) Decide(c Choice) (Decision, error) {
 	// The engine guards this too (chargen.choose), but AutoPolicy is
 	// exported and documented as total, so a caller reaching it directly
 	// gets an error rather than the index-out-of-range the picks below
@@ -139,22 +194,18 @@ func (AutoPolicy) Decide(c Choice) (Decision, error) {
 		// First-listed in Book 1: services in the order of p. 5, weapons
 		// in the order of the pp. 12-13 lists.
 		pick = c.Options[0]
-	case ChoiceSubmitToDraft, ChoiceCommission, ChoicePromotion, ChoiceReenlist,
+	case ChoiceSubmitToDraft, ChoiceCommission, ChoicePromotion,
 		ChoiceBenefitDM, ChoiceCashDM, ChoiceTitle:
 		// A rejected character submits to the draft; a serving character
-		// attempts every commission and promotion open to him and
-		// reenlists while the rules allow it; the optional muster DMs are
-		// always taken; an eligible title is assumed.
+		// attempts every commission and promotion open to him; the optional
+		// muster DMs are always taken; an eligible title is assumed.
 		pick = Yes
+	case ChoiceReenlist:
+		pick = p.reenlistPick(c)
 	case ChoiceSkillTable:
-		// Every eligibility goes to the service's Service Skills table.
-		pick = "service_skills"
+		pick = p.skillTablePick(c)
 	case ChoiceMusterTable:
-		// Cash while the three-roll cap allows, then material benefits.
-		pick = "benefits"
-		if slices.Contains(c.Options, "cash") {
-			pick = "cash"
-		}
+		pick = p.musterTablePick(c)
 	case ChoiceMusterWeapon:
 		pick = musterWeaponPick(c.Options)
 	default:
@@ -162,6 +213,76 @@ func (AutoPolicy) Decide(c Choice) (Decision, error) {
 	}
 
 	return Decision{Pick: pick, By: ByPolicy}, nil
+}
+
+// termOf reads the term number out of a choice's step ("term-4"). It
+// reports 0 for the steps that are not a term — enlistment, muster-out —
+// where no strategy keyed on the term applies.
+func termOf(step string) int {
+	digits, found := strings.CutPrefix(step, "term-")
+	if !found {
+		return 0
+	}
+
+	term, err := strconv.Atoi(digits)
+	if err != nil {
+		return 0
+	}
+
+	return term
+}
+
+// reenlistPick answers the reenlistment intent. CareerTerms is the term the
+// character means to leave after; the throw still decides whether he may,
+// and a 12 still overrides him (pp. 6-7), so this is intent and nothing
+// more.
+func (p AutoPolicy) reenlistPick(c Choice) string {
+	term := termOf(c.Step)
+	if p.CareerTerms > 0 && term >= p.CareerTerms {
+		return No
+	}
+
+	return Yes
+}
+
+// skillTablePick allocates one eligibility. Options holds the tables the
+// character may use: three, or four once Education has reached 8 (p. 11),
+// which is what lets "advanced" reach for the fourth without being told
+// the character's Education.
+func (p AutoPolicy) skillTablePick(c Choice) string {
+	switch p.Skills {
+	case SkillsPersonal:
+		return c.Options[0]
+	case SkillsAdvanced:
+		// The last on offer is the most advanced the character may use.
+		return c.Options[len(c.Options)-1]
+	case SkillsRounded:
+		// One term on each of the first three, in the book's order: a term
+		// improving himself, a term learning the trade, a term specialising.
+		// Every eligibility of a term goes to that term's table.
+		term := termOf(c.Step)
+		if term < 1 {
+			return c.Options[0]
+		}
+
+		return c.Options[(term-1)%3]
+	default:
+		return "service_skills"
+	}
+}
+
+// musterTablePick splits the muster rolls between the two tables. Cash
+// leaves the options once the three-roll cap is spent (pp. 7, 9).
+func (p AutoPolicy) musterTablePick(c Choice) string {
+	if p.Muster == MusterBenefits {
+		return "benefits"
+	}
+
+	if slices.Contains(c.Options, "cash") {
+		return "cash"
+	}
+
+	return "benefits"
 }
 
 // musterWeaponPick takes +1 expertise in the first-listed already-received
