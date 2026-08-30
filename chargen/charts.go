@@ -93,7 +93,7 @@ func loadAgingTable() (*agingTable, error) {
 				return nil, fmt.Errorf("aging round from %d: %w", round.FromAge, err)
 			}
 
-			if throw.Loss < 1 || !validAgingCharacteristic(throw.Characteristic) {
+			if throw.Loss < 1 || !validCharacteristic(throw.Characteristic) {
 				return nil, fmt.Errorf("%w: aging round from %d: %s loss %d",
 					ErrInvalidChart, round.FromAge, throw.Characteristic, throw.Loss)
 			}
@@ -135,7 +135,11 @@ func validateAgingBands(rounds []AgingRound) error {
 	return nil
 }
 
-func validAgingCharacteristic(name string) bool {
+// validCharacteristic reports whether a name is one of the six the record
+// carries. The service package validates its own data at load; this is
+// the same check on the chargen side, for the charts and for the
+// characteristic mutators that would otherwise alter nothing silently.
+func validCharacteristic(name string) bool {
 	return slices.Contains(service.CharacteristicNames, name)
 }
 

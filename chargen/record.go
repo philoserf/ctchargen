@@ -77,13 +77,25 @@ func (c *Characteristics) Get(name string) int {
 
 // Apply alters a characteristic, clamped to 1-15: values never exceed 15
 // and do not go below 1 outside calamitous injury or aging (p. 4).
-// It reports the value before and then after the alteration.
-func (c *Characteristics) Apply(name string, delta int) (int, int) {
+// It reports the value before and then after the alteration, and whether
+// the name was one of the six.
+//
+// The name is checked because set ignores an unrecognised one: without
+// the check Apply would return (0, 1) for a name it never stored, and the
+// caller would write an alteration into the event log that the
+// characteristics block does not show. Replay compares record against
+// record, so it cannot catch a record that is internally consistent and
+// wrong.
+func (c *Characteristics) Apply(name string, delta int) (int, int, bool) {
+	if !validCharacteristic(name) {
+		return 0, 0, false
+	}
+
 	before := c.Get(name)
 	after := min(max(before+delta, 1), 15)
 	c.set(name, after)
 
-	return before, after
+	return before, after, true
 }
 
 // UPP is the Universal Personality Profile: the six characteristics as
@@ -101,13 +113,18 @@ func (c *Characteristics) UPP() string {
 
 // applyAging reduces a characteristic with a floor of 0, not 1: aging is
 // one of the two ways a value may fall below 1 (p. 4), and a zero is a
-// medical crisis (pp. 7-8).
-func (c *Characteristics) applyAging(name string, loss int) (int, int) {
+// medical crisis (pp. 7-8). It checks the name for the same reason Apply
+// does.
+func (c *Characteristics) applyAging(name string, loss int) (int, int, bool) {
+	if !validCharacteristic(name) {
+		return 0, 0, false
+	}
+
 	before := c.Get(name)
 	after := max(before-loss, 0)
 	c.set(name, after)
 
-	return before, after
+	return before, after, true
 }
 
 func (c *Characteristics) set(name string, v int) {

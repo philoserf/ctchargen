@@ -48,7 +48,11 @@ func (g *generator) agingThrow(step string, term int, throw AgingThrow) (bool, e
 		return false, nil
 	}
 
-	before, after := g.char.Characteristics.applyAging(throw.Characteristic, throw.Loss)
+	before, after, known := g.char.Characteristics.applyAging(throw.Characteristic, throw.Loss)
+	if !known {
+		return false, fmt.Errorf("%w: unknown characteristic %q", ErrBadDecision, throw.Characteristic)
+	}
+
 	g.outcome(step, fmt.Sprintf("-%d %s (%d → %d), aging (p. 9)", throw.Loss, throw.Characteristic, before, after), seq)
 
 	if after == 0 {
@@ -84,7 +88,12 @@ func (g *generator) medicalCrisis(step string, term int, characteristic string) 
 		return true, nil
 	}
 
-	g.char.Characteristics.Apply(characteristic, 1) // recovery is immediate, the zero becomes one (p. 8)
+	// Recovery is immediate, the zero becomes one (p. 8). The name
+	// already survived applyAging on the way here, so a miss now would
+	// mean the record and the chart had gone out of step mid-throw.
+	if _, _, known := g.char.Characteristics.Apply(characteristic, 1); !known {
+		return false, fmt.Errorf("%w: unknown characteristic %q", ErrBadDecision, characteristic)
+	}
 
 	months, monthsSeq := g.plainRoll(step, "recovery months")
 	g.char.AddAgeMonths(months)
@@ -211,7 +220,11 @@ func (g *generator) applyBenefit(step string, b service.Benefit, ref int) error 
 	case b.Passage != "":
 		g.addPassage(step, b.Passage, ref)
 	case b.Characteristic != "":
-		before, after := g.char.Characteristics.Apply(b.Characteristic, b.Delta)
+		before, after, known := g.char.Characteristics.Apply(b.Characteristic, b.Delta)
+		if !known {
+			return fmt.Errorf("%w: unknown characteristic %q", ErrBadDecision, b.Characteristic)
+		}
+
 		text := fmt.Sprintf("%+d %s (%d → %d), applied immediately (p. 23)", b.Delta, b.Characteristic, before, after)
 		g.outcome(step, text, ref)
 	case b.Weapon != "":

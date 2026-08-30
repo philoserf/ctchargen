@@ -206,9 +206,16 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 }
 
 func emitBatch(chars []*chargen.Character, outPath string, force bool, stdout io.Writer) error {
+	// A path that does not exist yet names a new JSONL file; a path that
+	// cannot be statted at all is reported rather than quietly treated as
+	// one, which would surface later as a confusing write error against a
+	// shape the user did not ask for.
 	if outPath != "" {
-		if info, err := os.Stat(outPath); err == nil && info.IsDir() {
+		switch info, err := os.Stat(outPath); {
+		case err == nil && info.IsDir():
 			return writeBatchDir(chars, outPath, force)
+		case err != nil && !errors.Is(err, os.ErrNotExist):
+			return fmt.Errorf("checking %s: %w", outPath, err)
 		}
 	}
 

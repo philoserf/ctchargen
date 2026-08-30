@@ -3,6 +3,7 @@ package chargen
 import (
 	"fmt"
 	"slices"
+	"sync"
 
 	"github.com/philoserf/ctchargen/dice"
 	"github.com/philoserf/ctchargen/service"
@@ -24,6 +25,17 @@ func (g *generator) stampErratum(id string) {
 	}
 }
 
+// The rule data is embedded, immutable, and read-only once loaded, so
+// the parse and the whole load-time validation are done once per process
+// rather than once per character — batch and the test suites generate
+// many. The cached error is returned too: a build defect must keep
+// failing every generation, not just the first.
+var (
+	registryOnce = sync.OnceValues(service.Load)
+	agingOnce    = sync.OnceValues(loadAgingTable)
+	nobilityOnce = sync.OnceValues(loadNobility)
+)
+
 // Config is the caller's inputs to one generation.
 type Config struct {
 	Seed uint64
@@ -39,7 +51,7 @@ type Config struct {
 // returns the completed record. Death and a declined draft are completed
 // generations, not errors.
 func Generate(cfg Config, decider Decider) (*Character, error) {
-	reg, err := service.Load()
+	reg, err := registryOnce()
 	if err != nil {
 		return nil, fmt.Errorf("loading rule data: %w", err)
 	}
@@ -50,12 +62,12 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 		}
 	}
 
-	aging, err := loadAgingTable()
+	aging, err := agingOnce()
 	if err != nil {
 		return nil, err
 	}
 
-	titles, err := loadNobility()
+	titles, err := nobilityOnce()
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +135,11 @@ func (g *generator) run() error {
 	}
 
 	g.char.Service = svc.Name
-	g.grantAutoSkills(svc, "enlistment", 0) // service-wide entries accrue on entering (p. 23; E004)
+
+	// Service-wide entries accrue on entering (p. 23; E004).
+	if err := g.grantAutoSkills(svc, "enlistment", 0); err != nil {
+		return err
+	}
 
 	for term := 1; ; term++ {
 		left, err := g.term(svc, term)
@@ -348,7 +364,10 @@ func (g *generator) commission(svc *service.Service, step string, term int) (int
 	g.char.Rank = 1
 	g.char.RankTitle = svc.Ranks[0]
 	g.outcome(step, fmt.Sprintf("commissioned as %s (rank 1); +1 skill eligibility (pp. 5-6)", g.char.RankTitle), seq)
-	g.grantAutoSkills(svc, step, 1)
+
+	if err := g.grantAutoSkills(svc, step, 1); err != nil {
+		return 0, err
+	}
 
 	return 1, nil
 }
@@ -378,7 +397,10 @@ func (g *generator) promotion(svc *service.Service, step string) (int, error) {
 	g.char.RankTitle = svc.Ranks[g.char.Rank-1]
 	text := fmt.Sprintf("promoted to %s (rank %d); +1 skill eligibility (p. 6)", g.char.RankTitle, g.char.Rank)
 	g.outcome(step, text, seq)
-	g.grantAutoSkills(svc, step, g.char.Rank)
+
+	if err := g.grantAutoSkills(svc, step, g.char.Rank); err != nil {
+		return 0, err
+	}
 
 	return 1, nil
 }
@@ -386,7 +408,7 @@ func (g *generator) promotion(svc *service.Service, step string) (int, error) {
 // grantAutoSkills accrues the Rank and Service Skills box's entries for
 // the given rank (0 = on entering the service), automatically and outside
 // eligibility (p. 23; timing reading E004).
-func (g *generator) grantAutoSkills(svc *service.Service, step string, rank int) {
+func (g *generator) grantAutoSkills(svc *service.Service, step string, rank int) error {
 	for _, auto := range svc.AutoSkills {
 		if auto.Rank != rank {
 			continue
@@ -395,7 +417,11 @@ func (g *generator) grantAutoSkills(svc *service.Service, step string, rank int)
 		g.stampErratum("E004")
 
 		if auto.Characteristic != "" {
-			before, after := g.char.Characteristics.Apply(auto.Characteristic, auto.Delta)
+			before, after, ok := g.char.Characteristics.Apply(auto.Characteristic, auto.Delta)
+			if !ok {
+				return fmt.Errorf("%w: unknown characteristic %q", ErrBadDecision, auto.Characteristic)
+			}
+
 			text := fmt.Sprintf("%+d %s (%d → %d), rank and service skills (p. 23; E004)",
 				auto.Delta, auto.Characteristic, before, after)
 			g.outcome(step, text, 0)
@@ -406,6 +432,8 @@ func (g *generator) grantAutoSkills(svc *service.Service, step string, rank int)
 		level := g.char.AddSkill(auto.Skill, auto.Category)
 		g.outcome(step, fmt.Sprintf("%s-%d, rank and service skills (p. 23; E004)", auto.Skill, level), 0)
 	}
+
+	return nil
 }
 
 // skills spends the term's eligibility: 2 for the initial term, 1 per
@@ -418,9 +446,14 @@ func (g *generator) skills(tables *service.SkillTables, step string, term, bonus
 	}
 
 	for range eligibility {
-		options := service.TableNames[:3]
+		// Cloned, not sliced: service.TableNames[:3] keeps the fourth name
+		// in its spare capacity, so a Decider that appends to the options
+		// it is handed would overwrite the package-level table's last
+		// entry for the rest of the process. The service package hands out
+		// copies for the same reason (Registry.Names, Registry.Weapons).
+		options := slices.Clone(service.TableNames[:3])
 		if g.char.Characteristics.Education >= 8 {
-			options = service.TableNames // the fourth table needs Education 8+ (p. 11)
+			options = slices.Clone(service.TableNames) // the fourth table needs Education 8+ (p. 11)
 		}
 
 		table, err := g.choose(Choice{Step: step, Label: ChoiceSkillTable, Options: options})
@@ -446,7 +479,11 @@ func (g *generator) skills(tables *service.SkillTables, step string, term, bonus
 func (g *generator) applySkillResult(step string, row service.SkillResult, ref int) error {
 	switch {
 	case row.Characteristic != "":
-		before, after := g.char.Characteristics.Apply(row.Characteristic, row.Delta)
+		before, after, ok := g.char.Characteristics.Apply(row.Characteristic, row.Delta)
+		if !ok {
+			return fmt.Errorf("%w: unknown characteristic %q", ErrBadDecision, row.Characteristic)
+		}
+
 		text := fmt.Sprintf("%+d %s (%d → %d), applied immediately (p. 12)", row.Delta, row.Characteristic, before, after)
 		g.outcome(step, text, ref)
 	case row.Weapon != "":
@@ -590,8 +627,8 @@ func (g *generator) targetThrow(step, label string, spec service.ThrowSpec) (int
 func (g *generator) choose(ch Choice) (string, error) {
 	// Guarded here rather than in any one Decider: every choice point in
 	// the procedure funnels through this call, and a Decider handed no
-	// options has nothing to pick — AutoPolicy and the prompter would
-	// both index past the end of the slice.
+	// options has nothing to pick — the prompter would loop forever
+	// refusing every answer.
 	if len(ch.Options) == 0 {
 		return "", fmt.Errorf("%w: choice %s at %s offers no options", ErrBadDecision, ch.Label, ch.Step)
 	}
@@ -606,9 +643,11 @@ func (g *generator) choose(ch Choice) (string, error) {
 			ErrBadDecision, ch.Label, ch.Step, decision.Pick, ch.Options)
 	}
 
-	// Clone: the caller's slice may be a view onto package-level data
-	// (service.TableNames), and the event log is a record of what was
-	// offered, not a window onto whatever that slice holds later.
+	// Clone: the event log is a record of what was offered, not a window
+	// onto whatever that slice holds later — the Decider was handed the
+	// same slice and nothing here stops it writing to the elements. The
+	// callers' own clones guard the other direction, package data against
+	// a Decider that appends.
 	g.char.Events = append(g.char.Events, Event{
 		Seq: g.next(), Kind: "choice", Step: ch.Step, Label: ch.Label,
 		By: decision.By, Options: slices.Clone(ch.Options), Picked: decision.Pick,

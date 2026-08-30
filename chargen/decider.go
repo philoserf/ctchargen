@@ -91,6 +91,15 @@ type AutoPolicy struct{}
 
 // Decide applies the docs/POLICY.md decision table.
 func (AutoPolicy) Decide(c Choice) (Decision, error) {
+	// The engine guards this too (chargen.choose), but AutoPolicy is
+	// exported and documented as total, so a caller reaching it directly
+	// gets an error rather than the index-out-of-range the picks below
+	// would otherwise raise.
+	if len(c.Options) == 0 {
+		return Decision{}, fmt.Errorf("auto policy v%s %w %q: no options offered",
+			PolicyVersion, ErrCannotDecide, c.Label)
+	}
+
 	var pick string
 
 	switch c.Label {
@@ -115,20 +124,24 @@ func (AutoPolicy) Decide(c Choice) (Decision, error) {
 			pick = "cash"
 		}
 	case ChoiceMusterWeapon:
-		// Take +1 expertise in the first-listed already-received weapon
-		// when the option exists; otherwise the first-listed weapon.
-		pick = c.Options[0]
-
-		for _, option := range c.Options {
-			if strings.HasPrefix(option, ExpertisePrefix) {
-				pick = option
-
-				break
-			}
-		}
+		pick = musterWeaponPick(c.Options)
 	default:
 		return Decision{}, fmt.Errorf("auto policy v%s %w %q", PolicyVersion, ErrCannotDecide, c.Label)
 	}
 
 	return Decision{Pick: pick, By: ByPolicy}, nil
+}
+
+// musterWeaponPick takes +1 expertise in the first-listed already-received
+// benefit weapon when that option is on offer, and otherwise the
+// first-listed weapon of the category (docs/POLICY.md, muster-weapon).
+// Options is non-empty: Decide checks before dispatching.
+func musterWeaponPick(options []string) string {
+	for _, option := range options {
+		if strings.HasPrefix(option, ExpertisePrefix) {
+			return option
+		}
+	}
+
+	return options[0]
 }
