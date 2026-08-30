@@ -48,6 +48,30 @@ func TestRun(t *testing.T) {
 	}
 }
 
+// Asking for help is an answered request, not a usage error. The two
+// forms print to different places — the top level writes usage to stdout,
+// while a subcommand's flag list comes from the flag package, which writes
+// to the flag set's output — so the exit code is what both share.
+func TestHelpExitsClean(t *testing.T) {
+	code, stdout, _ := runCmd(t, "", "--help")
+	if code != exitOK {
+		t.Errorf("--help = %d, want %d", code, exitOK)
+	}
+
+	if !strings.Contains(stdout, "usage:") {
+		t.Errorf("--help stdout = %q, want the usage text", stdout)
+	}
+
+	code, _, stderr := runCmd(t, "", "new", "-h")
+	if code != exitOK {
+		t.Errorf("new -h = %d, want %d", code, exitOK)
+	}
+
+	if !strings.Contains(stderr, "-seed") {
+		t.Errorf("new -h did not print the flag list: %q", tail(stderr))
+	}
+}
+
 func TestNewEmitsARecord(t *testing.T) {
 	code, stdout, stderr := runCmd(t, "", "new", "--auto", "--seed", "1")
 	if code != exitOK {

@@ -63,6 +63,14 @@ func run(args []string, seedSource func() (uint64, error), stdin io.Reader, stdo
 	}
 
 	switch args[0] {
+	case "-h", "--help":
+		// An answered request, not a usage error: usage is this run's
+		// output, so it goes to stdout and exits clean. Not a `help`
+		// subcommand — docs/PRD.md's CLI sketch is the v1 contract and
+		// lists the commands; these two are the flag package's convention.
+		fmt.Fprint(stdout, usage)
+
+		return exitOK
 	case "new":
 		return runNew(args[1:], seedSource, stdin, stdout, stderr)
 	case "batch":
@@ -81,6 +89,18 @@ func run(args []string, seedSource func() (uint64, error), stdin io.Reader, stdo
 	}
 }
 
+// parseExit maps a flag.Parse failure onto an exit code. flag.ErrHelp is
+// the sentinel for a -h/--help the flag package has already answered by
+// printing the flag list: a handled request, not a usage error, and 0 is
+// what flag.ExitOnError would have exited with.
+func parseExit(err error) int {
+	if errors.Is(err, flag.ErrHelp) {
+		return exitOK
+	}
+
+	return exitUsage
+}
+
 func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("new", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -92,7 +112,7 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 	force := fs.Bool("force", false, "overwrite an existing output file")
 
 	if err := fs.Parse(args); err != nil {
-		return exitUsage
+		return parseExit(err)
 	}
 
 	if fs.NArg() != 0 {
@@ -145,7 +165,7 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 	force := fs.Bool("force", false, "overwrite existing output files")
 
 	if err := fs.Parse(args); err != nil {
-		return exitUsage
+		return parseExit(err)
 	}
 
 	if fs.NArg() != 0 || *count < 1 || !*auto {
@@ -290,7 +310,7 @@ func runReplay(args []string, stdout, stderr io.Writer) int {
 	ignore := fs.Bool("ignore-provenance", false, "waive the version match — and nothing else")
 
 	if err := fs.Parse(args); err != nil {
-		return exitUsage
+		return parseExit(err)
 	}
 
 	if fs.NArg() != 1 {
@@ -393,7 +413,7 @@ func runRender(args []string, stdout, stderr io.Writer) int {
 	history := fs.Bool("history", false, "render the generation record transcript instead of the sheet")
 
 	if err := fs.Parse(args); err != nil {
-		return exitUsage
+		return parseExit(err)
 	}
 
 	if fs.NArg() != 1 {
