@@ -9,7 +9,9 @@ generation too. Sibling to [t5chargen](https://github.com/philoserf/t5chargen).
 implemented. [`docs/COVERAGE.md`](docs/COVERAGE.md) maps every rule of Book 1
 pp. 4–25 to its page cite, implementation, and test;
 [`docs/ERRATA.md`](docs/ERRATA.md) records every interpretation;
-[`docs/POLICY.md`](docs/POLICY.md) is the auto mode's decision table.
+[`docs/POLICY.md`](docs/POLICY.md) is the auto mode's decision table;
+[`docs/PRERELEASE_REVIEW.md`](docs/PRERELEASE_REVIEW.md) is the v1.0.0 bar
+and where it stands.
 
 ## Usage
 
