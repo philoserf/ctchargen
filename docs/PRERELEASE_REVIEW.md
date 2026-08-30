@@ -4,9 +4,20 @@ The bar v1.0.0 has to clear, and where it stands. Every line is either
 verified with the evidence that verified it, or open with what closing it
 costs. Nothing here is aspirational: an item is met or it is not.
 
-No tags exist yet. `ctchargen version` reports `(devel)` until one does —
-`runVersion` reads `debug.ReadBuildInfo`, so the tag is what makes that
-line mean anything.
+**Released as `v1.0.0-alpha.1`.** The bar below is met, and the alpha is
+where it gets tested against use rather than against its own suite: a
+prerelease of the v1 line, sorting before `v1.0.0`, so nothing here claims
+v1 stability yet. Go excludes prereleases from `@latest`, so it installs by
+name — `go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.1`
+— which is the intended friction for an alpha.
+
+`runVersion` reads `debug.ReadBuildInfo`, so `ctchargen version` reports
+the tag it was built from; before any tag existed it reported `(devel)`.
+
+What would move this to `v1.0.0`: generating characters against the book in
+anger and finding nothing the suite missed. Every defect of the last three
+passes was found by reading a held page, not by running a test, so use is
+the only remaining instrument.
 
 ## Met
 
@@ -26,10 +37,14 @@ line mean anything.
 | Every schema-constrained field reaches the schema through a record | `medical-crisis-survivor` fixture (Navy 231) carries `age_months: 6`, the last field whose declared bound faced no real value                                                                                                                                |
 | The documents cannot drift from the code unnoticed                 | `TestErrataIDsMatchTheDocument`, `TestErrataEntriesCiteAPage`, `TestPolicyDocumentStatesTheStampedVersion`, `TestPolicyTableCoversEveryChoicePoint`, `TestCoverageNamesRealTests` — each verified to fail on a real drift, not merely to pass                |
 | A new untested statement cannot ship green                         | Per-package uncovered-statement ceilings in `Taskfile.yml`, verified to trip on one added guarded branch                                                                                                                                                     |
+| Every subcommand is exercised end to end                           | `new`, `batch`, `replay`, `version` in `cmd/ctchargen/main_test.go`; `render` added in #6, where it had 20 of 31 statements untested                                                                                                                         |
+| The rule-data guards are themselves tested                         | `service/validators_internal_test.go` (#6) covers the field validators; verified against gutted guards, not only working ones. `service` 76.0% → 93.9%                                                                                                       |
 
 ## Open
 
-None. The bar is met; v1.0.0 can be tagged.
+None. The bar is met, which is what `v1.0.0-alpha.1` releases against. What
+stands between the alpha and `v1.0.0` is not another item on this list —
+see the note at the top.
 
 ## What the gates do not catch, and a correction
 
