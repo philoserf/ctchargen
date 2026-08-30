@@ -104,7 +104,7 @@ func (c *Characteristics) UPP() string {
 	const hexDigits = "0123456789ABCDEF"
 
 	digits := make([]byte, 0, 6)
-	for _, name := range service.CharacteristicNames {
+	for _, name := range service.CharacteristicNames() {
 		digits = append(digits, hexDigits[c.Get(name)])
 	}
 
@@ -300,7 +300,13 @@ func (c *Character) MarshalRecord() ([]byte, error) {
 
 // UnmarshalRecord parses a character record, rejecting unknown fields so
 // a record from a newer schema fails loudly rather than silently dropping
-// data.
+// data, and rejecting anything after the record so a file holding two is
+// not read as one. This decoder is the strict one — chargen.decodeStrict
+// and service.decodeStrict read go:embed data this repository writes,
+// where a second value cannot appear — because its input is a file the
+// user names, and because replay's verdict is computed from the parsed
+// value and a re-marshal of it, never from the bytes on disk: whatever
+// this drops, nothing downstream ever sees.
 func UnmarshalRecord(data []byte) (*Character, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
@@ -308,6 +314,11 @@ func UnmarshalRecord(data []byte) (*Character, error) {
 	char := &Character{}
 	if err := dec.Decode(char); err != nil {
 		return nil, fmt.Errorf("parsing character record: %w", err)
+	}
+
+	// More skips whitespace, so MarshalRecord's trailing newline passes.
+	if dec.More() {
+		return nil, fmt.Errorf("parsing character record: %w", ErrTrailingData)
 	}
 
 	return char, nil

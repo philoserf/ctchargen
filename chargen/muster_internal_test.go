@@ -2,8 +2,11 @@ package chargen
 
 import (
 	"errors"
+	"slices"
+	"strings"
 	"testing"
 
+	"github.com/philoserf/ctchargen/dice"
 	"github.com/philoserf/ctchargen/service"
 )
 
@@ -142,9 +145,10 @@ func TestWeaponBenefitOffersEachExpertiseOnce(t *testing.T) {
 }
 
 // The event log records what was offered. If it aliased the caller's
-// slice, a later write through that slice would rewrite history — and the
-// skill-table options are a view onto the package-level
-// service.TableNames.
+// slice, a later write through that slice would rewrite history. The
+// callers now hand over slices they own — service.TableNames returns a
+// fresh one — so this guards the other direction: nothing stops a Decider
+// writing to the elements it was shown.
 func TestChooseDoesNotAliasCallerOptions(t *testing.T) {
 	g := &generator{char: &Character{Events: []Event{}}, decider: AutoPolicy{}}
 
@@ -159,6 +163,122 @@ func TestChooseDoesNotAliasCallerOptions(t *testing.T) {
 	if got := g.char.Events[0].Options[0]; got != "personal_development" {
 		t.Errorf("recorded option followed the caller's slice: %q", got)
 	}
+}
+
+// The crisis save's two branches, neither reachable through the golden
+// roster: the one crisis fixture is a death, so the recovery path — the
+// zero becoming one, the 1D months of added age, the outcome that reports
+// them (pp. 7-8) — runs in no other test, and render says the same of its
+// own goldens (render.TestSheetCarriesRecoveryMonths). Seeds are chosen by
+// inspection of the stream, the way internal/fixture's are: seed 4 throws
+// 5+5=10 and then a 3 for the months, seed 1 throws 6+1=7 against the 8+.
+//
+// medicalCrisis reads only the stream and the record — no registry, no
+// Decider — so the generator can be built by hand.
+func TestMedicalCrisis(t *testing.T) {
+	tests := []struct {
+		name       string
+		seed       uint64
+		wantDied   bool
+		wantValue  int
+		wantMonths int
+		wantErrata []string
+	}{
+		{
+			name: "survives the 8+ and recovers", seed: 4,
+			wantDied: false, wantValue: 1, wantMonths: 3,
+			wantErrata: []string{"E007"},
+		},
+		{
+			// Stamped in the order crossed, not sorted: E007 on entering the
+			// crisis at all, E006 only once the save is failed.
+			name: "fails the 8+ and dies (E006)", seed: 1,
+			wantDied: true, wantValue: 0, wantMonths: 0,
+			wantErrata: []string{"E007", "E006"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := &generator{
+				stream: dice.New(tt.seed),
+				char: &Character{
+					Age:             42,
+					Characteristics: Characteristics{Strength: 0, Endurance: 7},
+					Errata:          []string{},
+					Events:          []Event{},
+				},
+			}
+
+			died, err := g.medicalCrisis("term-6", 6, service.Strength)
+			if err != nil {
+				t.Fatalf("medicalCrisis: %v", err)
+			}
+
+			if died != tt.wantDied {
+				t.Errorf("died = %t, want %t", died, tt.wantDied)
+			}
+
+			if got := g.char.Characteristics.Strength; got != tt.wantValue {
+				t.Errorf("strength = %d, want %d", got, tt.wantValue)
+			}
+
+			// Recovery ages the character by whole months, and 1D never
+			// carries a year, so the years must stand still.
+			if got := g.char.AgeMonths; got != tt.wantMonths {
+				t.Errorf("age months = %d, want %d", got, tt.wantMonths)
+			}
+
+			if g.char.Age != 42 {
+				t.Errorf("age = %d, want 42 unchanged", g.char.Age)
+			}
+
+			if !slices.Equal(g.char.Errata, tt.wantErrata) {
+				t.Errorf("errata = %v, want %v", g.char.Errata, tt.wantErrata)
+			}
+
+			assertCrisisOutcome(t, g.char, tt.wantDied)
+		})
+	}
+}
+
+// The record has to say which way the crisis went: a death carries its
+// term and cause (FR8), a recovery reports the months it cost.
+func assertCrisisOutcome(t *testing.T, char *Character, died bool) {
+	t.Helper()
+
+	if !died {
+		if char.Death != nil {
+			t.Errorf("survivor carries a death: %+v", char.Death)
+		}
+
+		if !hasOutcomeContaining(char, "recovered") {
+			t.Errorf("no recovery outcome recorded: %+v", char.Events)
+		}
+
+		return
+	}
+
+	if char.Death == nil {
+		t.Fatal("a failed crisis save recorded no death")
+	}
+
+	if char.Death.Term != 6 {
+		t.Errorf("death term = %d, want 6", char.Death.Term)
+	}
+
+	if !strings.Contains(char.Death.Cause, "medical crisis") {
+		t.Errorf("death cause %q does not name the medical crisis", char.Death.Cause)
+	}
+}
+
+func hasOutcomeContaining(char *Character, text string) bool {
+	for _, ev := range char.Events {
+		if ev.Kind == "outcome" && strings.Contains(ev.Text, text) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // A Decider handed no options has nothing to pick; AutoPolicy and the

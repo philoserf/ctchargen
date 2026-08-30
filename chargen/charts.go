@@ -140,7 +140,7 @@ func validateAgingBands(rounds []AgingRound) error {
 // the same check on the chargen side, for the charts and for the
 // characteristic mutators that would otherwise alter nothing silently.
 func validCharacteristic(name string) bool {
-	return slices.Contains(service.CharacteristicNames, name)
+	return slices.Contains(service.CharacteristicNames(), name)
 }
 
 // nobility maps Social Standing 11-15 to the hereditary title (Book 3

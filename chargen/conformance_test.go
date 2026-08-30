@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/philoserf/ctchargen/chargen"
+	"github.com/philoserf/ctchargen/internal/fixture"
 )
 
 // TestSchemaMatchesStructs pins property names to struct fields. It does
@@ -27,24 +27,35 @@ import (
 func TestRecordsConformToSchema(t *testing.T) {
 	schema := loadSchema(t)
 
+	// The golden roster, not a seed list of its own. A bare list was
+	// transcribed here once and diverged silently: it carried the
+	// fixtures' seeds without their Service inputs, so seed 46 generated a
+	// Navy term-1 death rather than scout-ship, and between them the five
+	// records held no ship, no weapon benefit, no Travellers' Aid, and no
+	// title — leaving the schema's title object checked against no record
+	// anywhere. Iterating internal/fixture is the same move golden_test.go
+	// and render's goldens make, and for the same reason.
+	//
+	// One shape still reaches the schema through nothing here: a non-zero
+	// age_months, which only a medical-crisis survivor accrues (1D months,
+	// pp. 7-8) and the one crisis fixture is a death. The engine side of
+	// that branch is covered by TestMedicalCrisis in the package's internal
+	// tests; the schema's `maximum: 11` on the field is not, and would need
+	// a survivor golden.
 	t.Run("generated records", func(t *testing.T) {
-		// Seeds chosen to cover the shapes the fixtures cover: a plain
-		// careerist, a weapon benefit, a ship, and the medical-crisis
-		// death that leaves a characteristic at zero.
-		for _, seed := range []uint64{1, 2, 8, 46, 145} {
-			char, err := chargen.Generate(chargen.Config{Seed: seed, Auto: true}, chargen.AutoPolicy{})
-			if err != nil {
-				t.Fatalf("seed %d: %v", seed, err)
-			}
+		for _, f := range fixture.All() {
+			t.Run(f.Name, func(t *testing.T) {
+				char := generate(t, f)
 
-			record, err := char.MarshalRecord()
-			if err != nil {
-				t.Fatalf("seed %d: %v", seed, err)
-			}
+				record, err := char.MarshalRecord()
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			for _, problem := range conforms(t, schema, record) {
-				t.Errorf("seed %d: %s", seed, problem)
-			}
+				for _, problem := range conforms(t, schema, record) {
+					t.Error(problem)
+				}
+			})
 		}
 	})
 

@@ -34,11 +34,17 @@ func Replay(rec *Character, ignoreProvenance bool) error {
 	}
 
 	// The stamps are provenance, not computation; carry the record's own
-	// so the comparison checks only what the engine recomputed.
+	// so the comparison checks only what the engine recomputed. All five
+	// that checkProvenance compares are carried, the rng algorithm
+	// included: waiving a stamp at the front door and reimposing it at the
+	// back would fail an otherwise perfect replay — and fail it through
+	// compare's byte check, whose "record altered outside the engine?" is
+	// the one reading that cannot be right when every event matched.
 	regen.SchemaVersion = rec.SchemaVersion
 	regen.Ruleset = rec.Ruleset
 	regen.EngineVersion = rec.EngineVersion
 	regen.PolicyVersion = rec.PolicyVersion
+	regen.RNG.Algorithm = rec.RNG.Algorithm
 
 	return compare(rec, regen)
 }
