@@ -22,9 +22,16 @@ var dataFS embed.FS
 
 // bookOrder is the services as Book 1 lists them (p. 5, p. 10). It is the
 // tie-break order for the auto policy and the display order everywhere.
-// Only the entries with a data file are available; through milestone 1
-// that is Other alone.
+// All six must load: the draft is a one-die roll over them (p. 5), so a
+// missing one would turn a legal roll into a runtime failure. See
+// validateRegistry.
 var bookOrder = []string{"Navy", "Marines", "Army", "Scouts", "Merchants", "Other"}
+
+// Gambling is the skill Book 1 p. 9 reads to offer a +1 DM on the cash
+// table. The engine finds it by name, so the spelling is pinned here and
+// asserted against the loaded tables (registryGrants) rather than left to
+// agree with the data by luck.
+const Gambling = "Gambling"
 
 // Characteristics as the data files name them, in the rolled order (p. 4).
 const (
@@ -187,7 +194,85 @@ func Load() (*Registry, error) {
 		return nil, fmt.Errorf("%w: a data file names a service outside the book's six", ErrInvalidData)
 	}
 
+	if err := validateRegistry(reg); err != nil {
+		return nil, err
+	}
+
 	return reg, nil
+}
+
+// validateRegistry checks the loaded set as a whole, which the per-file
+// validation cannot: every service present, every draft number distinct,
+// and the one skill the engine looks up by name actually grantable.
+func validateRegistry(r *Registry) error {
+	if len(r.order) != len(bookOrder) {
+		missing := make([]string, 0, len(bookOrder))
+
+		for _, name := range bookOrder {
+			if _, ok := r.services[strings.ToLower(name)]; !ok {
+				missing = append(missing, name)
+			}
+		}
+
+		return fmt.Errorf("%w: missing service data for %s", ErrInvalidData, strings.Join(missing, ", "))
+	}
+
+	if err := validateDraftNumbers(r); err != nil {
+		return err
+	}
+
+	if !registryGrants(r, Gambling) {
+		return fmt.Errorf("%w: no service's skills grant %q, so the p. 9 cash-table DM is unreachable",
+			ErrInvalidData, Gambling)
+	}
+
+	return nil
+}
+
+// validateDraftNumbers rejects a repeated draft number. With all six
+// services present and each number already range-checked to 1-6 by
+// validateService, distinctness gives full 1-6 coverage by pigeonhole —
+// so the one-die draft roll (p. 5) always resolves. Iteration is over
+// order, not the map, so a collision is reported the same way every run.
+func validateDraftNumbers(r *Registry) error {
+	var taken [7]string
+
+	for _, name := range r.order {
+		svc := r.services[strings.ToLower(name)]
+		if prior := taken[svc.DraftNumber]; prior != "" {
+			return fmt.Errorf("%w: %s and %s both take draft number %d",
+				ErrInvalidData, prior, svc.Name, svc.DraftNumber)
+		}
+
+		taken[svc.DraftNumber] = svc.Name
+	}
+
+	return nil
+}
+
+// registryGrants reports whether any loaded service can confer the named
+// skill, by an Acquired Skills table or the Rank and Service Skills box.
+// The check is registry-wide because most services grant Gambling
+// nowhere; only the set as a whole has to be able to.
+func registryGrants(r *Registry, skill string) bool {
+	for _, svc := range r.services {
+		for _, table := range TableNames {
+			rows, _ := svc.Skills.Table(table)
+			for _, row := range rows {
+				if row.Skill == skill {
+					return true
+				}
+			}
+		}
+
+		for _, auto := range svc.AutoSkills {
+			if auto.Skill == skill {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // Service looks a service up by name, case-insensitively.
@@ -335,6 +420,31 @@ func validateMuster(m *Muster) error {
 		if err := validateBenefit(b); err != nil {
 			return fmt.Errorf("muster benefit row %d: %w", i+1, err)
 		}
+	}
+
+	return validateOneShipKind(m)
+}
+
+// validateOneShipKind keeps a single service from offering both ships. A
+// record holds one ship, and the two kinds are not interchangeable — a
+// Scout is constructive possession with no mortgage, a Free Trader owes
+// 40 years of payments (pp. 22-23) — so a character holding one and
+// receiving the other has no defined outcome here. No reading of p. 23
+// for that case has been made; until one is, the data may not produce it.
+func validateOneShipKind(m *Muster) error {
+	var scout, trader bool
+
+	for _, b := range m.Benefits {
+		switch b.Ship {
+		case "scout":
+			scout = true
+		case "free_trader":
+			trader = true
+		}
+	}
+
+	if scout && trader {
+		return fmt.Errorf("%w: muster benefits offer both a scout ship and a free trader", ErrInvalidData)
 	}
 
 	return nil

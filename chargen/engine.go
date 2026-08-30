@@ -580,6 +580,14 @@ func (g *generator) targetThrow(step, label string, spec service.ThrowSpec) (int
 }
 
 func (g *generator) choose(ch Choice) (string, error) {
+	// Guarded here rather than in any one Decider: every choice point in
+	// the procedure funnels through this call, and a Decider handed no
+	// options has nothing to pick — AutoPolicy and the prompter would
+	// both index past the end of the slice.
+	if len(ch.Options) == 0 {
+		return "", fmt.Errorf("%w: choice %s at %s offers no options", ErrBadDecision, ch.Label, ch.Step)
+	}
+
 	decision, err := g.decider.Decide(ch)
 	if err != nil {
 		return "", fmt.Errorf("choice %s at %s: %w", ch.Label, ch.Step, err)

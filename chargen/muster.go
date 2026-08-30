@@ -149,7 +149,7 @@ func (g *generator) musterOut(svc *service.Service) error {
 func (g *generator) cashRoll(svc *service.Service, step string) error {
 	dm := 0
 
-	if g.hasSkill("Gambling") {
+	if g.hasSkill(service.Gambling) {
 		pick, err := g.choose(Choice{Step: step, Label: ChoiceCashDM, Options: []string{Yes, No}})
 		if err != nil {
 			return err
@@ -226,7 +226,7 @@ func (g *generator) applyBenefit(step string, b service.Benefit, ref int) error 
 		g.char.Benefits.TravellersAid = true
 		g.outcome(step, "Travellers' Aid Society membership, for life (p. 22)", ref)
 	case b.Ship != "":
-		g.shipBenefit(step, b.Ship, ref)
+		return g.shipBenefit(step, b.Ship, ref)
 	default:
 		g.outcome(step, "no benefit (the table's blank row)", ref)
 	}
@@ -286,16 +286,34 @@ func (g *generator) weaponBenefit(step, category string, ref int) error {
 	return nil
 }
 
-func (g *generator) shipBenefit(step, kind string, ref int) {
+// The two ship classes, named where they are written and where a repeat
+// receipt is recognised, so the two cannot drift apart.
+const (
+	classScout      = "Scout (Type S)"
+	classFreeTrader = "Free Trader (Type A)"
+)
+
+// shipBenefit confers a ship, or recognises a repeat receipt of the one
+// already held. Each branch tests the held ship's class rather than
+// merely whether a ship exists: a character cannot receive both kinds,
+// because validateOneShipKind forbids a service from offering both, so
+// the cross-kind case is impossible state rather than a rule to apply.
+func (g *generator) shipBenefit(step, kind string, ref int) error {
+	held := g.char.Benefits.Ship
+
 	if kind == "scout" {
-		if g.char.Benefits.Ship != nil {
+		if held != nil && held.Class != classScout {
+			return g.crossKindShip(held, kind)
+		}
+
+		if held != nil {
 			g.outcome(step, "only one scout ship may be acquired; additional throws are lost (p. 23)", ref)
 
-			return
+			return nil
 		}
 
 		g.char.Benefits.Ship = &Ship{
-			Class:                  "Scout (Type S)",
+			Class:                  classScout,
 			Book2Page:              18,
 			Receipts:               1,
 			ConstructivePossession: true,
@@ -303,28 +321,38 @@ func (g *generator) shipBenefit(step, kind string, ref int) {
 		g.outcome(step,
 			"scout ship: Type S in constructive possession — no title, no sale, no mortgage (p. 23; Book 2 p. 18)", ref)
 
-		return
+		return nil
 	}
 
-	if g.char.Benefits.Ship == nil {
+	if held != nil && held.Class != classFreeTrader {
+		return g.crossKindShip(held, kind)
+	}
+
+	if held == nil {
 		g.char.Benefits.Ship = &Ship{
-			Class:                 "Free Trader (Type A)",
+			Class:                 classFreeTrader,
 			Book2Page:             19,
 			Receipts:              1,
 			PaymentYearsRemaining: 40,
 		}
 		g.outcome(step, "Free Trader: Type A, owing 40 years of monthly payments (pp. 22-23; Book 2 p. 19)", ref)
 
-		return
+		return nil
 	}
 
-	ship := g.char.Benefits.Ship
-	ship.Receipts++
-	ship.AgeYears = 10 * (ship.Receipts - 1)
-	ship.PaymentYearsRemaining = max(40-10*(ship.Receipts-1), 0)
+	held.Receipts++
+	held.AgeYears = 10 * (held.Receipts - 1)
+	held.PaymentYearsRemaining = max(40-10*(held.Receipts-1), 0)
 	text := fmt.Sprintf("Free Trader again: 10 years paid off, ship 10 years older — now %d years old, %d payment years remaining (pp. 22-23)", //nolint:lll // one sentence, one cite
-		ship.AgeYears, ship.PaymentYearsRemaining)
+		held.AgeYears, held.PaymentYearsRemaining)
 	g.outcome(step, text, ref)
+
+	return nil
+}
+
+func (g *generator) crossKindShip(held *Ship, kind string) error {
+	return fmt.Errorf("%w: holds a %s and rolled a %q ship; validated muster data cannot offer both",
+		ErrBadDecision, held.Class, kind)
 }
 
 // retirement pay: a 5th-term-or-later departure from a service that
