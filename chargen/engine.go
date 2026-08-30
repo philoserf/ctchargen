@@ -45,6 +45,14 @@ type Config struct {
 	Service string
 	// Auto records which mode ran; the record's choices carry who decided.
 	Auto bool
+	// Skills, Muster, and CareerTerms select the auto policy's three
+	// configurable rows (docs/POLICY.md). Zero values are the defaults, so
+	// a Config that names none of them asks for the policy this tool has
+	// always applied. They are recorded in the character's inputs, which is
+	// where everything the caller supplied belongs.
+	Skills      string
+	Muster      string
+	CareerTerms int
 }
 
 // Generate runs the whole prior-service procedure (Book 1 pp. 4-25) and
@@ -60,6 +68,14 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 		if _, err := reg.Service(cfg.Service); err != nil {
 			return nil, fmt.Errorf("--service: %w", err)
 		}
+	}
+
+	// The policy selections are checked here for the same reason Service
+	// is: they are recorded verbatim in the character's inputs, and a
+	// value the policy does not recognise would be stamped there as the
+	// policy that generated him while the default was quietly applied.
+	if err := validatePolicyInputs(cfg); err != nil {
+		return nil, err
 	}
 
 	aging, err := agingOnce()
@@ -85,12 +101,15 @@ func Generate(cfg Config, decider Decider) (*Character, error) {
 			EngineVersion: EngineVersion,
 			PolicyVersion: PolicyVersion,
 			RNG:           RNG{Algorithm: dice.Algorithm, Seed: cfg.Seed},
-			Inputs:        Inputs{Auto: cfg.Auto, Name: cfg.Name, Service: cfg.Service},
-			Errata:        slices.Clone(appliedErrata),
-			Name:          cfg.Name,
-			Age:           18, // all characters begin at age 18 (p. 4)
-			Skills:        []Skill{},
-			Events:        []Event{},
+			Inputs: Inputs{
+				Auto: cfg.Auto, Name: cfg.Name, Service: cfg.Service,
+				Skills: cfg.Skills, Muster: cfg.Muster, CareerTerms: cfg.CareerTerms,
+			},
+			Errata: slices.Clone(appliedErrata),
+			Name:   cfg.Name,
+			Age:    18, // all characters begin at age 18 (p. 4)
+			Skills: []Skill{},
+			Events: []Event{},
 			// Empty, not nil: the schema declares benefits.weapons an
 			// array and requires it, and a nil slice marshals as null.
 			Benefits: Benefits{Weapons: []string{}},

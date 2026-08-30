@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -264,6 +265,147 @@ func TestBatchToDirectoryIsAllOrNothing(t *testing.T) {
 		if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
 			t.Errorf("%s was written despite the run being refused", name)
 		}
+	}
+}
+
+// The policy flags select how --auto decides, so a mistyped strategy and a
+// strategy named without --auto are both usage errors. Silently ignoring
+// either would hand back a character built by a policy the caller did not
+// ask for, and the record would say so only if the caller went looking.
+func TestPolicyFlagsAreValidated(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		want string
+	}{
+		{"an unknown skills strategy", []string{"new", "--auto", "--skills", "bogus"}, "want one of"},
+		{"an unknown muster strategy", []string{"new", "--auto", "--muster", "bogus"}, "want one of"},
+		{"a career beyond the 7-term cap", []string{"new", "--auto", "--career", "9"}, "want max or a term 1-7"},
+		{"a career that is not a number", []string{"new", "--auto", "--career", "later"}, "want max or a term 1-7"},
+		{"a strategy without --auto", []string{"new", "--skills", "rounded"}, "need --auto"},
+		{"batch validates them too", []string{"batch", "--count", "2", "--auto", "--skills", "bogus"}, "want one of"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			code, stdout, stderr := runCmd(t, "", tt.args...)
+			if code != exitUsage {
+				t.Errorf("exit %d, want %d (%q)", code, exitUsage, tail(stderr))
+			}
+
+			if !strings.Contains(stderr, tt.want) {
+				t.Errorf("stderr %q does not say what is valid", tail(stderr))
+			}
+
+			if stdout != "" {
+				t.Errorf("a usage error wrote a record to stdout: %q", tail(stdout))
+			}
+		})
+	}
+}
+
+// A selected strategy has to reach both the generated character and the
+// record's account of what was asked for.
+func TestPolicyFlagsReachTheRecord(t *testing.T) {
+	code, stdout, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "--skills", "rounded")
+	if code != exitOK {
+		t.Fatalf("new --skills rounded = %d, stderr %q", code, tail(stderr))
+	}
+
+	if !strings.Contains(stdout, `"skills": "rounded"`) {
+		t.Error("the record's inputs do not name the strategy that generated it")
+	}
+
+	// Term 1 goes to Personal Development under `rounded`, which is the
+	// whole difference from the default.
+	if !strings.Contains(stdout, `"picked": "personal_development"`) {
+		t.Error("no eligibility went to personal development")
+	}
+
+	// The default must stay clean: its inputs block carries no strategy
+	// keys at all, so a version 3 record reads as a version 2 one did.
+	// Checked against the parsed inputs, not the text — the character's own
+	// top-level "skills" array would otherwise match.
+	code, plain, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy")
+	if code != exitOK {
+		t.Fatalf("new = %d, stderr %q", code, tail(stderr))
+	}
+
+	var record struct {
+		Inputs map[string]any `json:"inputs"`
+	}
+
+	if err := json.Unmarshal([]byte(plain), &record); err != nil {
+		t.Fatalf("parsing the default record: %v", err)
+	}
+
+	for _, key := range []string{"skills", "muster", "career_terms"} {
+		if _, present := record.Inputs[key]; present {
+			t.Errorf("a default record carries inputs.%s", key)
+		}
+	}
+}
+
+// --career is the one policy flag taking a number rather than a strategy
+// name, so nothing in the shared registry checks it and only its rejection
+// paths were exercised: the two statements that turn the number into a
+// config field were dark, and a --career that had quietly become a no-op
+// would have left the whole suite green.
+func TestCareerFlagShortensTheCareer(t *testing.T) {
+	code, stdout, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "--career", "2")
+	if code != exitOK {
+		t.Fatalf("new --career 2 = %d, stderr %q", code, tail(stderr))
+	}
+
+	var record struct {
+		Inputs struct {
+			CareerTerms int `json:"career_terms"`
+		} `json:"inputs"`
+		Events []struct {
+			Step   string `json:"step"`
+			Label  string `json:"label"`
+			Picked string `json:"picked"`
+		} `json:"events"`
+	}
+
+	if err := json.Unmarshal([]byte(stdout), &record); err != nil {
+		t.Fatalf("parsing the record: %v", err)
+	}
+
+	if record.Inputs.CareerTerms != 2 {
+		t.Errorf("inputs.career_terms = %d, want 2", record.Inputs.CareerTerms)
+	}
+
+	// Intent, not outcome: the throw still decides, so what is asserted is
+	// the answer the policy gave, not how many terms he actually served.
+	intent := map[string]string{}
+
+	for _, e := range record.Events {
+		if e.Label == "reenlist-intent" {
+			intent[e.Step] = e.Picked
+		}
+	}
+
+	if intent["term-1"] != "yes" || intent["term-2"] != "no" {
+		t.Errorf("reenlistment intents %v, want yes through term 1 and no at term 2", intent)
+	}
+}
+
+// `max` is the documented default, so naming it must be indistinguishable
+// from not naming it — down to the bytes, since the record would otherwise
+// carry a career_terms the character never had.
+func TestCareerMaxIsTheDefault(t *testing.T) {
+	code, explicit, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy", "--career", "max")
+	if code != exitOK {
+		t.Fatalf("new --career max = %d, stderr %q", code, tail(stderr))
+	}
+
+	code, plain, stderr := runCmd(t, "", "new", "--auto", "--seed", "3", "--service", "navy")
+	if code != exitOK {
+		t.Fatalf("new = %d, stderr %q", code, tail(stderr))
+	}
+
+	if explicit != plain {
+		t.Error("--career max produced a different record from the default")
 	}
 }
 

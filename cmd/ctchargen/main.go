@@ -15,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -30,14 +32,26 @@ const (
 	exitUsage = 2
 )
 
-const usage = `usage:
+// The strategy lists come from chargen.PolicyStrategies rather than being
+// spelled out here: it is the one registry the flag help and
+// docs/POLICY.md are both held to, and a copy in this string is the one
+// place a new strategy could go unmentioned with the gate still green.
+// The policy stanza follows the command list rather than splitting it, so
+// it cannot read as belonging to the subcommand printed under it.
+var usage = fmt.Sprintf(`usage:
   ctchargen new [--seed N] [--auto] [--service navy] [--name X] [-o file] [--force]
                 (without --auto the player answers each choice; --auto applies docs/POLICY.md)
   ctchargen batch --count 20 --auto [--seed N] [--service navy] [-o dir|file.jsonl] [--force]
   ctchargen render [--history] character.json
   ctchargen replay [--ignore-provenance] character.json
   ctchargen version
-`
+
+  policy flags, with --auto, select how it decides (docs/POLICY.md):
+                [--skills %s]
+                [--muster %s] [--career max|N]
+`,
+	strings.Join(chargen.PolicyStrategies()["skills"], "|"),
+	strings.Join(chargen.PolicyStrategies()["muster"], "|"))
 
 func main() {
 	os.Exit(run(os.Args[1:], randomSeed, os.Stdin, os.Stdout, os.Stderr))
@@ -122,14 +136,103 @@ func reportParse(fs *flag.FlagSet, err error, stdout, stderr io.Writer) int {
 	return exitUsage
 }
 
+// policyFlags registers the auto policy's three selectable rows
+// (docs/POLICY.md) on a subcommand, shared by `new` and `batch` so the two
+// cannot drift apart. Zero values are the defaults, so a caller who names
+// none of them gets the policy this tool has always applied.
+type policyFlags struct {
+	skills *string
+	muster *string
+	career *string
+}
+
+func registerPolicyFlags(fs *flag.FlagSet) policyFlags {
+	strategies := chargen.PolicyStrategies()
+
+	return policyFlags{
+		skills: fs.String("skills", "",
+			"auto: which skills table each eligibility goes to — "+strings.Join(strategies["skills"], "|")),
+		muster: fs.String("muster", "",
+			"auto: which mustering-out table to prefer — "+strings.Join(strategies["muster"], "|")+
+				"; benefits never rolls for cash, so the character musters out with none"),
+		career: fs.String("career", "",
+			"auto: max, or the term to leave after — intent only; the throw still decides (pp. 6-7)"),
+	}
+}
+
+var (
+	errBadStrategy       = errors.New("unknown policy strategy")
+	errPolicyWithoutAuto = errors.New("the policy flags select how --auto decides, so they need --auto")
+)
+
+// apply validates the selections and writes them into the config, which is
+// also where the mode is read from — cfg.Auto is set before apply is
+// called, so the two cannot disagree. Naming a policy flag without --auto
+// is refused rather than ignored: in interactive mode the player decides,
+// and quietly discarding a flag the user typed is worse than saying no to
+// it.
+func (p policyFlags) apply(cfg *chargen.Config) error {
+	if (*p.skills != "" || *p.muster != "" || *p.career != "") && !cfg.Auto {
+		return errPolicyWithoutAuto
+	}
+
+	if err := named("skills", *p.skills, &cfg.Skills); err != nil {
+		return err
+	}
+
+	if err := named("muster", *p.muster, &cfg.Muster); err != nil {
+		return err
+	}
+
+	return career(*p.career, &cfg.CareerTerms)
+}
+
+// named checks one flag against the strategies the policy publishes for
+// it. The parameter is `name`, not `flag`: the latter would shadow the
+// flag package this file is built on.
+func named(name, value string, field *string) error {
+	if value == "" {
+		return nil
+	}
+
+	allowed := chargen.PolicyStrategies()[name]
+	if !slices.Contains(allowed, value) {
+		return fmt.Errorf("%w: --%s %q, want one of %s",
+			errBadStrategy, name, value, strings.Join(allowed, ", "))
+	}
+
+	*field = value
+
+	return nil
+}
+
+// career takes a term number rather than a strategy name, so it is checked
+// against the rules' own cap rather than against a published list.
+func career(value string, field *int) error {
+	if value == "" || value == "max" {
+		return nil
+	}
+
+	terms, err := strconv.Atoi(value)
+	if err != nil || terms < 1 || terms > 7 {
+		return fmt.Errorf("%w: --career %q, want max or a term 1-7 (voluntary service caps at 7, p. 7)",
+			errBadStrategy, value)
+	}
+
+	*field = terms
+
+	return nil
+}
+
 func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := newFlagSet("new")
 	seed := fs.Uint64("seed", 0, "RNG seed (default: drawn from the OS)")
-	auto := fs.Bool("auto", false, "apply the fixed default policy (docs/POLICY.md) to every choice")
+	auto := fs.Bool("auto", false, "apply the policy (docs/POLICY.md) to every choice, instead of asking")
 	svc := fs.String("service", "", "force the enlistment attempt only; a failed throw still goes to the draft (p. 5)")
 	name := fs.String("name", "", "character name (blank by default; the book's naming section is advice, not a table)")
 	outPath := fs.String("o", "", "write the JSON record to this file instead of stdout")
 	force := fs.Bool("force", false, "overwrite an existing output file")
+	policy := registerPolicyFlags(fs)
 
 	if err := fs.Parse(args); err != nil {
 		return reportParse(fs, err, stdout, stderr)
@@ -141,11 +244,22 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 		return exitUsage
 	}
 
+	// A mistyped strategy is a usage error, so it is answered before
+	// anything is drawn, reserved, or asked of the player.
+	cfg := chargen.Config{Name: *name, Service: *svc, Auto: *auto}
+	if err := policy.apply(&cfg); err != nil {
+		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
+
+		return exitUsage
+	}
+
 	if err := resolveSeed(fs, seed, seedSource); err != nil {
 		fmt.Fprintf(stderr, "ctchargen new: %v\n", err)
 
 		return exitError
 	}
+
+	cfg.Seed = *seed
 
 	// Before the first prompt, not after the last one.
 	if err := reserveOutput(*outPath, *force); err != nil {
@@ -154,12 +268,10 @@ func runNew(args []string, seedSource func() (uint64, error), stdin io.Reader, s
 		return exitError
 	}
 
-	var decider chargen.Decider = chargen.AutoPolicy{}
+	var decider chargen.Decider = chargen.NewAutoPolicy(cfg)
 	if !*auto {
 		decider = newPrompter(stdin, stderr)
 	}
-
-	cfg := chargen.Config{Seed: *seed, Name: *name, Service: *svc, Auto: *auto}
 
 	char, err := chargen.Generate(cfg, decider)
 	if err != nil {
@@ -185,10 +297,11 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 	fs := newFlagSet("batch")
 	count := fs.Int("count", 0, "number of characters to generate")
 	seed := fs.Uint64("seed", 0, "base RNG seed (default: drawn from the OS); member i uses seed+i")
-	auto := fs.Bool("auto", false, "required: batch applies the fixed default policy (docs/POLICY.md)")
+	auto := fs.Bool("auto", false, "required: batch applies the policy (docs/POLICY.md)")
 	svc := fs.String("service", "", "force each member's enlistment attempt only (p. 5)")
 	outPath := fs.String("o", "", "JSONL file, or an existing directory for one file per character")
 	force := fs.Bool("force", false, "overwrite existing output files")
+	policy := registerPolicyFlags(fs)
 
 	if err := fs.Parse(args); err != nil {
 		return reportParse(fs, err, stdout, stderr)
@@ -208,11 +321,18 @@ func runBatch(args []string, seedSource func() (uint64, error), stdout, stderr i
 
 	chars := make([]*chargen.Character, 0, *count)
 
-	for i := range *count {
-		memberSeed := *seed + uint64(i) // #nosec G115 -- count is small; uint64 wraparound would be harmless and recorded
-		cfg := chargen.Config{Seed: memberSeed, Service: *svc, Auto: true}
+	member := chargen.Config{Service: *svc, Auto: true}
+	if err := policy.apply(&member); err != nil {
+		fmt.Fprintf(stderr, "ctchargen batch: %v\n", err)
 
-		char, err := chargen.Generate(cfg, chargen.AutoPolicy{})
+		return exitUsage
+	}
+
+	for i := range *count {
+		cfg := member
+		cfg.Seed = *seed + uint64(i) // #nosec G115 -- count is small; uint64 wraparound would be harmless and recorded
+
+		char, err := chargen.Generate(cfg, chargen.NewAutoPolicy(cfg))
 		if err != nil {
 			fmt.Fprintf(stderr, "ctchargen batch: member %d: %v\n", i, err)
 
