@@ -329,6 +329,13 @@ func (g *generator) shipBenefit(step, kind string, ref int) error {
 		}
 
 		if held != nil {
+			// Counted, though nothing derives from it here: Receipts means
+			// "times received" in both classes, and a scout that swallowed
+			// three throws should not read like one that took a single row.
+			// The derived fields stay put — constructive possession has no
+			// age to advance and no mortgage to pay off (p. 23).
+			held.Receipts++
+
 			g.outcome(step, "only one scout ship may be acquired; additional throws are lost (p. 23)", ref)
 
 			return nil
@@ -393,11 +400,17 @@ func (g *generator) retirement(svc *service.Service, step string) {
 
 // title is FR7: Social Standing 11+ may assume the hereditary title
 // (p. 4; Book 3 p. 22). The record stores the eligibility and the choice.
+// Social Standing moves during a career, and the page never says when
+// eligibility is read; assessing it here — once, on leaving the service
+// after the p. 23 muster-out alterations, or at a declined draft — is
+// reading E008.
 func (g *generator) title(step string) error {
 	social := g.char.Characteristics.SocialStanding
 	if social < 11 {
 		return nil
 	}
+
+	g.stampErratum("E008")
 
 	name := g.nobility.titleFor(social)
 

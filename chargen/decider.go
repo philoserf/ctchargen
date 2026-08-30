@@ -44,6 +44,34 @@ const (
 	ChoiceTitle         = "assume-title"
 )
 
+// ChoiceLabels is every choice point the procedure can present, in the
+// order the procedure reaches them. Two things dispatch on the label and
+// would otherwise degrade quietly when a thirteenth is added: the auto
+// policy's table, which docs/POLICY.md calls total, and the prompter's
+// wording, which falls back to showing the player the bare label. Both
+// are tested against this list, so the list is the one place a new
+// choice point has to be registered.
+//
+// A fresh slice each call, like Registry.Names and Registry.Weapons: a
+// caller that appends to what it is handed must not reach the package's
+// own copy.
+func ChoiceLabels() []string {
+	return []string{
+		ChoiceService,
+		ChoiceSubmitToDraft,
+		ChoiceCommission,
+		ChoicePromotion,
+		ChoiceSkillTable,
+		ChoiceWeapon,
+		ChoiceReenlist,
+		ChoiceMusterTable,
+		ChoiceBenefitDM,
+		ChoiceCashDM,
+		ChoiceMusterWeapon,
+		ChoiceTitle,
+	}
+}
+
 // ExpertisePrefix marks a muster-weapon option that takes +1 expertise in
 // an already-received benefit weapon in lieu of another weapon (p. 22).
 const ExpertisePrefix = "expertise: "

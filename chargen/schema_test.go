@@ -48,7 +48,18 @@ func TestSchemaMatchesStructs(t *testing.T) {
 }
 
 // The examples beside the schema are engine output; they must parse
-// strictly.
+// strictly and still be output this engine would produce.
+//
+// Parsing and schema conformance are both blind to what the engine
+// actually rolls — seed, engine_version, and every die are unconstrained
+// as far as the schema is concerned — so on their own they let a stale
+// example sit green forever. Replay is the check with teeth: it
+// regenerates from the recorded seed and choices and compares byte for
+// byte, and with the provenance match left on, a version these examples
+// were written under and the engine has since left behind fails on its
+// own. `task goldens` does not rewrite these two files, so this test is
+// what says they need refreshing from the fixtures they were copied
+// from.
 func TestSchemaExamplesParse(t *testing.T) {
 	for _, path := range []string{"../docs/character.minimal.json", "../docs/character.complete.json"} {
 		raw, err := os.ReadFile(filepath.Clean(path))
@@ -56,8 +67,15 @@ func TestSchemaExamplesParse(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if _, err := chargen.UnmarshalRecord(raw); err != nil {
+		rec, err := chargen.UnmarshalRecord(raw)
+		if err != nil {
 			t.Errorf("%s: %v", path, err)
+
+			continue
+		}
+
+		if err := chargen.Replay(rec, false); err != nil {
+			t.Errorf("%s no longer replays: %v", path, err)
 		}
 	}
 }

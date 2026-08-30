@@ -2,13 +2,13 @@ package chargen_test
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/philoserf/ctchargen/chargen"
+	"github.com/philoserf/ctchargen/internal/fixture"
 )
 
 // The fixtures are the engine's own output, compared byte for byte.
@@ -16,59 +16,7 @@ import (
 // committing it.
 var update = flag.Bool("update", false, "rewrite the golden fixtures")
 
-// declineDecider plays the one path the auto policy never takes: refusing
-// the draft (E001), producing the civilian fixture.
-type declineDecider struct{}
-
-func (declineDecider) Decide(c chargen.Choice) (chargen.Decision, error) {
-	if c.Label == chargen.ChoiceSubmitToDraft {
-		return chargen.Decision{Pick: chargen.No, By: chargen.ByPlayer}, nil
-	}
-
-	d, err := chargen.AutoPolicy{}.Decide(c)
-	if err != nil {
-		return d, fmt.Errorf("delegating to the auto policy: %w", err)
-	}
-
-	d.By = chargen.ByPlayer
-
-	return d, nil
-}
-
-// Fixtures shared with the render package's goldens: name, seed, forced
-// service, and how the choices are made. One careerist per service (via
-// --service force), a draftee into a commissioned service (the first-term
-// commission bar, p. 5), a death, and a civilian who declined the draft.
-type fixture struct {
-	Name    string
-	Seed    uint64
-	Service string
-	Auto    bool
-	Decider chargen.Decider
-}
-
-func fixtures() []fixture {
-	return []fixture{
-		{Name: "navy-careerist", Seed: 3, Service: "navy", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "marines-careerist", Seed: 8, Service: "marines", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "army-careerist", Seed: 2, Service: "army", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "scouts-careerist", Seed: 34, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "merchants-careerist", Seed: 2, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "other-careerist", Seed: 3, Service: "other", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "draftee", Seed: 7, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "death-in-service", Seed: 2, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "civilian-declined-draft", Seed: 1, Auto: false, Decider: declineDecider{}},
-		// Milestone 3 paths: a hereditary title assumed, a medical-crisis
-		// death (E006/E007), a scout ship in constructive possession, and
-		// a twice-received Free Trader.
-		{Name: "duke", Seed: 4, Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "medical-crisis-death", Seed: 8, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "scout-ship", Seed: 46, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
-		{Name: "free-trader", Seed: 145, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
-	}
-}
-
-func generate(t *testing.T, f fixture) *chargen.Character {
+func generate(t *testing.T, f fixture.Fixture) *chargen.Character {
 	t.Helper()
 
 	char, err := chargen.Generate(chargen.Config{Seed: f.Seed, Service: f.Service, Auto: f.Auto}, f.Decider)
@@ -80,7 +28,7 @@ func generate(t *testing.T, f fixture) *chargen.Character {
 }
 
 func TestGoldenFixtures(t *testing.T) {
-	for _, f := range fixtures() {
+	for _, f := range fixture.All() {
 		t.Run(f.Name, func(t *testing.T) {
 			char := generate(t, f)
 
@@ -114,7 +62,7 @@ func TestGoldenFixtures(t *testing.T) {
 // Every fixture must replay: regenerating from seed and recorded choices
 // reproduces the identical record (docs/PRD.md goal 3).
 func TestReplayRoundTrip(t *testing.T) {
-	for _, f := range fixtures() {
+	for _, f := range fixture.All() {
 		t.Run(f.Name, func(t *testing.T) {
 			char := generate(t, f)
 
@@ -136,7 +84,7 @@ func TestReplayRoundTrip(t *testing.T) {
 }
 
 func TestReplayDetectsTampering(t *testing.T) {
-	char := generate(t, fixtures()[0])
+	char := generate(t, fixture.All()[0])
 
 	// Find a recorded throw and change a die.
 	for i := range char.Events {
@@ -160,7 +108,7 @@ func TestReplayDetectsTampering(t *testing.T) {
 }
 
 func TestReplayChecksProvenance(t *testing.T) {
-	char := generate(t, fixtures()[0])
+	char := generate(t, fixture.All()[0])
 	char.EngineVersion = "0.0.0-elsewhere"
 
 	if err := chargen.Replay(char, false); err == nil {
