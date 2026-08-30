@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -40,6 +41,21 @@ type agingTable struct {
 	Rounds []AgingRound `json:"rounds"`
 }
 
+// decodeStrict parses embedded chart JSON, rejecting unknown fields so a
+// misspelled key is a load-time failure rather than a silently zeroed
+// field — and a silently wrong rule. The service tables are read the same
+// way (service.loadServices).
+func decodeStrict(raw []byte, dst any) error {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+
+	if err := dec.Decode(dst); err != nil {
+		return fmt.Errorf("decoding chart: %w", err)
+	}
+
+	return nil
+}
+
 // roundFor finds the band covering an age, or nil below the first band.
 func (t *agingTable) roundFor(age int) *AgingRound {
 	for i := range t.Rounds {
@@ -59,12 +75,16 @@ func loadAgingTable() (*agingTable, error) {
 	}
 
 	table := &agingTable{}
-	if err := json.Unmarshal(raw, table); err != nil {
+	if err := decodeStrict(raw, table); err != nil {
 		return nil, fmt.Errorf("parsing aging table: %w", err)
 	}
 
 	if len(table.Rounds) == 0 {
-		return nil, fmt.Errorf("%w: aging table has no rounds", ErrBadDecision)
+		return nil, fmt.Errorf("%w: aging table has no rounds", ErrInvalidChart)
+	}
+
+	if err := validateAgingBands(table.Rounds); err != nil {
+		return nil, err
 	}
 
 	for _, round := range table.Rounds {
@@ -75,12 +95,44 @@ func loadAgingTable() (*agingTable, error) {
 
 			if throw.Loss < 1 || !validAgingCharacteristic(throw.Characteristic) {
 				return nil, fmt.Errorf("%w: aging round from %d: %s loss %d",
-					ErrBadDecision, round.FromAge, throw.Characteristic, throw.Loss)
+					ErrInvalidChart, round.FromAge, throw.Characteristic, throw.Loss)
 			}
 		}
 	}
 
 	return table, nil
+}
+
+// validateAgingBands pins the ThroughAge == 0 sentinel down. roundFor
+// treats a zero as an open-ended band, so a dropped through_age would
+// silently turn a bounded band into one matching every age above its
+// start — and roundFor returns the first match, so band order decides
+// which rule applies. Only the last round may be open-ended, a bounded
+// one must not end before it begins, and the bands must ascend.
+//
+// Gaps between bands are deliberately not checked: the printed table has
+// them (p. 9), and aging simply does not apply in a gap.
+func validateAgingBands(rounds []AgingRound) error {
+	for i, round := range rounds {
+		openEnded := round.ThroughAge == 0
+
+		if openEnded && i != len(rounds)-1 {
+			return fmt.Errorf("%w: aging round from %d is open-ended but is not the last",
+				ErrInvalidChart, round.FromAge)
+		}
+
+		if !openEnded && round.ThroughAge < round.FromAge {
+			return fmt.Errorf("%w: aging round from %d ends at %d",
+				ErrInvalidChart, round.FromAge, round.ThroughAge)
+		}
+
+		if i > 0 && round.FromAge <= rounds[i-1].FromAge {
+			return fmt.Errorf("%w: aging round from %d does not follow the round from %d",
+				ErrInvalidChart, round.FromAge, rounds[i-1].FromAge)
+		}
+	}
+
+	return nil
 }
 
 func validAgingCharacteristic(name string) bool {
@@ -105,13 +157,13 @@ func loadNobility() (*nobility, error) {
 	}
 
 	table := &nobility{}
-	if err := json.Unmarshal(raw, table); err != nil {
+	if err := decodeStrict(raw, table); err != nil {
 		return nil, fmt.Errorf("parsing nobility table: %w", err)
 	}
 
 	for social := 11; social <= 15; social++ {
 		if table.titleFor(social) == "" {
-			return nil, fmt.Errorf("%w: nobility table missing social standing %d", ErrBadDecision, social)
+			return nil, fmt.Errorf("%w: nobility table missing social standing %d", ErrInvalidChart, social)
 		}
 	}
 

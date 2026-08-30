@@ -15,6 +15,11 @@ var (
 	// ErrBadDecision is a Decider answer outside the choice's options, or
 	// engine state that should be impossible with validated data.
 	ErrBadDecision = errors.New("invalid decision")
+	// ErrInvalidChart is a broken embedded chart: a build defect in the
+	// aging or nobility data, surfaced at load rather than at some later
+	// roll (service.ErrInvalidData is its counterpart for the service
+	// tables).
+	ErrInvalidChart = errors.New("invalid chart data")
 	// ErrProvenance is a record whose stamps do not match this build
 	// (replay --ignore-provenance waives the match).
 	ErrProvenance = errors.New("provenance mismatch")
