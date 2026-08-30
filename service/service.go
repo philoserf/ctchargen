@@ -634,7 +634,10 @@ func validateThrows(svc *Service) error {
 
 func validateThrowSpec(label string, spec *ThrowSpec) error {
 	if _, err := dice.ParseTarget(spec.Target); err != nil {
-		return fmt.Errorf("%s: %w", label, err)
+		// Both sentinels: a caller asking "is this broken rule data?" must
+		// get yes for every way the data can be broken, and one asking
+		// "is this bad target notation?" must still get yes too.
+		return fmt.Errorf("%w: %s: %w", ErrInvalidData, label, err)
 	}
 
 	for _, dm := range spec.DMs {

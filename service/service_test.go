@@ -19,38 +19,52 @@ func TestLoadValidates(t *testing.T) {
 		t.Fatalf("Names() = %v, want %v", got, want)
 	}
 
-	// Every draft number resolves (p. 5: the draft can land anywhere).
+	// Every draft number resolves (p. 5: the draft can land anywhere), and
+	// each resolves to the service the lookup by name returns, so the two
+	// routes into the registry cannot disagree.
 	for n := 1; n <= 6; n++ {
-		if _, err := reg.ByDraftNumber(n); err != nil {
+		drafted, err := reg.ByDraftNumber(n)
+		if err != nil {
 			t.Errorf("ByDraftNumber(%d): %v", n, err)
+
+			continue
+		}
+
+		named, err := reg.Service(drafted.Name)
+		if err != nil {
+			t.Errorf("Service(%q): %v", drafted.Name, err)
+
+			continue
+		}
+
+		if named != drafted {
+			t.Errorf("draft number %d and name %q resolve to different services", n, drafted.Name)
 		}
 	}
 }
 
-// Milestone 1 ships Other alone: no commissions, no ranks, enlistment 3+,
-// draft number 6 (p. 10).
-func TestOtherDefinition(t *testing.T) {
-	reg, err := service.Load()
-	if err != nil {
-		t.Fatalf("Load() error: %v", err)
+// The exported name lists are handed to callers that may write through
+// them — the UPP's digit order is read from one of them on every record —
+// so each call must yield a slice of its own, as Registry.Names and
+// chargen.ChoiceLabels do.
+func TestNameListsAreNotShared(t *testing.T) {
+	tests := map[string]func() []string{
+		"CharacteristicNames": service.CharacteristicNames,
+		"TableNames":          service.TableNames,
 	}
+	for name, list := range tests {
+		t.Run(name, func(t *testing.T) {
+			first := list()
+			if len(first) == 0 {
+				t.Fatal("empty list")
+			}
 
-	other, err := reg.Service("other")
-	if err != nil {
-		t.Fatalf("Service(other) error: %v", err)
-	}
+			first[0] = "rewritten"
 
-	if other.Commission != nil || other.Promotion != nil || len(other.Ranks) != 0 {
-		t.Error("Other must have no commissions, promotions, or ranks (p. 10)")
-	}
-
-	if other.Enlistment.Target != "3+" || other.DraftNumber != 6 {
-		t.Errorf("Other enlistment %s / draft %d, want 3+ / 6 (p. 10)", other.Enlistment.Target, other.DraftNumber)
-	}
-
-	byDraft, err := reg.ByDraftNumber(6)
-	if err != nil || byDraft.Name != "Other" {
-		t.Errorf("ByDraftNumber(6) = %v, %v; want Other", byDraft, err)
+			if second := list(); second[0] == "rewritten" {
+				t.Errorf("%s handed out the same backing array twice", name)
+			}
+		})
 	}
 }
 

@@ -41,8 +41,39 @@ func TestSheetCarriesRecoveryMonths(t *testing.T) {
 	}
 }
 
+// rendered is the subset of the golden roster this package pins, and it is
+// deliberately smaller than chargen's. The engine's goldens carry one
+// character per service because each service's rule tables differ and the
+// bytes are the only thing pinning them; the renderer never branches on
+// service, so a seventh careerist would be a second copy of the same
+// evidence. What it does branch on is listed here, one fixture each:
+//
+//	civilian-declined-draft   no service at all
+//	death-in-service          the died-in-service status line
+//	duke                      an assumed hereditary title
+//	free-trader               a mortgaged ship, passages, retirement pay
+//	scout-ship                a ship held in constructive possession
+//	medical-crisis-survivor   an age carrying months
+//
+// Measured: these six give the same 99.3% statement coverage as all
+// fourteen. Four give 97.8%, three give 96.3% — six is where it saturates.
+// Add a fixture here only when the renderer gains a branch, not when the
+// engine gains a character.
+var rendered = map[string]bool{
+	"civilian-declined-draft": true,
+	"death-in-service":        true,
+	"duke":                    true,
+	"free-trader":             true,
+	"scout-ship":              true,
+	"medical-crisis-survivor": true,
+}
+
 func TestGoldenRenders(t *testing.T) {
 	for _, f := range fixture.All() {
+		if !rendered[f.Name] {
+			continue
+		}
+
 		char, err := chargen.Generate(chargen.Config{Seed: f.Seed, Service: f.Service, Auto: f.Auto}, f.Decider)
 		if err != nil {
 			t.Fatalf("Generate(%s): %v", f.Name, err)

@@ -90,7 +90,9 @@ func loadAgingTable() (*agingTable, error) {
 	for _, round := range table.Rounds {
 		for _, throw := range round.Throws {
 			if _, err := dice.ParseTarget(throw.Save); err != nil {
-				return nil, fmt.Errorf("aging round from %d: %w", round.FromAge, err)
+				// Both sentinels, as service.validateThrowSpec does: a broken
+				// chart must answer to ErrInvalidChart however it is broken.
+				return nil, fmt.Errorf("%w: aging round from %d: %w", ErrInvalidChart, round.FromAge, err)
 			}
 
 			if throw.Loss < 1 || !validCharacteristic(throw.Characteristic) {
