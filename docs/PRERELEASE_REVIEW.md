@@ -23,54 +23,47 @@ line mean anything.
 | Schema pinned to the structs both ways                             | `TestSchemaMatchesStructs`                                                                                                                                                                                                                                   |
 | Gate green and reproducible                                        | `task`: modernize, gofumpt, prettier, vet, golangci-lint `default: all`, NilAway, `go test -race ./...`; CI runs exactly `task`                                                                                                                              |
 | Three code-audit passes cleared                                    | five findings, then seven (#1), then four (#2) — the last found 0 critical, 0 high                                                                                                                                                                           |
+| Every schema-constrained field reaches the schema through a record | `medical-crisis-survivor` fixture (Navy 231) carries `age_months: 6`, the last field whose declared bound faced no real value                                                                                                                                |
+| The documents cannot drift from the code unnoticed                 | `TestErrataIDsMatchTheDocument`, `TestErrataEntriesCiteAPage`, `TestPolicyDocumentStatesTheStampedVersion`, `TestPolicyTableCoversEveryChoicePoint`, `TestCoverageNamesRealTests` — each verified to fail on a real drift, not merely to pass                |
+| A new untested statement cannot ship green                         | Per-package uncovered-statement ceilings in `Taskfile.yml`, verified to trip on one added guarded branch                                                                                                                                                     |
 
 ## Open
 
-Neither blocks a v1.0.0 tag. Both are listed because leaving them
-unrecorded is how they get forgotten.
+None. The bar is met; v1.0.0 can be tagged.
 
-### 1. `age_months > 0` reaches the schema through no record
+## What the gates do not catch, and a correction
 
-`docs/character.schema.json` bounds `age_months` at `maximum: 11`, and no
-record in the suite carries a non-zero one — only a medical-crisis
-**survivor** accrues months, and the one crisis fixture dies. The engine
-side is covered (`TestMedicalCrisis` drives both branches;
-`TestAddAgeMonths` pins the 12-month carry), and `render` covers the sheet
-with a hand-built record it documents as a workaround
-(`render/render_test.go`). Only the schema bound is unpinned.
+An earlier revision of this file claimed the ERRATA-id gate "would have
+caught E009." That was wrong, and the claim is withdrawn.
 
-Closing it means finding a seed whose character survives a crisis and
-adding a `medical-crisis-survivor` fixture: one `chargen/testdata` file,
-two `render/testdata` files, and a line in `internal/fixture`'s roster
-comment. No engine change, so no version bump.
+E009's actual history was: the recursive reading of the 12-past-the-cap
+rule was implemented in `reenlistment` from the beginning, with no ERRATA
+entry and no stamp. A gate comparing _ids stamped in code_ against _ids in
+ERRATA.md_ sees both sets missing E009, finds them equal, and passes. What
+found it was reading p. 7 and noticing that "an additional term" is
+singular.
 
-### 2. The gate has no claim-rot check
+So the honest statement of what the gates buy:
 
-Three defects in three passes were documents drifting from code, not code
-being wrong:
+- **They catch** an id stamped with no entry to explain it, an entry no
+  code path can stamp, an entry with no page cite, a policy version the
+  document and the engine disagree on, a choice point with no policy row,
+  a policy row for no choice point, and a COVERAGE row naming a test that
+  no longer exists.
+- **They do not catch** a reading applied with neither an entry nor a
+  stamp. That is invisible to any comparison of the code against the
+  documents, because it is absent from both. Only reading the held page
+  finds it, which is what the claim-by-claim review of 2026-08-30 did and
+  what any future rules change still needs.
 
-- E009 was implemented and unstamped, contradicting the rule that every
-  reading is stamped (fixed #3).
-- `COVERAGE.md` named a test that no longer described the row's coverage
-  (fixed #2, #3).
-- A wrong page cite propagated from a doc into the record text itself
-  (fixed #3).
-
-Only the third was found by reading the book. The first two are
-mechanically checkable and should be tests, not vigilance:
-
-- **ERRATA-id gate.** Every id passed to `stampErratum` or listed in
-  `appliedErrata` has a `## Exxx` heading in `docs/ERRATA.md`, and every
-  heading is reachable from the engine. This would have caught E009.
-- **POLICY-version gate.** `docs/POLICY.md`'s stated `policy_version`
-  equals the `PolicyVersion` the engine stamps.
-- **COVERAGE test-name gate.** Every `` `TestXxx` `` named in
-  `docs/COVERAGE.md` exists in the test tree.
-
-A related hole, found the same day: a new conditional shipped through a
-fully green `task` with zero coverage (the E009 stamp, before its test was
-written). The gate has no coverage floor, so nothing but review catches an
-untested branch.
+The same correction applies to the coverage ceiling. A _percentage_ floor
+would not have caught the untested E009 stamp either: a guarded branch adds
+one covered statement (the condition) and one uncovered (the body), moving
+`chargen` from 795/878 to 796/880 — 90.55% to 90.45%, both of which
+`go test -cover` prints as **90.5%**. The gate therefore counts uncovered
+statements rather than percentages, which is integer-exact and trips on the
+first one. This was found by trying to make the percentage version fail and
+watching it pass.
 
 ## Deliberately not in v1
 

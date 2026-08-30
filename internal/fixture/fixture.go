@@ -46,6 +46,12 @@ type Fixture struct {
 // hereditary title assumed, a medical-crisis death (E006/E007), a scout
 // ship in constructive possession, and a twice-received Free Trader.
 //
+// The crisis appears twice on purpose, because its two branches produce
+// different records and the death alone left the other unwritten: the
+// survivor recovers to 1 and pays 1D months of age (pp. 7-8), so it is the
+// only fixture carrying a non-zero age_months — the one thing that puts
+// the schema's 0-11 bound on that field in front of a real record.
+//
 // A fresh slice each call: callers are tests, and one filtering or
 // reordering its copy must not reach the others.
 func All() []Fixture {
@@ -61,6 +67,10 @@ func All() []Fixture {
 		{Name: "civilian-declined-draft", Seed: 1, Auto: false, Decider: DeclineDecider{}},
 		{Name: "duke", Seed: 4, Auto: true, Decider: chargen.AutoPolicy{}},
 		{Name: "medical-crisis-death", Seed: 8, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
+		// Strength to zero at 46, saved, recovered, and 6 months older for
+		// it — the top of the 1D, so the record sits at the busy end of the
+		// month field rather than at 1.
+		{Name: "medical-crisis-survivor", Seed: 231, Service: "navy", Auto: true, Decider: chargen.AutoPolicy{}},
 		{Name: "scout-ship", Seed: 46, Service: "scouts", Auto: true, Decider: chargen.AutoPolicy{}},
 		{Name: "free-trader", Seed: 145, Service: "merchants", Auto: true, Decider: chargen.AutoPolicy{}},
 	}

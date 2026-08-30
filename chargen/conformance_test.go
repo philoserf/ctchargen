@@ -36,12 +36,10 @@ func TestRecordsConformToSchema(t *testing.T) {
 	// anywhere. Iterating internal/fixture is the same move golden_test.go
 	// and render's goldens make, and for the same reason.
 	//
-	// One shape still reaches the schema through nothing here: a non-zero
-	// age_months, which only a medical-crisis survivor accrues (1D months,
-	// pp. 7-8) and the one crisis fixture is a death. The engine side of
-	// that branch is covered by TestMedicalCrisis in the package's internal
-	// tests; the schema's `maximum: 11` on the field is not, and would need
-	// a survivor golden.
+	// Every field the schema constrains now reaches it through some record,
+	// age_months included: the medical-crisis-survivor fixture recovers and
+	// pays 6 months for it (pp. 7-8), which is what puts the declared 0-11
+	// bound in front of a real value rather than a hypothetical one.
 	t.Run("generated records", func(t *testing.T) {
 		for _, f := range fixture.All() {
 			t.Run(f.Name, func(t *testing.T) {
