@@ -83,12 +83,13 @@ type Decider interface {
 	Decide(c Choice) (Decision, error)
 }
 
-// AutoPolicy is the fixed default policy, docs/POLICY.md version 1: total (it
-// can decide every valid choice point) and deterministic, tie-breaking by
-// first-listed order in Book 1.
+// AutoPolicy is the fixed default policy of docs/POLICY.md: total (it can
+// decide every valid choice point) and deterministic, tie-breaking by
+// first-listed order in Book 1. PolicyVersion is the one place the
+// version lives; a copy here would only go stale.
 type AutoPolicy struct{}
 
-// Decide applies docs/POLICY.md v1.
+// Decide applies the docs/POLICY.md decision table.
 func (AutoPolicy) Decide(c Choice) (Decision, error) {
 	var pick string
 

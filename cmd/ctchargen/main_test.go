@@ -143,6 +143,37 @@ func TestBatchToDirectory(t *testing.T) {
 	}
 }
 
+// A collision anywhere in the run must leave the directory as it was: the
+// refusal names every colliding file, and none of the members that would
+// not have collided are written.
+func TestBatchToDirectoryIsAllOrNothing(t *testing.T) {
+	dir := t.TempDir()
+
+	// Seed the directory with the second and fourth members' names only.
+	for _, name := range []string{"character-0001.json", "character-0003.json"} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("{}\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	code, _, stderr := runCmd(t, "", "batch", "--count", "5", "--auto", "--seed", "10", "-o", dir)
+	if code != exitError {
+		t.Fatalf("batch over existing files = %d, want refusal", code)
+	}
+
+	for _, name := range []string{"character-0001.json", "character-0003.json"} {
+		if !strings.Contains(stderr, name) {
+			t.Errorf("refusal does not name %s: %q", name, tail(stderr))
+		}
+	}
+
+	for _, name := range []string{"character-0000.json", "character-0002.json", "character-0004.json"} {
+		if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
+			t.Errorf("%s was written despite the run being refused", name)
+		}
+	}
+}
+
 func TestReplayRoundTripViaCLI(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "char.json")
 

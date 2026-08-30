@@ -73,6 +73,26 @@ func TestShipBenefitRejectsTheOtherKind(t *testing.T) {
 	}
 }
 
+// The event log records what was offered. If it aliased the caller's
+// slice, a later write through that slice would rewrite history — and the
+// skill-table options are a view onto the package-level
+// service.TableNames.
+func TestChooseDoesNotAliasCallerOptions(t *testing.T) {
+	g := &generator{char: &Character{Events: []Event{}}, decider: AutoPolicy{}}
+
+	options := []string{"personal_development", "service_skills"}
+
+	if _, err := g.choose(Choice{Step: "term-1", Label: ChoiceSkillTable, Options: options}); err != nil {
+		t.Fatal(err)
+	}
+
+	options[0] = "rewritten"
+
+	if got := g.char.Events[0].Options[0]; got != "personal_development" {
+		t.Errorf("recorded option followed the caller's slice: %q", got)
+	}
+}
+
 // A Decider handed no options has nothing to pick; AutoPolicy and the
 // prompter would both index past the end of the slice.
 func TestChooseRejectsEmptyOptions(t *testing.T) {

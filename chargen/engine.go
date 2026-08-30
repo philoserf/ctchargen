@@ -598,9 +598,12 @@ func (g *generator) choose(ch Choice) (string, error) {
 			ErrBadDecision, ch.Label, ch.Step, decision.Pick, ch.Options)
 	}
 
+	// Clone: the caller's slice may be a view onto package-level data
+	// (service.TableNames), and the event log is a record of what was
+	// offered, not a window onto whatever that slice holds later.
 	g.char.Events = append(g.char.Events, Event{
 		Seq: g.next(), Kind: "choice", Step: ch.Step, Label: ch.Label,
-		By: decision.By, Options: ch.Options, Picked: decision.Pick,
+		By: decision.By, Options: slices.Clone(ch.Options), Picked: decision.Pick,
 	})
 
 	return decision.Pick, nil

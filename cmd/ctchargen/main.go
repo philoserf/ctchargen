@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
 	"github.com/philoserf/ctchargen/dice"
@@ -224,17 +225,57 @@ func batchJSONL(chars []*chargen.Character) ([]byte, error) {
 	return out, nil
 }
 
+// writeBatchDir writes one file per character, all or nothing: every
+// record is marshaled and every path checked before the first file is
+// created, so a collision midway through does not leave a directory
+// holding half of one run and half of another. The check races against a
+// concurrent writer, as any such check does; it is there to make the
+// ordinary rerun-without---force case clean, not to be atomic.
 func writeBatchDir(chars []*chargen.Character, dir string, force bool) error {
+	paths := make([]string, len(chars))
+	records := make([][]byte, len(chars))
+
 	for i, char := range chars {
 		record, err := char.MarshalRecord()
 		if err != nil {
 			return fmt.Errorf("member %d: %w", i, err)
 		}
 
-		path := filepath.Join(dir, fmt.Sprintf("character-%04d.json", i))
-		if err := writeFile(path, record, force); err != nil {
+		paths[i] = filepath.Join(dir, fmt.Sprintf("character-%04d.json", i))
+		records[i] = record
+	}
+
+	if !force {
+		if err := checkNoneExist(paths); err != nil {
 			return err
 		}
+	}
+
+	for i, path := range paths {
+		if err := writeFile(path, records[i], force); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// checkNoneExist names every colliding file at once, rather than stopping
+// at the first and leaving the rest to be discovered one rerun at a time.
+func checkNoneExist(paths []string) error {
+	var collisions []string
+
+	for _, path := range paths {
+		switch _, err := os.Stat(path); {
+		case err == nil:
+			collisions = append(collisions, path)
+		case !errors.Is(err, os.ErrNotExist):
+			return fmt.Errorf("checking %s: %w", path, err)
+		}
+	}
+
+	if len(collisions) > 0 {
+		return fmt.Errorf("%s exist; %w", strings.Join(collisions, ", "), errExists)
 	}
 
 	return nil
