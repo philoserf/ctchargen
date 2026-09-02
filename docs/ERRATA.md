@@ -20,21 +20,22 @@ keeps its heading and says it is withdrawn.
 
 ## Index
 
-| Id                                                                    | Reading                                           | Pages            |
-| --------------------------------------------------------------------- | ------------------------------------------------- | ---------------- |
-| [E001](#e001--the-draft-is-may-not-must)                              | The draft is _may_, not _must_                    | 1:5              |
-| [E002](#e002--the-per-term-order-is-the-expositions-not-the-examples) | Per-term order is the exposition's                | 1:5–6, 24        |
-| [E003](#e003--a-12-on-the-reenlistment-throw-recurs-past-term-7)      | A 12 on reenlistment recurs past term 7           | 1:6–7, 21        |
-| [E004](#e004--the-age-of-a-character-who-dies-in-service)             | Age of a character who dies in service            | 1:5, 9           |
-| [E005](#e005--when-service-wide-rank-and-service-skills-are-granted)  | When service-wide rank/service skills are granted | 1:23             |
-| [E006](#e006--where-the-aging-round-sits-within-the-term)             | Where the aging round sits in the term            | 1:7, 9, 25       |
-| [E007](#e007--the-order-of-saving-throws-within-an-aging-round)       | Order of saving throws in an aging round          | 1:9              |
-| [E008](#e008--the-outcome-of-a-failed-medical-crisis-saving-throw)    | Outcome of a failed medical-crisis throw          | 1:7–8            |
-| [E009](#e009--the-medical-expertise-dm-during-solo-generation)        | Medical-expertise DM during generation            | 1:7              |
-| [E010](#e010--how-far-below-1-aging-may-carry-a-characteristic)       | How far below 1 aging may carry a characteristic  | 1:4, 7–9         |
-| [E011](#e011--when-title-eligibility-is-assessed)                     | When title eligibility is assessed                | 1:5; 3:22        |
-| [E012](#e012--printed-names-normalized-to-the-descriptions-headings)  | Printed names normalized to their headings        | 1:5, 9–13, 21–23 |
-| [E013](#e013--no-promotion-throw-at-the-top-of-the-table-of-ranks)    | No promotion throw at the top of the ranks table  | 1:6, 10          |
+| Id                                                                    | Reading                                           | Pages      |
+| --------------------------------------------------------------------- | ------------------------------------------------- | ---------- |
+| [E001](#e001--the-draft-is-may-not-must)                              | The draft is _may_, not _must_                    | 1:5        |
+| [E002](#e002--the-per-term-order-is-the-expositions-not-the-examples) | Per-term order is the exposition's                | 1:5–6, 24  |
+| [E003](#e003--a-12-on-the-reenlistment-throw-recurs-past-term-7)      | A 12 on reenlistment recurs past term 7           | 1:6–7, 21  |
+| [E004](#e004--the-age-of-a-character-who-dies-in-service)             | Age of a character who dies in service            | 1:5, 9     |
+| [E005](#e005--when-service-wide-rank-and-service-skills-are-granted)  | When service-wide rank/service skills are granted | 1:23       |
+| [E006](#e006--where-the-aging-round-sits-within-the-term)             | Where the aging round sits in the term            | 1:7, 9, 25 |
+| [E007](#e007--the-order-of-saving-throws-within-an-aging-round)       | Order of saving throws in an aging round          | 1:9        |
+| [E008](#e008--the-outcome-of-a-failed-medical-crisis-saving-throw)    | Outcome of a failed medical-crisis throw          | 1:7–8      |
+| [E009](#e009--the-medical-expertise-dm-during-solo-generation)        | Medical-expertise DM during generation            | 1:7        |
+| [E010](#e010--how-far-below-1-aging-may-carry-a-characteristic)       | How far below 1 aging may carry a characteristic  | 1:4, 7–9   |
+| [E011](#e011--when-title-eligibility-is-assessed)                     | When title eligibility is assessed                | 1:5; 3:22  |
+| [E012](#e012--printed-names-normalized-to-the-descriptions-headings)  | Printed names normalized to their headings        | 1:5, 9–23  |
+| [E013](#e013--no-promotion-throw-at-the-top-of-the-table-of-ranks)    | No promotion throw at the top of the ranks table  | 1:6, 10    |
+| [E014](#e014--the-aging-tables-last-column-is-terminal)               | The Aging Table's last column is terminal         | 1:7, 9     |
 
 ---
 
@@ -161,10 +162,11 @@ names the term and the cause. No aging round is run for the fatal term (the
 round sits at the end of the term — [E006](#e006--where-the-aging-round-sits-within-the-term) — and the character did not reach it),
 and no mustering out occurs.
 
-**Why.** P. 5 attaches the four years to embarking on the term, not to
-finishing it, so the years are spent the moment the term begins; counting
-them keeps age and terms in the one relation the Aging Table's note fixes,
-which is what any reader of the record will assume. The alternative — age
+**Why.** P. 5 attaches the four years to the term itself — "a term of service
+lasting 4 years. This adds 4 years to the character's age" — and the term a
+character died in is a term he entered and did not leave; counting it keeps
+age and terms in the one relation the Aging Table's note fixes, 18 + 4 ×
+terms, which is what any reader of the record will assume. The alternative — age
 18 + 4(N−1), the term uncounted — makes the record say a character died in a
 term he never served.
 
@@ -238,7 +240,8 @@ term thereafter — never batched at mustering out. The round is read off the
 table's **Term of Service** row, not its Age row: p. 9's note keys the Age
 row to physiological age, which the months added by a medical crisis
 (pp. 7–8) can push past the term's own arithmetic, and the term is the
-unambiguous index.
+unambiguous index. That row stops at 14; what governs a term past it is
+[E014](#e014--the-aging-tables-last-column-is-terminal).
 
 **Why.** The two pages use different prepositions for the two steps and the
 distinction is the only one available: the reenlistment throw is made
@@ -282,8 +285,9 @@ it is also the order the six characteristics are rolled in at p. 4 and
 printed in in the UPP at p. 8. Any other order would have to be invented. The
 crisis resolves inline because p. 7 says so of the recovery it describes —
 "his recovery is made immediately" — and because deferring it would leave the
-character standing at 0 while later saving throws are read against a table
-the page indexes by age, not by condition.
+character standing at 0 through the rest of a round the table indexes by term
+of service ([E006](#e006--where-the-aging-round-sits-within-the-term)), not by
+the character's condition.
 
 **Stamped on.** Records in which at least one aging round was run. Stamped
 alongside [E006](#e006--where-the-aging-round-sits-within-the-term).
@@ -447,14 +451,16 @@ reading, and is not stamped.
 
 ### E012 — Printed names normalized to the descriptions' headings
 
-**Pages.** Book 1 p. 5, pp. 9–13, pp. 21–23.
+**Pages.** Book 1 p. 5; pp. 9–11 (the tables); pp. 12–20 (the skill
+descriptions, whose headings are what every name is normalized to);
+pp. 21–23.
 
 **What the page says.** The Acquired Skills Table (p. 11) abbreviates to fit
 its columns; the skill descriptions (pp. 12–20) print each skill's name in
 full as a heading; the Rank and Service Skills box (p. 23) abbreviates again
 and carries at least one reprint typo; the Mustering Out Tables (p. 9)
 abbreviate the benefits whose definitions are spelled out on pp. 21–23; and
-the six services are spelled two ways across pp. 5, 9, 10 and 11.
+the six services are spelled more than one way across pp. 5, 9, 10, 11 and 23.
 
 **The gap.** A skill acquired twice under two spellings is two skills. Only
 the descriptions' own headings spell every name once.
@@ -476,21 +482,34 @@ _Skills_ — table spelling → recorded name:
 | Rifl3-1     | p. 23 box                                  | Rifle-1                                                        |
 | SMG-1       | p. 23 box                                  | Submachine Gun-1                                               |
 
-_Benefits_ — p. 9 spelling → recorded name, per the definitions on pp. 21–22:
+_Benefits_ — p. 9 spelling → recorded name, per the definitions on pp. 21–23:
 
-| Printed     | Recorded as     |
-| ----------- | --------------- |
-| Low Psg     | Low Passage     |
-| Mid Psg     | Middle Passage  |
-| High Psg    | High Passage    |
-| Travellers' | Travellers' Aid |
+| Printed     | Recorded as                                   |
+| ----------- | --------------------------------------------- |
+| Low Psg     | Low Passage                                   |
+| Mid Psg     | Middle Passage                                |
+| High Psg    | High Passage                                  |
+| Travellers' | Travellers' Aid                               |
+| Scout       | Scout ship, Type S (p. 23; Book 2 p. 18)      |
+| Merchant    | Free Trader, Type A (pp. 22–23; Book 2 p. 19) |
+
+The last two rows are why this list is not optional. Table 1's Scout column
+row 6 prints **Scout** and its Merchant column row 7 prints **Merchant** —
+the same two strings the same table uses as service column headers — so a
+benefit read by its printed name collides with a service read by its printed
+name. Table 1's characteristic rows (+1 Intel, +2 Educ, +2 Social and the
+rest) are not normalized here because a characteristic is never recorded as a
+printed string: it is an index into the six-key `Profile` of p. 4.
 
 _Services_ — the six are recorded under the names p. 5 gives them when it
 lists them: **Navy, Marines, Army, Scouts, Merchants, Other**. P. 10's Prior
 Service Table and Table of Ranks agree with p. 5 (Scouts, Merchants); p. 9's
 Table 1 prints Scout and Merchant, p. 9's Table 2 prints Scouts and Merchant,
-and p. 11's Acquired Skills Table prints Scouts and Merchant. P. 5's list is
-the only place all six appear together.
+and p. 11's Acquired Skills Table prints Scouts and Merchant. P. 23's Rank
+and Service Skills box keys its entries to **Marine**, Army, Scout and
+Merchant — the one place the Marines are named in the singular, and the
+reason the box's entries cannot be matched to a service by printed string
+alone. P. 5's list is the only place all six appear together.
 
 Blade Combat and Gun Combat are not recorded as skills because the rules
 require the specific weapon at once — p. 11: "When blade or gun combat is
@@ -545,7 +564,46 @@ explicit refusal of commission and promotion throws to the Scouts and Other —
 where the table prints nothing, nothing is thrown.
 
 **Stamped on.** Records in which a character reached the highest rank his
-service prints and then served at least one further term.
+service prints and then proceeded past the survival throw of at least one
+further term. A character who reached the top rank and then died on the next
+term's survival throw never arrived at the promotion step, so the reading
+changed nothing and drew nothing.
+
+---
+
+### E014 — The Aging Table's last column is terminal
+
+**Pages.** Book 1 p. 7 (Aging), p. 9 (the Aging Table).
+
+**What the page says.** P. 9's table is headed by two rows: **Term of
+Service**, running 4, 5, 6, … 14, and **Age**, running 34, 38, 42, … 70,
+**74+**. Its note: "Term of service refers to the end of that numbered term.
+Age refers to the first day of the personal (physiological, not
+chronological) year." P. 7: aging effects arrive at 34 "and in 4 year
+increments thereafter", with no end named.
+
+**The gap.** The Term of Service row is a closed list that stops at 14. The
+Age row is not — its last cell is open-ended. `Term` has no upper bound
+(PRD, Domain model) and a 12 on the reenlistment throw recurs without limit
+([E003](#e003--a-12-on-the-reenlistment-throw-recurs-past-term-7)), so a
+character can reach term 15, and
+[E006](#e006--where-the-aging-round-sits-within-the-term) sends the round to
+a row with no cell for him. The Age row would have covered him; the Term row
+does not.
+
+**Reading.** The table's last column is terminal: every term from the 14th on
+is read off it. Aging never stops and never changes again after that column.
+
+**Why.** The two header rows label one set of columns, and the Age row says
+in the page's own notation that the last of them is open-ended — **74+**, the
+only cell in either row carrying a plus. A column open-ended in one of its
+labels is open-ended, and the Term row's 14 is simply the term that first
+arrives there. P. 7 puts it beyond doubt from the other direction: increments
+continue "thereafter" with no terminus, so a character past the table cannot
+be a character who has stopped aging.
+
+**Stamped on.** Records with fifteen or more terms of service — the terms
+whose round is read off a column their own number does not print.
 
 ---
 
@@ -575,6 +633,25 @@ pages settle them. Recorded so they are not re-litigated as silences.
   opens the fourth table from the next designation on.
 - **Aging runs at the end of every term from the fourth, not only at 34.**
   P. 7 ("and in 4 year increments thereafter"), p. 9's table (terms 4 through 14) and p. 25's example (rounds owed for terms 4 and 5) agree.
+- **The weapon lists are read column-major.** The Blades and Polearms box
+  (p. 12) and the Guns box (p. 13) are each set in two columns, and the page
+  never states a reading order — but only one order makes either box
+  coherent. Column-major gives blades Dagger, Blade, Foil, Cutlass, Sword,
+  Broadsword and then polearms Spear, Halberd, Pike, Cudgel, Bayonet, which
+  is the box's own title read in order; and it gives guns Body Pistol,
+  Automatic Pistol, Revolver, Carbine, Rifle before Laser Carbine, Laser
+  Rifle, Automatic Rifle, Submachine Gun, Shotgun, conventional arms before
+  advanced. Row-major interleaves both groups into nonsense. The order
+  matters because it fixes what "first in the printed list" names in
+  POLICY.md.
+- **Mustering-out expertise stays inside the benefit's own category.**
+  P. 22: a repeat weapon benefit may be taken as "+1 expertise **in lieu of
+  receiving a second or subsequent weapon of exactly the same type**", and
+  "Expertise may only be taken in a weapon received as a benefit." The
+  expertise substitutes for the weapon that benefit would have delivered, so
+  it is taken in a weapon of that benefit's category — the page's worked
+  example never leaves one (blade → cutlass → cutlass-1). A gun benefit
+  cannot be converted into expertise in a blade.
 - **A character may voluntarily begin a seventh term but not an eighth.**
   P. 7: "A character may serve up to 7 terms voluntarily", and "Service beyond
   the seventh term is normally impossible" — only a 12 carries him further

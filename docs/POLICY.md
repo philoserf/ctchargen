@@ -50,7 +50,7 @@ ellipsis. Two notes on where this differs from what FR9 prints:
   a pure function of the offered set and the policy never reaches into the
   character. The shape `from []X` survives; only the element type changes.
   Recorded here rather than applied silently.
-- **The remaining five signatures are new**, not sketched. They are fixed
+- **The remaining six signatures are new**, not sketched. They are fixed
   here so milestone 1 writes them once. Four alphabets come with them that
   the PRD's Domain model does not yet list — `Intent`, `MusterTable`,
   `WeaponBenefit`, `Title` — plus the `EnlistmentOffer` above.
@@ -103,11 +103,11 @@ called — the throw is still made, and a failed throw still goes to the draft
 each carrying the service's printed enlistment target and the cumulative DM
 this character earns against it.
 
-| Strategy          | Answer                                                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Strategy          | Answer                                                                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `serve` (default) | The offer whose throw is likeliest to succeed — the 2D probability of meeting its target after its DM. Ties to book order. |
-| `retire`          | Same as `serve`.                                                                                                          |
-| `oneterm`         | Same as `serve`.                                                                                                          |
+| `retire`          | Same as `serve`.                                                                                                           |
+| `oneterm`         | Same as `serve`.                                                                                                           |
 
 The probability is computed from the target and DM the offer carries; it is
 not a table of its own and it is not a rule. Two offers of equal probability
@@ -221,9 +221,11 @@ designation.
 
 `advanced` is the default because it is the one ranking that makes the
 Education 8+ gate visible in a default run: it takes the fourth table the
-instant it opens and stops taking it if Education ever falls below 8.
-`personal` is the ranking that reaches the procedure's one negative result,
-Other's −1 Social (p. 11).
+instant it opens. The gate never closes again once open — p. 9's Aging Table
+prints "unaffected by aging" across Education, and the procedure's one
+negative table result is Other's −1 Social (p. 11) — so no strategy needs an
+answer for an Education that falls back below 8.
+`personal` is the ranking that reaches that one negative result.
 
 ### `Weapon(cat WeaponCategory, from []WeaponName) (WeaponName, error)`
 
@@ -296,16 +298,20 @@ generated golden. A branch no fixture exercises is a branch nothing tests
 ### `MusterWeapon(cat, from, received) (WeaponBenefit, error)`
 
 **Asked when** a Table 1 roll is a weapon benefit (p. 9's Blade and Gun
-rows). `from` is the category's printed list; `received` is the weapons this
-character has already taken **as benefits** — p. 22: "Expertise may only be
-taken in a weapon received as a benefit", which is narrower than the weapons
-he holds from skills-table results.
+rows). `from` is the category's printed list, column-major
+([ERRATA.md](ERRATA.md#checked-and-found-determinate)). `received` is the
+weapons **of this category** this character has already taken **as
+benefits** — doubly narrower than the weapons he holds: p. 22 says
+"Expertise may only be taken in a weapon received as a benefit", which
+excludes weapons from skills-table results, and it offers the expertise "in
+lieu of receiving a second or subsequent weapon of **exactly the same
+type**", which keeps it inside the benefit's own category. A gun benefit
+cannot be converted into expertise in a blade.
 
 **Alphabet.** `TakeWeapon(name)` — a weapon from the list, whether or not he
 already has one — or `TakeExpertise(name)`, +1 in a weapon in `received`.
-The expertise option is offered only when `received` is non-empty (p. 22:
-"in lieu of receiving a second or subsequent weapon of exactly the same
-type").
+The expertise option is offered only when `received` is non-empty — that is,
+only from the second benefit of that category on.
 
 | Strategy         | Answer                                                                                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -332,7 +338,7 @@ absorbed here.
 - **Anything a flag on the command line already decides.** `--service`
   forces the enlistment attempt and suppresses `Service`; `--name` supplies
   the name, which is not a choice point (PRD, Decisions).
-- **Anything after generation.** Selling a passage at 90% (p. 21), buying
+- **Anything after generation.** Selling a passage at 90% (p. 22), buying
   Travellers' Aid membership for CR 1,000,000 (p. 22), and flying the ship
   are in-play decisions; the record carries the assets and stops.
 - **Interactive mode.** It implements the same interface and asks the
