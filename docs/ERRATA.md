@@ -13,7 +13,11 @@ the same defect wearing a citation.
 All readings below were decided against a visual read of the held PDFs on
 2026-09-02, at Book 1 PDF pages 8–31 (printed 2–25) and Book 3 PDF page 27
 (printed 22). Printed page N is PDF page N+6 in Book 1, N+5 in Books 2 and 3.
-Nothing here is inherited from the implementation removed at `41a213a`.
+Nothing here is inherited from the implementation removed at `41a213a`. A
+gap found later may consult that tree's errata as a last resort — the page
+ranks first, these readings second, the old errata third (`CLAUDE.md`,
+Precedence) — but only as a pointer to a page, and what it yields is decided
+here and gets its own id like any other reading.
 
 Ids are stable. An id is never reused or renumbered; a withdrawn reading
 keeps its heading and says it is withdrawn.

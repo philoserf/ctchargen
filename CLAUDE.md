@@ -61,19 +61,43 @@ Everything else in that directory is **out of authority**: Books 4+,
 supplements, the Starter Edition, The Traveller Book, JTAS, and the
 _Consolidated Errata_ PDF. Do not open them for rules.
 
+## Precedence
+
+Three sources can answer a rules question. They rank, and a lower rank never
+overrides a higher one:
+
+1. **The held page.** Book 1, and Books 2–3 where Book 1 points at them. If
+   the page settles it, nothing else is consulted — not memory, not an
+   erratum, not the past.
+2. **`docs/ERRATA.md`, the readings decided here.** Each was decided against
+   the page and carries its cite, so it governs wherever the page is silent
+   or self-contradictory.
+3. **The errata of the implementation removed at `41a213a`.** Last resort,
+   and only where 1 and 2 are both silent — that is, a gap this pass has not
+   yet found.
+
+A third-rank answer is never applied as it stands. Take it as a **pointer to
+a page**, go read that page, and decide the reading here: it earns an id in
+`docs/ERRATA.md`, its own rationale, and its own stamping condition, at which
+point it is a rank-2 reading like any other and its origin is history. A
+reading inherited unread has an authority it never earned — that is the whole
+reason the ordering puts it third rather than first.
+
 ## Clean room, this repo's own past included
 
 Sibling repos are not imported from or copied; consult them only when
 explicitly asked. **The same rule governs this repository's own history at
-and before `41a213a`.** That tree held a complete implementation with settled
-errata, a policy table, goldens and a verified worked-example reproduction.
-None of it comes forward.
+and before `41a213a`**, with the single exception the ordering above carves
+out. That tree held a complete implementation: Go code, tests, table
+transcriptions, a policy table, goldens and a verified worked-example
+reproduction. **None of that comes forward at any rank.** Do not read the old
+code, tests, transcriptions, fixture roster or policy table — a transcription
+re-used is the font trap uncaught, and a policy row re-used is a decision
+never made.
 
-Do not run `git show`, `git log -p`, or `git checkout` against `41a213a` or
-earlier for rules content. The only thing carried forward is the **list of
-places the book is silent** — already carried, in `docs/PRD.md` and now
-decided in `docs/ERRATA.md`. A reading inherited unread has an authority it
-never earned.
+What may be consulted, and only at rank 3 above, is that tree's **errata** —
+its list of places the book is silent, and the readings it reached there.
+`docs/PRD.md` already carries the list; the readings are the fallback.
 
 ## Documents and what each governs
 
