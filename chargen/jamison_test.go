@@ -259,7 +259,7 @@ func replayJamison(t *testing.T) *chargen.Character {
 		},
 	}
 
-	character, err := chargen.GenerateWith(inputs, rolls, chosen)
+	character, err := chargen.Generate(inputs, chosen, chargen.WithRoller(rolls))
 	if err != nil {
 		t.Fatalf("replaying the example: %v", err)
 	}

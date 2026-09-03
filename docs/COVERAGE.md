@@ -136,6 +136,16 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | A ship's terms follow its kind, not its numbers | 1:22–23 | `render.shipLine` | `render.TestAShipsTermsFollowItsKind` |
 | An event kind this build does not know is said to be unknown | FR11 | `render.writeEvent` | `render.TestAnUnknownEventKindIsSaidToBeUnknown` |
 | A refused batch writes none of itself | CLI sketch | `cmd/ctchargen.noMemberExists` | `ctchargen.TestARefusedBatchWritesNothing` |
+| Every question the player is asked is one the engine asked | FR9 | `cmd/ctchargen.player` | `ctchargen.TestInteractiveWalksACharacter` |
+| The alternatives offered are exactly the engine's | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveAsksTheYesOrNoPoints` |
+| An answer outside the offered set is refused, not applied | FR9 | `chargen.logging.record` | `chargen.TestAnAnswerOutsideTheOfferIsRefused` |
+| An unreadable answer is asked again, never guessed at | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveReAsksWhatItCannotRead` |
+| The input ending is an error, not a default | FR9 | `cmd/ctchargen.errNoAnswer` | `ctchargen.TestInteractiveRefusesToInventAnAnswer` |
+| A player nobody can be shown anything is not asked | FR9 | `cmd/ctchargen.player.sayf` | `ctchargen.TestInteractiveStopsWhenItCannotBeRead` |
+| The questions go to stderr, not into the record | CLI sketch | `cmd/ctchargen.run` | `ctchargen.TestTheQuestionsStayOutOfTheRecord` |
+| The procedure is shown between the questions | FR11 | `render.EventLine`, `chargen.WithObserver` | `ctchargen.TestInteractiveShowsWhatAutoDoesNot` |
+| The gambling modifier is offered only to one who has the expertise | 1:9 | `cmd/ctchargen.player.MusterTable2DM` | `ctchargen.TestInteractiveOffersTheGamblingModifier` |
+| A guided run's choices are recorded as the player's, not the policy's | FR9 | `chargen.WithAnswerer` | `ctchargen.TestTheQuestionsStayOutOfTheRecord` |
 
 ## The book's own character
 

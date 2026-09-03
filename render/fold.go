@@ -85,6 +85,14 @@ func foldDeparture(from traveller.Departure) departureRecord {
 	return codec.out
 }
 
+// The four kinds an event's discriminator can be, on the wire.
+const (
+	kindStep    = "step"
+	kindThrow   = "throw"
+	kindChoice  = "choice"
+	kindOutcome = "outcome"
+)
+
 type stepJSON struct {
 	Seq   int    `json:"seq"`
 	Kind  string `json:"kind"`
@@ -123,12 +131,12 @@ type outcomeJSON struct {
 type eventCodec struct{ out json.RawMessage }
 
 func (e *eventCodec) Step(from traveller.StepEvent) error {
-	return e.write(stepJSON{Seq: from.Seq, Kind: "step", Step: from.Step, Pages: from.Pages})
+	return e.write(stepJSON{Seq: from.Seq, Kind: kindStep, Step: from.Step, Pages: from.Pages})
 }
 
 func (e *eventCodec) Throw(from traveller.ThrowEvent) error {
 	out := throwJSON{
-		Seq: from.Seq, Kind: "throw", Step: from.Step, Dice: from.Dice,
+		Seq: from.Seq, Kind: kindThrow, Step: from.Step, Dice: from.Dice,
 		DM: from.DM, Total: from.Total(), Succeeded: from.Succeeded,
 	}
 	if from.Target.Number() != 0 {
@@ -140,14 +148,14 @@ func (e *eventCodec) Throw(from traveller.ThrowEvent) error {
 
 func (e *eventCodec) Choice(from traveller.ChoiceEvent) error {
 	return e.write(choiceJSON{
-		Seq: from.Seq, Kind: "choice", Point: from.Point.String(), By: from.By.String(),
+		Seq: from.Seq, Kind: kindChoice, Point: from.Point.String(), By: from.By.String(),
 		Alternatives: from.Alternatives, Chosen: from.Chosen,
 	})
 }
 
 func (e *eventCodec) Outcome(from traveller.OutcomeEvent) error {
 	out := outcomeJSON{
-		Seq: from.Seq, Kind: "outcome", Because: from.Because, Description: from.Description,
+		Seq: from.Seq, Kind: kindOutcome, Because: from.Because, Description: from.Description,
 	}
 	for _, erratum := range from.Errata {
 		out.Errata = append(out.Errata, erratum.String())

@@ -280,8 +280,9 @@ func TestEveryReadingIsReachable(t *testing.T) {
 		}
 	}
 
-	scripted, err := chargen.GenerateWith(
-		fixtures[0].inputs(), &scripted{twelves: 80}, chargen.DefaultPolicy(),
+	scripted, err := chargen.Generate(
+		fixtures[0].inputs(), chargen.DefaultPolicy(),
+		chargen.WithRoller(&scripted{twelves: 80}),
 	)
 	if err != nil {
 		t.Fatalf("the scripted career: %v", err)

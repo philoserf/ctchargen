@@ -1,6 +1,6 @@
 # Uncovered statements per package. A number may fall; it may never rise.
 # Regenerate with: task ratchet:update
-github.com/philoserf/ctchargen/chargen 69
+github.com/philoserf/ctchargen/chargen 50
 github.com/philoserf/ctchargen/cmd/ctchargen 24
 github.com/philoserf/ctchargen/dice 0
 github.com/philoserf/ctchargen/render 14

@@ -32,12 +32,12 @@ func TestOneMemberIsTheSameCharacterAsNew(t *testing.T) {
 
 	var alone, batched strings.Builder
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, seed, flagService, other}, &alone)
+	err := run([]string{cmdNew, flagAuto, flagSeed, seed, flagService, other}, nil, &alone, io.Discard)
 	if err != nil {
 		t.Fatalf("new: %v", err)
 	}
 
-	err = run([]string{cmdBatch, flagCount, "1", flagAuto, flagSeed, seed, flagService, other}, &batched)
+	err = run([]string{cmdBatch, flagCount, "1", flagAuto, flagSeed, seed, flagService, other}, nil, &batched, io.Discard)
 	if err != nil {
 		t.Fatalf("batch: %v", err)
 	}
@@ -54,7 +54,7 @@ func TestEachMemberCarriesItsOwnSeed(t *testing.T) {
 
 	const base = 1000
 
-	members := generate(t, strconv.Itoa(base), 5)
+	members := generateBatch(t, strconv.Itoa(base), 5)
 
 	for i, member := range members {
 		want := uint64(base + i)
@@ -68,7 +68,7 @@ func TestEachMemberCarriesItsOwnSeed(t *testing.T) {
 
 	err := run([]string{
 		cmdNew, flagAuto, flagSeed, strconv.FormatUint(members[3].Inputs.Seed, 10), flagService, other,
-	}, &again)
+	}, nil, &again, io.Discard)
 	if err != nil {
 		t.Fatalf("regenerating member 3: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestAnExplicitSeedIsNeverReBounded(t *testing.T) {
 	const bound = uint64(1)<<53 - 1
 
 	base := bound - 1
-	members := generate(t, strconv.FormatUint(base, 10), 3)
+	members := generateBatch(t, strconv.FormatUint(base, 10), 3)
 
 	for i, member := range members {
 		want := base + uint64(i)
@@ -106,7 +106,7 @@ func TestAnExplicitSeedIsNeverReBounded(t *testing.T) {
 
 	// And the addition wraps rather than failing: a base at the very top of
 	// the range is a seed like any other.
-	wrapped := generate(t, strconv.FormatUint(math.MaxUint64, 10), 2)
+	wrapped := generateBatch(t, strconv.FormatUint(math.MaxUint64, 10), 2)
 	if wrapped[1].Inputs.Seed != 0 {
 		t.Errorf("the member after the largest seed is %d, want 0: the addition wraps",
 			wrapped[1].Inputs.Seed)
@@ -122,7 +122,7 @@ func TestBatchRefusesWithoutAuto(t *testing.T) {
 		"no --count": {cmdBatch, flagAuto},
 		"zero count": {cmdBatch, flagAuto, flagCount, "0"},
 	} {
-		err := run(args, io.Discard)
+		err := run(args, nil, io.Discard, io.Discard)
 		if err == nil {
 			t.Errorf("%s: batch accepted %v", name, args)
 		}
@@ -137,7 +137,7 @@ func TestBatchIntoADirectory(t *testing.T) {
 
 	err := run([]string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("batch into a directory: %v", err)
 	}
@@ -154,14 +154,14 @@ func TestBatchIntoADirectory(t *testing.T) {
 	// A second run refuses to replace them, and --force replaces them.
 	err = run([]string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("a second batch overwrote the first without --force")
 	}
 
 	err = run([]string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir, "--force",
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Errorf("--force did not replace the members: %v", err)
 	}
@@ -175,14 +175,14 @@ type batchMember struct {
 	} `json:"inputs"`
 }
 
-func generate(t *testing.T, seed string, count int) []batchMember {
+func generateBatch(t *testing.T, seed string, count int) []batchMember {
 	t.Helper()
 
 	var out strings.Builder
 
 	err := run([]string{
 		cmdBatch, flagCount, strconv.Itoa(count), flagAuto, flagSeed, seed, flagService, other,
-	}, &out)
+	}, nil, &out, io.Discard)
 	if err != nil {
 		t.Fatalf("batch: %v", err)
 	}
@@ -238,7 +238,7 @@ func TestBatchCreatesTheOutputDirectory(t *testing.T) {
 
 	err := run([]string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("batch into a directory that is not there yet: %v", err)
 	}
@@ -270,7 +270,7 @@ func TestARefusedBatchWritesNothing(t *testing.T) {
 
 	err = run([]string{
 		cmdBatch, flagCount, "4", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Fatal("a batch overwrote an existing member without --force")
 	}
@@ -301,7 +301,7 @@ func TestBatchReportsADirectoryItCannotMake(t *testing.T) {
 	err = run([]string{
 		cmdBatch, flagCount, "2", flagAuto, flagSeed, "7", flagService, other,
 		"-o", filepath.Join(blocking, "members") + string(filepath.Separator),
-	}, io.Discard)
+	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Fatal("a batch wrote into a directory it could not make")
 	}
