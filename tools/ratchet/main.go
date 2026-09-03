@@ -93,8 +93,22 @@ func run(args []string, out io.Writer) error {
 // parseProfile counts, per package, the statements a coverage profile marks
 // as never executed. Every package the profile mentions appears in the
 // result, including those with nothing uncovered.
+//
+// A block can appear more than once. Under -coverpkg every test binary
+// instruments every package, so the same statement is reported by each
+// binary that linked it - covered by the one whose tests reach it, and
+// uncovered by the rest. The counts are summed per block before anything is
+// called uncovered, or a statement every run executes would be counted as
+// uncovered once for each binary that did not happen to reach it.
 func parseProfile(r io.Reader) (map[string]int, error) {
-	uncovered := make(map[string]int)
+	type block struct {
+		pkg        string
+		location   string
+		statements int
+	}
+
+	counts := make(map[block]int)
+	packages := make(map[string]bool)
 
 	scanner := bufio.NewScanner(r)
 	for line := 1; scanner.Scan(); line++ {
@@ -103,25 +117,30 @@ func parseProfile(r io.Reader) (map[string]int, error) {
 			continue
 		}
 
-		pkg, statements, count, err := parseLine(text)
+		pkg, location, statements, count, err := parseLine(text)
 		if err != nil {
 			return nil, fmt.Errorf("line %d: %w", line, err)
 		}
 
-		// The add is unconditional so that a package with nothing
-		// uncovered still earns an entry: a later regression in it must
-		// read as a rise, not as a package the ratchet has never seen.
-		n := 0
-		if count == 0 {
-			n = statements
-		}
+		packages[pkg] = true
 
-		uncovered[pkg] += n
+		counts[block{pkg: pkg, location: location, statements: statements}] += count
 	}
 
 	err := scanner.Err()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errProfile, err)
+	}
+
+	uncovered := make(map[string]int, len(packages))
+	for pkg := range packages {
+		uncovered[pkg] = 0
+	}
+
+	for b, count := range counts {
+		if count == 0 {
+			uncovered[b.pkg] += b.statements
+		}
 	}
 
 	return uncovered, nil
@@ -134,33 +153,33 @@ func parseProfile(r io.Reader) (map[string]int, error) {
 // documentation.
 //
 //nolint:nonamedreturns // four unlabelled results - a path, two counts and
-func parseLine(text string) (pkg string, statements, count int, err error) {
+func parseLine(text string) (pkg, location string, statements, count int, err error) {
 	rest, countField, ok := strings.CutLast(text, " ")
 	if !ok {
-		return "", 0, 0, fmt.Errorf("%w: line %q", errProfile, text)
+		return "", "", 0, 0, fmt.Errorf("%w: line %q", errProfile, text)
 	}
 
-	location, statementField, ok := strings.CutLast(rest, " ")
+	span, statementField, ok := strings.CutLast(rest, " ")
 	if !ok {
-		return "", 0, 0, fmt.Errorf("%w: line %q", errProfile, text)
+		return "", "", 0, 0, fmt.Errorf("%w: line %q", errProfile, text)
 	}
 
-	file, _, ok := strings.CutLast(location, ":")
+	file, _, ok := strings.CutLast(span, ":")
 	if !ok {
-		return "", 0, 0, fmt.Errorf("%w: location %q", errProfile, location)
+		return "", "", 0, 0, fmt.Errorf("%w: location %q", errProfile, span)
 	}
 
 	statements, err = strconv.Atoi(statementField)
 	if err != nil {
-		return "", 0, 0, fmt.Errorf("%w: statement count in %q: %w", errProfile, text, err)
+		return "", "", 0, 0, fmt.Errorf("%w: statement count in %q: %w", errProfile, text, err)
 	}
 
 	count, err = strconv.Atoi(countField)
 	if err != nil {
-		return "", 0, 0, fmt.Errorf("%w: execution count in %q: %w", errProfile, text, err)
+		return "", "", 0, 0, fmt.Errorf("%w: execution count in %q: %w", errProfile, text, err)
 	}
 
-	return path.Dir(file), statements, count, nil
+	return path.Dir(file), span, statements, count, nil
 }
 
 func readRatchet(name string) (map[string]int, error) {

@@ -31,6 +31,7 @@
     "extraForRank3Plus": 2,
     "minRankForOneExtraRoll": 1,
     "minRankForTwoExtraRolls": 3,
+    "minRankForTable1Modifier": 5,
     "maxOnTable2": 3,
     "table1ModifierFromRank5or6": 1,
     "table2ModifierFromGambling": 1

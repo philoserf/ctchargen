@@ -1,0 +1,382 @@
+{
+  "name": "",
+  "upp": "64599B",
+  "characteristics": {
+    "Dexterity": 4,
+    "Education": 9,
+    "Endurance": 5,
+    "Intelligence": 9,
+    "Social Standing": 11,
+    "Strength": 6
+  },
+  "age": {
+    "years": 22
+  },
+  "terms": 1,
+  "enlistment": {
+    "how": "enlisted",
+    "service": "Other"
+  },
+  "service": "Other",
+  "skills": [],
+  "benefits": {
+    "cash": 0,
+    "passages": [
+      "Low Passage"
+    ]
+  },
+  "departure": {
+    "how": "discharged"
+  },
+  "title": {
+    "eligible": true,
+    "rank": "knight/dame",
+    "assumed": true
+  },
+  "inputs": {
+    "seed": 19,
+    "career": "oneterm",
+    "skills": "personal",
+    "muster": "goods"
+  },
+  "errata": [
+    "E002",
+    "E011"
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "kind": "step",
+      "step": "characteristics",
+      "pages": "p. 4"
+    },
+    {
+      "seq": 2,
+      "kind": "throw",
+      "step": "Strength",
+      "dice": [
+        1,
+        5
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 3,
+      "kind": "outcome",
+      "because": 2,
+      "description": "Strength 6"
+    },
+    {
+      "seq": 4,
+      "kind": "throw",
+      "step": "Dexterity",
+      "dice": [
+        3,
+        1
+      ],
+      "total": 4,
+      "succeeded": true
+    },
+    {
+      "seq": 5,
+      "kind": "outcome",
+      "because": 4,
+      "description": "Dexterity 4"
+    },
+    {
+      "seq": 6,
+      "kind": "throw",
+      "step": "Endurance",
+      "dice": [
+        3,
+        1
+      ],
+      "total": 4,
+      "succeeded": true
+    },
+    {
+      "seq": 7,
+      "kind": "outcome",
+      "because": 6,
+      "description": "Endurance 4"
+    },
+    {
+      "seq": 8,
+      "kind": "throw",
+      "step": "Intelligence",
+      "dice": [
+        4,
+        5
+      ],
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 9,
+      "kind": "outcome",
+      "because": 8,
+      "description": "Intelligence 9"
+    },
+    {
+      "seq": 10,
+      "kind": "throw",
+      "step": "Education",
+      "dice": [
+        6,
+        3
+      ],
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 11,
+      "kind": "outcome",
+      "because": 10,
+      "description": "Education 9"
+    },
+    {
+      "seq": 12,
+      "kind": "throw",
+      "step": "Social Standing",
+      "dice": [
+        6,
+        6
+      ],
+      "total": 12,
+      "succeeded": true
+    },
+    {
+      "seq": 13,
+      "kind": "outcome",
+      "because": 12,
+      "description": "Social Standing 12"
+    },
+    {
+      "seq": 14,
+      "kind": "outcome",
+      "description": "UPP 64499C at age 18"
+    },
+    {
+      "seq": 15,
+      "kind": "step",
+      "step": "enlistment",
+      "pages": "pp. 5, 10"
+    },
+    {
+      "seq": 16,
+      "kind": "choice",
+      "point": "Service",
+      "by": "policy",
+      "alternatives": [
+        "Navy",
+        "Marines",
+        "Army",
+        "Scouts",
+        "Merchants",
+        "Other"
+      ],
+      "chosen": "Other"
+    },
+    {
+      "seq": 17,
+      "kind": "throw",
+      "step": "enlistment, Other",
+      "dice": [
+        5,
+        4
+      ],
+      "target": "3+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 18,
+      "kind": "outcome",
+      "because": 17,
+      "description": "enlisted in the Other"
+    },
+    {
+      "seq": 19,
+      "kind": "step",
+      "step": "term 1",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 20,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        3,
+        4
+      ],
+      "dm": 2,
+      "target": "5+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 21,
+      "kind": "outcome",
+      "because": 20,
+      "description": "survived term 1"
+    },
+    {
+      "seq": 22,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 23,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Personal Development Table"
+    },
+    {
+      "seq": 24,
+      "kind": "throw",
+      "step": "Personal Development Table",
+      "dice": [
+        6
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 25,
+      "kind": "outcome",
+      "because": 24,
+      "description": "Social Standing -1, 12 to 11",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 26,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Personal Development Table"
+    },
+    {
+      "seq": 27,
+      "kind": "throw",
+      "step": "Personal Development Table",
+      "dice": [
+        3
+      ],
+      "total": 3,
+      "succeeded": true
+    },
+    {
+      "seq": 28,
+      "kind": "outcome",
+      "because": 27,
+      "description": "Endurance +1, 4 to 5",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 29,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        4,
+        6
+      ],
+      "target": "5+",
+      "total": 10,
+      "succeeded": true
+    },
+    {
+      "seq": 30,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "discharge"
+    },
+    {
+      "seq": 31,
+      "kind": "outcome",
+      "because": 29,
+      "description": "left the service after term 1: discharge"
+    },
+    {
+      "seq": 32,
+      "kind": "step",
+      "step": "mustering out, 1 rolls",
+      "pages": "pp. 7, 9, 21-23"
+    },
+    {
+      "seq": 33,
+      "kind": "choice",
+      "point": "MusterTable",
+      "by": "policy",
+      "alternatives": [
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
+      ],
+      "chosen": "Table 1, Material Benefits"
+    },
+    {
+      "seq": 34,
+      "kind": "throw",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        1
+      ],
+      "total": 1,
+      "succeeded": true
+    },
+    {
+      "seq": 35,
+      "kind": "outcome",
+      "because": 34,
+      "description": "a Low Passage"
+    },
+    {
+      "seq": 36,
+      "kind": "step",
+      "step": "titles",
+      "pages": "p. 5; Book 3 p. 22"
+    },
+    {
+      "seq": 37,
+      "kind": "choice",
+      "point": "AssumeTitle",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 38,
+      "kind": "outcome",
+      "description": "social standing 11 confers knight/dame, and it is assumed",
+      "errata": [
+        "E011"
+      ]
+    }
+  ]
+}

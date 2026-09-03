@@ -1,0 +1,128 @@
+package main
+
+import (
+	"io"
+	"strings"
+	"testing"
+
+	"github.com/philoserf/ctchargen/chargen"
+)
+
+// The command line's own words, so a typo in one place is a compile error
+// rather than a test that quietly stops testing the flag it names.
+const (
+	cmdNew      = "new"
+	flagAuto    = "--auto"
+	flagSeed    = "--seed"
+	flagService = "--service"
+	other       = "other"
+)
+
+func TestRunRejectsBadCommandLines(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		args     []string
+		mentions string
+	}{
+		"no command":           {nil, "new|version"},
+		"unknown command":      {[]string{"generate"}, "unknown command"},
+		"no --auto":            {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
+		"unknown flag":         {[]string{cmdNew, flagAuto, "--wat"}, "usage"},
+		"no such service":      {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
+		"no such strategy":     {[]string{cmdNew, flagAuto, "--career", "dawdle"}, "no such strategy"},
+		"a service with ranks": {[]string{cmdNew, flagAuto, flagSeed, "1", flagService, "navy"}, "milestone 2"},
+	} {
+		err := run(tc.args, io.Discard)
+
+		switch {
+		case err == nil:
+			t.Errorf("%s: run(%v) was accepted", name, tc.args)
+		case !strings.Contains(err.Error(), tc.mentions):
+			t.Errorf("%s: error %q does not mention %q", name, err, tc.mentions)
+		}
+	}
+}
+
+// The three renderings, and that each writes something recognisable.
+func TestRunWritesEachRendering(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		args     []string
+		mentions string
+	}{
+		"json":       {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"seed": 7`},
+		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
+		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--sheet"}, "UPP "},
+		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},
+		"version":    {[]string{"version"}, "ctchargen"},
+	} {
+		var out strings.Builder
+
+		err := run(tc.args, &out)
+		if err != nil {
+			t.Errorf("%s: %v", name, err)
+
+			continue
+		}
+
+		if !strings.Contains(out.String(), tc.mentions) {
+			t.Errorf("%s: output does not mention %q", name, tc.mentions)
+		}
+	}
+}
+
+// A run with no --seed draws one, and draws a different one each time, which
+// is what makes an unseeded character reproducible afterwards. That the
+// record then carries the seed is held by TestRunWritesEachRendering, from a
+// seed the test names.
+//
+// It is asserted of inputsFrom rather than of a whole run on purpose. A
+// character rolled from a drawn seed walks whichever mustering out rows it
+// lands on, so an unseeded generation reaches a different set of statements
+// every time - and the coverage profile is taken with -coverpkg=./..., under
+// which those statements are counted against the chargen package by this
+// binary too. The ratchet fails on a count that falls as well as one that
+// rises, so an unseeded generation here makes the gate fail at random.
+func TestADrawnSeedIsRecorded(t *testing.T) {
+	t.Parallel()
+
+	drawn := func() uint64 {
+		t.Helper()
+
+		in, err := inputsFrom(0, "", other,
+			chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, false)
+		if err != nil {
+			t.Fatalf("drawing a seed: %v", err)
+		}
+
+		if in.Seed >= maxDrawnSeed {
+			t.Errorf("drew %d, which is above the bound a JSON reader parses exactly", in.Seed)
+		}
+
+		return in.Seed
+	}
+
+	if first, second := drawn(), drawn(); first == second {
+		t.Errorf("two unseeded runs both drew %d", first)
+	}
+}
+
+// A --seed given is the operator's own number, recorded as given rather than
+// redrawn.
+func TestAGivenSeedIsKept(t *testing.T) {
+	t.Parallel()
+
+	const given = 7
+
+	in, err := inputsFrom(given, "", other,
+		chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, true)
+	if err != nil {
+		t.Fatalf("taking the seed: %v", err)
+	}
+
+	if in.Seed != given {
+		t.Errorf("seed %d, want the %d that was given", in.Seed, given)
+	}
+}
