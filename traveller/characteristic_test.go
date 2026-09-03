@@ -1,6 +1,7 @@
 package traveller_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/philoserf/ctchargen/traveller"
@@ -204,4 +205,63 @@ func TestEveryEnumValueNamesItself(t *testing.T) {
 			seen[name] = true
 		}
 	}
+}
+
+// alphabet is a closed set of int constants that names its own values.
+type alphabet interface {
+	~int
+	fmt.Stringer
+}
+
+// checkAlphabet holds one alphabet's iteration array to its constants, in
+// both directions.
+//
+// Element i must be the constant whose value is i, which catches an array
+// that reorders, repeats or omits. And the value one past the end must have
+// no name of its own — a named constant there is a value the array stops
+// short of.
+func checkAlphabet[T alphabet](t *testing.T, kind string, values []T) {
+	t.Helper()
+
+	for i, v := range values {
+		if int(v) != i {
+			t.Errorf("%s: element %d is %v, whose value is %d; the array must hold the constants in declaration order",
+				kind, i, v, int(v))
+		}
+	}
+
+	past := T(len(values))
+	unnamed := fmt.Sprintf("%s(%d)", kind, len(values))
+	if got := past.String(); got != unnamed {
+		t.Errorf("%s: the value %d names itself %q, so a constant exists past the end of an array of %d",
+			kind, len(values), got, len(values))
+	}
+}
+
+// A closed alphabet is two declarations — the constants and the array that
+// iterates them — and Go checks neither against the other. The exhaustive
+// linter guards the switch; until this test, nothing guarded the array.
+// Adding a constant and
+// forgetting the array compiles, passes every other test in this package,
+// and silently drops the value from every loop that iterates the alphabet:
+// a service never offered, a title never conferred, a table never rolled on.
+//
+// Erratum is absent because it numbers from 1 and has no unknown-value form;
+// the gate in internal/docsgate holds it to ERRATA.md instead. Modality is
+// absent because it has no array to hold: Exactly names itself with the
+// empty string, which is the book's notation for a throw with no sign.
+func TestEveryAlphabetHoldsEveryConstant(t *testing.T) {
+	t.Parallel()
+
+	checkAlphabet(t, "Characteristic", traveller.Characteristics[:])
+	checkAlphabet(t, "ServiceName", traveller.ServiceNames[:])
+	checkAlphabet(t, "SkillTable", traveller.SkillTables[:])
+	checkAlphabet(t, "WeaponCategory", traveller.WeaponCategories[:])
+	checkAlphabet(t, "PassageClass", traveller.PassageClasses[:])
+	checkAlphabet(t, "ShipKind", traveller.ShipKinds[:])
+	checkAlphabet(t, "Title", traveller.Titles[:])
+	checkAlphabet(t, "Intent", traveller.Intents[:])
+	checkAlphabet(t, "MusterTable", traveller.MusterTables[:])
+	checkAlphabet(t, "DecidedBy", traveller.DecidedBys[:])
+	checkAlphabet(t, "ChoicePoint", traveller.ChoicePoints[:])
 }

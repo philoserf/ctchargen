@@ -24,10 +24,20 @@ func TestAgeCarriesMonthsIntoYears(t *testing.T) {
 		{"twelve months is a year", traveller.NewAge(34).PlusMonths(12), 35, 0},
 		{"two crises carry over", traveller.NewAge(34).PlusMonths(7).PlusMonths(6), 35, 1},
 		{"years added after months keep them", traveller.NewAge(34).PlusMonths(5).PlusYears(4), 38, 5},
+		// The procedure never runs an age backwards, but the type's one
+		// invariant is that Months is 0 through 11, and it has to hold for
+		// whatever it is handed rather than only for what it expects.
+		{"a month back borrows a year", traveller.NewAge(34).PlusMonths(-1), 33, 11},
+		{"a year back exactly", traveller.NewAge(34).PlusMonths(-12), 33, 0},
+		{"more than a year back", traveller.NewAge(34).PlusMonths(-13), 32, 11},
+		{"back to where it started", traveller.NewAge(34).PlusMonths(7).PlusMonths(-7), 34, 0},
 	} {
 		if tc.age.Years() != tc.wantYears || tc.age.Months() != tc.wantMonths {
 			t.Errorf("%s: %d years %d months, want %d years %d months",
 				tc.name, tc.age.Years(), tc.age.Months(), tc.wantYears, tc.wantMonths)
+		}
+		if m := tc.age.Months(); m < 0 || m >= traveller.MonthsPerYear {
+			t.Errorf("%s: Months() = %d, outside 0 through 11", tc.name, m)
 		}
 	}
 }

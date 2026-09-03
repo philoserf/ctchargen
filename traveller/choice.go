@@ -18,8 +18,10 @@ const (
 	Retire
 )
 
-// Intents is the three, in the order they are preferred by the default auto
-// strategy (POLICY.md).
+// Intents is the three, for iteration. The order is the declaration's, and
+// deliberately not a preference: POLICY.md gives each auto strategy its own
+// ranking of the three, so no single order here could be the policy's. A
+// preference is a rule, and rules are not what these types carry.
 var Intents = [...]Intent{Continue, Discharge, Retire}
 
 func (i Intent) String() string {

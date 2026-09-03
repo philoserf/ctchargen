@@ -34,10 +34,20 @@ func NewAge(years int) Age { return Age{years: years} }
 func (a Age) PlusYears(n int) Age { return Age{years: a.years + n, months: a.months} }
 
 // PlusMonths returns the age advanced by n months, carrying into years.
+//
+// Only a medical crisis recovery adds months, and only ever a die roll of
+// them, so n is positive in every use the procedure has. It divides toward
+// negative infinity anyway: Go's % keeps the sign of its left operand, so
+// the obvious arithmetic would leave a negative month count behind and quietly
+// break the one invariant this type has — that Months is 0 through 11.
 func (a Age) PlusMonths(n int) Age {
 	total := a.months + n
+	years, months := a.years+total/MonthsPerYear, total%MonthsPerYear
+	if months < 0 {
+		years, months = years-1, months+MonthsPerYear
+	}
 
-	return Age{years: a.years + total/MonthsPerYear, months: total % MonthsPerYear}
+	return Age{years: years, months: months}
 }
 
 // Years is the whole years of the age.

@@ -48,6 +48,12 @@ func read(t *testing.T, name string) string {
 }
 
 // found returns the first capture of every match, sorted and deduplicated.
+//
+// A repeat is reported before it is compacted away. Comparing sets cannot
+// notice one — two headings for the same id agree with the code as well as
+// one does — and this is the only place positioned to: an erratum id is
+// documented as never reused, and a second POLICY.md row for a method is a
+// second answer to a question that has one.
 func found(t *testing.T, re *regexp.Regexp, text, what string) []string {
 	t.Helper()
 
@@ -59,6 +65,12 @@ func found(t *testing.T, re *regexp.Regexp, text, what string) []string {
 		t.Fatalf("no %s found; the gate's pattern no longer matches the document", what)
 	}
 	slices.Sort(names)
+
+	for i := 1; i < len(names); i++ {
+		if names[i] == names[i-1] {
+			t.Errorf("%s: %s appears more than once; an id is never reused", what, names[i])
+		}
+	}
 
 	return slices.Compact(names)
 }
@@ -183,6 +195,9 @@ var stampedOnNoRecord = []traveller.Erratum{traveller.E012}
 func TestReachabilityGateOwes(t *testing.T) {
 	t.Parallel()
 
+	t.Logf("reachability gate owes %d of %d errata; it must owe none once the six services and mustering out are complete",
+		len(notYetReachable), len(traveller.Errata))
+
 	for _, e := range notYetReachable {
 		if !slices.Contains(traveller.Errata[:], e.erratum) {
 			t.Errorf("%s is exempted from the reachability gate but is not an erratum", e.erratum)
@@ -190,8 +205,10 @@ func TestReachabilityGateOwes(t *testing.T) {
 		if slices.Contains(stampedOnNoRecord, e.erratum) {
 			t.Errorf("%s is both exempted and stamped on no record; it needs one status, not two", e.erratum)
 		}
-	}
 
-	t.Logf("reachability gate owes %d of %d errata; it must owe none once the six services and mustering out are complete",
-		len(notYetReachable), len(traveller.Errata))
+		// The reason is the whole point of writing the exemption down, so
+		// it is printed rather than merely stored: a list of ids says what
+		// is owed, and only the reason says what would settle it.
+		t.Logf("  %s: %s", e.erratum, e.because)
+	}
 }
