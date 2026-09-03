@@ -55,6 +55,11 @@ tasks:
   ratchet:
     desc: No package may gain uncovered statements
     cmds:
+      - |
+        if [ ! -f {{.PROFILE}} ]; then
+          echo "no {{.PROFILE}}: run 'task test' first, or just 'task'"
+          exit 1
+        fi
       - go run ./tools/ratchet check {{.PROFILE}} {{.RATCHET}}
 
   ratchet:update:

@@ -20,11 +20,13 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -38,9 +40,16 @@ func main() {
 
 func run(args []string, out io.Writer) error {
 	if len(args) != 3 {
-		return fmt.Errorf("usage: ratchet check|update <coverage profile> <ratchet file>")
+		return errors.New("usage: ratchet check|update <coverage profile> <ratchet file>")
 	}
 	mode, profilePath, ratchetPath := args[0], args[1], args[2]
+
+	// The mode is checked before anything is read, so a mistyped verb is
+	// named as one rather than reported as whatever the file access hits
+	// first.
+	if mode != "check" && mode != "update" {
+		return fmt.Errorf("unknown mode %q: want check or update", mode)
+	}
 
 	profileText, err := os.ReadFile(profilePath)
 	if err != nil {
@@ -52,18 +61,16 @@ func run(args []string, out io.Writer) error {
 		return fmt.Errorf("reading %s: %w", profilePath, err)
 	}
 
-	switch mode {
-	case "update":
+	if mode == "update" {
 		return write(ratchetPath, measured)
-	case "check":
-		recorded, err := readRatchet(ratchetPath)
-		if err != nil {
-			return err
-		}
-		return check(measured, recorded, out)
-	default:
-		return fmt.Errorf("unknown mode %q: want check or update", mode)
 	}
+
+	recorded, err := readRatchet(ratchetPath)
+	if err != nil {
+		return err
+	}
+
+	return check(measured, recorded, out)
 }
 
 // parseProfile counts, per package, the statements a coverage profile marks
@@ -84,12 +91,14 @@ func parseProfile(r io.Reader) (map[string]int, error) {
 			return nil, fmt.Errorf("line %d: %w", line, err)
 		}
 
-		if _, seen := uncovered[pkg]; !seen {
-			uncovered[pkg] = 0
-		}
+		// The add is unconditional so that a package with nothing
+		// uncovered still earns an entry: a later regression in it must
+		// read as a rise, not as a package the ratchet has never seen.
+		n := 0
 		if count == 0 {
-			uncovered[pkg] += statements
+			n = statements
 		}
+		uncovered[pkg] += n
 	}
 
 	return uncovered, scanner.Err()
@@ -99,15 +108,15 @@ func parseProfile(r io.Reader) (map[string]int, error) {
 // "import/path/file.go:12.34,14.5 2 1" — location, statement count,
 // execution count.
 func parseLine(text string) (pkg string, statements, count int, err error) {
-	rest, countField, ok := cutLast(text, " ")
+	rest, countField, ok := strings.CutLast(text, " ")
 	if !ok {
 		return "", 0, 0, fmt.Errorf("malformed profile line %q", text)
 	}
-	location, statementField, ok := cutLast(rest, " ")
+	location, statementField, ok := strings.CutLast(rest, " ")
 	if !ok {
 		return "", 0, 0, fmt.Errorf("malformed profile line %q", text)
 	}
-	file, _, ok := cutLast(location, ":")
+	file, _, ok := strings.CutLast(location, ":")
 	if !ok {
 		return "", 0, 0, fmt.Errorf("malformed profile location %q", location)
 	}
@@ -122,28 +131,20 @@ func parseLine(text string) (pkg string, statements, count int, err error) {
 	return path.Dir(file), statements, count, nil
 }
 
-func cutLast(s, sep string) (before, after string, found bool) {
-	i := strings.LastIndex(s, sep)
-	if i < 0 {
-		return s, "", false
-	}
-	return s[:i], s[i+len(sep):], true
-}
-
 func readRatchet(name string) (map[string]int, error) {
-	text, err := os.ReadFile(name)
+	data, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 
 	recorded := make(map[string]int)
-	scanner := bufio.NewScanner(bytes.NewReader(text))
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for line := 1; scanner.Scan(); line++ {
 		text := strings.TrimSpace(scanner.Text())
 		if text == "" || strings.HasPrefix(text, "#") {
 			continue
 		}
-		pkg, field, ok := cutLast(text, " ")
+		pkg, field, ok := strings.CutLast(text, " ")
 		if !ok {
 			return nil, fmt.Errorf("%s line %d: malformed entry %q", name, line, text)
 		}
@@ -161,7 +162,7 @@ func write(name string, measured map[string]int) error {
 	var b strings.Builder
 	b.WriteString("# Uncovered statements per package. A number may fall; it may never rise.\n")
 	b.WriteString("# Regenerate with: task ratchet:update\n")
-	for _, pkg := range sorted(measured) {
+	for _, pkg := range slices.Sorted(maps.Keys(measured)) {
 		fmt.Fprintf(&b, "%s %d\n", pkg, measured[pkg])
 	}
 
@@ -174,7 +175,7 @@ func write(name string, measured map[string]int) error {
 func check(measured, recorded map[string]int, out io.Writer) error {
 	var risen, missing, stale, fallen []string
 
-	for _, pkg := range sorted(measured) {
+	for _, pkg := range slices.Sorted(maps.Keys(measured)) {
 		was, known := recorded[pkg]
 		switch {
 		case !known:
@@ -185,7 +186,7 @@ func check(measured, recorded map[string]int, out io.Writer) error {
 			fallen = append(fallen, fmt.Sprintf("  %s: %d uncovered, was %d", pkg, measured[pkg], was))
 		}
 	}
-	for _, pkg := range sorted(recorded) {
+	for _, pkg := range slices.Sorted(maps.Keys(recorded)) {
 		if _, ok := measured[pkg]; !ok {
 			stale = append(stale, fmt.Sprintf("  %s is recorded but the profile does not mention it", pkg))
 		}
@@ -216,14 +217,4 @@ func check(measured, recorded map[string]int, out io.Writer) error {
 	_, err := fmt.Fprintf(out, "ratchet holds: %d packages\n", len(measured))
 
 	return err
-}
-
-func sorted(m map[string]int) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	return keys
 }

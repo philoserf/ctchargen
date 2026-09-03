@@ -9,11 +9,16 @@ A Go CLI that generates rules-accurate Classic Traveller characters from
 Books 1–3 (© 1977 text, FFE reprints). The repo was emptied at `41a213a` and
 is being rebuilt from `docs/PRD.md`.
 
-**Current state: milestone 0.** The tree holds `LICENSE`, this file, and
-`docs/` — nothing else. `go.mod`, `Taskfile.yml`, the CI workflow,
-`.golangci.yml`, `.gitignore`, and a README return with milestone 1's first
-Go, and not before: the gate cannot hold a milestone it does not yet exist
-for.
+**Current state: milestone 1, in progress.** Milestone 0's three documents
+are merged. The scaffolding has returned — `go.mod`, `Taskfile.yml`, the CI
+workflow, `.golangci.yml`, `.gitignore`, a README — along with the `dice`
+package and the coverage ratchet. Still to come in this milestone:
+`traveller`, `rules` with every table of pp. 4–25, and a walking skeleton
+through the Other service.
+
+This paragraph is the one thing here that goes stale on its own; correct it
+when a milestone moves rather than letting the file describe a tree that no
+longer exists.
 
 ## Authority — read this before implementing any rule
 
@@ -106,7 +111,7 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/PRD.md`      | The v1 contract: goals, domain model, FR1–FR11, determinism, milestones.  |
 | `docs/ERRATA.md`   | Every recorded reading, with its page cite and stamping condition.        |
 | `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
-| `docs/COVERAGE.md` | Opens with milestone 1's first Go and grows with it — every implemented rule mapped to page cite, implementation, and test. Milestone 2's exit criterion is that it is living. |
+| `docs/COVERAGE.md` | Opens with the first implemented rule of pp. 4–25 and grows with it — every rule mapped to page cite, implementation, and test. Not yet present: `dice` implements the die roll conventions of pp. 2–3, which are not a rule of the procedure. Milestone 2's exit criterion is that it is living. |
 | `CLAUDE.md`        | This file.                                                                |
 
 The documents are held to the code in both directions once code exists: every

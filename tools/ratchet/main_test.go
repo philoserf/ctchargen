@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -65,7 +66,10 @@ func TestParseProfileRejectsMalformedLines(t *testing.T) {
 	}
 }
 
-const wantMissing = "not in the ratchet"
+const (
+	wantMissing = "not in the ratchet"
+	modeCheck   = "check"
+)
 
 func TestCheck(t *testing.T) {
 	t.Parallel()
@@ -114,16 +118,31 @@ func TestCheckReportsEveryFault(t *testing.T) {
 	}
 }
 
+// Each case names what the error must say. Asserting only that some error
+// came back is what let the unknown-mode case pass without ever reaching the
+// mode check: it failed on the profile path that was never there.
 func TestRunRejectsBadArguments(t *testing.T) {
 	t.Parallel()
 
-	for name, args := range map[string][]string{
-		"none":         {},
-		"too few":      {"check", "profile"},
-		"unknown mode": {"polish", "profile", "ratchet"},
+	const wantUsage = "usage:"
+
+	good := []string{modeCheck, "profile", "ratchet"}
+
+	for name, tc := range map[string]struct {
+		args    []string
+		wantErr string
+	}{
+		"none":         {nil, wantUsage},
+		"too few":      {good[:2], wantUsage},
+		"too many":     {append(slices.Clone(good), "extra"), wantUsage},
+		"unknown mode": {[]string{"polish", "profile", "ratchet"}, "unknown mode"},
 	} {
-		if err := run(args, io.Discard); err == nil {
-			t.Errorf("%s: run(%v) accepted the arguments", name, args)
+		err := run(tc.args, io.Discard)
+		switch {
+		case err == nil:
+			t.Errorf("%s: run(%v) accepted the arguments", name, tc.args)
+		case !strings.Contains(err.Error(), tc.wantErr):
+			t.Errorf("%s: error %q does not mention %q", name, err, tc.wantErr)
 		}
 	}
 }
@@ -131,17 +150,42 @@ func TestRunRejectsBadArguments(t *testing.T) {
 func TestRunCheckRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-	profilePath := dir + "/coverage.out"
+	dir, profilePath := writeProfile(t)
 	ratchetPath := dir + "/coverage.ratchet"
 
-	if err := os.WriteFile(profilePath, []byte(profile), 0o600); err != nil {
-		t.Fatal(err)
-	}
 	if err := run([]string{"update", profilePath, ratchetPath}, io.Discard); err != nil {
 		t.Fatalf("update: %v", err)
 	}
-	if err := run([]string{"check", profilePath, ratchetPath}, io.Discard); err != nil {
+	if err := run([]string{modeCheck, profilePath, ratchetPath}, io.Discard); err != nil {
 		t.Fatalf("check after update: %v", err)
 	}
+}
+
+// The profile and the ratchet are read at different moments. Neither absence
+// may pass as an empty reading: an unread profile would name every package
+// stale, and an unread ratchet would name every package missing.
+func TestRunReportsUnreadableFiles(t *testing.T) {
+	t.Parallel()
+
+	dir, profilePath := writeProfile(t)
+
+	if err := run([]string{modeCheck, dir + "/absent.out", dir + "/coverage.ratchet"}, io.Discard); err == nil {
+		t.Error("check accepted a profile that is not there")
+	}
+	if err := run([]string{modeCheck, profilePath, dir + "/absent.ratchet"}, io.Discard); err == nil {
+		t.Error("check accepted a ratchet file that is not there")
+	}
+}
+
+// writeProfile lays the sample profile down in a temp directory.
+func writeProfile(t *testing.T) (dir, profilePath string) {
+	t.Helper()
+
+	dir = t.TempDir()
+	profilePath = dir + "/coverage.out"
+	if err := os.WriteFile(profilePath, []byte(profile), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	return dir, profilePath
 }

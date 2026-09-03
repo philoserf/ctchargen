@@ -34,7 +34,8 @@ func New(seed uint64) *Stream {
 //
 // The procedure's one-die throws are the draft (Book 1 p. 5), the acquired
 // skills tables (p. 11), each mustering out roll (p. 9), and the months of
-// age a medical crisis recovery adds (p. 7).
+// age a medical crisis recovery adds (pp. 7-8 — the sentence granting them
+// begins on one page and ends on the other).
 func (s *Stream) Die() int {
 	s.drawn++
 	return s.r.IntN(6) + 1
