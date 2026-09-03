@@ -25,7 +25,7 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"no command":       {nil, "new|version"},
+		"no command":       {nil, "new|batch|render|version"},
 		"unknown command":  {[]string{"generate"}, "unknown command"},
 		"no --auto":        {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
 		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, "usage"},

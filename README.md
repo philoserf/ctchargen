@@ -9,12 +9,15 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 
 ## Status
 
-Milestone 3 complete. All six services generate, the book's own worked
-character (pp. 23–25) replays against the engine, and the record has a schema.
-Batch and interactive modes are what remain.
+All six services generate, the book's own worked character (pp. 23–25)
+replays against the engine, the record has a schema, and characters can be
+written to files, generated in batches and read back. Interactive mode is
+what remains.
 
 ```sh
 ctchargen new --auto --seed 145 --service merchants --sheet
+ctchargen batch --count 20 --auto -o characters/
+ctchargen render characters/00000000000000000145.json
 ```
 
 ## The documents

@@ -16,6 +16,22 @@ import (
 	"github.com/philoserf/ctchargen/traveller"
 )
 
+// JSONLine marshals a character onto one line, which is what batch writes:
+// a stream of records, one per line, that a reader can take one at a time.
+func JSONLine(character *chargen.Character) ([]byte, error) {
+	projected, err := project(character)
+	if err != nil {
+		return nil, err
+	}
+
+	text, err := json.Marshal(projected)
+	if err != nil {
+		return nil, fmt.Errorf("marshalling the character: %w", err)
+	}
+
+	return append(text, '\n'), nil
+}
+
 // JSON marshals a character, indented, with a trailing newline.
 func JSON(character *chargen.Character) ([]byte, error) {
 	projected, err := project(character)

@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 	"runtime/debug"
+
+	"github.com/philoserf/ctchargen/chargen"
 )
 
 // errUsage reports a command line the tool cannot act on.
@@ -23,16 +25,20 @@ func main() {
 
 func run(args []string, out io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("%w: ctchargen new|version", errUsage)
+		return fmt.Errorf("%w: ctchargen new|batch|render|version", errUsage)
 	}
 
 	switch args[0] {
 	case "new":
 		return newCharacter(args[1:], out)
+	case "batch":
+		return batch(args[1:], out)
+	case "render":
+		return renderRecord(args[1:], out)
 	case "version":
 		return version(out)
 	default:
-		return fmt.Errorf("%w: unknown command %q; want new or version", errUsage, args[0])
+		return fmt.Errorf("%w: unknown command %q; want new, render, batch or version", errUsage, args[0])
 	}
 }
 
@@ -48,6 +54,21 @@ func version(out io.Writer) error {
 	}
 
 	return nil
+}
+
+// stamp names the build that wrote a record.
+//
+// The command is what fills it, and only the command: a record generated
+// in-process by a test carries none, because a test binary's build info is
+// not the build of a released tool and would make every golden differ by
+// machine.
+func stamp(character *chargen.Character) {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return
+	}
+
+	character.Build = info.Main.Path + " " + buildVersion(info)
 }
 
 func buildVersion(info *debug.BuildInfo) string {

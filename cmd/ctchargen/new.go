@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
-	"runtime/debug"
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -36,6 +35,8 @@ func newCharacter(args []string, out io.Writer) error {
 		muster  = flags.String("muster", chargen.MusterCash, "the --auto mustering out strategy")
 		sheet   = flags.Bool("sheet", false, "write the character sheet rather than JSON")
 		history = flags.Bool("history", false, "write the generation record rather than JSON")
+		output  = flags.String("o", "", "write to this file rather than to standard output")
+		force   = flags.Bool("force", false, "replace the output file if it already exists")
 	)
 
 	err := flags.Parse(args)
@@ -73,14 +74,19 @@ func newCharacter(args []string, out io.Writer) error {
 		return fmt.Errorf("generating: %w", err)
 	}
 
-	// The command is what fills this: a record written by a released tool
-	// says which one, and a record generated in-process by a test says
-	// nothing, because a test binary's build info is not a tool's.
-	if info, ok := debug.ReadBuildInfo(); ok {
-		character.Build = info.Main.Path + " " + buildVersion(info)
+	stamp(character)
+
+	text, err := rendered(character, *sheet, *history)
+	if err != nil {
+		return err
 	}
 
-	return write(out, character, *sheet, *history)
+	where, err := openDestination(out, *output, *force)
+	if err != nil {
+		return err
+	}
+
+	return where.write(text)
 }
 
 func isSet(flags *flag.FlagSet, name string) bool {
@@ -121,27 +127,33 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 	return in, fmt.Errorf("%w: no service is called %q", errUsage, service)
 }
 
-func write(out io.Writer, character *chargen.Character, sheet, history bool) error {
-	var text string
-
+// rendered is the character in whichever of the three shapes was asked for.
+func rendered(character *chargen.Character, sheet, history bool) (string, error) {
 	switch {
 	case sheet:
-		text = render.Sheet(character)
+		text, err := render.Sheet(character)
+
+		return text, wrapRender(err)
 	case history:
-		text = render.Transcript(character)
+		text, err := render.Transcript(character)
+
+		return text, wrapRender(err)
 	default:
 		encoded, err := render.JSON(character)
 		if err != nil {
-			return fmt.Errorf("rendering: %w", err)
+			return "", fmt.Errorf("rendering: %w", err)
 		}
 
-		text = string(encoded)
+		return string(encoded), nil
+	}
+}
+
+// wrapRender gives a rendering failure the context of the command that asked
+// for it.
+func wrapRender(err error) error {
+	if err == nil {
+		return nil
 	}
 
-	_, err := io.WriteString(out, text)
-	if err != nil {
-		return fmt.Errorf("writing the character: %w", err)
-	}
-
-	return nil
+	return fmt.Errorf("rendering: %w", err)
 }
