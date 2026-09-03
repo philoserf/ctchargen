@@ -17,7 +17,7 @@ import "fmt"
 // headings to each other in both directions.
 type Erratum int
 
-// The fourteen readings of docs/ERRATA.md.
+// The fifteen readings of docs/ERRATA.md.
 const (
 	// E001: p. 5 prints both "may submit to the draft" and "must submit to
 	// the draft"; may governs, so declining ends generation with a
@@ -75,13 +75,17 @@ const (
 	// E014: the Aging Table's last column is terminal, governing every
 	// term from the fourteenth on.
 	E014
+
+	// E015: where the worked example's stated result contradicts the table
+	// it illustrates, the table governs.
+	E015
 )
 
 // Errata is every recorded reading, in id order, for iteration and for the
 // gate.
 var Errata = [...]Erratum{
 	E001, E002, E003, E004, E005, E006, E007,
-	E008, E009, E010, E011, E012, E013, E014,
+	E008, E009, E010, E011, E012, E013, E014, E015,
 }
 
 // String is the erratum's id, as ERRATA.md's heading prints it.

@@ -53,6 +53,7 @@
     "ships": [
       {
         "kind": "Scout ship, Type S",
+        "tons": 100,
         "years": 0,
         "paymentYears": 0
       }

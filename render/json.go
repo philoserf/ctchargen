@@ -69,6 +69,7 @@ type skillRecord struct {
 
 type shipRecord struct {
 	Kind         string `json:"kind"`
+	Tons         int    `json:"tons"`
 	Years        int    `json:"years"`
 	PaymentYears int    `json:"paymentYears"`
 }
@@ -185,7 +186,8 @@ func projectBenefits(b chargen.Benefits, lost int) benefitsRecord {
 
 	for _, ship := range b.Ships {
 		out.Ships = append(out.Ships, shipRecord{
-			Kind: ship.Kind.String(), Years: ship.Years, PaymentYears: ship.PaymentYears,
+			Kind: ship.Kind.String(), Tons: ship.Tons,
+			Years: ship.Years, PaymentYears: ship.PaymentYears,
 		})
 	}
 

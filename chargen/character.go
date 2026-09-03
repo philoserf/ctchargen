@@ -62,6 +62,9 @@ type Title struct {
 type Ship struct {
 	Kind traveller.ShipKind
 
+	// Tons is the hull the ship is built on (Book 2 pp. 18-19).
+	Tons int
+
 	// Years is the ship's age. A Free Trader arrives new and ages ten years
 	// with each further receipt; a Scout ship's age the page does not give.
 	Years int

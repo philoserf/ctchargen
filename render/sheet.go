@@ -118,15 +118,16 @@ func possessionLines(character *chargen.Character) []string {
 
 func shipLine(ship chargen.Ship) string {
 	if ship.Kind == traveller.ScoutShip {
-		return ship.Kind.String() + ", held in constructive possession"
+		return fmt.Sprintf("%v, %d tons, held in constructive possession", ship.Kind, ship.Tons)
 	}
 
 	if ship.PaymentYears == 0 {
-		return fmt.Sprintf("%v, %d years old, owned free and clear", ship.Kind, ship.Years)
+		return fmt.Sprintf("%v, %d tons, %d years old, owned free and clear",
+			ship.Kind, ship.Tons, ship.Years)
 	}
 
-	return fmt.Sprintf("%v, %d years old, with %d years of payments left",
-		ship.Kind, ship.Years, ship.PaymentYears)
+	return fmt.Sprintf("%v, %d tons, %d years old, with %d years of payments left",
+		ship.Kind, ship.Tons, ship.Years, ship.PaymentYears)
 }
 
 func serviceLines(character *chargen.Character) []string {

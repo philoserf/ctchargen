@@ -40,6 +40,7 @@ keeps its heading and says it is withdrawn.
 | [E012](#e012--printed-names-normalized-to-the-descriptions-headings)  | Printed names normalized to their headings        | 1:5, 9–23  |
 | [E013](#e013--no-promotion-throw-at-the-top-of-the-table-of-ranks)    | No promotion throw at the top of the ranks table  | 1:6, 10    |
 | [E014](#e014--the-aging-tables-last-column-is-terminal)               | The Aging Table's last column is terminal         | 1:7, 9     |
+| [E015](#e015--a-printed-table-governs-over-the-worked-examples-stated-result) | A printed table governs over the example's result | 1:9, 25    |
 
 ---
 
@@ -614,6 +615,53 @@ be a character who has stopped aging.
 
 **Stamped on.** Records with fifteen or more terms of service — the terms
 whose round is read off a column their own number does not print.
+
+---
+
+### E015 — A printed table governs over the worked example's stated result
+
+**Pages.** Book 1 p. 9 (Mustering Out Table 1), p. 25 (the worked example).
+
+**What the page says.** P. 9's Table 1 prints, in the Merchant column: row 1
+Low Psg, row 2 +1 Intel, row 3 +1 Educ, row 4 Gun, row 5 Blade, row 6 Low
+Psg, row 7 Merchant. No row of that column prints a Middle Passage.
+
+P. 25 musters Jamison out with six rolls on Table 1, each carrying the +1 his
+rank of 5 allows: "he rolls 5 (+1=6) = +1 education; 6 (+1=7) = merchant
+ship; 2 (+1=3) = one middle passage; 6 (+1=7) = merchant ship; 6 (+1=7)
+=merchant ship; 6 (+1=7) = merchant ship". Its summary then says "He also has
+one middle passage, worth about CR 8,000."
+
+**The gap.** Two of those six results are not what the table prints for the
+row the roll reaches. A 6 reaches row 6, which is Low Psg, not +1 Education;
+a 3 reaches row 3, which is +1 Educ, not a Middle Passage. And the Merchant
+column has no Middle Passage at any row, so the summary describes a benefit
+that column cannot deliver. The other four rolls agree with the table
+exactly.
+
+**Reading.** The printed table governs. Where the worked example's stated
+result contradicts the table it is illustrating, the table is the rule and
+the example is an illustration of it.
+
+**Why.** The tables are the rules; the example is prose about them, and the
+same example is elsewhere explicit that it takes liberties — it batches two
+aging rounds "for simplicity" and says so on the same page. The narration
+also mislabels the Acquired Skills tables twice on p. 24, calling the
+Personal Development table "Table 7". An illustration that has already
+miscited two tables is not evidence against a third.
+
+This reading applies E002's principle to a table rather than to an order:
+where the exposition and the example disagree, the exposition governs.
+
+**Stamped on.** No record. No generated character depends on it, because
+nothing but the worked example ever claims a result the table does not
+print. It is recorded because a reader who reaches p. 25 with p. 9 open will
+find the contradiction and needs to know which way this tool read it.
+
+The visible consequence, for the replay of Jamison in `chargen`: the same
+six rolls yield the same +1 Education and the same four merchant ships, and
+differ in exactly one benefit — a **Low** Passage where p. 25 claims a
+Middle one.
 
 ---
 

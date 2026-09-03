@@ -14,7 +14,7 @@ UPP 578A9B, age 46, Scouts, 7 terms, knight/dame, retired
 ## Possessions
 
 - Body Pistol
-- Scout ship, Type S, held in constructive possession
+- Scout ship, Type S, 100 tons, held in constructive possession
 
 ## Service record
 

@@ -299,7 +299,7 @@ func (r *run) receiveShip(because int, kind traveller.ShipKind) error {
 		}
 	}
 
-	ship := Ship{Kind: kind}
+	ship := Ship{Kind: kind, Tons: r.tables.Hull(kind)}
 	if kind == traveller.FreeTrader {
 		ship.PaymentYears = freeTraderPaymentYears
 	}

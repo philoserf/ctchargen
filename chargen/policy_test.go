@@ -132,8 +132,8 @@ func TestMusterStrategies(t *testing.T) {
 func TestMusterWeaponStrategies(t *testing.T) {
 	t.Parallel()
 
-	list := []traveller.WeaponName{"Dagger", "Blade", "Foil"}
-	received := []traveller.WeaponName{"Dagger"}
+	list := []traveller.WeaponName{dagger, "Blade", "Foil"}
+	received := []traveller.WeaponName{dagger}
 
 	cash := chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterCash}
 

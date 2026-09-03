@@ -16,7 +16,7 @@ UPP 855EAC, age 46, Scouts, 7 terms, baron/baroness, retired
 - Low Passage
 - Body Pistol
 - Dagger
-- Scout ship, Type S, held in constructive possession
+- Scout ship, Type S, 100 tons, held in constructive possession
 
 ## Service record
 
