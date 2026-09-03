@@ -97,7 +97,7 @@ Seed 52, strategies serve/advanced/goods.
  75. AttemptPromotion: policy chose yes from yes, no
  76. promotion: rolled 5+6 = 11 against 10+, made
  77. promoted: 1st Officer (from 76)
- 78. Pilot-1 (from 76) [E005]
+ 78. Pilot-1 (from 76)
 
 ## skills and training (pp. 6, 11)
 

@@ -59,9 +59,18 @@ var fixtures = []fixture{
 	{"other-crisis-died", 17, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-death", 5, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-title", 4, traveller.Other, true, chargen.DefaultPolicy()},
+	// Killed in the Scouts, which is where the service-wide grant of p. 23
+	// is carried by a character who never lived to muster out.
 	{
-		"scouts-retire", 1, traveller.Scouts, true,
+		"scouts-died", 1, traveller.Scouts, true,
 		chargen.Policy{Career: chargen.CareerRetire, Skills: chargen.SkillsService, Muster: chargen.MusterSpartan},
+	},
+	// The scout ship rolled twice. P. 23: "Only one scout ship may be
+	// acquired by a character, and throws resulting in additional ships are
+	// lost."
+	{
+		"scouts-second-ship", 55, traveller.Scouts, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterGoods},
 	},
 	// Rejected by the Navy, drafted into Other, and killed there.
 	{
@@ -250,7 +259,10 @@ func pathsReached(character *chargen.Character, reached map[string]bool) {
 	for _, ship := range character.Benefits.Ships {
 		mark(ship.Kind == traveller.FreeTrader, "a Free Trader")
 		mark(ship.Kind == traveller.ScoutShip, "a scout ship")
+		mark(ship.Kind == traveller.FreeTrader && ship.Years > 0, "a Free Trader received twice")
 	}
+
+	mark(character.DuplicateShips > 0, "a scout ship received twice")
 
 	for _, erratum := range character.Errata {
 		// A slice and not a map keyed by Erratum: a map keyed by the enum
@@ -286,7 +298,9 @@ func TestTheRosterReachesItsPaths(t *testing.T) {
 		"a weapon benefit", "a second weapon benefit",
 		"a commission", "a draftee commissioned later", "a promotion",
 		"a rank title", "retirement pay",
-		"a Free Trader", "a scout ship", "the top of a rank column",
+		"a Free Trader", "a Free Trader received twice",
+		"a scout ship", "a scout ship received twice",
+		"the top of a rank column",
 	} {
 		if !reached[path] {
 			t.Errorf("no fixture reaches %q", path)

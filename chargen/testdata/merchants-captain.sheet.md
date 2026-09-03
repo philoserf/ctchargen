@@ -26,5 +26,5 @@ UPP 674979, age 46, Merchants Captain, 7 terms, retired
 
 ## Readings applied
 
-- E002, E005, E006, E007, E013
+- E002, E006, E007, E013
 

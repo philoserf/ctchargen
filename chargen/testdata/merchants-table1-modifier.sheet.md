@@ -18,5 +18,5 @@ UPP 8C9469, age 42, Merchants Captain, 6 terms, killed by the survival throw
 
 ## Readings applied
 
-- E002, E004, E005, E006, E007
+- E002, E004, E006, E007
 

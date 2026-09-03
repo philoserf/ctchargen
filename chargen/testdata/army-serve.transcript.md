@@ -35,7 +35,7 @@ Seed 4, strategies serve/advanced/cash.
  23. AttemptCommission: policy chose yes from yes, no
  24. commission: rolled 2+3 +1 = 6 against 5+, made
  25. commissioned: Lieutenant (from 24)
- 26. Submachine Gun-1 (from 24) [E005]
+ 26. Submachine Gun-1 (from 24)
  27. AttemptPromotion: policy chose yes from yes, no
  28. promotion: rolled 2+1 +1 = 4 against 6+, missed
  29. not promoted this term (from 28)

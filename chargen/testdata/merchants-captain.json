@@ -75,7 +75,6 @@
   },
   "errata": [
     "E002",
-    "E005",
     "E006",
     "E007",
     "E013"
@@ -983,10 +982,7 @@
       "seq": 98,
       "kind": "outcome",
       "because": 96,
-      "description": "Pilot-1",
-      "errata": [
-        "E005"
-      ]
+      "description": "Pilot-1"
     },
     {
       "seq": 99,

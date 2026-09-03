@@ -96,13 +96,12 @@ func (r *run) raise(seq int, to traveller.Rank, eligibility int, how string) err
 
 	r.log.outcomef(seq, nil, "%s: %s", how, r.rankTitle())
 
-	granted := r.tables.GrantsAtRank(r.char.Service, to)
-	if len(granted) == 0 {
-		return nil
-	}
-
-	for _, result := range granted {
-		err := r.apply(result, seq, []traveller.Erratum{traveller.E005})
+	// No erratum is stamped here. E005 reads the timing of a service-wide
+	// entry, which the page leaves unstated; a rank entry's moment is exact
+	// on p. 23 - "as soon as he becomes eligible" - and the worked example
+	// shows it, so this needed no reading.
+	for _, result := range r.tables.GrantsAtRank(r.char.Service, to) {
+		err := r.apply(result, seq, nil)
 		if err != nil {
 			return err
 		}

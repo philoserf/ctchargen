@@ -25,5 +25,5 @@ UPP 765BCF, age 46, Navy Captain, 7 terms, duke/duchess, retired
 
 ## Readings applied
 
-- E002, E005, E006, E007, E011
+- E002, E006, E007, E011
 

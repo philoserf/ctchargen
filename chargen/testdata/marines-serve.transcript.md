@@ -55,7 +55,7 @@ Seed 4, strategies serve/advanced/cash.
  39. AttemptCommission: policy chose yes from yes, no
  40. commission: rolled 6+6 +1 = 13 against 9+, made
  41. commissioned: Lieutenant (from 40)
- 42. Revolver-1 (from 40) [E005]
+ 42. Revolver-1 (from 40)
  43. AttemptPromotion: policy chose yes from yes, no
  44. promotion: rolled 3+2 +1 = 6 against 9+, missed
  45. not promoted this term (from 44)

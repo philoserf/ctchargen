@@ -178,7 +178,7 @@ Seed 4, strategies serve/advanced/cash.
 138. AttemptPromotion: policy chose yes from yes, no
 139. promotion: rolled 6+5 +1 = 12 against 8+, made
 140. promoted: Captain (from 139)
-141. Social Standing +1, 12 to 13 (from 139) [E005]
+141. Social Standing +1, 12 to 13 (from 139)
 
 ## skills and training (pp. 6, 11)
 

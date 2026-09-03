@@ -62,6 +62,11 @@ func newCharacter(args []string, out io.Writer) error {
 		return fmt.Errorf("%w: %w", errUsage, invalid)
 	}
 
+	// Defensive, and unreachable from here today: Generate fails when an
+	// embedded table will not lift or when a Decider returns an error, and
+	// the auto policy never returns one. It is not dead - an interactive
+	// decider, arriving at milestone 4, can fail on any answer - so the
+	// branch stays and cmd carries one uncovered statement for it.
 	character, err := chargen.Generate(inputs, policy)
 	if err != nil {
 		return fmt.Errorf("generating: %w", err)

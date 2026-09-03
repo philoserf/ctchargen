@@ -446,10 +446,7 @@
       "seq": 42,
       "kind": "outcome",
       "because": 40,
-      "description": "Revolver-1",
-      "errata": [
-        "E005"
-      ]
+      "description": "Revolver-1"
     },
     {
       "seq": 43,

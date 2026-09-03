@@ -74,8 +74,8 @@ benefits name.
 | Three kinds of result | 1:12 | `chargen.applyResult` | `traveller.TestTableResultFolds` |
 | Blade and gun combat name a weapon at once | 1:11–13 | `chargen.applyResult.WeaponPick` | golden transcripts |
 | Skills accumulate as Skill-1, Skill-2, with no cap | 1:12 | `chargen.Character.addSkill` | golden sheets |
-| Service-wide rank and service skills, granted once on entering | 1:23 (E005) | `chargen.run.grantsOnEntering` | golden `scouts-retire` |
-| Rank-keyed grants, at the moment the rank is conferred | 1:23 (E005) | `chargen.run.raise` | golden `merchants-captain` |
+| Service-wide rank and service skills, granted once on entering | 1:23 (E005) | `chargen.run.grantsOnEntering` | golden `scouts-died` |
+| Rank-keyed grants, at the moment the rank is conferred | 1:23 | `chargen.run.raise` | golden `merchants-captain` |
 | Names normalized to their description headings | 1:11–23 (E012) | `rules.Rules.Normalize` | `rules.TestNormalization` |
 
 ## Aging
@@ -105,7 +105,7 @@ benefits name.
 | Travellers' Aid only once; duplicates wasted | 1:22 | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds` |
 | A repeat weapon may be taken as expertise, or as a different weapon | 1:22 | `chargen.takeWeapon` | goldens `scouts-expertise`, `scouts-diversified` |
 | Free Trader: 40 years of payments, 10 off per repeat | 1:22–23 | `chargen.run.receiveShipAgain` | golden `merchants-captain` |
-| Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | golden `scouts-retire` |
+| Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | golden `scouts-second-ship` |
 | Retirement pay from term 5, not for Scouts or Other | 1:7, 21 | `chargen.run.pension` | `rules.TestRetirementPay`; golden `navy-captain` |
 
 ## Titles

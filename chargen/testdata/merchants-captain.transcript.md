@@ -123,7 +123,7 @@ Seed 145, strategies serve/advanced/cash.
  95. AttemptPromotion: policy chose yes from yes, no
  96. promotion: rolled 6+4 = 10 against 10+, made
  97. promoted: 1st Officer (from 96)
- 98. Pilot-1 (from 96) [E005]
+ 98. Pilot-1 (from 96)
 
 ## skills and training (pp. 6, 11)
 

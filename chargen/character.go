@@ -28,7 +28,12 @@ type Character struct {
 
 	Skills   []traveller.Skill
 	Benefits Benefits
-	Pension  traveller.Credits
+
+	// DuplicateShips counts the scout ships a duplicate roll lost. P. 23:
+	// "Only one scout ship may be acquired by a character, and throws
+	// resulting in additional ships are lost."
+	DuplicateShips int
+	Pension        traveller.Credits
 
 	// Departure is how the service ended. It is nil for a civilian, who
 	// never joined one.
