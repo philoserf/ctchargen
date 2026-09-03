@@ -141,21 +141,83 @@ func golden(t *testing.T, name string, got []byte) {
 	}
 }
 
+// The two examples that sit beside docs/character.schema.json, written by
+// the same path that writes the goldens so they cannot drift from what the
+// engine emits.
+//
+// minimal is the civilian who declined the draft, which is the smallest
+// complete record there is. complete is the fullest character the tables
+// permit - and it is not complete, because no character can hold both
+// Travellers' Aid and a starship: p. 9 prints the membership only in the
+// Navy and Marines columns and the ships only in the Scout and Merchant
+// columns, and a character serves one service. The schema says so.
+//
+//nolint:gochecknoglobals // an immutable pair, and Go has no const map.
+var documented = map[string]string{
+	"scouts-civilian":   "character.minimal.json",
+	"merchants-captain": "character.complete.json",
+}
+
+// documentedExample writes or checks one of the two examples that sit beside
+// the schema, by the same path that writes the goldens.
+func documentedExample(t *testing.T, name string, encoded []byte) {
+	t.Helper()
+
+	path := filepath.Join("..", "docs", name)
+
+	if *regenerate {
+		err := os.WriteFile(path, encoded, 0o600)
+		if err != nil {
+			t.Fatalf("writing %s: %v", path, err)
+		}
+
+		return
+	}
+
+	want, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+
+	if string(encoded) != string(want) {
+		t.Errorf("%s has drifted from the record it documents; regenerate it", path)
+	}
+}
+
 // Every fixture's JSON, sheet and transcript, pinned.
 func TestGoldens(t *testing.T) {
 	t.Parallel()
 
-	for _, f := range fixtures {
-		character := f.generate(t)
+	written := map[string]bool{}
+
+	for _, fixture := range fixtures {
+		character := fixture.generate(t)
 
 		encoded, err := render.JSON(character)
 		if err != nil {
-			t.Fatalf("%s: %v", f.name, err)
+			t.Fatalf("%s: %v", fixture.name, err)
 		}
 
-		golden(t, f.name+".json", encoded)
-		golden(t, f.name+".sheet.md", []byte(render.Sheet(character)))
-		golden(t, f.name+".transcript.md", []byte(render.Transcript(character)))
+		golden(t, fixture.name+".json", encoded)
+
+		if name, documents := documented[fixture.name]; documents {
+			documentedExample(t, name, encoded)
+
+			written[fixture.name] = true
+		}
+
+		golden(t, fixture.name+".sheet.md", []byte(render.Sheet(character)))
+		golden(t, fixture.name+".transcript.md", []byte(render.Transcript(character)))
+	}
+
+	// Without this, renaming or dropping a fixture that documents an
+	// example leaves the example behind: nothing regenerates it, nothing
+	// compares it, and the schema's published record silently stops being
+	// one the engine emits.
+	for name := range documented {
+		if !written[name] {
+			t.Errorf("%s documents an example but is not in the fixture roster", name)
+		}
 	}
 }
 

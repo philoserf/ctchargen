@@ -48,6 +48,7 @@ type record struct {
 	Title           *titleRecord      `json:"title,omitempty"`
 	Inputs          inputsRecord      `json:"inputs"`
 	Errata          []string          `json:"errata"`
+	Ruleset         string            `json:"ruleset"`
 	Events          []json.RawMessage `json:"events"`
 	Build           string            `json:"build,omitempty"`
 }
@@ -119,6 +120,7 @@ func project(character *chargen.Character) (record, error) {
 		Pension:         int64(character.Pension),
 		Inputs:          projectInputs(character.Inputs),
 		Errata:          make([]string, 0, len(character.Errata)),
+		Ruleset:         character.Ruleset,
 		Events:          nil,
 		Build:           character.Build,
 	}

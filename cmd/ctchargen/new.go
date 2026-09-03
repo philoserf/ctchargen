@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"runtime/debug"
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -70,6 +71,13 @@ func newCharacter(args []string, out io.Writer) error {
 	character, err := chargen.Generate(inputs, policy)
 	if err != nil {
 		return fmt.Errorf("generating: %w", err)
+	}
+
+	// The command is what fills this: a record written by a released tool
+	// says which one, and a record generated in-process by a test says
+	// nothing, because a test binary's build info is not a tool's.
+	if info, ok := debug.ReadBuildInfo(); ok {
+		character.Build = info.Main.Path + " " + buildVersion(info)
 	}
 
 	return write(out, character, *sheet, *history)

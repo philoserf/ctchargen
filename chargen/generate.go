@@ -12,6 +12,10 @@ import (
 // the game the same way, untrained, inexperienced, about 18 years of age."
 const startingAge = 18
 
+// Ruleset names the text this tool implements. All page cites in a record's
+// generation log are to these three books and nothing else.
+const Ruleset = "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)"
+
 // Generate walks Book 1's character generation procedure, pp. 4-25, rolling
 // from the seed the inputs carry.
 //
@@ -35,11 +39,13 @@ func GenerateWith(in Inputs, roller Roller, decider Decider) (*Character, error)
 	record := newLog()
 
 	run := &run{
-		tables:  tables,
-		roll:    roller,
-		decide:  logging{to: decider, by: traveller.ByPolicy, log: record},
-		log:     record,
-		char:    &Character{Name: in.Name, Age: traveller.NewAge(startingAge), Inputs: in},
+		tables: tables,
+		roll:   roller,
+		decide: logging{to: decider, by: traveller.ByPolicy, log: record},
+		log:    record,
+		char: &Character{
+			Name: in.Name, Age: traveller.NewAge(startingAge), Inputs: in, Ruleset: Ruleset,
+		},
 		maxTerm: 0,
 	}
 

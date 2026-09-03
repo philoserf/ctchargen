@@ -9,12 +9,11 @@ A Go CLI that generates rules-accurate Classic Traveller characters from
 Books 1–3 (© 1977 text, FFE reprints). The repo was emptied at `41a213a` and
 is being rebuilt from `docs/PRD.md`.
 
-**Current state: milestone 1, complete.** Milestone 0's documents are
-merged. The gate runs `task` with golangci-lint at `default: all`; `dice`,
-`traveller`, `rules` (every table of pp. 4-25, twice), `chargen`, `render`
-and `cmd/ctchargen` are in. The engine walks the two services that print no
-rank column, Other and Scouts. Milestone 2 is the other four, with
-commissions, promotions, ranks, and the Jamison reproduction.
+**Current state: milestone 3, complete.** All six services run, every table
+of pp. 4–25 is lifted and consulted, the book's own worked character replays
+against the engine, and `docs/character.schema.json` describes the record
+with every golden validated against it. Milestone 4 is what is left: batch
+mode and interactive mode.
 
 This paragraph is the one thing here that goes stale on its own; correct it
 when a milestone moves rather than letting the file describe a tree that no
@@ -112,6 +111,7 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/ERRATA.md`   | Every recorded reading, with its page cite and stamping condition.        |
 | `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
 | `docs/COVERAGE.md` | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect. |
+| `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
 | `CLAUDE.md`        | This file.                                                                |
 
 The documents are held to the code in both directions once code exists: every
