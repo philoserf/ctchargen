@@ -55,9 +55,17 @@ and over any tool that reads the page for you.
   extraction gives the Scout a seventh benefit he does not have.
 
   So every table is transcribed from a **visual** read of the page (`Read`
-  the PDF with a `pages` range) and then transcribed a second time inside
-  the `rules` tests, so the two must agree. That second transcription is
-  the check the font trap needs, and it is where a new table belongs.
+  the PDF with a `pages` range, one page per call where the page carries a
+  table — a multi-page range renders each page too small to trust) and then
+  transcribed a second time inside the `rules` tests, so the two must agree.
+  That second transcription is the check the font trap needs, and it is
+  where a new table belongs.
+
+  The visual read is necessary and not sufficient: the substitution reaches
+  the rendered image as well, so p. 23's box shows `Rifl3-1` for Rifle-1.
+  Every name read off a page is checked back against the skill-description
+  headings (pp. 12–20) and the weapon lists (pp. 12–13); a name that
+  resolves to nothing there is a broken glyph, not a new name.
 
 - Every implemented rule carries a printed-page cite, in the code and in
   COVERAGE.md.
