@@ -125,6 +125,8 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Each choice names who decided and what was offered | FR11 | `chargen.logging` | golden transcripts |
 | Every reading that governed a record is named on it | Authority | `chargen.log.stamped` | `chargen.TestEveryReadingIsReachable` |
 | One seed reproduces one character | Determinism | `dice.Stream` | `chargen.TestGoldensRegenerate` |
+| The record matches the schema that describes it | JSON conventions | `docs/character.schema.json` | `render.TestEveryGoldenMatchesTheSchema` |
+| The two documented examples are generated, not written | Documents | `chargen.documentedExample` | `render.TestTheDocumentedExamplesMatchTheSchema` |
 
 ## The book's own character
 

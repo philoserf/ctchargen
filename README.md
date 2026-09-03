@@ -9,8 +9,13 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 
 ## Status
 
-Milestone 1, in progress. There is a gate, a seeded dice stream, and nothing
-yet that generates a character.
+Milestone 3 complete. All six services generate, the book's own worked
+character (pp. 23–25) replays against the engine, and the record has a schema.
+Batch and interactive modes are what remain.
+
+```sh
+ctchargen new --auto --seed 145 --service merchants --sheet
+```
 
 ## The documents
 
@@ -19,6 +24,8 @@ yet that generates a character.
 | [docs/PRD.md](docs/PRD.md) | The v1 contract: goals, domain model, requirements, determinism, milestones. |
 | [docs/ERRATA.md](docs/ERRATA.md) | Every recorded reading, with its page cite and its stamping condition. |
 | [docs/POLICY.md](docs/POLICY.md) | The `--auto` decision table, one row per choice point. |
+| [docs/COVERAGE.md](docs/COVERAGE.md) | Every implemented rule mapped to its page cite, its implementation and its test. |
+| [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it. |
 | [CLAUDE.md](CLAUDE.md) | Authority, source precedence, and the working rules for agents. |
 
 ## The gate
