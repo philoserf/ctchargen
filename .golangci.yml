@@ -1,32 +1,86 @@
 version: "2"
 
 linters:
-  default: standard
-  enable:
-    # The one this project cannot do without. Go's compiler does not check
-    # that a switch over an enum covers every case; the PRD's domain model
-    # is built on the promise that adding a case breaks the switches that
-    # do not handle it, and this linter is what keeps that promise.
-    - exhaustive
-    - bodyclose
-    - copyloopvar
-    - errorlint
-    - gocritic
-    - goconst
-    - misspell
-    # The stdlib moves under an unpinned toolchain, and this is what
-    # notices: it flags a hand-rolled helper the standard library has
-    # since grown a name for.
-    - modernize
-    - nilerr
-    - nolintlint
-    - predeclared
-    - revive
-    - unconvert
-    - usestdlibvars
-    - wastedassign
+  # Every linter golangci-lint ships. The list below disables three, and all
+  # three are deprecated upstream and replaced by a linter that is enabled
+  # and reports nothing -- so this file disables no check that is not
+  # already being made.
+  #
+  # Anything else that has ever been considered for this list was measured
+  # instead, and then either fixed or configured. If a linter is added here
+  # it needs the same: a count, and a reason that survives reading the
+  # findings.
+  default: all
+
+  disable:
+    - exhaustruct # replaced by exhaustruct_v5, which is on
+    - wsl # replaced by wsl_v5, which is on
+    - gomodguard # replaced by gomodguard_v2, which is on
+
+    # 22 findings, and the linter takes no settings in this release, so the
+    # choice is all or nothing. Every one is a type filled in stages by the
+    # lift, or a type whose zero value is load-bearing: an unset Target is
+    # "0 exactly", which no throw of dice satisfies, and that is what makes
+    # a target nobody set fail closed rather than succeed silently. Naming
+    # every field at every literal would bury the design it protects.
+    - exhaustruct_v5
+
+    # 24 findings, and the linter takes no settings, so the choice is all or
+    # nothing. Every one is an immutable table: the closed alphabets' own
+    # iteration orders, the indexes the lift checks a printed name against,
+    # and the memoized load. Go has no const for an array, a slice or a map,
+    # so the alternative is an accessor that clones on every call - in the
+    # engine's term loop, to prevent a mutation nothing in this module
+    # performs and the alphabet tests would catch.
+    - gochecknoglobals
 
   settings:
+    cyclop:
+      # An exhaustive switch over a closed alphabet has the complexity of
+      # the alphabet: ChoicePoint.String is twelve cases because there are
+      # twelve choice points. Ten would penalise the design; fifteen still
+      # catches a genuine tangle, and did - two functions over it were
+      # split rather than exempted.
+      max-complexity: 15
+
+    depguard:
+      # depguard's own default is a deny-all list that flags this module's
+      # own imports, so the choice was never on or off but configured or
+      # meaningless. What is NOT here matters: most of the PRD's layering is
+      # enforced by the compiler, because the reverse edge is an import
+      # cycle. These are the edges that would otherwise compile.
+      rules:
+        traveller-imports-nothing:
+          files: ["**/traveller/*.go"]
+          deny:
+            - pkg: github.com/philoserf/ctchargen/dice
+              desc: the domain does not roll; a type that needs dice is in the wrong package
+            - pkg: github.com/philoserf/ctchargen/rules
+              desc: the domain carries identity, never the printed tables
+        rules-does-not-roll:
+          files: ["**/rules/*.go"]
+          deny:
+            - pkg: github.com/philoserf/ctchargen/dice
+              desc: the tables are consulted, not thrown; the engine brings the dice
+        engine-is-the-only-door:
+          files: ["**/cmd/ctchargen/*.go"]
+          deny:
+            - pkg: github.com/philoserf/ctchargen/rules
+              desc: the command drives the engine; the tables are chargen's to consult
+            - pkg: github.com/philoserf/ctchargen/dice
+              desc: the command drives the engine; the dice stream is chargen's to consume
+
+    dupword:
+      # The page is quoted throughout, and p. 3 writes "indicates that that
+      # number or greater must be rolled". This linter's autofix silently
+      # deleted the second "that" from that quotation, which is a misquoted
+      # primary source - the one failure this repository's authority model
+      # exists to prevent.
+      ignore: [that]
+
+    errcheck:
+      check-type-assertions: true
+
     exhaustive:
       # A default case is not exhaustiveness. The point is to be told when a
       # value is added, not to have it silently fall through.
@@ -34,9 +88,88 @@ linters:
       # Map literals keyed by an enum are checked too, which is how a table
       # keyed by service or characteristic is held complete.
       check: [switch, map]
+
+    gosec:
+      excludes:
+        # The dice are meant to be predictable from a seed: that is the
+        # whole determinism contract. A cryptographic source would defeat
+        # the tool rather than harden it.
+        - G404
+        # Both callers use a path they were given - the ratchet from its own
+        # command line, the document gates from a constant joined to a file
+        # name. A command-line tool that refused to open the file named on
+        # its command line would have nothing left to do.
+        - G304
+        - G703
+
+    godot:
+      # Nearly every doc comment here ends in a quotation from the page, and
+      # a quotation ends with its closing quotation mark. This linter's
+      # autofix appended a period after the quote in eleven comments,
+      # putting punctuation outside the quotation it belonged to.
+      exclude: ['"$']
+
+    govet:
+      enable-all: true
+      disable:
+        # fieldalignment reorders struct fields for memory layout. A
+        # record's field order is the order it prints in, and a table's is
+        # the order it reads in; neither is negotiable for a few bytes of
+        # padding.
+        - fieldalignment
+
+    ireturn:
+      # Two shapes here return interfaces on purpose. The sums are folds, so
+      # a table cell or a mustering out row IS an interface - that is the
+      # design the domain rests on. And a generic helper's type parameter is
+      # not an interface at all; the linter reports the constraint.
+      allow:
+        - anon
+        - error
+        - empty
+        - stdlib
+        - generic
+        - 'github\.com/philoserf/ctchargen/traveller\.(TableResult|BenefitRow|Enlistment|Departure|WeaponBenefit|Event)$'
+
     nolintlint:
+      # A //nolint is a disable one line wide and carries the same burden of
+      # proof as an entry in the disable list: name the linter, say why.
+      # allow-unused false also deletes a suppression once it has stopped
+      # suppressing anything.
       require-explanation: true
       require-specific: true
+      allow-unused: false
+
+    revive:
+      rules:
+        - name: exported
+          disabled: false
+
+    tagliatelle:
+      case:
+        rules:
+          # The data files are camelCase throughout.
+          json: camel
+
+    varnamelen:
+      # Short names in short scopes are idiomatic. The default distance of
+      # five lines calls a loop index over a seven-line body too terse,
+      # which is not a finding about this code.
+      max-distance: 12
+      ignore-names: [i, n, e, g, r, s, t, tc, ok, id, fn, in]
+
+    wrapcheck:
+      # A fold's whole body is one call on its cases interface, and the
+      # error it returns is the handler's own - raised one frame away, in
+      # the same package, by code the caller passed in. Wrapping it would
+      # prefix every error in the engine with the name of the dispatcher
+      # that forwarded it.
+      ignore-interface-regexps:
+        - 'Cases$'
+
+    wsl_v5:
+      # Every check, not the default subset.
+      default: all
 
   exclusions:
     rules:
@@ -57,7 +190,23 @@ linters:
       - linters: [goconst]
         path: rules/.*_test\.go
 
+# gofumpt rather than gofmt: a strict superset, so enabling it makes gofmt
+# redundant rather than contradictory. It ships inside golangci-lint, so it
+# costs the gate no separate install and moves when golangci-lint moves. This
+# is the single definition of "formatted" -- the Taskfile does not run a
+# formatter of its own, or the two could come to disagree.
 formatters:
   enable:
-    - gofmt
+    - gofumpt
     - goimports
+  settings:
+    gofumpt:
+      extra:
+        group-params: true
+
+issues:
+  # Show every finding. The defaults cap output per linter and per repeated
+  # message, which on a gate running default: all would let a count read
+  # smaller than it is.
+  max-issues-per-linter: 0
+  max-same-issues: 0

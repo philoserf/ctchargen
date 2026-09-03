@@ -98,6 +98,7 @@ type DM struct {
 // every modifier that applies is the same rule everywhere else.
 func (t Throw) Modifier(p traveller.Profile) int {
 	total := 0
+
 	for _, dm := range t.DMs {
 		if dm.Threshold.Satisfied(p[dm.Characteristic]) {
 			total += dm.Amount
@@ -137,7 +138,8 @@ func (s Service) Title(r traveller.Rank) (string, bool) {
 // Row is the Table 1 benefit and the Table 2 cash at a roll of n (p. 9).
 func (s Service) Row(n int) (traveller.BenefitRow, traveller.Credits, error) {
 	if n < 1 || n > MusterRows {
-		return nil, 0, fmt.Errorf("mustering out roll %d: the tables print rows 1 through %d", n, MusterRows)
+		return nil, 0, fmt.Errorf("%w: mustering out roll %d: the tables print rows 1 through %d",
+			ErrNoSuchRow, n, MusterRows)
 	}
 
 	return s.Benefits[n-1], s.Cash[n-1], nil
@@ -146,7 +148,7 @@ func (s Service) Row(n int) (traveller.BenefitRow, traveller.Credits, error) {
 // Result is the Acquired Skills Table cell for a table and a die (p. 11).
 func (s Service) Result(table traveller.SkillTable, die int) (traveller.TableResult, error) {
 	if die < 1 || die > Faces {
-		return nil, fmt.Errorf("skills table roll %d: the table prints rows 1 through %d", die, Faces)
+		return nil, fmt.Errorf("%w: skills table roll %d: the table prints rows 1 through %d", ErrNoSuchRow, die, Faces)
 	}
 
 	return s.Skills[table][die-1], nil
@@ -164,7 +166,7 @@ func (r *Rules) Draft(n int) (traveller.ServiceName, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("draft roll %d: no service prints that draft number", n)
+	return 0, fmt.Errorf("%w: draft roll %d: no service prints that draft number", ErrNoSuchRow, n)
 }
 
 // Weapons is the printed list for a category (pp. 12-13), column-major.
@@ -201,17 +203,6 @@ func (r *Rules) GrantsAtRank(s traveller.ServiceName, rank traveller.Rank) []tra
 	return r.grantsAt(s, rank)
 }
 
-func (r *Rules) grantsAt(s traveller.ServiceName, rank traveller.Rank) []traveller.TableResult {
-	var results []traveller.TableResult
-	for _, g := range r.grants {
-		if g.Service == s && g.Rank == rank {
-			results = append(results, g.Result)
-		}
-	}
-
-	return results
-}
-
 // Nobility is one row of Book 3 p. 22's table.
 type Nobility struct {
 	SocialStanding int
@@ -228,6 +219,18 @@ func (r *Rules) TitleFor(social int) (traveller.Title, bool) {
 	}
 
 	return 0, false
+}
+
+func (r *Rules) grantsAt(s traveller.ServiceName, rank traveller.Rank) []traveller.TableResult {
+	var results []traveller.TableResult
+
+	for _, g := range r.grants {
+		if g.Service == s && g.Rank == rank {
+			results = append(results, g.Result)
+		}
+	}
+
+	return results
 }
 
 // Eligibility is the Basic Skill Eligibility box (p. 6).
@@ -276,16 +279,20 @@ func (r Retirement) Pay(terms int) traveller.Credits {
 
 // Muster is what p. 9's notes fix about mustering out.
 type Muster struct {
-	PerTerm              int
-	ExtraForRank1or2     int
-	ExtraForRank3Plus    int
-	MaxOnTable2          int
-	Table1DMFromRank5or6 int
-	Table2DMFromGambling int
-	ResalePercent        int
+	PerTerm                 int
+	ExtraForRank1or2        int
+	ExtraForRank3Plus       int
+	MinRankForOneExtraRoll  int
+	MinRankForTwoExtraRolls int
+	MaxOnTable2             int
+	Table1DMFromRank5or6    int
+	Table2DMFromGambling    int
+	ResalePercent           int
 }
 
-// Rolls is how many benefit rolls a character has earned. P. 9 states it in
+// Rolls is how many benefit rolls a character has earned.
+//
+// P. 9 states it in
 // one sentence and reaches every rank: "Characters are allowed one roll per
 // term of service; rank 1 or 2 is allowed one extra roll, rank 3 or higher
 // is allowed two extra rolls." P. 7 says the same at more length, and adds
@@ -295,10 +302,12 @@ type Muster struct {
 func (m Muster) Rolls(terms int, rank traveller.Rank) int {
 	rolls := terms * m.PerTerm
 
+	// The two rank thresholds are the page's numbers, so they are data with
+	// a cite rather than constants written here.
 	switch {
-	case rank >= 3:
+	case int(rank) >= m.MinRankForTwoExtraRolls:
 		rolls += m.ExtraForRank3Plus
-	case rank >= 1:
+	case int(rank) >= m.MinRankForOneExtraRoll:
 		rolls += m.ExtraForRank1or2
 	}
 
@@ -341,6 +350,7 @@ type Crisis struct {
 // Term row's 14 is simply the term that first arrives there (E014).
 func (a Aging) At(term traveller.Term) []AgingEffect {
 	var effects []AgingEffect
+
 	for _, band := range a.bands {
 		if term >= band.fromTerm {
 			effects = band.effects

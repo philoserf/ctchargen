@@ -18,6 +18,9 @@ package dice
 
 import "math/rand/v2"
 
+// faces is a die's faces. Book 1 throws six-sided dice and nothing else.
+const faces = 6
+
 // Stream is a seeded source of dice. The zero value is not usable; call New.
 type Stream struct {
 	r     *rand.Rand
@@ -38,7 +41,8 @@ func New(seed uint64) *Stream {
 // begins on one page and ends on the other).
 func (s *Stream) Die() int {
 	s.drawn++
-	return s.r.IntN(6) + 1
+
+	return s.r.IntN(faces) + 1
 }
 
 // TwoDice returns the two dice of a 2D throw, first die then second.
@@ -46,9 +50,14 @@ func (s *Stream) Die() int {
 // Book 1 p. 10: "All rolls except draft are two-die throws." The caller sums
 // them; both are returned because the generation record logs the dice, not
 // only their total.
+//
+// seed means: first die, then second.
+//
+//nolint:nonamedreturns // the names carry the order, and the order is what a
 func (s *Stream) TwoDice() (first, second int) {
 	first = s.Die()
 	second = s.Die()
+
 	return first, second
 }
 

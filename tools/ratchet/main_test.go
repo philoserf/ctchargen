@@ -29,6 +29,7 @@ func TestParseProfileCountsOnlyUnexecutedStatements(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("packages = %v, want %v", got, want)
 	}
+
 	for pkg, n := range want {
 		if got[pkg] != n {
 			t.Errorf("%s: uncovered = %d, want %d", pkg, got[pkg], n)
@@ -45,6 +46,7 @@ func TestParseProfileKeepsFullyCoveredPackages(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseProfile: %v", err)
 	}
+
 	if _, ok := got["x/y"]; !ok {
 		t.Errorf("fully covered package x/y is absent from %v", got)
 	}
@@ -60,7 +62,8 @@ func TestParseProfileRejectsMalformedLines(t *testing.T) {
 		"bad statement": "x/y/z.go:1.1,2.2 many 1\n",
 		"bad count":     "x/y/z.go:1.1,2.2 1 often\n",
 	} {
-		if _, err := parseProfile(strings.NewReader("mode: set\n" + line)); err == nil {
+		_, err := parseProfile(strings.NewReader("mode: set\n" + line))
+		if err == nil {
 			t.Errorf("%s: parseProfile accepted %q", name, line)
 		}
 	}
@@ -88,12 +91,15 @@ func TestCheck(t *testing.T) {
 		"all at fault": {map[string]int{"a": 2, "c": 1}, wantMissing},
 	} {
 		err := check(measured, tc.recorded, io.Discard)
+
 		switch {
-		case tc.wantErr == "" && err != nil:
-			t.Errorf("%s: unexpected error %v", name, err)
-		case tc.wantErr != "" && err == nil:
+		case tc.wantErr == "":
+			if err != nil {
+				t.Errorf("%s: unexpected error %v", name, err)
+			}
+		case err == nil:
 			t.Errorf("%s: want an error mentioning %q, got none", name, tc.wantErr)
-		case tc.wantErr != "" && !strings.Contains(err.Error(), tc.wantErr):
+		case !strings.Contains(err.Error(), tc.wantErr):
 			t.Errorf("%s: error %q does not mention %q", name, err, tc.wantErr)
 		}
 	}
@@ -111,6 +117,7 @@ func TestCheckReportsEveryFault(t *testing.T) {
 	if err == nil {
 		t.Fatal("want an error")
 	}
+
 	for _, want := range []string{"gained uncovered", wantMissing, "no longer exist"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error does not mention %q:\n%s", want, err)
@@ -153,10 +160,13 @@ func TestRunCheckRoundTrip(t *testing.T) {
 	dir, profilePath := writeProfile(t)
 	ratchetPath := dir + "/coverage.ratchet"
 
-	if err := run([]string{"update", profilePath, ratchetPath}, io.Discard); err != nil {
+	err := run([]string{"update", profilePath, ratchetPath}, io.Discard)
+	if err != nil {
 		t.Fatalf("update: %v", err)
 	}
-	if err := run([]string{modeCheck, profilePath, ratchetPath}, io.Discard); err != nil {
+
+	err = run([]string{modeCheck, profilePath, ratchetPath}, io.Discard)
+	if err != nil {
 		t.Fatalf("check after update: %v", err)
 	}
 }
@@ -169,21 +179,31 @@ func TestRunReportsUnreadableFiles(t *testing.T) {
 
 	dir, profilePath := writeProfile(t)
 
-	if err := run([]string{modeCheck, dir + "/absent.out", dir + "/coverage.ratchet"}, io.Discard); err == nil {
+	err := run([]string{modeCheck, dir + "/absent.out", dir + "/coverage.ratchet"}, io.Discard)
+	if err == nil {
 		t.Error("check accepted a profile that is not there")
 	}
-	if err := run([]string{modeCheck, profilePath, dir + "/absent.ratchet"}, io.Discard); err == nil {
+
+	err = run([]string{modeCheck, profilePath, dir + "/absent.ratchet"}, io.Discard)
+	if err == nil {
 		t.Error("check accepted a ratchet file that is not there")
 	}
 }
 
 // writeProfile lays the sample profile down in a temp directory.
+//
+// inside it; the names are what tell them apart at the call site.
+//
+//nolint:nonamedreturns // two bare strings, one a directory and one a file
 func writeProfile(t *testing.T) (dir, profilePath string) {
 	t.Helper()
 
 	dir = t.TempDir()
+
 	profilePath = dir + "/coverage.out"
-	if err := os.WriteFile(profilePath, []byte(profile), 0o600); err != nil {
+
+	err := os.WriteFile(profilePath, []byte(profile), 0o600)
+	if err != nil {
 		t.Fatal(err)
 	}
 

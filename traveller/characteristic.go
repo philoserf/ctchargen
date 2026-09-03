@@ -47,6 +47,8 @@ func (c Characteristic) String() string {
 // Bounds on a characteristic value, both from Book 1 p. 4: "Characteristics
 // (for player-characters) may never exceed 15, and do not go below 1 except
 // for calamitous injury or aging."
+//
+// The quotation is the page's; the constants below are what it fixes.
 const (
 	// MaxCharacteristic is the ceiling, and it is unconditional.
 	MaxCharacteristic = 15
@@ -97,6 +99,7 @@ func (p Profile) AgeReduce(c Characteristic, delta int) Profile {
 // hexadecimal digits in rolled order, 0-9 then A-F for 10-15 (p. 8).
 func (p Profile) UPP() string {
 	var b strings.Builder
+
 	for _, c := range Characteristics {
 		fmt.Fprintf(&b, "%X", p[c])
 	}

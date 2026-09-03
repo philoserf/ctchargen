@@ -47,7 +47,13 @@ func (d *describer) Alteration(c traveller.Characteristic, delta int) error {
 
 	return nil
 }
-func (d *describer) Skill(n traveller.SkillName) error { d.text = string(n); return nil }
+
+func (d *describer) Skill(n traveller.SkillName) error {
+	d.text = string(n)
+
+	return nil
+}
+
 func (d *describer) WeaponPick(c traveller.WeaponCategory) error {
 	d.text = "weapon " + c.String()
 
@@ -58,7 +64,9 @@ func describe(t *testing.T, result traveller.TableResult) string {
 	t.Helper()
 
 	var d describer
-	if err := result.Fold(&d); err != nil {
+
+	err := result.Fold(&d)
+	if err != nil {
 		t.Fatalf("describing %v: %v", result, err)
 	}
 
@@ -68,7 +76,12 @@ func describe(t *testing.T, result traveller.TableResult) string {
 // describeBenefit renders a Mustering Out Table 1 cell, the same way.
 type benefitDescriber struct{ text string }
 
-func (b *benefitDescriber) Cash(c traveller.Credits) error { b.text = c.String(); return nil }
+func (b *benefitDescriber) Cash(c traveller.Credits) error {
+	b.text = c.String()
+
+	return nil
+}
+
 func (b *benefitDescriber) Passage(p traveller.PassageClass) error {
 	b.text = p.String()
 
@@ -86,15 +99,32 @@ func (b *benefitDescriber) WeaponPick(c traveller.WeaponCategory) error {
 
 	return nil
 }
-func (b *benefitDescriber) TravellersAid() error            { b.text = "Travellers' Aid"; return nil }
-func (b *benefitDescriber) Ship(k traveller.ShipKind) error { b.text = k.String(); return nil }
-func (b *benefitDescriber) Nothing() error                  { b.text = "nothing"; return nil }
+
+func (b *benefitDescriber) TravellersAid() error {
+	b.text = "Travellers' Aid"
+
+	return nil
+}
+
+func (b *benefitDescriber) Ship(k traveller.ShipKind) error {
+	b.text = k.String()
+
+	return nil
+}
+
+func (b *benefitDescriber) Nothing() error {
+	b.text = "nothing"
+
+	return nil
+}
 
 func describeBenefit(t *testing.T, row traveller.BenefitRow) string {
 	t.Helper()
 
 	var b benefitDescriber
-	if err := row.Fold(&b); err != nil {
+
+	err := row.Fold(&b)
+	if err != nil {
 		t.Fatalf("describing %v: %v", row, err)
 	}
 
@@ -284,9 +314,11 @@ func TestPriorServiceTable(t *testing.T) {
 
 		commission, commissions := service.Commission()
 		promotion, _ := service.Promotion()
+
 		if commissions != (want.commission != "") {
 			t.Errorf("%v commissions: %v, want %v", name, commissions, want.commission != "")
 		}
+
 		if commissions {
 			check("commission", commission.Target.String(), want.commission)
 			check("promotion", promotion.Target.String(), want.promotion)
@@ -309,17 +341,20 @@ func TestTableOfRanks(t *testing.T) {
 
 			continue
 		}
+
 		for i, title := range want.ranks {
 			got, ok := service.Title(traveller.Rank(i + 1))
 			if !ok || got != title {
 				t.Errorf("%v rank %d: %q, want %q", name, i+1, got, title)
 			}
 		}
+
 		// Rank 0 is "not commissioned" and the table prints no title for
 		// it, nor for anything past the column's end.
 		if _, ok := service.Title(0); ok {
 			t.Errorf("%v: rank 0 has a title", name)
 		}
+
 		if _, ok := service.Title(service.MaxRank() + 1); ok {
 			t.Errorf("%v: a rank past the table has a title", name)
 		}
@@ -333,12 +368,14 @@ func TestAcquiredSkillsTable(t *testing.T) {
 
 	for name, want := range columns {
 		service := r.Service(name)
+
 		for i, table := range traveller.SkillTables {
 			for die := 1; die <= rules.Faces; die++ {
 				result, err := service.Result(table, die)
 				if err != nil {
 					t.Fatalf("%v %v %d: %v", name, table, die, err)
 				}
+
 				if got := describe(t, result); got != want.skills[i][die-1] {
 					t.Errorf("%v, %v, roll %d: %q, want %q", name, table, die, got, want.skills[i][die-1])
 				}
@@ -359,9 +396,11 @@ func TestMusteringOutTables(t *testing.T) {
 			if err != nil {
 				t.Fatalf("%v row %d: %v", name, row, err)
 			}
+
 			if got := describeBenefit(t, benefit); got != want.benefits[row-1] {
 				t.Errorf("%v, table 1, row %d: %q, want %q", name, row, got, want.benefits[row-1])
 			}
+
 			if cash != want.cash[row-1] {
 				t.Errorf("%v, table 2, row %d: %v, want %v", name, row, cash, want.cash[row-1])
 			}
@@ -387,17 +426,20 @@ func TestTheDashCellsAreNothing(t *testing.T) {
 	}
 
 	found := 0
+
 	for _, name := range traveller.ServiceNames {
 		for row := 1; row <= rules.MusterRows; row++ {
 			benefit, _, err := r.Service(name).Row(row)
 			if err != nil {
 				t.Fatal(err)
 			}
+
 			if _, isNothing := benefit.(traveller.NoBenefit); isNothing {
 				found++
 			}
 		}
 	}
+
 	if found != len(dashes) {
 		t.Errorf("Table 1 has %d dash cells, want exactly %d", found, len(dashes))
 	}
@@ -407,6 +449,7 @@ func TestTheDashCellsAreNothing(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if _, isNothing := benefit.(traveller.NoBenefit); !isNothing {
 			t.Errorf("%v row %d is %v, want nothing", d.service, d.row, describeBenefit(t, benefit))
 		}

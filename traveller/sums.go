@@ -20,14 +20,14 @@ package traveller
 // prints both "he may submit to the draft" and "the character must submit to
 // the draft", and the may reading governs.
 type Enlistment interface {
-	Fold(EnlistmentCases) error
+	Fold(cases EnlistmentCases) error
 	sealedEnlistment()
 }
 
 // EnlistmentCases handles each way p. 5's enlistment step can end.
 type EnlistmentCases interface {
-	Enlisted(ServiceName) error
-	Drafted(ServiceName) error
+	Enlisted(service ServiceName) error
+	Drafted(service ServiceName) error
 	DeclinedTheDraft() error
 }
 
@@ -56,15 +56,15 @@ func (DeclinedTheDraft) sealedEnlistment()            {}
 // characteristic alterations (such as +1 Strength), weapon expertise (such
 // as Blade Combat), and basic skill (such as Navigation)."
 type TableResult interface {
-	Fold(TableResultCases) error
+	Fold(cases TableResultCases) error
 	sealedTableResult()
 }
 
 // TableResultCases handles each of p. 12's three kinds.
 type TableResultCases interface {
-	Alteration(Characteristic, int) error
-	Skill(SkillName) error
-	WeaponPick(WeaponCategory) error
+	Alteration(characteristic Characteristic, delta int) error
+	Skill(name SkillName) error
+	WeaponPick(category WeaponCategory) error
 }
 
 // AlterationResult is a characteristic alteration, "applied immediately,
@@ -95,19 +95,19 @@ func (WeaponPickResult) sealedTableResult()              {}
 // Table 2's whole content; Table 1 prints no money row, and does print rows
 // that are a bare dash.
 type BenefitRow interface {
-	Fold(BenefitRowCases) error
+	Fold(cases BenefitRowCases) error
 	sealedBenefitRow()
 }
 
 // BenefitRowCases handles each of the seven things a mustering out row can
 // be (p. 9, with the definitions at pp. 21-23).
 type BenefitRowCases interface {
-	Cash(Credits) error
-	Passage(PassageClass) error
-	Alteration(Characteristic, int) error
-	WeaponPick(WeaponCategory) error
+	Cash(amount Credits) error
+	Passage(class PassageClass) error
+	Alteration(characteristic Characteristic, delta int) error
+	WeaponPick(category WeaponCategory) error
 	TravellersAid() error
-	Ship(ShipKind) error
+	Ship(kind ShipKind) error
 	Nothing() error
 }
 
@@ -162,7 +162,7 @@ func (NoBenefit) sealedBenefitRow()                          {}
 // Departure is how a character's service ended. Every case but the two
 // deaths leads to mustering out (p. 7).
 type Departure interface {
-	Fold(DepartureCases) error
+	Fold(cases DepartureCases) error
 	sealedDeparture()
 }
 
@@ -178,7 +178,7 @@ type DepartureCases interface {
 	ForcedOut() error
 	Retired() error
 	KilledBySurvivalThrow() error
-	KilledByMedicalCrisis(Characteristic) error
+	KilledByMedicalCrisis(characteristic Characteristic) error
 }
 
 // Discharged is leaving by choice before the fifth term ends (pp. 6-7).
@@ -219,14 +219,14 @@ func (KilledByMedicalCrisis) sealedDeparture() {}
 // different weapon. He may also elect to take +1 expertise in lieu of
 // receiving a second or subsequent weapon of exactly the same type."
 type WeaponBenefit interface {
-	Fold(WeaponBenefitCases) error
+	Fold(cases WeaponBenefitCases) error
 	sealedWeaponBenefit()
 }
 
 // WeaponBenefitCases handles the two things a weapon row can be taken as.
 type WeaponBenefitCases interface {
-	TakeWeapon(WeaponName) error
-	TakeExpertise(WeaponName) error
+	TakeWeapon(weapon WeaponName) error
+	TakeExpertise(weapon WeaponName) error
 }
 
 // TakeWeapon receives the weapon itself — a first one, a different one, or

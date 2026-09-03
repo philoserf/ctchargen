@@ -18,6 +18,7 @@ func TestDieStaysInRange(t *testing.T) {
 		if got < 1 || got > 6 {
 			t.Fatalf("draw %d: Die() = %d, want 1..6", i, got)
 		}
+
 		seen[got] = true
 	}
 
@@ -79,8 +80,10 @@ func TestTwoDiceIsTwoDiceInOrder(t *testing.T) {
 	first, second := byPair.TwoDice()
 
 	if first != wantFirst || second != wantSecond {
-		t.Errorf("TwoDice() = (%d, %d), want (%d, %d): a 2D throw must draw the same two dice, in the same order, as two Die calls",
-			first, second, wantFirst, wantSecond)
+		t.Errorf(
+			"TwoDice() = (%d, %d), want (%d, %d): a 2D throw draws the same two dice, in the same order, as two Die calls",
+			first, second, wantFirst, wantSecond,
+		)
 	}
 }
 
@@ -95,11 +98,13 @@ func TestDrawnCountsEveryDie(t *testing.T) {
 	}
 
 	s.Die()
+
 	if got := s.Drawn(); got != 1 {
 		t.Errorf("after one Die: Drawn() = %d, want 1", got)
 	}
 
 	s.TwoDice()
+
 	if got := s.Drawn(); got != 3 {
 		t.Errorf("after a 2D throw: Drawn() = %d, want 3; a 2D throw draws two dice", got)
 	}
@@ -116,5 +121,6 @@ func TestDistinctSeedsDiverge(t *testing.T) {
 			return
 		}
 	}
+
 	t.Error("seeds 1 and 2 produced 40 identical dice; the seed is not reaching the generator")
 }

@@ -29,9 +29,11 @@
     "perTerm": 1,
     "extraForRank1or2": 1,
     "extraForRank3Plus": 2,
+    "minRankForOneExtraRoll": 1,
+    "minRankForTwoExtraRolls": 3,
     "maxOnTable2": 3,
-    "table1DMFromRank5or6": 1,
-    "table2DMFromGambling": 1
+    "table1ModifierFromRank5or6": 1,
+    "table2ModifierFromGambling": 1
   },
 
   "names": {
