@@ -129,6 +129,13 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | The two documented examples are generated, not written | Documents | `chargen.documentedExample` | `chargen.TestGoldens` |
 | The record names its ruleset and the build that wrote it | Determinism | `chargen.Ruleset`, `cmd/ctchargen` | `ctchargen.TestRunWritesEachRendering` |
 | Every row here cites a test and a golden that exist | Documents | `internal/docsgate` | `docsgate.TestCoverageCitesTestsThatExist` |
+| A batch member is seeded base + i, numbered from zero | Determinism | `cmd/ctchargen.memberSeed` | `ctchargen.TestOneMemberIsTheSameCharacterAsNew` |
+| Each member carries its own derived seed | Determinism | `cmd/ctchargen.member` | `ctchargen.TestEachMemberCarriesItsOwnSeed` |
+| An explicit seed is never re-bounded | Determinism | `cmd/ctchargen.inputsFrom` | `ctchargen.TestAnExplicitSeedIsNeverReBounded` |
+| A record renders to what generating it rendered | FR8 | `render.SheetFrom` | `render.TestARecordRendersToWhatGeneratedItRendered` |
+| A ship's terms follow its kind, not its numbers | 1:22–23 | `render.shipLine` | `render.TestAShipsTermsFollowItsKind` |
+| An event kind this build does not know is said to be unknown | FR11 | `render.writeEvent` | `render.TestAnUnknownEventKindIsSaidToBeUnknown` |
+| A refused batch writes none of itself | CLI sketch | `cmd/ctchargen.noMemberExists` | `ctchargen.TestARefusedBatchWritesNothing` |
 
 ## The book's own character
 

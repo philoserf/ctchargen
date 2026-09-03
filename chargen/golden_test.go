@@ -206,8 +206,18 @@ func TestGoldens(t *testing.T) {
 			written[fixture.name] = true
 		}
 
-		golden(t, fixture.name+".sheet.md", []byte(render.Sheet(character)))
-		golden(t, fixture.name+".transcript.md", []byte(render.Transcript(character)))
+		sheet, err := render.Sheet(character)
+		if err != nil {
+			t.Fatalf("%s: %v", fixture.name, err)
+		}
+
+		transcript, err := render.Transcript(character)
+		if err != nil {
+			t.Fatalf("%s: %v", fixture.name, err)
+		}
+
+		golden(t, fixture.name+".sheet.md", []byte(sheet))
+		golden(t, fixture.name+".transcript.md", []byte(transcript))
 	}
 
 	// Without this, renaming or dropping a fixture that documents an

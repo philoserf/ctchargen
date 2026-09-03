@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
-	"github.com/philoserf/ctchargen/traveller"
 )
 
 // Transcript renders the generation record as prose: every step entered,
@@ -14,59 +13,114 @@ import (
 //
 // It is what makes a character auditable against Book 1 - walk the log with
 // the page open - and it is the narrative service record besides.
-func Transcript(character *chargen.Character) string {
-	var out strings.Builder
-
-	fmt.Fprintf(&out, "# Generation record: %s\n\n", nameOrBlank(character.Name))
-	fmt.Fprintf(&out, "Seed %d, strategies %s/%s/%s.\n\n",
-		character.Inputs.Seed, character.Inputs.Career, character.Inputs.Skills, character.Inputs.Muster)
-
-	lines := &transcriber{out: &out}
-
-	for _, event := range character.Events {
-		err := event.Fold(lines)
-		if err != nil {
-			fmt.Fprintf(&out, "    (unreadable event %d)\n", event.Sequence())
-		}
+func Transcript(character *chargen.Character) (string, error) {
+	projected, err := project(character)
+	if err != nil {
+		return "", err
 	}
 
-	return out.String()
+	return transcriptOf(projected)
 }
 
-type transcriber struct{ out *strings.Builder }
+// TranscriptFrom renders the log of a record written earlier, through the
+// same renderer, for the same reason SheetFrom does.
+func TranscriptFrom(text []byte) (string, error) {
+	projected, err := decode(text)
+	if err != nil {
+		return "", err
+	}
 
-func (t *transcriber) Step(from traveller.StepEvent) error {
-	fmt.Fprintf(t.out, "\n## %s (%s)\n\n", from.Step, from.Pages)
-
-	return nil
+	return transcriptOf(projected)
 }
 
-func (t *transcriber) Throw(from traveller.ThrowEvent) error {
-	dice := make([]string, 0, len(from.Dice))
-	for _, die := range from.Dice {
+// eventJSON is every event kind at once. On the wire the four are a
+// discriminated union, and on the way back in the discriminator is all a
+// reader has to go on.
+type eventJSON struct {
+	Seq          int      `json:"seq"`
+	Kind         string   `json:"kind"`
+	Step         string   `json:"step"`
+	Pages        string   `json:"pages"`
+	Dice         []int    `json:"dice"`
+	DM           int      `json:"dm"`
+	Target       string   `json:"target"`
+	Total        int      `json:"total"`
+	Succeeded    bool     `json:"succeeded"`
+	Point        string   `json:"point"`
+	By           string   `json:"by"`
+	Alternatives []string `json:"alternatives"`
+	Chosen       string   `json:"chosen"`
+	Because      int      `json:"because"`
+	Description  string   `json:"description"`
+	Errata       []string `json:"errata"`
+}
+
+func transcriptOf(r record) (string, error) {
+	var out strings.Builder
+
+	fmt.Fprintf(&out, "# Generation record: %s\n\n", nameOrBlank(r.Name))
+	fmt.Fprintf(&out, "Seed %d, strategies %s/%s/%s.\n\n",
+		r.Inputs.Seed, r.Inputs.Career, r.Inputs.Skills, r.Inputs.Muster)
+
+	for _, raw := range r.Events {
+		var event eventJSON
+
+		err := unmarshalEvent(raw, &event)
+		if err != nil {
+			return "", err
+		}
+
+		writeEvent(&out, event)
+	}
+
+	return out.String(), nil
+}
+
+func writeEvent(out *strings.Builder, event eventJSON) {
+	switch event.Kind {
+	case "step":
+		fmt.Fprintf(out, "\n## %s (%s)\n\n", event.Step, event.Pages)
+	case "throw":
+		fmt.Fprintln(out, throwLine(event))
+	case "choice":
+		fmt.Fprintf(out, "%3d. %s: %s chose %s from %s\n",
+			event.Seq, event.Point, event.By, event.Chosen,
+			strings.Join(event.Alternatives, ", "))
+	case "outcome":
+		fmt.Fprintln(out, outcomeLine(event))
+	default:
+		// A record written by a build that logs a kind this one does not
+		// know. Saying so is the point of reading another build's record at
+		// all; rendering it as an outcome would print a blank numbered line
+		// and claim the transcript was complete.
+		fmt.Fprintf(out, "%3d. (unknown event kind %q)\n", event.Seq, event.Kind)
+	}
+}
+
+func throwLine(event eventJSON) string {
+	dice := make([]string, 0, len(event.Dice))
+	for _, die := range event.Dice {
 		dice = append(dice, strconv.Itoa(die))
 	}
 
-	line := fmt.Sprintf("%3d. %s: rolled %s", from.Seq, from.Step, strings.Join(dice, "+"))
+	line := fmt.Sprintf("%3d. %s: rolled %s", event.Seq, event.Step, strings.Join(dice, "+"))
 
-	if from.DM != 0 {
-		line += fmt.Sprintf(" %+d", from.DM)
+	if event.DM != 0 {
+		line += fmt.Sprintf(" %+d", event.DM)
 	}
 
-	// The total is printed whenever it is not simply the dice: a throw with a
-	// target is read against it, and a one-die roll with a modifier is read
-	// off a row the face alone does not name.
-	if from.DM != 0 || from.Target.Number() != 0 {
-		line += fmt.Sprintf(" = %d", from.Total())
+	// The total is printed whenever it is not simply the dice: a throw with
+	// a target is read against it, and a one-die roll with a modifier is
+	// read off a row the face alone does not name.
+	if event.DM != 0 || event.Target != "" {
+		line += fmt.Sprintf(" = %d", event.Total)
 	}
 
-	if from.Target.Number() != 0 {
-		line += fmt.Sprintf(" against %s, %s", from.Target, met(from.Succeeded))
+	if event.Target != "" {
+		line += fmt.Sprintf(" against %s, %s", event.Target, met(event.Succeeded))
 	}
 
-	fmt.Fprintln(t.out, line)
-
-	return nil
+	return line
 }
 
 func met(succeeded bool) string {
@@ -77,30 +131,16 @@ func met(succeeded bool) string {
 	return "missed"
 }
 
-func (t *transcriber) Choice(from traveller.ChoiceEvent) error {
-	fmt.Fprintf(t.out, "%3d. %s: %s chose %s from %s\n",
-		from.Seq, from.Point, from.By, from.Chosen, strings.Join(from.Alternatives, ", "))
+func outcomeLine(event eventJSON) string {
+	line := fmt.Sprintf("%3d. %s", event.Seq, event.Description)
 
-	return nil
-}
-
-func (t *transcriber) Outcome(from traveller.OutcomeEvent) error {
-	line := fmt.Sprintf("%3d. %s", from.Seq, from.Description)
-
-	if from.Because != 0 {
-		line += fmt.Sprintf(" (from %d)", from.Because)
+	if event.Because != 0 {
+		line += fmt.Sprintf(" (from %d)", event.Because)
 	}
 
-	if len(from.Errata) > 0 {
-		ids := make([]string, 0, len(from.Errata))
-		for _, erratum := range from.Errata {
-			ids = append(ids, erratum.String())
-		}
-
-		line += " [" + strings.Join(ids, " ") + "]"
+	if len(event.Errata) > 0 {
+		line += " [" + strings.Join(event.Errata, " ") + "]"
 	}
 
-	fmt.Fprintln(t.out, line)
-
-	return nil
+	return line
 }

@@ -12,6 +12,9 @@ import (
 // rather than a test that quietly stops testing the flag it names.
 const (
 	cmdNew      = "new"
+	cmdRender   = "render"
+	cmdVersion  = "version"
+	wantUsage   = "usage"
 	flagAuto    = "--auto"
 	flagSeed    = "--seed"
 	flagService = "--service"
@@ -25,10 +28,10 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"no command":       {nil, "new|version"},
+		"no command":       {nil, "new|batch|render|version"},
 		"unknown command":  {[]string{"generate"}, "unknown command"},
 		"no --auto":        {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
-		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, "usage"},
+		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, wantUsage},
 		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
 		"no such strategy": {[]string{cmdNew, flagAuto, "--career", "dawdle"}, "no such strategy"},
 	} {
@@ -62,7 +65,7 @@ func TestRunWritesEachRendering(t *testing.T) {
 		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
 		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--sheet"}, "UPP "},
 		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},
-		"version":    {[]string{"version"}, "ctchargen"},
+		"version":    {[]string{cmdVersion}, "ctchargen"},
 	} {
 		var out strings.Builder
 
