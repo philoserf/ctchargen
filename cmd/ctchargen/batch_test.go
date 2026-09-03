@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"math"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -223,4 +225,119 @@ func compact(t *testing.T, text string) string {
 	}
 
 	return string(encoded)
+}
+
+// `-o dir/` names a directory that need not already exist. Without the
+// trailing separator being read as "a directory", the README's own line
+// fails, and `-o characters` quietly writes one JSONL file where twenty
+// records were asked for.
+func TestBatchCreatesTheOutputDirectory(t *testing.T) {
+	t.Parallel()
+
+	dir := filepath.Join(t.TempDir(), "characters") + string(filepath.Separator)
+
+	err := run([]string{
+		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+	}, io.Discard)
+	if err != nil {
+		t.Fatalf("batch into a directory that is not there yet: %v", err)
+	}
+
+	written, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	if err != nil {
+		t.Fatalf("looking for the members: %v", err)
+	}
+
+	if len(written) != 3 {
+		t.Fatalf("wrote %d files, want 3", len(written))
+	}
+}
+
+// A collision anywhere in the batch is found before any of it is written, so
+// a refused batch leaves the directory as it was.
+func TestARefusedBatchWritesNothing(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	// The second member's file, already there.
+	blocked := filepath.Join(dir, "00000000000000000008.json")
+
+	err := os.WriteFile(blocked, []byte("{}\n"), 0o600)
+	if err != nil {
+		t.Fatalf("planting the collision: %v", err)
+	}
+
+	err = run([]string{
+		cmdBatch, flagCount, "4", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+	}, io.Discard)
+	if err == nil {
+		t.Fatal("a batch overwrote an existing member without --force")
+	}
+
+	written, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	if err != nil {
+		t.Fatalf("looking for the members: %v", err)
+	}
+
+	if len(written) != 1 {
+		t.Errorf("a refused batch left %d files behind, want only the one that was there",
+			len(written))
+	}
+}
+
+// A batch cannot make its output directory under an existing file, and says
+// so rather than reporting the first member's open.
+func TestBatchReportsADirectoryItCannotMake(t *testing.T) {
+	t.Parallel()
+
+	blocking := filepath.Join(t.TempDir(), "not-a-directory")
+
+	err := os.WriteFile(blocking, []byte("x"), 0o600)
+	if err != nil {
+		t.Fatalf("planting the file: %v", err)
+	}
+
+	err = run([]string{
+		cmdBatch, flagCount, "2", flagAuto, flagSeed, "7", flagService, other,
+		"-o", filepath.Join(blocking, "members") + string(filepath.Separator),
+	}, io.Discard)
+	if err == nil {
+		t.Fatal("a batch wrote into a directory it could not make")
+	}
+
+	if !strings.Contains(err.Error(), "creating") {
+		t.Errorf("the failure reads %q, which does not name the directory", err)
+	}
+}
+
+// refusingWriter fails every write, which is how the write path's failure is
+// reached without filling a disk.
+type refusingWriter struct{}
+
+var errRefused = errors.New("refused")
+
+func (refusingWriter) Write([]byte) (int, error) { return 0, errRefused }
+
+// A write that fails is reported as the write, and closes what it opened
+// rather than leaving the descriptor held.
+func TestAFailedWriteIsReportedAndClosed(t *testing.T) {
+	t.Parallel()
+
+	closed := false
+
+	where := destination{out: refusingWriter{}, close: func() error {
+		closed = true
+
+		return nil
+	}}
+
+	err := where.write("anything")
+	if !errors.Is(err, errRefused) {
+		t.Errorf("a failed write was reported as %v, want the write's own error", err)
+	}
+
+	if !closed {
+		t.Error("a failed write left the destination open")
+	}
 }

@@ -86,8 +86,14 @@ func writeEvent(out *strings.Builder, event eventJSON) {
 		fmt.Fprintf(out, "%3d. %s: %s chose %s from %s\n",
 			event.Seq, event.Point, event.By, event.Chosen,
 			strings.Join(event.Alternatives, ", "))
-	default:
+	case "outcome":
 		fmt.Fprintln(out, outcomeLine(event))
+	default:
+		// A record written by a build that logs a kind this one does not
+		// know. Saying so is the point of reading another build's record at
+		// all; rendering it as an outcome would print a blank numbered line
+		// and claim the transcript was complete.
+		fmt.Fprintf(out, "%3d. (unknown event kind %q)\n", event.Seq, event.Kind)
 	}
 }
 

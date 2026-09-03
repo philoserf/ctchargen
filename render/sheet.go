@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
+	"github.com/philoserf/ctchargen/traveller"
 )
 
 // Sheet renders a character the way Book 1 summarises one: the UPP line,
@@ -147,8 +148,12 @@ func possessionLines(r record) []string {
 
 func credits(amount int64) string { return fmt.Sprintf("CR %d", amount) }
 
+// shipLine reads a ship's terms off its kind, which is what the terms turn
+// on: a scout ship is held without title (p. 23) whatever its age, and a
+// Free Trader is owned whatever is left to pay. Inferring the one from the
+// other's numbers would call a new, unencumbered Free Trader a scout ship.
 func shipLine(ship shipRecord) string {
-	if ship.PaymentYears == 0 && ship.Years == 0 {
+	if ship.Kind == traveller.ScoutShip.String() {
 		return fmt.Sprintf("%s, %d tons, held in constructive possession", ship.Kind, ship.Tons)
 	}
 

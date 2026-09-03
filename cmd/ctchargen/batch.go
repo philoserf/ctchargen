@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -58,7 +59,7 @@ func batch(args []string, out io.Writer) error {
 		return fmt.Errorf("%w: %w", errUsage, invalid)
 	}
 
-	if isDirectory(*output) {
+	if namesDirectory(*output) {
 		return intoDirectory(base, policy, *count, *output, *force)
 	}
 
@@ -124,9 +125,27 @@ func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
 }
 
 // intoDirectory writes one file per character, named for its own seed.
+//
+// Every member's path is known before a character is generated, so the whole
+// batch is checked for collisions before any of it is written. A batch that
+// stopped halfway would leave a directory holding some of the run and no
+// record of which files were new, and the obvious retry - --force - would
+// then replace the very file the refusal was protecting.
 func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 	count int, dir string, force bool,
 ) error {
+	err := os.MkdirAll(dir, recordDirMode)
+	if err != nil {
+		return fmt.Errorf("creating %s: %w", dir, err)
+	}
+
+	if !force {
+		err = noMemberExists(base.Seed, count, dir)
+		if err != nil {
+			return err
+		}
+	}
+
 	for i := range count {
 		character, err := member(base, policy, i)
 		if err != nil {
@@ -146,6 +165,21 @@ func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 		err = where.write(string(encoded))
 		if err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+// noMemberExists refuses the batch if any member's file is already there.
+func noMemberExists(base uint64, count int, dir string) error {
+	for i := range count {
+		path := memberPath(dir, memberSeed(base, i))
+
+		_, err := os.Stat(path)
+		if err == nil {
+			return fmt.Errorf("%w: %s %w; pass --force to replace it",
+				errUsage, path, errWouldOverwrite)
 		}
 	}
 

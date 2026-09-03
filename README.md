@@ -16,9 +16,12 @@ what remains.
 
 ```sh
 ctchargen new --auto --seed 145 --service merchants --sheet
-ctchargen batch --count 20 --auto -o characters/
+ctchargen batch --count 20 --auto --seed 145 --service merchants -o characters/
 ctchargen render characters/00000000000000000145.json
 ```
+
+Batch members number from zero, so the first of that batch is the character
+the first command generated, and the third command shows the same sheet.
 
 ## The documents
 

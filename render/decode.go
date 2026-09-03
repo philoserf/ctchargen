@@ -25,8 +25,12 @@ func decode(text []byte) (record, error) {
 		return record{}, fmt.Errorf("%w: %w", ErrNotARecord, err)
 	}
 
-	if decoded.UPP == "" || decoded.Ruleset == "" {
-		return record{}, fmt.Errorf("%w: it carries no UPP and no ruleset", ErrNotARecord)
+	if decoded.UPP == "" {
+		return record{}, fmt.Errorf("%w: it carries no UPP", ErrNotARecord)
+	}
+
+	if decoded.Ruleset == "" {
+		return record{}, fmt.Errorf("%w: it names no ruleset", ErrNotARecord)
 	}
 
 	return decoded, nil

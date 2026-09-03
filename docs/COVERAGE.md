@@ -133,6 +133,9 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Each member carries its own derived seed | Determinism | `cmd/ctchargen.member` | `ctchargen.TestEachMemberCarriesItsOwnSeed` |
 | An explicit seed is never re-bounded | Determinism | `cmd/ctchargen.inputsFrom` | `ctchargen.TestAnExplicitSeedIsNeverReBounded` |
 | A record renders to what generating it rendered | FR8 | `render.SheetFrom` | `render.TestARecordRendersToWhatGeneratedItRendered` |
+| A ship's terms follow its kind, not its numbers | 1:22–23 | `render.shipLine` | `render.TestAShipsTermsFollowItsKind` |
+| An event kind this build does not know is said to be unknown | FR11 | `render.writeEvent` | `render.TestAnUnknownEventKindIsSaidToBeUnknown` |
+| A refused batch writes none of itself | CLI sketch | `cmd/ctchargen.noMemberExists` | `ctchargen.TestARefusedBatchWritesNothing` |
 
 ## The book's own character
 

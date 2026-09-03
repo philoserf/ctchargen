@@ -32,7 +32,16 @@ func renderRecord(args []string, out io.Writer) error {
 		return fmt.Errorf("%w: %w", errUsage, err)
 	}
 
-	if flags.NArg() != 1 {
+	// The flag package stops at the first non-flag argument, and the PRD's
+	// CLI sketch says so plainly: flags precede the filename. Someone who
+	// puts them after gets more than one positional argument, and deserves
+	// to be told which of the two mistakes he made.
+	if flags.NArg() > 1 {
+		return fmt.Errorf("%w: flags precede the filename: render [--history] [-o file] [--force] <character.json>",
+			errUsage)
+	}
+
+	if flags.NArg() == 0 {
 		return fmt.Errorf("%w: render [--history] [-o file] [--force] <character.json>", errUsage)
 	}
 

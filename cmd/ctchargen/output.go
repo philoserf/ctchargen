@@ -15,6 +15,10 @@ var errWouldOverwrite = errors.New("already exists")
 // the operator's own, and nothing else needs to read it.
 const recordFileMode = 0o600
 
+// recordDirMode is the mode a directory of records carries, for the same
+// reason: it is the operator's own.
+const recordDirMode = 0o700
+
 // destination is where a subcommand writes: the stream it was handed when no
 // path was given, or a file it opens.
 //
@@ -60,8 +64,25 @@ func create(path string, force bool) (*os.File, error) {
 	return file, nil
 }
 
-// isDirectory reports whether a path names a directory that already exists,
-// which is what tells `-o dir` from `-o file.jsonl`.
+// namesDirectory reports whether `-o` asked for a directory rather than a
+// .jsonl file. A directory that already exists is one; so is a path written
+// with a trailing separator, which is how a referee names a directory that
+// is not there yet. Without the second reading, `-o characters/` is a file
+// the open fails on and `-o characters` is one opaque file where twenty
+// records were asked for.
+func namesDirectory(path string) bool {
+	if path == "" {
+		return false
+	}
+
+	if os.IsPathSeparator(path[len(path)-1]) {
+		return true
+	}
+
+	return isDirectory(path)
+}
+
+// isDirectory reports whether a path names a directory that already exists.
 func isDirectory(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -75,6 +96,10 @@ func isDirectory(path string) bool {
 func (d destination) write(text string) error {
 	_, err := io.WriteString(d.out, text)
 	if err != nil {
+		// Close anyway - a failed write still holds the descriptor - but
+		// report the write, which is what went wrong.
+		_ = d.close()
+
 		return fmt.Errorf("writing: %w", err)
 	}
 
