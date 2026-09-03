@@ -49,6 +49,14 @@ linters:
         path: traveller/
         text: "exported method \\S+\\.(Fold|Sequence) should have comment"
 
+      # The second transcription of every table is a literal, cell by cell,
+      # typed from the page. Collapsing a repeated cell into a constant is
+      # exactly the coupling it exists to prevent: one constant means one
+      # typo reaches every cell that shares it, and the two copies stop
+      # being two readings. Repetition is the mechanism here, not a smell.
+      - linters: [goconst]
+        path: rules/.*_test\.go
+
 formatters:
   enable:
     - gofmt
