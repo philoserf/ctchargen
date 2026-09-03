@@ -64,7 +64,13 @@ func parseTitle(name string) (traveller.Title, error) {
 
 // alteration matches a characteristic alteration as the tables print one:
 // "+1 Strength", "-1 Social Standing", "+2 Education".
-var alteration = regexp.MustCompile(`^([+-])(\d+) (.+)$`)
+//
+// Both minus glyphs are accepted, the ASCII hyphen a data file is typed with
+// and the U+2212 the page is set in, for the same reason traveller.Target
+// accepts both: someone transcribing p. 11 will type what he sees, and the
+// two are indistinguishable on screen. A signed cell that does not parse
+// here is refused outright rather than accumulating as a skill of that name.
+var alteration = regexp.MustCompile(`^([+\-−])(\d+) (.+)$`)
 
 // parseAlteration reads a characteristic alteration, reporting whether the
 // cell is one at all.
@@ -78,7 +84,7 @@ func parseAlteration(cell string) (traveller.Characteristic, int, bool, error) {
 	if err != nil {
 		return 0, 0, false, fmt.Errorf("alteration %q: %w", cell, err)
 	}
-	if match[1] == "-" {
+	if match[1] != "+" {
 		size = -size
 	}
 
@@ -112,9 +118,31 @@ func parseDM(amount int, condition string) (DM, error) {
 	return DM{Amount: amount, Characteristic: characteristic, Threshold: target}, nil
 }
 
+// signs are the three characters a cell may open a characteristic
+// alteration with: the ASCII plus and hyphen a data file is typed with, and
+// the U+2212 the page is set in.
+var signs = []string{"+", "-", "−"}
+
+// startsWithSign reports whether a cell opens with the sign of an
+// alteration. P. 3 puts the sign of a modifier before its number, so a cell
+// beginning with one is an alteration or it is a defect — never a skill.
+func startsWithSign(cell string) bool {
+	for _, sign := range signs {
+		if strings.HasPrefix(cell, sign) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // parseTableResult reads one cell of the Acquired Skills Table (p. 11).
-// P. 12 names exactly three kinds a cell can be, and this is where a cell
-// that is none of them is caught.
+// P. 12 names exactly three kinds a cell can be. Only the third is open —
+// SkillName does not close at compile time — so the guard that matters here
+// is the one on the other two: a cell that opens with a sign and did not
+// parse as an alteration is refused rather than accumulating as a skill of
+// that name. Without it "−1 Social Standing", typed with the page's own
+// minus, lifts as a skill indistinguishable on screen from the real cell.
 func parseTableResult(cell string, normalize map[string]string) (traveller.TableResult, error) {
 	characteristic, size, isAlteration, err := parseAlteration(cell)
 	if err != nil {
@@ -123,12 +151,16 @@ func parseTableResult(cell string, normalize map[string]string) (traveller.Table
 	if isAlteration {
 		return traveller.AlterationResult{Characteristic: characteristic, Delta: size}, nil
 	}
+	if startsWithSign(cell) {
+		return nil, fmt.Errorf("%q begins with a sign but is not a characteristic alteration", cell)
+	}
 
-	if category, ok := weaponCategories[expand(cell, normalize)]; ok {
+	spelled := expand(cell, normalize)
+	if category, ok := weaponCategories[spelled]; ok {
 		return traveller.WeaponPickResult{Category: category}, nil
 	}
 
-	return traveller.SkillResult{Name: traveller.SkillName(expand(cell, normalize))}, nil
+	return traveller.SkillResult{Name: traveller.SkillName(spelled)}, nil
 }
 
 // parseBenefitRow reads one cell of Mustering Out Table 1 (p. 9).

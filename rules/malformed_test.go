@@ -46,6 +46,12 @@ func TestMalformedServices(t *testing.T) {
 			func(w *wireServices) { w.Services = w.Services[:5] },
 			"columns",
 		},
+		// The count has to be checked before the order is, because the
+		// order comparison indexes the domain's own array by column.
+		"an extra column": {
+			func(w *wireServices) { w.Services = append(w.Services, "Navy") },
+			"columns",
+		},
 		"columns out of book order": {
 			func(w *wireServices) { w.Services[0], w.Services[1] = w.Services[1], w.Services[0] },
 			"want Navy",
@@ -89,6 +95,15 @@ func TestMalformedGrantsAndRetirement(t *testing.T) {
 			t.Fatalf("lifting the prior service table: %v", err)
 		}
 
+		// The cases below break one row of each of these, so a fixture that
+		// quietly lost them would make them vacuous rather than failing.
+		if len(wire.RankAndServiceSkills) == 0 || len(wire.RetirementPay.ByTerms) < 2 ||
+			len(wire.RetirementPay.PaidBy) == 0 {
+			t.Fatalf("the fixture is too thin to break: %d grants, %d pension rows, %d payers",
+				len(wire.RankAndServiceSkills), len(wire.RetirementPay.ByTerms),
+				len(wire.RetirementPay.PaidBy))
+		}
+
 		return r, wire
 	}
 
@@ -107,6 +122,29 @@ func TestMalformedGrantsAndRetirement(t *testing.T) {
 	r, wire = base(t)
 	wire.RetirementPay.PaidBy[0] = "Merchant"
 	refuses(t, "a pension paid by a service that does not exist", r.liftRetirement(wire), "Merchant")
+
+	r, wire = base(t)
+	wire.RetirementPay.ByTerms[1].Pay = 0
+	refuses(t, "a pension row that pays nothing", r.liftRetirement(wire), "is not a pension")
+
+	r, wire = base(t)
+	wire.RetirementPay.ByTerms[0], wire.RetirementPay.ByTerms[1] =
+		wire.RetirementPay.ByTerms[1], wire.RetirementPay.ByTerms[0]
+	refuses(t, "pension rows out of order", r.liftRetirement(wire), "the table's rows ascend")
+
+	r, wire = base(t)
+	wire.RetirementPay.PerTermBeyondEight = 0
+	refuses(t, "nothing paid past the table", r.liftRetirement(wire), "per additional term")
+
+	// The two cases that empty a slice come last: nothing may index these
+	// fixtures afterwards.
+	r, wire = base(t)
+	wire.RetirementPay.PaidBy = nil
+	refuses(t, "a pension no service pays", r.liftRetirement(wire), "no service pays it")
+
+	r, wire = base(t)
+	wire.RetirementPay.ByTerms = nil
+	refuses(t, "a pension table with no rows", r.liftRetirement(wire), "prints no rows")
 }
 
 func TestMalformedSkills(t *testing.T) {
@@ -136,6 +174,14 @@ func TestMalformedSkills(t *testing.T) {
 		"a cell that alters a characteristic that does not exist": {
 			func(w *wireSkills) { w.Tables["Service Skills Table"][0][0] = "+1 Charisma" },
 			"Charisma",
+		},
+		// A signed cell that is not an alteration is refused outright.
+		// Letting it through would accumulate it as a skill whose name is
+		// the whole cell - a wrong value that looks right on screen, which
+		// is the failure this package exists to prevent.
+		"a signed cell that is not an alteration": {
+			func(w *wireSkills) { w.Tables["Service Skills Table"][0][0] = "+x Social Standing" },
+			"begins with a sign",
 		},
 		"an education gate on a table that does not exist": {
 			func(w *wireSkills) { w.EducationGate.Table = "Basic Training" },

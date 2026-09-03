@@ -44,6 +44,15 @@ func TestParseAlteration(t *testing.T) {
 		t.Errorf("-1 Social Standing lifted to %v %d (%v, %v)", characteristic, size, ok, err)
 	}
 
+	// The page sets its minus as U+2212 and a data file is typed with an
+	// ASCII hyphen. Someone transcribing p. 11 types what he sees, and the
+	// two are indistinguishable on screen, so both must lift the same way.
+	printed, printedSize, ok, err := parseAlteration("\u22121 Social Standing")
+	if err != nil || !ok || printed != traveller.SocialStanding || printedSize != -1 {
+		t.Errorf("an alteration typed with the page's own minus lifted to %v %d (%v, %v)",
+			printed, printedSize, ok, err)
+	}
+
 	if _, _, ok, err := parseAlteration("Gunnery"); ok || err != nil {
 		t.Errorf("Gunnery read as an alteration (%v, %v)", ok, err)
 	}

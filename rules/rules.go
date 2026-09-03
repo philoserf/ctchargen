@@ -251,18 +251,24 @@ func (g Gate) Open(p traveller.Profile) bool { return g.Threshold.Satisfied(p[g.
 
 // Retirement is the Annual Retirement Pay table (p. 21).
 type Retirement struct {
-	ByTerms            map[int]traveller.Credits
-	PerTermBeyondEight traveller.Credits
+	ByTerms           map[int]traveller.Credits
+	PerAdditionalTerm traveller.Credits
+
+	// lastTabled is the largest term the table prints a row for, taken from
+	// the data rather than written here. P. 21's table ends at 8 terms, but
+	// that 8 is a number the page prints, and a number the page prints is
+	// data with a cite, never a constant in the code beside it.
+	lastTabled int
 }
 
 // Pay is the annual pension for a number of terms served, in a service that
 // pays one. P. 21: "Service beyond 8 terms adds CR 2000 per additional
 // term."
 func (r Retirement) Pay(terms int) traveller.Credits {
-	const last = 8
+	if terms > r.lastTabled {
+		beyond := traveller.Credits(terms - r.lastTabled)
 
-	if terms > last {
-		return r.ByTerms[last] + traveller.Credits(terms-last)*r.PerTermBeyondEight
+		return r.ByTerms[r.lastTabled] + beyond*r.PerAdditionalTerm
 	}
 
 	return r.ByTerms[terms]
@@ -279,10 +285,13 @@ type Muster struct {
 	ResalePercent        int
 }
 
-// Rolls is how many benefit rolls a character has earned (pp. 7, 9): "One
-// benefit roll is allowed for each term of service served. Additionally, a
-// character who has received rank 1 or 2 receives one extra roll. A
-// character who has achieved rank 3 or 4 receives two extra rolls."
+// Rolls is how many benefit rolls a character has earned. P. 9 states it in
+// one sentence and reaches every rank: "Characters are allowed one roll per
+// term of service; rank 1 or 2 is allowed one extra roll, rank 3 or higher
+// is allowed two extra rolls." P. 7 says the same at more length, and adds
+// that a character of rank 5 or 6 "receives 2 extra rolls, and may add 1 to
+// his die roll when consulting Table 1" - which is why the test above it
+// expects seven rolls for Jamison at five terms and rank 5.
 func (m Muster) Rolls(terms int, rank traveller.Rank) int {
 	rolls := terms * m.PerTerm
 

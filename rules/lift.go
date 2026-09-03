@@ -216,19 +216,22 @@ func eachService(header, row []string, what string, fn func(traveller.ServiceNam
 }
 
 func (r *Rules) liftPriorService(wire wireServices) error {
+	// The count is checked first, as eachService checks it: the order
+	// comparison below indexes the domain's own array by column, so a
+	// column past its end has to be refused before it is reached.
+	if len(wire.Services) != len(traveller.ServiceNames) {
+		return fmt.Errorf("prior service table: %d columns, want %d",
+			len(wire.Services), len(traveller.ServiceNames))
+	}
 	for i, name := range wire.Services {
 		service, err := parseService(name)
 		if err != nil {
 			return fmt.Errorf("prior service table column %d: %w", i+1, err)
 		}
-		if i >= len(traveller.ServiceNames) || service != traveller.ServiceNames[i] {
+		if service != traveller.ServiceNames[i] {
 			return fmt.Errorf("prior service table column %d is %v, want %v",
 				i+1, service, traveller.ServiceNames[i])
 		}
-	}
-	if len(wire.Services) != len(traveller.ServiceNames) {
-		return fmt.Errorf("prior service table: %d columns, want %d",
-			len(wire.Services), len(traveller.ServiceNames))
 	}
 
 	rows := map[string]int{
@@ -324,13 +327,34 @@ func (r *Rules) liftGrants(wire wireServices) error {
 }
 
 func (r *Rules) liftRetirement(wire wireServices) error {
-	r.Retirement.ByTerms = make(map[int]traveller.Credits, len(wire.RetirementPay.ByTerms))
-	for _, row := range wire.RetirementPay.ByTerms {
-		r.Retirement.ByTerms[row.Terms] = traveller.Credits(row.Pay)
+	pay := wire.RetirementPay
+	if len(pay.ByTerms) == 0 {
+		return fmt.Errorf("retirement pay: the table prints no rows")
 	}
-	r.Retirement.PerTermBeyondEight = traveller.Credits(wire.RetirementPay.PerTermBeyondEight)
 
-	for _, name := range wire.RetirementPay.PaidBy {
+	r.Retirement.ByTerms = make(map[int]traveller.Credits, len(pay.ByTerms))
+	for _, row := range pay.ByTerms {
+		if row.Pay <= 0 {
+			return fmt.Errorf("retirement pay at %d terms: %d is not a pension", row.Terms, row.Pay)
+		}
+		if row.Terms <= r.Retirement.lastTabled {
+			return fmt.Errorf("retirement pay: %d terms does not follow %d; the table's rows ascend",
+				row.Terms, r.Retirement.lastTabled)
+		}
+		r.Retirement.ByTerms[row.Terms] = traveller.Credits(row.Pay)
+		r.Retirement.lastTabled = row.Terms
+	}
+
+	if pay.PerTermBeyondEight <= 0 {
+		return fmt.Errorf("retirement pay: %d per additional term past the table",
+			pay.PerTermBeyondEight)
+	}
+	r.Retirement.PerAdditionalTerm = traveller.Credits(pay.PerTermBeyondEight)
+
+	if len(pay.PaidBy) == 0 {
+		return fmt.Errorf("retirement pay: no service pays it")
+	}
+	for _, name := range pay.PaidBy {
 		service, err := parseService(name)
 		if err != nil {
 			return fmt.Errorf("retirement pay: %w", err)
@@ -342,11 +366,12 @@ func (r *Rules) liftRetirement(wire wireServices) error {
 }
 
 func (r *Rules) liftSkills(wire wireSkills) error {
-	if len(wire.Tables) != len(traveller.SkillTables) {
-		return fmt.Errorf("acquired skills: %d tables, want %d", len(wire.Tables), len(traveller.SkillTables))
+	tables := withoutNotes(wire.Tables)
+	if len(tables) != len(traveller.SkillTables) {
+		return fmt.Errorf("acquired skills: %d tables, want %d", len(tables), len(traveller.SkillTables))
 	}
 
-	for name, rows := range wire.Tables {
+	for name, rows := range tables {
 		table, err := parseSkillTable(name)
 		if err != nil {
 			return fmt.Errorf("acquired skills: %w", err)
