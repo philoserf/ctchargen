@@ -166,6 +166,7 @@ linters:
       # that forwarded it.
       ignore-interface-regexps:
         - 'Cases$'
+        - 'Decider$'
 
     wsl_v5:
       # Every check, not the default subset.

@@ -158,10 +158,11 @@ func TestChoicePointsMatchTheDecider(t *testing.T) {
 // notYetReachable names the errata no generated character can carry yet,
 // because the service or the step that would stamp them is not implemented.
 //
-// The PRD asks that every erratum heading be reachable by some path. That
-// gate cannot hold until milestone 3, so it ships with its exemptions
-// written down and printed on every run. The list may only shrink, and must
-// be empty when the six services and mustering out are complete.
+// The PRD asks that every erratum heading be reachable by some path. The
+// engine now reaches ten of the fourteen by a generated record, and two more
+// - E003 and E014 - by a scripted die, which is the instrument the PRD gives
+// for a path no seed reaches. What is left needs a service with ranks. The
+// list may only shrink, and must be empty when the six services are done.
 //
 // It is a list and not a map keyed by Erratum on purpose: a map keyed by the
 // enum reads as a complete table of every reading, and this is the opposite
@@ -171,25 +172,11 @@ type exemption struct {
 	because string
 }
 
-const (
-	noEngineYet      = "the engine does not run this step yet"
-	notThisMilestone = "needs a service the engine does not run yet (milestone 2)"
-)
+const notThisMilestone = "needs a service with ranks, which arrives at milestone 2"
 
 var notYetReachable = []exemption{
-	{traveller.E001, noEngineYet},
-	{traveller.E002, noEngineYet},
-	{traveller.E003, noEngineYet},
-	{traveller.E004, noEngineYet},
-	{traveller.E005, notThisMilestone},
-	{traveller.E006, noEngineYet},
-	{traveller.E007, noEngineYet},
-	{traveller.E008, noEngineYet},
-	{traveller.E009, noEngineYet},
-	{traveller.E010, noEngineYet},
-	{traveller.E011, noEngineYet},
+	{traveller.E005, "the engine reaches it only in a service that grants one"},
 	{traveller.E013, notThisMilestone},
-	{traveller.E014, noEngineYet},
 }
 
 // stampedOnNoRecord is E012 and only E012, which by design names no record:

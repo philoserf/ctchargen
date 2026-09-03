@@ -66,7 +66,12 @@ tasks:
     # every gate and every CI run, for one profile that does not change.
     run: once
     cmds:
-      - go test -race -covermode=atomic -coverprofile={{.PROFILE}} ./...
+      # -coverpkg because the packages are exercised across package lines:
+      # render is driven by chargen's golden tests, and the engine by the
+      # command's. Without it the profile counts only the package under
+      # test, and the ratchet reads code as uncovered that every run
+      # executes.
+      - go test -race -covermode=atomic -coverpkg=./... -coverprofile={{.PROFILE}} ./...
 
   ratchet:
     desc: Uncovered statements per package have not moved

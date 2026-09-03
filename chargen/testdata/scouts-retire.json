@@ -1,0 +1,351 @@
+{
+  "name": "",
+  "upp": "7C8669",
+  "characteristics": {
+    "Dexterity": 12,
+    "Education": 6,
+    "Endurance": 8,
+    "Intelligence": 6,
+    "Social Standing": 9,
+    "Strength": 7
+  },
+  "age": {
+    "years": 26
+  },
+  "terms": 2,
+  "enlistment": {
+    "how": "enlisted",
+    "service": "Scouts"
+  },
+  "service": "Scouts",
+  "skills": [
+    {
+      "name": "Air/Raft",
+      "level": 2
+    },
+    {
+      "name": "Pilot",
+      "level": 1
+    }
+  ],
+  "benefits": {
+    "cash": 0
+  },
+  "departure": {
+    "how": "killed by the survival throw"
+  },
+  "inputs": {
+    "seed": 1,
+    "service": "Scouts",
+    "career": "retire",
+    "skills": "service",
+    "muster": "spartan"
+  },
+  "errata": [
+    "E002",
+    "E004",
+    "E005"
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "kind": "step",
+      "step": "characteristics",
+      "pages": "p. 4"
+    },
+    {
+      "seq": 2,
+      "kind": "throw",
+      "step": "Strength",
+      "dice": [
+        6,
+        1
+      ],
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 3,
+      "kind": "outcome",
+      "because": 2,
+      "description": "Strength 7"
+    },
+    {
+      "seq": 4,
+      "kind": "throw",
+      "step": "Dexterity",
+      "dice": [
+        6,
+        6
+      ],
+      "total": 12,
+      "succeeded": true
+    },
+    {
+      "seq": 5,
+      "kind": "outcome",
+      "because": 4,
+      "description": "Dexterity 12"
+    },
+    {
+      "seq": 6,
+      "kind": "throw",
+      "step": "Endurance",
+      "dice": [
+        2,
+        6
+      ],
+      "total": 8,
+      "succeeded": true
+    },
+    {
+      "seq": 7,
+      "kind": "outcome",
+      "because": 6,
+      "description": "Endurance 8"
+    },
+    {
+      "seq": 8,
+      "kind": "throw",
+      "step": "Intelligence",
+      "dice": [
+        5,
+        1
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 9,
+      "kind": "outcome",
+      "because": 8,
+      "description": "Intelligence 6"
+    },
+    {
+      "seq": 10,
+      "kind": "throw",
+      "step": "Education",
+      "dice": [
+        4,
+        2
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 11,
+      "kind": "outcome",
+      "because": 10,
+      "description": "Education 6"
+    },
+    {
+      "seq": 12,
+      "kind": "throw",
+      "step": "Social Standing",
+      "dice": [
+        3,
+        6
+      ],
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 13,
+      "kind": "outcome",
+      "because": 12,
+      "description": "Social Standing 9"
+    },
+    {
+      "seq": 14,
+      "kind": "outcome",
+      "description": "UPP 7C8669 at age 18"
+    },
+    {
+      "seq": 15,
+      "kind": "step",
+      "step": "enlistment",
+      "pages": "pp. 5, 10"
+    },
+    {
+      "seq": 16,
+      "kind": "throw",
+      "step": "enlistment, Scouts",
+      "dice": [
+        3,
+        3
+      ],
+      "dm": 1,
+      "target": "7+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 17,
+      "kind": "outcome",
+      "because": 16,
+      "description": "enlisted in the Scouts"
+    },
+    {
+      "seq": 18,
+      "kind": "step",
+      "step": "rank and service skills",
+      "pages": "p. 23"
+    },
+    {
+      "seq": 19,
+      "kind": "outcome",
+      "description": "Pilot-1",
+      "errata": [
+        "E005"
+      ]
+    },
+    {
+      "seq": 20,
+      "kind": "step",
+      "step": "term 1",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 21,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        1,
+        6
+      ],
+      "target": "7+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 22,
+      "kind": "outcome",
+      "because": 21,
+      "description": "survived term 1"
+    },
+    {
+      "seq": 23,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 24,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
+      ],
+      "chosen": "Service Skills Table"
+    },
+    {
+      "seq": 25,
+      "kind": "throw",
+      "step": "Service Skills Table",
+      "dice": [
+        1
+      ],
+      "total": 1,
+      "succeeded": true
+    },
+    {
+      "seq": 26,
+      "kind": "outcome",
+      "because": 25,
+      "description": "Air/Raft-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 27,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
+      ],
+      "chosen": "Service Skills Table"
+    },
+    {
+      "seq": 28,
+      "kind": "throw",
+      "step": "Service Skills Table",
+      "dice": [
+        1
+      ],
+      "total": 1,
+      "succeeded": true
+    },
+    {
+      "seq": 29,
+      "kind": "outcome",
+      "because": 28,
+      "description": "Air/Raft-2",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 30,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        3,
+        2
+      ],
+      "target": "3+",
+      "total": 5,
+      "succeeded": true
+    },
+    {
+      "seq": 31,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 32,
+      "kind": "outcome",
+      "because": 30,
+      "description": "reenlisted for term 2"
+    },
+    {
+      "seq": 33,
+      "kind": "step",
+      "step": "term 2",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 34,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        2,
+        4
+      ],
+      "target": "7+",
+      "total": 6,
+      "succeeded": false
+    },
+    {
+      "seq": 35,
+      "kind": "outcome",
+      "because": 34,
+      "description": "died in term 2, aged 26",
+      "errata": [
+        "E004"
+      ]
+    }
+  ]
+}

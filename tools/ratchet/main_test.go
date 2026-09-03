@@ -37,6 +37,30 @@ func TestParseProfileCountsOnlyUnexecutedStatements(t *testing.T) {
 	}
 }
 
+// The same block reported by two test binaries, uncovered by one and
+// covered by the other, is covered. Under -coverpkg every binary
+// instruments every package, so this is the ordinary case rather than an
+// edge one.
+func TestParseProfileSumsRepeatedBlocks(t *testing.T) {
+	t.Parallel()
+
+	const twice = `mode: atomic
+x/y/z.go:1.1,2.2 3 0
+x/y/z.go:1.1,2.2 3 1
+x/y/z.go:4.1,5.2 2 0
+x/y/z.go:4.1,5.2 2 0
+`
+
+	got, err := parseProfile(strings.NewReader(twice))
+	if err != nil {
+		t.Fatalf("parseProfile: %v", err)
+	}
+
+	if got["x/y"] != 2 {
+		t.Errorf("uncovered = %d, want 2: the first block is covered by one binary of the two", got["x/y"])
+	}
+}
+
 // A package that is fully covered must still appear, or a later regression
 // in it would read as a brand new package rather than as a rise.
 func TestParseProfileKeepsFullyCoveredPackages(t *testing.T) {
