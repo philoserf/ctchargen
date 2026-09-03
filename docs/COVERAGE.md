@@ -17,9 +17,8 @@ All six services. P. 10 makes ranks, commissions and promotions one fact —
 services" — so the four that print a rank column have all three, and the two
 that print none have none.
 
-Still to come at milestone 2: the reproduction of the book's own worked
-character (pp. 23–25), and Book 2 pp. 18–19 for the ships the two ship
-benefits name.
+The book's own worked character (pp. 23–25) is replayed against the engine,
+and Book 2 pp. 18–19 give the two ships the benefits name.
 
 ## Characteristics and the record
 
@@ -106,6 +105,7 @@ benefits name.
 | A repeat weapon may be taken as expertise, or as a different weapon | 1:22 | `chargen.takeWeapon` | goldens `scouts-expertise`, `scouts-diversified` |
 | Free Trader: 40 years of payments, 10 off per repeat | 1:22–23 | `chargen.run.receiveShipAgain` | golden `merchants-captain` |
 | Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | golden `scouts-second-ship` |
+| The ships the two benefits name: Type S, Type A | 2:18–19 | `rules.Rules.Hull` | `rules.TestShipHulls` |
 | Retirement pay from term 5, not for Scouts or Other | 1:7, 21 | `chargen.run.pension` | `rules.TestRetirementPay`; golden `navy-captain` |
 
 ## Titles
@@ -125,3 +125,14 @@ benefits name.
 | Each choice names who decided and what was offered | FR11 | `chargen.logging` | golden transcripts |
 | Every reading that governed a record is named on it | Authority | `chargen.log.stamped` | `chargen.TestEveryReadingIsReachable` |
 | One seed reproduces one character | Determinism | `dice.Stream` | `chargen.TestGoldensRegenerate` |
+
+## The book's own character
+
+| Rule | Page | Implementation | Test |
+| --- | --- | --- | --- |
+| The worked example reproduces | 1:23–25 | the whole engine | `chargen.TestTheWorkedExampleReproduces` |
+| Its skills, as its inset lists them | 1:25 | `chargen.Character.addSkill` | `chargen.TestTheWorkedExamplesSkills` |
+| Its ship, cash and pension | 1:25 | `chargen.run.musterOut`, `pension` | `chargen.TestTheWorkedExamplesPossessions` |
+| A printed table governs over the example's stated result | 1:9, 25 (E015) | `rules` lift | `chargen.TestTheWorkedExamplesDepartures` |
+| The example's per-term order is not followed | 1:24 (E002) | `chargen.run.term` | `chargen.TestTheWorkedExamplesDepartures` |
+| The example's batched aging is not followed | 1:25 (E006) | `chargen.run.agingRound` | `chargen.TestTheWorkedExamplesDepartures` |

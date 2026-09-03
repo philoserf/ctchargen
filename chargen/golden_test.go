@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -216,8 +217,13 @@ func TestEveryReadingIsReachable(t *testing.T) {
 		stamped[erratum] = true
 	}
 
+	// The two readings that name no record. E012 is a spelling, which
+	// changes nothing about a character; E015 settles the worked example
+	// against a table, and only the replay of that example depends on it.
+	namesNoRecord := []traveller.Erratum{traveller.E012, traveller.E015}
+
 	for _, erratum := range traveller.Errata {
-		if erratum == traveller.E012 {
+		if slices.Contains(namesNoRecord, erratum) {
 			if stamped[erratum] {
 				t.Errorf("%v is stamped on a record; ERRATA.md says it names none", erratum)
 			}

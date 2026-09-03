@@ -295,6 +295,24 @@ func TestMusterRollsAndPassages(t *testing.T) {
 	}
 }
 
+// The two starships a mustering out benefit delivers (Book 2 pp. 18-19).
+// The Scout/Courier "using the type 100 hull"; the Free Trader "using the
+// type 200 hull".
+func TestShipHulls(t *testing.T) {
+	t.Parallel()
+
+	r := load(t)
+
+	for kind, want := range map[traveller.ShipKind]int{
+		traveller.ScoutShip:  100,
+		traveller.FreeTrader: 200,
+	} {
+		if got := r.Hull(kind); got != want {
+			t.Errorf("%v is built on a type %d hull, want %d", kind, got, want)
+		}
+	}
+}
+
 // The Nobility table (Book 3 p. 22).
 func TestNobility(t *testing.T) {
 	t.Parallel()

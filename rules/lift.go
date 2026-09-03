@@ -104,6 +104,13 @@ type wireWeapons struct {
 	Lists map[string][]string `json:"lists"`
 }
 
+type wireShips struct {
+	Ships []struct {
+		Kind     string `json:"kind"`
+		HullTons int    `json:"hullTons"`
+	} `json:"ships"`
+}
+
 type wireNobility struct {
 	Titles []struct {
 		SocialStanding int    `json:"socialStanding"`
@@ -178,6 +185,11 @@ func load() (*Rules, error) {
 		return nil, err
 	}
 
+	ships, err := read[wireShips]("ships.json")
+	if err != nil {
+		return nil, err
+	}
+
 	for _, lift := range []func() error{
 		func() error { return rules.liftPriorService(services) },
 		func() error { return rules.liftGrants(services) },
@@ -187,6 +199,7 @@ func load() (*Rules, error) {
 		func() error { return rules.liftAging(aging) },
 		func() error { return rules.liftWeapons(weapons) },
 		func() error { return rules.liftNobility(nobility) },
+		func() error { return rules.liftShips(ships) },
 	} {
 		err := lift()
 		if err != nil {
@@ -644,6 +657,34 @@ func (r *Rules) liftWeapons(wire wireWeapons) error {
 
 			seen[name] = true
 			r.weapons[category] = append(r.weapons[category], traveller.WeaponName(name))
+		}
+	}
+
+	return nil
+}
+
+// liftShips reads the two starships a mustering out benefit can deliver
+// (Book 2 pp. 18-19).
+func (r *Rules) liftShips(wire wireShips) error {
+	seen := make(map[traveller.ShipKind]bool, len(traveller.ShipKinds))
+
+	for _, row := range wire.Ships {
+		kind, err := lookup(shipKinds, row.Kind, "ship")
+		if err != nil {
+			return fmt.Errorf("%w: ships: %w", ErrMalformed, err)
+		}
+
+		if row.HullTons <= 0 {
+			return fmt.Errorf("%w: ships, %v: %d is not a hull size", ErrMalformed, kind, row.HullTons)
+		}
+
+		r.hulls[kind] = row.HullTons
+		seen[kind] = true
+	}
+
+	for _, kind := range traveller.ShipKinds {
+		if !seen[kind] {
+			return fmt.Errorf("%w: ships: no hull for %v", ErrMalformed, kind)
 		}
 	}
 

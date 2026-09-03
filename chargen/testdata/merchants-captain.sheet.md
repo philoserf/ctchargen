@@ -16,7 +16,7 @@ UPP 674979, age 46, Merchants Captain, 7 terms, retired
 - CR 65000
 - Low Passage
 - Dagger
-- Free Trader, Type A, 10 years old, with 30 years of payments left
+- Free Trader, Type A, 200 tons, 10 years old, with 30 years of payments left
 - CR 8000 a year in retirement pay
 
 ## Service record

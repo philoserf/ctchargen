@@ -57,6 +57,7 @@
     "ships": [
       {
         "kind": "Free Trader, Type A",
+        "tons": 200,
         "years": 10,
         "paymentYears": 30
       }
