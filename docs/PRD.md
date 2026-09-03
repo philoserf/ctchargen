@@ -155,6 +155,13 @@ gate — are steps, checked where they are applied, with their page cite.
   and delegates: it must implement every method to compile, so a new
   choice point cannot reach the engine without reaching the log.
 - `Erratum`: the recorded readings of ERRATA.md, by id.
+- `Intent`: continue | discharge | retire, the answer at the end of a term
+  (pp. 6–7, 21). Discharge and retire never both appear: p. 21 makes leaving
+  at the end of the fifth term or later retirement by definition.
+- `MusterTable`: Table 1, Table 2 (p. 9).
+- `Title`: the five of Book 3 p. 22, knight/dame through duke/duchess. The
+  pair is kept, because p. 8 records that the rules require no gender.
+- `DecidedBy`: player | policy, which the event log records for each choice.
 
 **Value types** — meaning, not primitives:
 
@@ -174,7 +181,16 @@ gate — are steps, checked where they are applied, with their page cite.
   applied at a choice point; a type that stopped at 7 would reject a
   character the book permits.
 - `Skill`: a name and a level, with the specific weapon where the rules
-  demand one ("Dagger-1", p. 25) and the category that demanded the pick.
+  demand one ("Dagger-1", p. 25). It does **not** carry the category that
+  demanded the pick: which category a weapon belongs to is printed data
+  (pp. 12–13) that `rules` holds, and a copy kept beside it could disagree
+  with the list it came from. Types carry identity, never rule invariants —
+  the rule this document states two paragraphs above.
+- `EnlistmentOffer`: one service a character may attempt, carried to the
+  `Decider` with what the choice turns on — the service, its printed
+  enlistment throw, and the cumulative DM this character earns against it
+  (pp. 5, 10). The DM travels with the offer so that choosing a service stays
+  a pure function of what the chooser is handed.
 - `WeaponName`: the one name that does _not_ close at compile time. The
   blade and gun lists are printed data (pp. 12–13), so weapon names lift
   from the embedded lists and are checked against the list for their
@@ -190,13 +206,32 @@ gate — are steps, checked where they are applied, with their page cite.
   is Table 2's whole content; Table 1 prints no money row) | passage |
   characteristic alteration | weapon category | Travellers' Aid | ship |
   nothing (Table 1's "—" rows).
-- `Departure`: discharged | forced out | retired | died.
+- `Departure`: discharged | forced out | retired | killed by the survival
+  throw | killed by a medical crisis. The book's own word is "died"; it is
+  two cases because the two deaths do not carry the same fields — a survival
+  failure carries only its term (p. 5), a crisis carries the characteristic
+  that reached zero (pp. 7–8, E008).
+- `WeaponBenefit`: take the weapon | take +1 expertise in a weapon already
+  received as a benefit of that category (p. 22).
 - `Event`: step | throw | choice | outcome (FR10), each carrying only its
   own fields.
 
-No rules language, and no stringly-typed dispatch: where the engine
-switches on one of these types, the switch is exhaustive and the compiler
-says so when a case is added.
+No rules language, and no stringly-typed dispatch. Exhaustiveness is
+promised here, so it is worth being exact about what keeps the promise,
+because Go does not:
+
+- **The sums are folds.** Each is an interface whose `Fold` takes a cases
+  interface with one method per case. Adding a case adds a method, and every
+  implementation stops compiling until it handles it. That is the compiler,
+  and nothing can switch it off. A type switch over a sealed interface would
+  not do this: neither the compiler nor the `exhaustive` linter checks that
+  one covers every implementation, so it would be an exhaustiveness promise
+  that nothing keeps.
+- **The closed alphabets are checked by the `exhaustive` linter**, which the
+  gate runs with `default-signifies-exhaustive: false`. That is weaker than
+  the compiler and it is worth saying so: Go does not check switch
+  exhaustiveness at all, and dropping that linter would drop the guarantee
+  without breaking a build.
 
 ## Functional requirements
 
@@ -320,7 +355,9 @@ table, +CR 2,000 per term past 8 (pp. 7, 21).
 through duke/duchess at 15 (Book 3 p. 22). Assuming it is a choice point;
 the record stores the eligibility and the choice.
 
-_When_ eligibility is assessed needs a recorded reading. The page fixes no
+_When_ eligibility is assessed needed a recorded reading, and E011 is it:
+once, at the end of generation, against final Social Standing, for every
+character including the dead, who are assessed but not asked. The page fixes no
 moment, and Social Standing is not fixed at 18: it rises on a personal
 development table, on a rank grant from the p. 23 box, and on a Table 1
 row (pp. 10–11, 23; p. 9), and it falls on one service's personal
@@ -345,7 +382,7 @@ its own alphabet — that is what makes the set of choice points closed:
 
 ```go
 type Decider interface {
-    Service(from []ServiceName) (ServiceName, error)
+    Service(from []EnlistmentOffer) (ServiceName, error)
     SubmitToDraft() (bool, error)
     AttemptCommission() (bool, error)
     AttemptPromotion() (bool, error)

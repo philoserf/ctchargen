@@ -31,9 +31,23 @@ linters:
       # A default case is not exhaustiveness. The point is to be told when a
       # value is added, not to have it silently fall through.
       default-signifies-exhaustive: false
+      # Map literals keyed by an enum are checked too, which is how a table
+      # keyed by service or characteristic is held complete.
+      check: [switch, map]
     nolintlint:
       require-explanation: true
       require-specific: true
+
+  exclusions:
+    rules:
+      # The sums are folds: every concrete case has a one-line Fold that
+      # dispatches to its own method, and a Sequence that returns its own
+      # field. What they mean is documented once, on the interface and on the
+      # cases interface beside it. Two dozen restatements of "dispatches to
+      # its case" would be ceremony, not documentation.
+      - linters: [revive]
+        path: traveller/
+        text: "exported method \\S+\\.(Fold|Sequence) should have comment"
 
 formatters:
   enable:
