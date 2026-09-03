@@ -313,3 +313,24 @@ func TestMalformedWeaponsAndNobility(t *testing.T) {
 	nobility.Titles = nobility.Titles[:4]
 	refuses(t, "a nobility table with a missing rank", (&Rules{}).liftNobility(nobility), "4 rows")
 }
+
+func TestMalformedShips(t *testing.T) {
+	t.Parallel()
+
+	wire := mustRead[wireShips](t, "ships.json")
+
+	wire.Ships[0].Kind = "Yacht"
+	refuses(t, "a ship Book 1 p. 22 does not name", (&Rules{}).liftShips(wire), "Yacht")
+
+	wire = mustRead[wireShips](t, "ships.json")
+	wire.Ships[0].HullTons = 0
+	refuses(t, "a hull of no size", (&Rules{}).liftShips(wire), "not a hull size")
+
+	wire = mustRead[wireShips](t, "ships.json")
+	wire.Ships[1].Kind = wire.Ships[0].Kind
+	refuses(t, "one ship listed twice", (&Rules{}).liftShips(wire), "listed twice")
+
+	wire = mustRead[wireShips](t, "ships.json")
+	wire.Ships = wire.Ships[:1]
+	refuses(t, "a ship with no hull at all", (&Rules{}).liftShips(wire), "no hull for")
+}

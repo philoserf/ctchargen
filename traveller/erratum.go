@@ -17,7 +17,7 @@ import "fmt"
 // headings to each other in both directions.
 type Erratum int
 
-// The fourteen readings of docs/ERRATA.md.
+// The fifteen readings of docs/ERRATA.md.
 const (
 	// E001: p. 5 prints both "may submit to the draft" and "must submit to
 	// the draft"; may governs, so declining ends generation with a

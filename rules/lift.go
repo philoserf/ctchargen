@@ -678,6 +678,10 @@ func (r *Rules) liftShips(wire wireShips) error {
 			return fmt.Errorf("%w: ships, %v: %d is not a hull size", ErrMalformed, kind, row.HullTons)
 		}
 
+		if seen[kind] {
+			return fmt.Errorf("%w: ships: %v is listed twice", ErrMalformed, kind)
+		}
+
 		r.hulls[kind] = row.HullTons
 		seen[kind] = true
 	}

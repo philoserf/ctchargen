@@ -188,9 +188,11 @@ func TestGoldensRegenerate(t *testing.T) {
 // Every recorded reading is reachable by some path.
 //
 // This is the gate the PRD asks for, and until the engine walked the ranked
-// services it could not hold. E012 is the one reading stamped on no record
-// by design - a spelling is a transcription, not a reading, and nothing
-// about a character changes with the choice.
+// services it could not hold. Two readings are stamped on no record by
+// design: E012, a spelling, which is a transcription rather than a reading
+// and changes nothing about a character; and E015, which settles the worked
+// example against the table it illustrates, and which only the replay of
+// that example depends on.
 //
 // E003 and E014 come from the scripted career rather than a fixture: past
 // term 7 only a 12 grants another term, so no seed reaches the Aging Table's
@@ -273,7 +275,7 @@ func pathsReached(character *chargen.Character, reached map[string]bool) {
 	for _, erratum := range character.Errata {
 		// A slice and not a map keyed by Erratum: a map keyed by the enum
 		// claims to be a complete table of every reading, and this looks
-		// for four of fourteen.
+		// for four of fifteen.
 		for _, watched := range []struct {
 			erratum traveller.Erratum
 			path    string

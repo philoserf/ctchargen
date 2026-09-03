@@ -17,10 +17,13 @@ import (
 // character and the result is compared against the page. It is the one check
 // on this engine written by someone other than its author.
 //
-// Every value below is read from pp. 23-25. Where the page's bracketed
-// arithmetic is inconsistent - and it is, in four places - the comment says
-// so and the script follows the stated total, because the total is what the
-// narrated outcome turns on.
+// Every value below is read from pp. 23-25. The page's own arithmetic is
+// inconsistent in four places, and the comment says so at each: a "DM of +7"
+// its own sum corrects to +1; a survival "rolls 2 (+2=11)", whose total
+// needs a 9; a promotion failure "by two points" that is one; and a "Table
+// 7" among four tables. Where a stated roll and a stated total disagree the
+// script follows the total, because the total is what the narrated outcome
+// turns on.
 
 // errNotNarrated is what a scripted answer returns on a path the example
 // does not narrate. The t.Fatal above it stops the test first; this is what
@@ -55,8 +58,9 @@ var jamisonThrows = []int{
 	3, 12, 6,
 
 	// Term 3. Survival: the page prints "he rolls 2 (+2=11)", whose stated
-	// total needs a 9. Promotion "he rolls 8 (+1=9)", which fails by two
-	// points. Reenlistment "10".
+	// total needs a 9. Promotion "he rolls 8 (+1=9)" against the Merchants'
+	// 10+, which the page then calls failing "by two points" - it is one.
+	// Reenlistment "10".
 	9, 8, 10,
 
 	// Term 4. Survival "he rolls 7 (+2=9)". Promotion "he throws 12
@@ -235,10 +239,10 @@ func replayJamison(t *testing.T) *chargen.Character {
 
 	chosen := &decisions{
 		t: t,
-		// P. 24 calls the four Acquired Skills tables 1 through 4 and
-		// mislabels the first as "Table 7" twice; the results it states -
+		// P. 24 calls the four Acquired Skills tables 1 through 4, and in
+		// term 4 mislabels the first as "Table 7". The results it states -
 		// +1 strength, blade combat, +1 endurance - are the Personal
-		// Development column.
+		// Development column either way.
 		tables: []traveller.SkillTable{
 			traveller.PersonalDevelopment, traveller.PersonalDevelopment,
 			traveller.ServiceSkills, traveller.ServiceSkills,
