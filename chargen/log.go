@@ -55,6 +55,23 @@ func (l *log) die(step string, face int) int {
 	return l.dice(step, face)
 }
 
+// dieWithModifier records a one-die roll taken with a die modifier, so the
+// record carries the row that was consulted and not only the face thrown.
+//
+// P. 9's two mustering out modifiers are the only ones a one-die throw takes,
+// and without the modifier the record misreports: a die of 2 with the +1
+// gambling expertise allows reads row 3 off the page, and a log that printed
+// the 2 alone would send an auditor to the wrong row.
+func (l *log) dieWithModifier(step string, face, modifier int) int {
+	seq := l.next()
+
+	l.events = append(l.events, traveller.ThrowEvent{
+		Seq: seq, Step: step, Dice: []int{face}, DM: modifier, Succeeded: true,
+	})
+
+	return seq
+}
+
 // dice records a roll with no target to meet, keeping every die. The record
 // logs the dice and not only their total, because that is what an auditor
 // walks against the page.

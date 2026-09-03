@@ -79,8 +79,11 @@ func (r *run) survive(term traveller.Term) bool {
 		return true
 	}
 
+	// The age is the character's own, advanced by the fatal term's four years
+	// (E004), rather than recomputed from the term count: a medical crisis
+	// survived in an earlier term put months on it that arithmetic drops.
 	r.log.outcomef(seq, []traveller.Erratum{traveller.E004},
-		"died in term %d, aged %d", term, startingAge+traveller.Years*int(term))
+		"died in term %d, aged %v", term, r.char.Age.PlusYears(traveller.Years))
 
 	return false
 }

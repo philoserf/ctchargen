@@ -54,6 +54,16 @@ var fixtures = []fixture{
 		"scouts-civilian", 6, traveller.Scouts, true,
 		chargen.Policy{Career: chargen.CareerOneTerm, Skills: chargen.SkillsPersonal, Muster: chargen.MusterGoods},
 	},
+	// Weapon rows taken twice: goods converts the repeat into expertise,
+	// spartan takes a different weapon instead (p. 22).
+	{
+		"scouts-expertise", 4, traveller.Scouts, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterGoods},
+	},
+	{
+		"scouts-diversified", 4, traveller.Scouts, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterSpartan},
+	},
 	{
 		"other-oneterm", 19, traveller.Other, false,
 		chargen.Policy{Career: chargen.CareerOneTerm, Skills: chargen.SkillsPersonal, Muster: chargen.MusterGoods},
@@ -194,11 +204,24 @@ func TestTheRosterReachesItsPaths(t *testing.T) {
 		if character.Age.Months() > 0 {
 			reached["months on an age"] = true
 		}
+
+		// The two ways a repeat weapon row can be taken (p. 22). Both are
+		// end-to-end paths, not just policy rows: without a fixture each,
+		// MusterWeapon and the fold that records what it returned are
+		// reached by nothing but a unit test of the policy.
+		if len(character.Benefits.Weapons) > 0 {
+			reached["a weapon benefit"] = true
+		}
+
+		if len(character.Benefits.Weapons) > 1 {
+			reached["a second weapon benefit"] = true
+		}
 	}
 
 	for _, path := range []string{
 		"civilian", "draftee", "death", "title", "service grant",
 		"medical crisis", "aging", "months on an age",
+		"a weapon benefit", "a second weapon benefit",
 	} {
 		if !reached[path] {
 			t.Errorf("no fixture reaches %q", path)

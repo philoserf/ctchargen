@@ -672,7 +672,8 @@
       "dice": [
         2
       ],
-      "total": 2,
+      "dm": 1,
+      "total": 3,
       "succeeded": true
     },
     {
@@ -710,7 +711,8 @@
       "dice": [
         4
       ],
-      "total": 4,
+      "dm": 1,
+      "total": 5,
       "succeeded": true
     },
     {
@@ -748,7 +750,8 @@
       "dice": [
         1
       ],
-      "total": 1,
+      "dm": 1,
+      "total": 2,
       "succeeded": true
     },
     {

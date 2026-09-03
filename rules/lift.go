@@ -70,14 +70,15 @@ type wireMustering struct {
 	Table1   [][]string `json:"table1"`
 	Table2   [][]int64  `json:"table2"`
 	Rolls    struct {
-		PerTerm                 int `json:"perTerm"`
-		ExtraForRank1or2        int `json:"extraForRank1or2"`
-		ExtraForRank3Plus       int `json:"extraForRank3Plus"`
-		MinRankForOneExtraRoll  int `json:"minRankForOneExtraRoll"`
-		MinRankForTwoExtraRolls int `json:"minRankForTwoExtraRolls"`
-		MaxOnTable2             int `json:"maxOnTable2"`
-		Table1DMFromRank5or6    int `json:"table1ModifierFromRank5or6"`
-		Table2DMFromGambling    int `json:"table2ModifierFromGambling"`
+		PerTerm                  int `json:"perTerm"`
+		ExtraForRank1or2         int `json:"extraForRank1or2"`
+		ExtraForRank3Plus        int `json:"extraForRank3Plus"`
+		MinRankForOneExtraRoll   int `json:"minRankForOneExtraRoll"`
+		MinRankForTwoExtraRolls  int `json:"minRankForTwoExtraRolls"`
+		MinRankForTable1Modifier int `json:"minRankForTable1Modifier"`
+		MaxOnTable2              int `json:"maxOnTable2"`
+		Table1DMFromRank5or6     int `json:"table1ModifierFromRank5or6"`
+		Table2DMFromGambling     int `json:"table2ModifierFromGambling"`
 	} `json:"rolls"`
 	Names    map[string]string `json:"names"`
 	Passages map[string]any    `json:"passages"`
@@ -500,14 +501,15 @@ func (r *Rules) liftMustering(wire wireMustering) error {
 	}
 
 	r.Muster = Muster{
-		PerTerm:                 wire.Rolls.PerTerm,
-		ExtraForRank1or2:        wire.Rolls.ExtraForRank1or2,
-		ExtraForRank3Plus:       wire.Rolls.ExtraForRank3Plus,
-		MinRankForOneExtraRoll:  wire.Rolls.MinRankForOneExtraRoll,
-		MinRankForTwoExtraRolls: wire.Rolls.MinRankForTwoExtraRolls,
-		MaxOnTable2:             wire.Rolls.MaxOnTable2,
-		Table1DMFromRank5or6:    wire.Rolls.Table1DMFromRank5or6,
-		Table2DMFromGambling:    wire.Rolls.Table2DMFromGambling,
+		PerTerm:                  wire.Rolls.PerTerm,
+		ExtraForRank1or2:         wire.Rolls.ExtraForRank1or2,
+		ExtraForRank3Plus:        wire.Rolls.ExtraForRank3Plus,
+		MinRankForOneExtraRoll:   wire.Rolls.MinRankForOneExtraRoll,
+		MinRankForTwoExtraRolls:  wire.Rolls.MinRankForTwoExtraRolls,
+		MinRankForTable1Modifier: wire.Rolls.MinRankForTable1Modifier,
+		MaxOnTable2:              wire.Rolls.MaxOnTable2,
+		Table1DMFromRank5or6:     wire.Rolls.Table1DMFromRank5or6,
+		Table2DMFromGambling:     wire.Rolls.Table2DMFromGambling,
 	}
 
 	return r.liftPassages(wire)

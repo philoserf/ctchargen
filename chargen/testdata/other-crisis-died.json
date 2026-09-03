@@ -1120,14 +1120,8 @@
     },
     {
       "seq": 116,
-      "kind": "step",
-      "step": "medical crisis, Dexterity at zero",
-      "pages": "pp. 7-8"
-    },
-    {
-      "seq": 117,
       "kind": "throw",
-      "step": "medical crisis",
+      "step": "medical crisis, Dexterity at zero",
       "dice": [
         4,
         2
@@ -1137,10 +1131,10 @@
       "succeeded": false
     },
     {
-      "seq": 118,
+      "seq": 117,
       "kind": "outcome",
-      "because": 117,
-      "description": "died of a medical crisis in term 7",
+      "because": 116,
+      "description": "died of a medical crisis in term 7, Dexterity having reached zero",
       "errata": [
         "E008",
         "E009"

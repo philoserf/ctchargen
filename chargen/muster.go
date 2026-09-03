@@ -63,7 +63,7 @@ func (r *run) benefit(table traveller.MusterTable) error {
 	face := r.roll.Die()
 
 	row := face + modifier
-	seq := r.log.die(table.String(), face)
+	seq := r.log.dieWithModifier(table.String(), face, modifier)
 
 	benefit, cash, err := r.service.Row(row)
 	if err != nil {
@@ -91,9 +91,10 @@ func (r *run) benefit(table traveller.MusterTable) error {
 // earned it (p. 9).
 func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 	if table == traveller.TableOne {
-		const firstRankWithModifier = 5
-
-		if r.char.Rank < firstRankWithModifier {
+		// The rank is p. 9's number - "Characters with rank 5 or 6 may add
+		// +1 to their rolls on this table" - so it is data with a cite, not
+		// a constant written here.
+		if int(r.char.Rank) < r.tables.Muster.MinRankForTable1Modifier {
 			return 0, nil
 		}
 

@@ -18,7 +18,12 @@ import (
 
 // JSON marshals a character, indented, with a trailing newline.
 func JSON(character *chargen.Character) ([]byte, error) {
-	text, err := json.MarshalIndent(project(character), "", "  ")
+	projected, err := project(character)
+	if err != nil {
+		return nil, err
+	}
+
+	text, err := json.MarshalIndent(projected, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshalling the character: %w", err)
 	}
@@ -95,7 +100,7 @@ type inputsRecord struct {
 	Muster  string `json:"muster"`
 }
 
-func project(character *chargen.Character) record {
+func project(character *chargen.Character) (record, error) {
 	out := record{
 		Name:            character.Name,
 		UPP:             character.Profile.UPP(),
@@ -109,9 +114,16 @@ func project(character *chargen.Character) record {
 		Pension:         int64(character.Pension),
 		Inputs:          projectInputs(character.Inputs),
 		Errata:          make([]string, 0, len(character.Errata)),
-		Events:          projectEvents(character.Events),
+		Events:          nil,
 		Build:           character.Build,
 	}
+
+	events, err := projectEvents(character.Events)
+	if err != nil {
+		return record{}, fmt.Errorf("projecting the generation record: %w", err)
+	}
+
+	out.Events = events
 
 	for _, characteristic := range traveller.Characteristics {
 		out.Characteristics[characteristic.String()] = character.Profile[characteristic]
@@ -141,7 +153,7 @@ func project(character *chargen.Character) record {
 		}
 	}
 
-	return out
+	return out, nil
 }
 
 func projectInputs(in chargen.Inputs) inputsRecord {

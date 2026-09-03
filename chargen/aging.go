@@ -101,13 +101,15 @@ func (r *run) crisis(term traveller.Term, characteristic traveller.Characteristi
 	crisis := r.tables.Aging.Crisis
 	errata := []traveller.Erratum{traveller.E008, traveller.E009}
 
-	r.log.step(fmt.Sprintf("medical crisis, %v at zero", characteristic), "pp. 7-8")
-
+	// No step of its own: the crisis is resolved inside the aging round, and
+	// a heading here would put the round's remaining saving throws under it.
+	// The throw names the characteristic instead.
 	throw := roll(r.roll, crisis.Saving, 0)
-	seq := r.log.throw("medical crisis", throw)
+	seq := r.log.throw("medical crisis, "+characteristic.String()+" at zero", throw)
 
 	if !throw.succeeded {
-		r.log.outcomef(seq, errata, "died of a medical crisis in term %d", term)
+		r.log.outcomef(seq, errata, "died of a medical crisis in term %d, %v having reached zero",
+			term, characteristic)
 
 		r.char.Departure = traveller.KilledByMedicalCrisis{Characteristic: characteristic}
 		r.dead = true
@@ -117,14 +119,22 @@ func (r *run) crisis(term traveller.Term, characteristic traveller.Characteristi
 
 	r.char.Profile = r.char.Profile.Alter(characteristic, crisis.RecoversTo-r.char.Profile[characteristic])
 
+	// Every die is kept, not their sum: the record logs what was thrown, and
+	// a sum written into a one-die event would read as a face no die has.
+	faces := make([]int, 0, crisis.MonthsDice)
 	months := 0
+
 	for range crisis.MonthsDice {
-		months += r.roll.Die()
+		face := r.roll.Die()
+
+		faces = append(faces, face)
+
+		months += face
 	}
 
 	r.char.Age = r.char.Age.PlusMonths(months)
 
-	monthSeq := r.log.die("months of recovery", months)
+	monthSeq := r.log.dice("months of recovery", faces...)
 	r.log.outcomef(monthSeq, errata, "recovered: %v to %d, and %d months older, now aged %v",
 		characteristic, crisis.RecoversTo, months, r.char.Age)
 

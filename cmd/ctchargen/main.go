@@ -23,7 +23,7 @@ func main() {
 
 func run(args []string, out io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("%w: ctchargen new|render|version", errUsage)
+		return fmt.Errorf("%w: ctchargen new|version", errUsage)
 	}
 
 	switch args[0] {
@@ -32,7 +32,7 @@ func run(args []string, out io.Writer) error {
 	case "version":
 		return version(out)
 	default:
-		return fmt.Errorf("%w: unknown command %q; want new, render or version", errUsage, args[0])
+		return fmt.Errorf("%w: unknown command %q; want new or version", errUsage, args[0])
 	}
 }
 

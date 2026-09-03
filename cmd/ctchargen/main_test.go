@@ -4,6 +4,8 @@ import (
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/philoserf/ctchargen/chargen"
 )
 
 // The command line's own words, so a typo in one place is a compile error
@@ -23,7 +25,7 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"no command":           {nil, "new|render|version"},
+		"no command":           {nil, "new|version"},
 		"unknown command":      {[]string{"generate"}, "unknown command"},
 		"no --auto":            {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
 		"unknown flag":         {[]string{cmdNew, flagAuto, "--wat"}, "usage"},
@@ -50,7 +52,8 @@ func TestRunWritesEachRendering(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"json":       {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
+		"json":       {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"seed": 7`},
+		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
 		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--sheet"}, "UPP "},
 		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},
 		"version":    {[]string{"version"}, "ctchargen"},
@@ -70,25 +73,56 @@ func TestRunWritesEachRendering(t *testing.T) {
 	}
 }
 
-// A run with no --seed draws one, so two runs differ. The seed is recorded
-// either way, which is what makes a character reproducible.
+// A run with no --seed draws one, and draws a different one each time, which
+// is what makes an unseeded character reproducible afterwards. That the
+// record then carries the seed is held by TestRunWritesEachRendering, from a
+// seed the test names.
+//
+// It is asserted of inputsFrom rather than of a whole run on purpose. A
+// character rolled from a drawn seed walks whichever mustering out rows it
+// lands on, so an unseeded generation reaches a different set of statements
+// every time - and the coverage profile is taken with -coverpkg=./..., under
+// which those statements are counted against the chargen package by this
+// binary too. The ratchet fails on a count that falls as well as one that
+// rises, so an unseeded generation here makes the gate fail at random.
 func TestADrawnSeedIsRecorded(t *testing.T) {
 	t.Parallel()
 
-	first, second := &strings.Builder{}, &strings.Builder{}
+	drawn := func() uint64 {
+		t.Helper()
 
-	for _, out := range []*strings.Builder{first, second} {
-		err := run([]string{cmdNew, flagAuto, flagService, other}, out)
+		in, err := inputsFrom(0, "", other,
+			chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, false)
 		if err != nil {
-			t.Fatalf("generating: %v", err)
+			t.Fatalf("drawing a seed: %v", err)
 		}
 
-		if !strings.Contains(out.String(), `"seed"`) {
-			t.Fatal("the record does not carry its seed")
+		if in.Seed >= maxDrawnSeed {
+			t.Errorf("drew %d, which is above the bound a JSON reader parses exactly", in.Seed)
 		}
+
+		return in.Seed
 	}
 
-	if first.String() == second.String() {
-		t.Error("two unseeded runs produced the same character")
+	if first, second := drawn(), drawn(); first == second {
+		t.Errorf("two unseeded runs both drew %d", first)
+	}
+}
+
+// A --seed given is the operator's own number, recorded as given rather than
+// redrawn.
+func TestAGivenSeedIsKept(t *testing.T) {
+	t.Parallel()
+
+	const given = 7
+
+	in, err := inputsFrom(given, "", other,
+		chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, true)
+	if err != nil {
+		t.Fatalf("taking the seed: %v", err)
+	}
+
+	if in.Seed != given {
+		t.Errorf("seed %d, want the %d that was given", in.Seed, given)
 	}
 }

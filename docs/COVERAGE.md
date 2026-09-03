@@ -93,12 +93,12 @@ commissions, and promotions are non-existent in the scout and other services"
 | One roll per term, plus rank extras | 1:7, 9 | `rules.Muster.Rolls` | `rules.TestMusterRollsAndPassages` |
 | The table is designated before the die | 1:9 | `chargen.run.chooseMusterTable` | golden transcripts |
 | At most three rolls on Table 2 | 1:9 | `chargen.run.chooseMusterTable` | `rules.TestMusterRollsAndPassages` |
-| The +1 at rank 5 or 6 on Table 1 | 1:9 | `chargen.run.musterModifier` | *no golden: needs ranks (milestone 2)* |
+| The +1 at rank 5 or 6 on Table 1 | 1:9 | `chargen.run.musterModifier` | `rules.TestMusterRollsAndPassages`; *no golden: needs ranks (milestone 2)* |
 | The +1 with gambling on Table 2 | 1:9 | `chargen.run.musterModifier` | golden transcripts |
 | The seven kinds of Table 1 row | 1:9, 21–23 | `chargen.applyBenefit` | `traveller.TestBenefitRowFolds` |
 | The dash rows deliver nothing | 1:9 | `rules` lift | `rules.TestTheDashCellsAreNothing` |
 | Travellers' Aid only once; duplicates wasted | 1:22 | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds` |
-| A repeat weapon may be taken as expertise | 1:22 | `chargen.takeWeapon` | `chargen.TestMusterWeaponStrategies` |
+| A repeat weapon may be taken as expertise, or as a different weapon | 1:22 | `chargen.takeWeapon` | goldens `scouts-expertise`, `scouts-diversified` |
 | Free Trader: 40 years of payments, 10 off per repeat | 1:22–23 | `chargen.run.receiveShipAgain` | *no golden: only Merchants award one* |
 | Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | *no golden: only Scouts award one* |
 | Retirement pay from term 5, not for Scouts or Other | 1:7, 21 | `chargen.run.pension` | `rules.TestRetirementPay` |

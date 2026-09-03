@@ -279,15 +279,16 @@ func (r Retirement) Pay(terms int) traveller.Credits {
 
 // Muster is what p. 9's notes fix about mustering out.
 type Muster struct {
-	PerTerm                 int
-	ExtraForRank1or2        int
-	ExtraForRank3Plus       int
-	MinRankForOneExtraRoll  int
-	MinRankForTwoExtraRolls int
-	MaxOnTable2             int
-	Table1DMFromRank5or6    int
-	Table2DMFromGambling    int
-	ResalePercent           int
+	PerTerm                  int
+	ExtraForRank1or2         int
+	ExtraForRank3Plus        int
+	MinRankForOneExtraRoll   int
+	MinRankForTwoExtraRolls  int
+	MinRankForTable1Modifier int
+	MaxOnTable2              int
+	Table1DMFromRank5or6     int
+	Table2DMFromGambling     int
+	ResalePercent            int
 }
 
 // Rolls is how many benefit rolls a character has earned.

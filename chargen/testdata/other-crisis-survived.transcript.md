@@ -157,34 +157,31 @@ Seed 56, strategies serve/advanced/cash.
 113. Strength -1, 3 to 2 (from 112) [E006 E007]
 114. aging, Dexterity: rolled 2+1 = 3 against 7+, missed
 115. Dexterity -1, 1 to 0 (from 114) [E006 E007]
-
-## medical crisis, Dexterity at zero (pp. 7-8)
-
-117. medical crisis: rolled 6+4 = 10 against 8+, made
-118. months of recovery: rolled 2
-119. recovered: Dexterity to 1, and 2 months older, now aged 46 years 2 months (from 118) [E008 E009]
-120. aging, Endurance: rolled 2+3 = 5 against 8+, missed
-121. Endurance -1, 3 to 2 (from 120) [E006 E007]
+116. medical crisis, Dexterity at zero: rolled 6+4 = 10 against 8+, made
+117. months of recovery: rolled 2
+118. recovered: Dexterity to 1, and 2 months older, now aged 46 years 2 months (from 117) [E008 E009]
+119. aging, Endurance: rolled 2+3 = 5 against 8+, missed
+120. Endurance -1, 3 to 2 (from 119) [E006 E007]
 
 ## mustering out, 7 rolls (pp. 7, 9, 21-23)
 
-123. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-124. MusterTable2DM: policy chose yes from yes, no
-125. Table 2, Cash Allowances: rolled 2
-126. CR 10000, bringing the total to CR 10000 (from 125)
-127. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-128. MusterTable2DM: policy chose yes from yes, no
-129. Table 2, Cash Allowances: rolled 1
-130. CR 5000, bringing the total to CR 15000 (from 129)
-131. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-132. MusterTable2DM: policy chose yes from yes, no
-133. Table 2, Cash Allowances: rolled 4
-134. CR 10000, bringing the total to CR 25000 (from 133)
-135. Table 1, Material Benefits: rolled 2
-136. Intelligence +1, 8 to 9 (from 135)
-137. Table 1, Material Benefits: rolled 2
-138. Intelligence +1, 9 to 10 (from 137)
-139. Table 1, Material Benefits: rolled 1
-140. a Low Passage (from 139)
-141. Table 1, Material Benefits: rolled 2
-142. Intelligence +1, 10 to 11 (from 141)
+122. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+123. MusterTable2DM: policy chose yes from yes, no
+124. Table 2, Cash Allowances: rolled 2 +1 = 3
+125. CR 10000, bringing the total to CR 10000 (from 124)
+126. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+127. MusterTable2DM: policy chose yes from yes, no
+128. Table 2, Cash Allowances: rolled 1 +1 = 2
+129. CR 5000, bringing the total to CR 15000 (from 128)
+130. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+131. MusterTable2DM: policy chose yes from yes, no
+132. Table 2, Cash Allowances: rolled 4 +1 = 5
+133. CR 10000, bringing the total to CR 25000 (from 132)
+134. Table 1, Material Benefits: rolled 2
+135. Intelligence +1, 8 to 9 (from 134)
+136. Table 1, Material Benefits: rolled 2
+137. Intelligence +1, 9 to 10 (from 136)
+138. Table 1, Material Benefits: rolled 1
+139. a Low Passage (from 138)
+140. Table 1, Material Benefits: rolled 2
+141. Intelligence +1, 10 to 11 (from 140)

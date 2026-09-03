@@ -53,9 +53,15 @@ func (t *transcriber) Throw(from traveller.ThrowEvent) error {
 		line += fmt.Sprintf(" %+d", from.DM)
 	}
 
+	// The total is printed whenever it is not simply the dice: a throw with a
+	// target is read against it, and a one-die roll with a modifier is read
+	// off a row the face alone does not name.
+	if from.DM != 0 || from.Target.Number() != 0 {
+		line += fmt.Sprintf(" = %d", from.Total())
+	}
+
 	if from.Target.Number() != 0 {
-		line += fmt.Sprintf(" = %d against %s, %s",
-			from.Total(), from.Target, met(from.Succeeded))
+		line += fmt.Sprintf(" against %s, %s", from.Target, met(from.Succeeded))
 	}
 
 	fmt.Fprintln(t.out, line)

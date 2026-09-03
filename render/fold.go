@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/philoserf/ctchargen/traveller"
 )
@@ -155,7 +156,11 @@ func (e *eventCodec) Outcome(from traveller.OutcomeEvent) error {
 	return e.write(out)
 }
 
-func projectEvents(events []traveller.Event) []json.RawMessage {
+// projectEvents writes every event, and refuses to write any of them if one
+// will not marshal. The record claims to be the complete account of a
+// generation, so an entry silently missing from it is worse than a failure
+// to write the record at all.
+func projectEvents(events []traveller.Event) ([]json.RawMessage, error) {
 	out := make([]json.RawMessage, 0, len(events))
 
 	for _, event := range events {
@@ -163,13 +168,13 @@ func projectEvents(events []traveller.Event) []json.RawMessage {
 
 		err := event.Fold(&codec)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("event %d: %w", event.Sequence(), err)
 		}
 
 		out = append(out, codec.out)
 	}
 
-	return out
+	return out, nil
 }
 
 func (e *eventCodec) write(v any) error {

@@ -94,15 +94,15 @@ Seed 7, strategies serve/advanced/cash.
 
  67. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
  68. MusterTable2DM: policy chose yes from yes, no
- 69. Table 2, Cash Allowances: rolled 2
+ 69. Table 2, Cash Allowances: rolled 2 +1 = 3
  70. CR 10000, bringing the total to CR 10000 (from 69)
  71. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
  72. MusterTable2DM: policy chose yes from yes, no
- 73. Table 2, Cash Allowances: rolled 4
+ 73. Table 2, Cash Allowances: rolled 4 +1 = 5
  74. CR 10000, bringing the total to CR 20000 (from 73)
  75. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
  76. MusterTable2DM: policy chose yes from yes, no
- 77. Table 2, Cash Allowances: rolled 1
+ 77. Table 2, Cash Allowances: rolled 1 +1 = 2
  78. CR 5000, bringing the total to CR 25000 (from 77)
  79. Table 1, Material Benefits: rolled 6
  80. nothing: the table prints a dash for this service (from 79)
