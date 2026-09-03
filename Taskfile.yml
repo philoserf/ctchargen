@@ -1,0 +1,74 @@
+version: "3"
+
+# The gate. CI runs exactly `task` and nothing else.
+#
+# The toolchain is deliberately unpinned: the gate is meant to fail when a
+# tool moves, rather than drift behind it. A red gate on untouched code is
+# the signal working. Answer the finding; do not pin a tool to silence it.
+
+vars:
+  PROFILE: coverage.out
+  RATCHET: coverage.ratchet
+
+tasks:
+  default:
+    desc: Run the whole gate
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: lint
+      - task: nilaway
+      - task: test
+      - task: ratchet
+
+  fmt:
+    desc: Formatting is clean
+    cmds:
+      - |
+        unformatted=$(gofmt -l .)
+        if [ -n "$unformatted" ]; then
+          echo "gofmt would change:"
+          echo "$unformatted"
+          exit 1
+        fi
+
+  vet:
+    desc: go vet
+    cmds:
+      - go vet ./...
+
+  lint:
+    desc: golangci-lint
+    cmds:
+      - golangci-lint run
+
+  nilaway:
+    desc: NilAway
+    cmds:
+      - nilaway ./...
+
+  test:
+    desc: Tests under the race detector, with a coverage profile
+    cmds:
+      - go test -race -covermode=atomic -coverprofile={{.PROFILE}} ./...
+
+  ratchet:
+    desc: No package may gain uncovered statements
+    cmds:
+      - |
+        if [ ! -f {{.PROFILE}} ]; then
+          echo "no {{.PROFILE}}: run 'task test' first, or just 'task'"
+          exit 1
+        fi
+      - go run ./tools/ratchet check {{.PROFILE}} {{.RATCHET}}
+
+  ratchet:update:
+    desc: Record the current uncovered counts
+    cmds:
+      - go test -covermode=atomic -coverprofile={{.PROFILE}} ./...
+      - go run ./tools/ratchet update {{.PROFILE}} {{.RATCHET}}
+
+  clean:
+    desc: Remove build and coverage artifacts
+    cmds:
+      - rm -f {{.PROFILE}} ctchargen

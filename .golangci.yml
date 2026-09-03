@@ -1,0 +1,41 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    # The one this project cannot do without. Go's compiler does not check
+    # that a switch over an enum covers every case; the PRD's domain model
+    # is built on the promise that adding a case breaks the switches that
+    # do not handle it, and this linter is what keeps that promise.
+    - exhaustive
+    - bodyclose
+    - copyloopvar
+    - errorlint
+    - gocritic
+    - goconst
+    - misspell
+    # The stdlib moves under an unpinned toolchain, and this is what
+    # notices: it flags a hand-rolled helper the standard library has
+    # since grown a name for.
+    - modernize
+    - nilerr
+    - nolintlint
+    - predeclared
+    - revive
+    - unconvert
+    - usestdlibvars
+    - wastedassign
+
+  settings:
+    exhaustive:
+      # A default case is not exhaustiveness. The point is to be told when a
+      # value is added, not to have it silently fall through.
+      default-signifies-exhaustive: false
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
