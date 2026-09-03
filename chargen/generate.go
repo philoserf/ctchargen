@@ -1,16 +1,12 @@
 package chargen
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/philoserf/ctchargen/dice"
 	"github.com/philoserf/ctchargen/rules"
 	"github.com/philoserf/ctchargen/traveller"
 )
-
-// ErrNotYetImplemented reports a path the engine does not walk yet.
-var ErrNotYetImplemented = errors.New("not implemented yet")
 
 // startingAge is where every character begins. P. 4: "All characters begin
 // the game the same way, untrained, inexperienced, about 18 years of age."

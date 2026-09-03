@@ -11,7 +11,7 @@ UPP 9346C5, age 34, Other, 4 terms, killed by the survival throw
 ## Service record
 
 - Other, enlisted
-- killed by the survival throw after term 4
+- killed by the survival throw in term 4
 
 ## Readings applied
 

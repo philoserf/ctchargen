@@ -40,6 +40,7 @@ type record struct {
 	Enlistment      enlistmentRecord  `json:"enlistment"`
 	Service         string            `json:"service,omitempty"`
 	Rank            int               `json:"rank,omitempty"`
+	RankTitle       string            `json:"rankTitle,omitempty"`
 	Skills          []skillRecord     `json:"skills"`
 	Benefits        benefitsRecord    `json:"benefits"`
 	Pension         int64             `json:"annualRetirementPay,omitempty"`
@@ -82,6 +83,7 @@ type benefitsRecord struct {
 
 type departureRecord struct {
 	How            string `json:"how"`
+	Fatal          bool   `json:"fatal,omitempty"`
 	Characteristic string `json:"characteristic,omitempty"`
 }
 
@@ -109,6 +111,7 @@ func project(character *chargen.Character) (record, error) {
 		Terms:           character.Terms,
 		Enlistment:      foldEnlistment(character.Enlistment),
 		Rank:            int(character.Rank),
+		RankTitle:       character.RankTitle,
 		Skills:          make([]skillRecord, 0, len(character.Skills)),
 		Benefits:        projectBenefits(character.Benefits),
 		Pension:         int64(character.Pension),

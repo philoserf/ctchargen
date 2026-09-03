@@ -1,23 +1,25 @@
 # COVERAGE: the procedure, mapped to the code
 
-2026-09-02. Milestone 1. Companion to `PRD.md`.
+2026-09-03. Milestone 2. Companion to `PRD.md`.
 
 Every rule of Book 1 pp. 4–25 that this tool implements, with the page that
 governs it, the code that carries it, and the test that holds it. A rule with
 no row here is a rule that is not implemented; a row with no test is a defect.
 
-The tables of pp. 4–25 are all lifted, whether or not the engine consults
-them yet, and each is transcribed twice — once in `rules/data`, once in the
-`rules` tests, from the same visual reading of the page. Those rows say
-"lifted, not yet consulted" where the engine has no path to them.
+Every table of pp. 4–25 is lifted and every one is consulted, and each is
+transcribed twice — once in `rules/data`, once in the `rules` tests, from
+the same visual reading of the page.
 
 ## What the engine walks
 
-Milestone 1's engine runs the two services that print no rank column: **Other
-and Scouts**. P. 10 makes ranks, commissions and promotions one fact — "Ranks,
-commissions, and promotions are non-existent in the scout and other services"
-— so a service with any of them has all three, and those arrive at milestone
-2 together with the Jamison reproduction.
+All six services. P. 10 makes ranks, commissions and promotions one fact —
+"Ranks, commissions, and promotions are non-existent in the scout and other
+services" — so the four that print a rank column have all three, and the two
+that print none have none.
+
+Still to come at milestone 2: the reproduction of the book's own worked
+character (pp. 23–25), and Book 2 pp. 18–19 for the ships the two ship
+benefits name.
 
 ## Characteristics and the record
 
@@ -41,7 +43,7 @@ commissions, and promotions are non-existent in the scout and other services"
 | The draft is offered, not compelled | 1:5 (E001) | `chargen.run.draft` | golden `scouts-civilian` |
 | One die, entering the service with that draft number | 1:5 | `rules.Rules.Draft` | `rules.TestDraft` |
 | Declining ends generation with a civilian | 1:5 (E001) | `chargen.run.draft` | golden `scouts-civilian` |
-| Draftees are not eligible for commission in the first term | 1:5 | *not yet: needs a service with ranks* | — |
+| Draftees are not eligible for commission in the first term only | 1:5 | `chargen.run.commission` | golden `drafted-then-commissioned` |
 
 ## Terms of service
 
@@ -56,8 +58,11 @@ commissions, and promotions are non-existent in the scout and other services"
 | A 12 recurs past the seventh term | 1:6–7, 21 (E003) | `chargen.run.reenlist` | `chargen.TestACareerPastTheTablesLastColumn` |
 | Seven terms of voluntary service | 1:7 | `chargen.lastVoluntaryTerm` | `chargen.TestVoluntaryServiceStopsAtSeven` |
 | Leaving at the end of term 5 or later is retirement | 1:21 | `chargen.run.depart` | `chargen.TestVoluntaryServiceStopsAtSeven` |
-| Commission and promotion throws | 1:6, 10 | *not yet: milestone 2* | — |
-| No promotion at the top of the ranks table | 1:6, 10 (E013) | *not yet: milestone 2* | — |
+| Commission: once per term until achieved | 1:6, 10 | `chargen.run.commission` | golden `navy-captain` |
+| Promotion: the commissioning term and every term after | 1:6, 10 | `chargen.run.promote` | golden `navy-captain` |
+| A commission or promotion confers one skill eligibility | 1:6 | `chargen.run.raise` | `rules.TestEligibility`; golden transcripts |
+| Ranks and their titles, per the Table of Ranks | 1:10 | `rules.Service.Title` | `rules.TestTableOfRanks` |
+| No promotion at the top of the ranks table | 1:6, 10 (E013) | `chargen.run.promote` | golden `merchants-captain` |
 
 ## Skills and training
 
@@ -70,7 +75,7 @@ commissions, and promotions are non-existent in the scout and other services"
 | Blade and gun combat name a weapon at once | 1:11–13 | `chargen.applyResult.WeaponPick` | golden transcripts |
 | Skills accumulate as Skill-1, Skill-2, with no cap | 1:12 | `chargen.Character.addSkill` | golden sheets |
 | Service-wide rank and service skills, granted once on entering | 1:23 (E005) | `chargen.run.grantsOnEntering` | golden `scouts-retire` |
-| Rank-keyed grants | 1:23 | *not yet: milestone 2* | — |
+| Rank-keyed grants, at the moment the rank is conferred | 1:23 (E005) | `chargen.run.raise` | golden `merchants-captain` |
 | Names normalized to their description headings | 1:11–23 (E012) | `rules.Rules.Normalize` | `rules.TestNormalization` |
 
 ## Aging
@@ -93,15 +98,15 @@ commissions, and promotions are non-existent in the scout and other services"
 | One roll per term, plus rank extras | 1:7, 9 | `rules.Muster.Rolls` | `rules.TestMusterRollsAndPassages` |
 | The table is designated before the die | 1:9 | `chargen.run.chooseMusterTable` | golden transcripts |
 | At most three rolls on Table 2 | 1:9 | `chargen.run.chooseMusterTable` | `rules.TestMusterRollsAndPassages` |
-| The +1 at rank 5 or 6 on Table 1 | 1:9 | `chargen.run.musterModifier` | `rules.TestMusterRollsAndPassages`; *no golden: needs ranks (milestone 2)* |
+| The +1 at rank 5 or 6 on Table 1 | 1:9 | `chargen.run.musterModifier` | golden `merchants-table1-modifier` |
 | The +1 with gambling on Table 2 | 1:9 | `chargen.run.musterModifier` | golden transcripts |
 | The seven kinds of Table 1 row | 1:9, 21–23 | `chargen.applyBenefit` | `traveller.TestBenefitRowFolds` |
 | The dash rows deliver nothing | 1:9 | `rules` lift | `rules.TestTheDashCellsAreNothing` |
 | Travellers' Aid only once; duplicates wasted | 1:22 | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds` |
 | A repeat weapon may be taken as expertise, or as a different weapon | 1:22 | `chargen.takeWeapon` | goldens `scouts-expertise`, `scouts-diversified` |
-| Free Trader: 40 years of payments, 10 off per repeat | 1:22–23 | `chargen.run.receiveShipAgain` | *no golden: only Merchants award one* |
-| Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | *no golden: only Scouts award one* |
-| Retirement pay from term 5, not for Scouts or Other | 1:7, 21 | `chargen.run.pension` | `rules.TestRetirementPay` |
+| Free Trader: 40 years of payments, 10 off per repeat | 1:22–23 | `chargen.run.receiveShipAgain` | golden `merchants-captain` |
+| Scout ship: duplicates lost | 1:23 | `chargen.run.receiveShipAgain` | golden `scouts-retire` |
+| Retirement pay from term 5, not for Scouts or Other | 1:7, 21 | `chargen.run.pension` | `rules.TestRetirementPay`; golden `navy-captain` |
 
 ## Titles
 
@@ -118,5 +123,5 @@ commissions, and promotions are non-existent in the scout and other services"
 | --- | --- | --- | --- |
 | Every step, throw, choice and consequence, in order | FR11 | `chargen.log` | golden transcripts |
 | Each choice names who decided and what was offered | FR11 | `chargen.logging` | golden transcripts |
-| Every reading that governed a record is named on it | Authority | `chargen.log.stamped` | `internal/docsgate` |
+| Every reading that governed a record is named on it | Authority | `chargen.log.stamped` | `chargen.TestEveryReadingIsReachable` |
 | One seed reproduces one character | Determinism | `dice.Stream` | `chargen.TestGoldensRegenerate` |

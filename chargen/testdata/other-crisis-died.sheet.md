@@ -16,5 +16,5 @@ UPP 506C43, age 46, Other, 7 terms, killed by a medical crisis
 
 ## Readings applied
 
-- E002, E006, E007, E008, E009
+- E002, E006, E007, E008, E009, E010
 

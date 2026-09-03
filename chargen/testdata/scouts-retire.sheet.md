@@ -10,7 +10,7 @@ UPP 7C8669, age 26, Scouts, 2 terms, killed by the survival throw
 ## Service record
 
 - Scouts, enlisted
-- killed by the survival throw after term 2
+- killed by the survival throw in term 2
 
 ## Readings applied
 

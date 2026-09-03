@@ -37,9 +37,19 @@ func (r *run) term(term traveller.Term) (bool, error) {
 		return true, nil
 	}
 
+	err := r.commission(term)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.promote(term)
+	if err != nil {
+		return false, err
+	}
+
 	r.grantEligibility(term)
 
-	err := r.trainSkills()
+	err = r.trainSkills()
 	if err != nil {
 		return false, err
 	}

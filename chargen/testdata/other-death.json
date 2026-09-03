@@ -36,7 +36,8 @@
     "cash": 0
   },
   "departure": {
-    "how": "killed by the survival throw"
+    "how": "killed by the survival throw",
+    "fatal": true
   },
   "inputs": {
     "seed": 5,

@@ -24,6 +24,7 @@ type Character struct {
 	Service    traveller.ServiceName
 	Served     bool
 	Rank       traveller.Rank
+	RankTitle  string
 
 	Skills   []traveller.Skill
 	Benefits Benefits

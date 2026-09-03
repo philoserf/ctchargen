@@ -21,5 +21,5 @@ UPP 212B33, age 46 years 2 months, Other, 7 terms, retired
 
 ## Readings applied
 
-- E002, E006, E007, E008, E009
+- E002, E006, E007, E008, E009, E010
 
