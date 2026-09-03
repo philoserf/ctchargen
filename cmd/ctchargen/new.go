@@ -21,7 +21,7 @@ import (
 // own number and is written to the record as given.
 const maxDrawnSeed = 1<<53 - 1
 
-func newCharacter(args []string, out io.Writer) error {
+func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 	flags := flag.NewFlagSet("new", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 
@@ -44,34 +44,15 @@ func newCharacter(args []string, out io.Writer) error {
 		return fmt.Errorf("%w: %w", errUsage, err)
 	}
 
-	if !*auto {
-		return fmt.Errorf(
-			"%w: interactive mode arrives at milestone 4; pass --auto to let the policy decide",
-			errUsage,
-		)
-	}
-
 	inputs, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster,
 		isSet(flags, "seed"))
 	if err != nil {
 		return err
 	}
 
-	policy := chargen.Policy{Career: *career, Skills: *skills, Muster: *muster}
-
-	invalid := policy.Validate()
-	if invalid != nil {
-		return fmt.Errorf("%w: %w", errUsage, invalid)
-	}
-
-	// Defensive, and unreachable from here today: Generate fails when an
-	// embedded table will not lift or when a Decider returns an error, and
-	// the auto policy never returns one. It is not dead - an interactive
-	// decider, arriving at milestone 4, can fail on any answer - so the
-	// branch stays and cmd carries one uncovered statement for it.
-	character, err := chargen.Generate(inputs, policy)
+	character, err := generate(inputs, *auto, in, asking)
 	if err != nil {
-		return fmt.Errorf("generating: %w", err)
+		return err
 	}
 
 	stamp(character)
@@ -125,6 +106,49 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 	}
 
 	return in, fmt.Errorf("%w: no service is called %q", errUsage, service)
+}
+
+// generate runs the procedure under the auto policy, or asks the player.
+//
+// The strategies come off the inputs rather than off the flags a second
+// time, so that what is checked and what is written into the record cannot
+// name different strategies. They are validated in both modes: an
+// interactive run records them too, and a record naming a strategy that is
+// not a POLICY.md row is one its own schema refuses.
+//
+// Interactive mode watches the record as it is written, so the throws and
+// their consequences reach the player between his questions; --auto passes
+// no observer, because nobody is reading.
+func generate(inputs chargen.Inputs, auto bool, in io.Reader, asking io.Writer) (
+	*chargen.Character, error,
+) {
+	policy := chargen.Policy{
+		Career: inputs.Career, Skills: inputs.Skills, Muster: inputs.Muster,
+	}
+
+	invalid := policy.Validate()
+	if invalid != nil {
+		return nil, fmt.Errorf("%w: %w", errUsage, invalid)
+	}
+
+	if auto {
+		character, err := chargen.Generate(inputs, policy)
+		if err != nil {
+			return nil, fmt.Errorf("generating: %w", err)
+		}
+
+		return character, nil
+	}
+
+	asked := newPlayer(in, asking)
+
+	character, err := chargen.Generate(inputs, asked,
+		chargen.WithObserver(asked.watch), chargen.WithAnswerer(traveller.ByPlayer))
+	if err != nil {
+		return nil, fmt.Errorf("generating: %w", err)
+	}
+
+	return character, nil
 }
 
 // rendered is the character in whichever of the three shapes was asked for.

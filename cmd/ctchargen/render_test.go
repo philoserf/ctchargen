@@ -21,7 +21,8 @@ func writeRecord(t *testing.T) string {
 
 	path := filepath.Join(t.TempDir(), "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", "-o", path}, io.Discard)
+	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", "-o", path},
+		nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("writing a record: %v", err)
 	}
@@ -44,7 +45,7 @@ func TestRenderReadsARecordBack(t *testing.T) {
 	} {
 		var out strings.Builder
 
-		err := run(tc.args, &out)
+		err := run(tc.args, nil, &out, io.Discard)
 		if err != nil {
 			t.Errorf("%s: %v", name, err)
 
@@ -59,12 +60,12 @@ func TestRenderReadsARecordBack(t *testing.T) {
 	// And the sheet render matches what generating it produced.
 	var direct, viaFile strings.Builder
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", "--sheet"}, &direct)
+	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", flagSheet}, nil, &direct, io.Discard)
 	if err != nil {
 		t.Fatalf("generating: %v", err)
 	}
 
-	err = run([]string{cmdRender, path}, &viaFile)
+	err = run([]string{cmdRender, path}, nil, &viaFile, io.Discard)
 	if err != nil {
 		t.Fatalf("rendering: %v", err)
 	}
@@ -80,7 +81,7 @@ func TestRenderWritesToAFile(t *testing.T) {
 	source := writeRecord(t)
 	out := filepath.Join(t.TempDir(), "sheet.md")
 
-	err := run([]string{cmdRender, "-o", out, source}, io.Discard)
+	err := run([]string{cmdRender, "-o", out, source}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("render -o: %v", err)
 	}
@@ -95,12 +96,12 @@ func TestRenderWritesToAFile(t *testing.T) {
 	}
 
 	// The same refusal new makes: an existing file is not replaced.
-	err = run([]string{cmdRender, "-o", out, source}, io.Discard)
+	err = run([]string{cmdRender, "-o", out, source}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("render replaced an existing file without --force")
 	}
 
-	err = run([]string{cmdRender, "-o", out, "--force", source}, io.Discard)
+	err = run([]string{cmdRender, "-o", out, "--force", source}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Errorf("--force did not replace the sheet: %v", err)
 	}
@@ -128,7 +129,7 @@ func TestRenderRejectsWhatItCannotRead(t *testing.T) {
 		"absent file":   {[]string{cmdRender, filepath.Join(dir, "nowhere.json")}, "reading"},
 		"not a record":  {[]string{cmdRender, notARecord}, "not a character record"},
 	} {
-		err := run(tc.args, io.Discard)
+		err := run(tc.args, nil, io.Discard, io.Discard)
 
 		switch {
 		case err == nil:
@@ -145,7 +146,8 @@ func TestOutputRefusesAPathItCannotOpen(t *testing.T) {
 
 	unwritable := filepath.Join(t.TempDir(), "no-such-directory", "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "1", flagService, other, "-o", unwritable}, io.Discard)
+	err := run([]string{cmdNew, flagAuto, flagSeed, "1", flagService, other, "-o", unwritable},
+		nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("new wrote to a path whose directory does not exist")
 	}
@@ -158,7 +160,7 @@ func TestVersionReportsTheBuild(t *testing.T) {
 
 	var out strings.Builder
 
-	err := run([]string{cmdVersion}, &out)
+	err := run([]string{cmdVersion}, nil, &out, io.Discard)
 	if err != nil {
 		t.Fatalf("version: %v", err)
 	}

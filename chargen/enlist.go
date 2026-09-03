@@ -2,9 +2,7 @@ package chargen
 
 import (
 	"fmt"
-	"slices"
 
-	"github.com/philoserf/ctchargen/rules"
 	"github.com/philoserf/ctchargen/traveller"
 )
 
@@ -176,16 +174,8 @@ func (a *applyResult) WeaponPick(category traveller.WeaponCategory) error {
 		return fmt.Errorf("choosing a weapon: %w", err)
 	}
 
-	if !weaponInList(list, chosen) {
-		return fmt.Errorf("%w: %q is not on the %v list", rules.ErrNoSuchRow, chosen, category)
-	}
-
 	level := a.run.char.addSkill(traveller.SkillName(chosen))
 	a.run.log.outcomef(a.because, a.errata, "%v: %s-%d", category, chosen, level)
 
 	return nil
-}
-
-func weaponInList(list []traveller.WeaponName, name traveller.WeaponName) bool {
-	return slices.Contains(list, name)
 }

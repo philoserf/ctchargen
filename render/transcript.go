@@ -78,15 +78,15 @@ func transcriptOf(r record) (string, error) {
 
 func writeEvent(out *strings.Builder, event eventJSON) {
 	switch event.Kind {
-	case "step":
+	case kindStep:
 		fmt.Fprintf(out, "\n## %s (%s)\n\n", event.Step, event.Pages)
-	case "throw":
+	case kindThrow:
 		fmt.Fprintln(out, throwLine(event))
-	case "choice":
+	case kindChoice:
 		fmt.Fprintf(out, "%3d. %s: %s chose %s from %s\n",
 			event.Seq, event.Point, event.By, event.Chosen,
 			strings.Join(event.Alternatives, ", "))
-	case "outcome":
+	case kindOutcome:
 		fmt.Fprintln(out, outcomeLine(event))
 	default:
 		// A record written by a build that logs a kind this one does not

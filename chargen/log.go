@@ -16,6 +16,11 @@ type log struct {
 	events []traveller.Event
 	errata map[traveller.Erratum]bool
 	seq    int
+
+	// watch is called with each event as it is appended, or nil when nobody
+	// is reading. It is how interactive mode shows the procedure between
+	// its questions; it returns nothing, so it cannot change what it sees.
+	watch func(traveller.Event)
 }
 
 func newLog() *log {
@@ -28,9 +33,18 @@ func (l *log) next() int {
 	return l.seq
 }
 
+// add appends an event and shows it to whoever is watching.
+func (l *log) add(event traveller.Event) {
+	l.events = append(l.events, event)
+
+	if l.watch != nil {
+		l.watch(event)
+	}
+}
+
 // step records a procedure step being entered, with the pages that govern it.
 func (l *log) step(name, pages string) {
-	l.events = append(l.events, traveller.StepEvent{Seq: l.next(), Step: name, Pages: pages})
+	l.add(traveller.StepEvent{Seq: l.next(), Step: name, Pages: pages})
 }
 
 // throw records a throw and returns its sequence number, so the consequence
@@ -38,7 +52,7 @@ func (l *log) step(name, pages string) {
 func (l *log) throw(step string, t throw) int {
 	seq := l.next()
 
-	l.events = append(l.events, traveller.ThrowEvent{
+	l.add(traveller.ThrowEvent{
 		Seq:       seq,
 		Step:      step,
 		Dice:      []int{t.dice[0], t.dice[1]},
@@ -65,7 +79,7 @@ func (l *log) die(step string, face int) int {
 func (l *log) dieWithModifier(step string, face, modifier int) int {
 	seq := l.next()
 
-	l.events = append(l.events, traveller.ThrowEvent{
+	l.add(traveller.ThrowEvent{
 		Seq: seq, Step: step, Dice: []int{face}, DM: modifier, Succeeded: true,
 	})
 
@@ -78,7 +92,7 @@ func (l *log) dieWithModifier(step string, face, modifier int) int {
 func (l *log) dice(step string, faces ...int) int {
 	seq := l.next()
 
-	l.events = append(l.events, traveller.ThrowEvent{
+	l.add(traveller.ThrowEvent{
 		Seq: seq, Step: step, Dice: faces, Succeeded: true,
 	})
 
@@ -88,7 +102,7 @@ func (l *log) dice(step string, faces ...int) int {
 // choice records a choice point: which one, who answered, what was offered,
 // and what was chosen.
 func (l *log) choice(point traveller.ChoicePoint, by traveller.DecidedBy, from []string, chosen string) {
-	l.events = append(l.events, traveller.ChoiceEvent{
+	l.add(traveller.ChoiceEvent{
 		Seq: l.next(), Point: point, By: by, Alternatives: from, Chosen: chosen,
 	})
 }
@@ -100,7 +114,7 @@ func (l *log) outcomef(because int, errata []traveller.Erratum, format string, a
 		l.errata[e] = true
 	}
 
-	l.events = append(l.events, traveller.OutcomeEvent{
+	l.add(traveller.OutcomeEvent{
 		Seq:         l.next(),
 		Because:     because,
 		Description: fmt.Sprintf(format, args...),

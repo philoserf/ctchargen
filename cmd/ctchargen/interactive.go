@@ -1,0 +1,212 @@
+package main
+
+import (
+	"bufio"
+	"errors"
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
+
+	"github.com/philoserf/ctchargen/render"
+	"github.com/philoserf/ctchargen/traveller"
+)
+
+// errNoAnswer reports that the input ended while the procedure was still
+// asking. It is an error rather than a default, because a character finished
+// by a decision nobody made is not the character anybody asked for.
+var errNoAnswer = errors.New("the input ended while the procedure was still asking")
+
+// player is the Decider a person drives: the third implementation, after the
+// auto policy and the scripted deciders the tests use, and the only one that
+// cannot be replayed.
+//
+// It never invents an answer. Every question it asks is one the engine
+// asked, with exactly the alternatives the engine offered, and an answer it
+// cannot read is asked again rather than guessed at.
+type player struct {
+	in  *bufio.Scanner
+	out io.Writer
+
+	// wrote is the first failure writing to the player, kept so that a
+	// broken pipe stops the generation at the next question rather than
+	// being swallowed a dozen times over.
+	wrote error
+}
+
+func newPlayer(in io.Reader, out io.Writer) *player {
+	if in == nil {
+		// Nothing to read from is not a reason to invent answers; the first
+		// question asked will report that the input ended.
+		in = strings.NewReader("")
+	}
+
+	return &player{in: bufio.NewScanner(in), out: out}
+}
+
+// pick asks which of a list the player wants and hands back the thing
+// itself, so that every choice over a list is one function rather than the
+// same "ask, then index" pair written out once per choice point - and its
+// failure is one branch rather than one per choice point.
+func pick[T any](p *player, question string, from []T, name func(T) string) (T, error) {
+	options := make([]string, 0, len(from))
+	for _, v := range from {
+		options = append(options, name(v))
+	}
+
+	chosen, err := p.choose(question, options)
+	if err != nil {
+		var none T
+
+		return none, err
+	}
+
+	return from[chosen], nil
+}
+
+func (p *player) Service(from []traveller.EnlistmentOffer) (traveller.ServiceName, error) {
+	offer, err := pick(p, "Which service will you try to enlist in? (p. 10)", from,
+		func(o traveller.EnlistmentOffer) string {
+			return fmt.Sprintf("%v (enlistment %v, and you earn %+d)", o.Service, o.Target, o.DM)
+		})
+
+	return offer.Service, err
+}
+
+func (p *player) SubmitToDraft() (bool, error) {
+	return p.confirm("Rejected. Submit to the draft? (p. 5)")
+}
+
+func (p *player) AttemptCommission() (bool, error) {
+	return p.confirm("Attempt a commission this term? (p. 6)")
+}
+
+func (p *player) AttemptPromotion() (bool, error) {
+	return p.confirm("Attempt a promotion this term? (p. 6)")
+}
+
+func (p *player) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
+	return pick(p, "Which skills table? It is designated before the die (p. 11)",
+		from, traveller.SkillTable.String)
+}
+
+func (p *player) Weapon(
+	category traveller.WeaponCategory, from []traveller.WeaponName,
+) (traveller.WeaponName, error) {
+	question := fmt.Sprintf("%v: name the weapon, immediately (pp. 11-13)", category)
+
+	return pick(p, question, from, func(w traveller.WeaponName) string { return string(w) })
+}
+
+func (p *player) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error) {
+	return pick(p, "The term is over. What now? (pp. 6-7, 21)", from, traveller.Intent.String)
+}
+
+func (p *player) MusterTable(from []traveller.MusterTable) (traveller.MusterTable, error) {
+	return pick(p, "Which mustering out table? It is designated before the die (p. 9)",
+		from, traveller.MusterTable.String)
+}
+
+func (p *player) MusterTable1DM() (bool, error) {
+	return p.confirm("Your rank allows +1 on this table. Take it? (p. 9)")
+}
+
+func (p *player) MusterTable2DM() (bool, error) {
+	return p.confirm("Your gambling expertise allows +1 on this table. Take it? (p. 9)")
+}
+
+// weaponOffer pairs one entry of the p. 22 weapon row with what taking it
+// means, so that the wording and the benefit are built in one place and
+// nothing has to work out afterwards which list an index fell into.
+type weaponOffer struct {
+	text  string
+	means traveller.WeaponBenefit
+}
+
+func (p *player) MusterWeapon(
+	category traveller.WeaponCategory, from, received []traveller.WeaponName,
+) (traveller.WeaponBenefit, error) {
+	offers := make([]weaponOffer, 0, len(from)+len(received))
+	for _, weapon := range from {
+		offers = append(offers, weaponOffer{
+			text: string(weapon), means: traveller.TakeWeapon{Weapon: weapon},
+		})
+	}
+
+	// P. 22 offers the expertise only in lieu of a weapon "of exactly the
+	// same type", so it appears only for one already received.
+	for _, held := range received {
+		offers = append(offers, weaponOffer{
+			text: "+1 expertise in the " + string(held), means: traveller.TakeExpertise{Weapon: held},
+		})
+	}
+
+	question := fmt.Sprintf("%v: take a weapon, or expertise in one already received (p. 22)", category)
+
+	chosen, err := pick(p, question, offers, func(o weaponOffer) string { return o.text })
+
+	return chosen.means, err
+}
+
+func (p *player) AssumeTitle(title traveller.Title) (bool, error) {
+	return p.confirm(fmt.Sprintf(
+		"Your social standing makes you %v. Assume the title? (p. 5; Book 3 p. 22)", title,
+	))
+}
+
+// sayf writes to the player, remembering the first failure.
+func (p *player) sayf(format string, args ...any) {
+	if p.wrote != nil {
+		return
+	}
+
+	_, p.wrote = fmt.Fprintf(p.out, format, args...)
+}
+
+// watch shows the player the procedure between his questions, through the
+// transcript's own renderer.
+func (p *player) watch(event traveller.Event) {
+	line := render.EventLine(event)
+	if line == "" {
+		return
+	}
+
+	p.sayf("%s", line)
+}
+
+// choose asks for one of a numbered list and returns its index.
+func (p *player) choose(question string, options []string) (int, error) {
+	for {
+		p.sayf("\n%s\n", question)
+
+		for i, option := range options {
+			p.sayf("  %d) %s\n", i+1, option)
+		}
+
+		p.sayf("> ")
+
+		if p.wrote != nil {
+			return 0, fmt.Errorf("asking the player: %w", p.wrote)
+		}
+
+		if !p.in.Scan() {
+			return 0, errNoAnswer
+		}
+
+		chosen, err := strconv.Atoi(strings.TrimSpace(p.in.Text()))
+		if err == nil && chosen >= 1 && chosen <= len(options) {
+			p.sayf("\n")
+
+			return chosen - 1, nil
+		}
+
+		p.sayf("  answer with a number from 1 to %d\n", len(options))
+	}
+}
+
+// confirm asks a question the procedure puts as yes or no.
+func (p *player) confirm(question string) (bool, error) {
+	chosen, err := p.choose(question, []string{"yes", "no"})
+
+	return chosen == 0, err
+}

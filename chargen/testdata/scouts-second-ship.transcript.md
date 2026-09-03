@@ -175,7 +175,7 @@ Seed 55, strategies serve/advanced/goods.
 127. a Body Pistol (from 125)
 128. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 129. Table 1, Material Benefits: rolled 5
-130. MusterWeapon: policy chose expertise in Body Pistol from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun
+130. MusterWeapon: policy chose expertise in Body Pistol from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun, expertise in Body Pistol
 131. expertise instead: Body Pistol-1 (from 129)
 132. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 133. Table 1, Material Benefits: rolled 6
@@ -188,7 +188,7 @@ Seed 55, strategies serve/advanced/goods.
 140. Intelligence +2, 8 to 10 (from 139)
 141. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 142. Table 1, Material Benefits: rolled 5
-143. MusterWeapon: policy chose expertise in Body Pistol from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun
+143. MusterWeapon: policy chose expertise in Body Pistol from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun, expertise in Body Pistol
 144. expertise instead: Body Pistol-2 (from 142)
 
 ## titles (p. 5; Book 3 p. 22)

@@ -15,10 +15,13 @@ const (
 	cmdRender   = "render"
 	cmdVersion  = "version"
 	wantUsage   = "usage"
+	wantNoRow   = "no such strategy"
+	flagSheet   = "--sheet"
 	flagAuto    = "--auto"
 	flagSeed    = "--seed"
 	flagService = "--service"
 	other       = "other"
+	navy        = "navy"
 )
 
 func TestRunRejectsBadCommandLines(t *testing.T) {
@@ -28,14 +31,21 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"no command":       {nil, "new|batch|render|version"},
-		"unknown command":  {[]string{"generate"}, "unknown command"},
-		"no --auto":        {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
+		"no command":      {nil, "new|batch|render|version"},
+		"unknown command": {[]string{"generate"}, "unknown command"},
+		// Interactive mode with nothing to read from asks its first
+		// question and reports that the input ended, rather than answering
+		// it on the player's behalf.
+		"no input to read": {[]string{cmdNew}, "the input ended"},
 		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, wantUsage},
 		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
-		"no such strategy": {[]string{cmdNew, flagAuto, "--career", "dawdle"}, "no such strategy"},
+		"no such strategy": {[]string{cmdNew, flagAuto, "--career", "dawdle"}, wantNoRow},
+		// The strategies are recorded whichever mode runs, and the schema
+		// restricts them to POLICY.md's rows, so an unknown one is refused
+		// without --auto too rather than being written into a record.
+		"no such strategy, asking": {[]string{cmdNew, "--career", "dawdle"}, wantNoRow},
 	} {
-		err := run(tc.args, io.Discard)
+		err := run(tc.args, nil, io.Discard, io.Discard)
 
 		switch {
 		case err == nil:
@@ -63,13 +73,13 @@ func TestRunWritesEachRendering(t *testing.T) {
 			`"ruleset": "Classic Traveller, Books 1-3`,
 		},
 		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
-		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--sheet"}, "UPP "},
+		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet}, "UPP "},
 		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},
 		"version":    {[]string{cmdVersion}, "ctchargen"},
 	} {
 		var out strings.Builder
 
-		err := run(tc.args, &out)
+		err := run(tc.args, nil, &out, io.Discard)
 		if err != nil {
 			t.Errorf("%s: %v", name, err)
 

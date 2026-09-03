@@ -198,7 +198,7 @@ func (a *applyBenefit) WeaponPick(category traveller.WeaponCategory) error {
 		return fmt.Errorf("taking a weapon benefit: %w", err)
 	}
 
-	took := &takeWeapon{run: a.run, because: a.because, category: category}
+	took := &takeWeapon{run: a.run, because: a.because}
 
 	err = taken.Fold(took)
 	if err != nil {
@@ -252,17 +252,16 @@ func (r *run) receivedIn(category traveller.WeaponCategory) []traveller.WeaponNa
 }
 
 // takeWeapon is the fold that records what a repeat weapon row was taken as.
+//
+// Neither case re-checks the answer against the list it came from: the
+// logging decorator refuses an answer outside the offered set before the
+// engine sees it, and one definition of that cannot disagree with itself.
 type takeWeapon struct {
-	run      *run
-	because  int
-	category traveller.WeaponCategory
+	run     *run
+	because int
 }
 
 func (t *takeWeapon) TakeWeapon(weapon traveller.WeaponName) error {
-	if !weaponInList(t.run.tables.Weapons(t.category), weapon) {
-		return fmt.Errorf("%w: %q is not on the %v list", errNotAWeapon, weapon, t.category)
-	}
-
 	t.run.char.Benefits.Weapons = append(t.run.char.Benefits.Weapons, weapon)
 	t.run.log.outcomef(t.because, nil, "a %s", weapon)
 
@@ -270,11 +269,6 @@ func (t *takeWeapon) TakeWeapon(weapon traveller.WeaponName) error {
 }
 
 func (t *takeWeapon) TakeExpertise(weapon traveller.WeaponName) error {
-	if !slices.Contains(t.run.receivedIn(t.category), weapon) {
-		return fmt.Errorf("%w: expertise may only be taken in a weapon received as a benefit, and %q was not",
-			errNotAWeapon, weapon)
-	}
-
 	level := t.run.char.addSkill(traveller.SkillName(weapon))
 	t.run.log.outcomef(t.because, nil, "expertise instead: %s-%d", weapon, level)
 

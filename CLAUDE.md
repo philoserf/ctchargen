@@ -9,11 +9,13 @@ A Go CLI that generates rules-accurate Classic Traveller characters from
 Books 1–3 (© 1977 text, FFE reprints). The repo was emptied at `41a213a` and
 is being rebuilt from `docs/PRD.md`.
 
-**Current state: milestone 3, complete.** All six services run, every table
-of pp. 4–25 is lifted and consulted, the book's own worked character replays
-against the engine, and `docs/character.schema.json` describes the record
-with every golden validated against it. Milestone 4 is what is left: batch
-mode and interactive mode.
+**Current state: every milestone of `docs/PRD.md` is complete.** All six
+services run, every table of pp. 4–25 is lifted and consulted, the book's own
+worked character replays against the engine, `docs/character.schema.json`
+describes the record with every golden validated against it, characters are
+written to files, generated in batches and read back, and interactive mode
+walks the procedure a question at a time. What remains before a tag is a
+prerelease review of the whole tool against the four documents.
 
 This paragraph is the one thing here that goes stale on its own; correct it
 when a milestone moves rather than letting the file describe a tree that no

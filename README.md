@@ -11,13 +11,15 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 
 All six services generate, the book's own worked character (pp. 23–25)
 replays against the engine, the record has a schema, and characters can be
-written to files, generated in batches and read back. Interactive mode is
-what remains.
+written to files, generated in batches and read back. `new` without
+`--auto` walks the procedure a question at a time, showing each throw
+between the questions.
 
 ```sh
 ctchargen new --auto --seed 145 --service merchants --sheet
 ctchargen batch --count 20 --auto --seed 145 --service merchants -o characters/
 ctchargen render characters/00000000000000000145.json
+ctchargen new --seed 145 --sheet    # asks at every choice point
 ```
 
 Batch members number from zero, so the first of that batch is the character

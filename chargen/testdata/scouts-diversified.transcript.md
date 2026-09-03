@@ -184,7 +184,7 @@ Seed 4, strategies serve/advanced/spartan.
 136. a Dagger (from 134)
 137. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 138. Table 1, Material Benefits: rolled 4
-139. MusterWeapon: policy chose Blade from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet
+139. MusterWeapon: policy chose Blade from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet, expertise in Dagger
 140. a Blade (from 138)
 141. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 142. Table 1, Material Benefits: rolled 1

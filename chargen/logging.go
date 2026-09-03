@@ -2,6 +2,7 @@ package chargen
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/philoserf/ctchargen/traveller"
 )
@@ -28,6 +29,13 @@ func names[T any](from []T, name func(T) string) []string {
 	return out
 }
 
+// expertiseIn names the p. 22 alternative, in one place, so that the record
+// of what was offered and the record of what was chosen cannot word it
+// differently.
+func expertiseIn(weapon traveller.WeaponName) string {
+	return "expertise in " + string(weapon)
+}
+
 func yesNo(b bool) string {
 	if b {
 		return "yes"
@@ -47,11 +55,9 @@ func (l logging) Service(from []traveller.EnlistmentOffer) (traveller.ServiceNam
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceService,
+	return chosen, l.record(traveller.ChoiceService,
 		names(from, func(o traveller.EnlistmentOffer) string { return o.Service.String() }),
 		chosen.String())
-
-	return chosen, nil
 }
 
 func (l logging) SubmitToDraft() (bool, error) {
@@ -60,9 +66,7 @@ func (l logging) SubmitToDraft() (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceSubmitToDraft, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceSubmitToDraft, offered, yesNo(chosen))
 }
 
 func (l logging) AttemptCommission() (bool, error) {
@@ -71,9 +75,7 @@ func (l logging) AttemptCommission() (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceAttemptCommission, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceAttemptCommission, offered, yesNo(chosen))
 }
 
 func (l logging) AttemptPromotion() (bool, error) {
@@ -82,9 +84,7 @@ func (l logging) AttemptPromotion() (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceAttemptPromotion, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceAttemptPromotion, offered, yesNo(chosen))
 }
 
 func (l logging) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
@@ -93,10 +93,8 @@ func (l logging) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, 
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceSkillTable,
+	return chosen, l.record(traveller.ChoiceSkillTable,
 		names(from, traveller.SkillTable.String), chosen.String())
-
-	return chosen, nil
 }
 
 func (l logging) Weapon(
@@ -107,10 +105,8 @@ func (l logging) Weapon(
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceWeapon,
+	return chosen, l.record(traveller.ChoiceWeapon,
 		names(from, func(w traveller.WeaponName) string { return string(w) }), string(chosen))
-
-	return chosen, nil
 }
 
 func (l logging) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error) {
@@ -119,9 +115,7 @@ func (l logging) ReenlistIntent(from []traveller.Intent) (traveller.Intent, erro
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceReenlistIntent, names(from, traveller.Intent.String), chosen.String())
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceReenlistIntent, names(from, traveller.Intent.String), chosen.String())
 }
 
 func (l logging) MusterTable(from []traveller.MusterTable) (traveller.MusterTable, error) {
@@ -130,9 +124,7 @@ func (l logging) MusterTable(from []traveller.MusterTable) (traveller.MusterTabl
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceMusterTable, names(from, traveller.MusterTable.String), chosen.String())
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceMusterTable, names(from, traveller.MusterTable.String), chosen.String())
 }
 
 func (l logging) MusterTable1DM() (bool, error) {
@@ -141,9 +133,7 @@ func (l logging) MusterTable1DM() (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceMusterTable1DM, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceMusterTable1DM, offered, yesNo(chosen))
 }
 
 func (l logging) MusterTable2DM() (bool, error) {
@@ -152,9 +142,7 @@ func (l logging) MusterTable2DM() (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceMusterTable2DM, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceMusterTable2DM, offered, yesNo(chosen))
 }
 
 func (l logging) MusterWeapon(
@@ -172,10 +160,16 @@ func (l logging) MusterWeapon(
 		return chosen, fmt.Errorf("describing the weapon benefit: %w", err)
 	}
 
-	l.record(traveller.ChoiceMusterWeapon,
-		names(from, func(w traveller.WeaponName) string { return string(w) }), described.text)
+	// P. 22 offers the expertise beside the weapons, so the record of what
+	// was offered says so - and the gate has the whole offer to check
+	// against. Both halves are worded by the same functions that word the
+	// answer, so the comparison is like with like.
+	alternatives := names(from, func(w traveller.WeaponName) string { return string(w) })
+	for _, held := range received {
+		alternatives = append(alternatives, expertiseIn(held))
+	}
 
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceMusterWeapon, alternatives, described.text)
 }
 
 func (l logging) AssumeTitle(title traveller.Title) (bool, error) {
@@ -184,9 +178,7 @@ func (l logging) AssumeTitle(title traveller.Title) (bool, error) {
 		return chosen, err
 	}
 
-	l.record(traveller.ChoiceAssumeTitle, offered, yesNo(chosen))
-
-	return chosen, nil
+	return chosen, l.record(traveller.ChoiceAssumeTitle, offered, yesNo(chosen))
 }
 
 // describeWeaponBenefit renders what was taken for a weapon row, by folding,
@@ -200,11 +192,26 @@ func (d *describeWeaponBenefit) TakeWeapon(weapon traveller.WeaponName) error {
 }
 
 func (d *describeWeaponBenefit) TakeExpertise(weapon traveller.WeaponName) error {
-	d.text = "expertise in " + string(weapon)
+	d.text = expertiseIn(weapon)
 
 	return nil
 }
 
-func (l logging) record(point traveller.ChoicePoint, from []string, chosen string) {
+// record writes the answer into the generation record, and refuses one that
+// was not offered.
+//
+// It is the single gate: the decorator is the only way a decider reaches the
+// engine (generate.go wraps every one of them), and it already holds both
+// the offered set and the answer, because it records both. Checking here
+// rather than at each application site leaves one definition of answering
+// outside the offer, which two cannot disagree with.
+func (l logging) record(point traveller.ChoicePoint, from []string, chosen string) error {
+	if !slices.Contains(from, chosen) {
+		return fmt.Errorf("%w: %v offered %v, and was answered %q",
+			errNotOffered, point, from, chosen)
+	}
+
 	l.log.choice(point, l.by, from, chosen)
+
+	return nil
 }

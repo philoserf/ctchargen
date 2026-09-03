@@ -16,21 +16,45 @@ const startingAge = 18
 // generation log are to these three books and nothing else.
 const Ruleset = "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)"
 
+// An Option is an optional input to a generation: dice of the caller's own,
+// or somebody watching the record as it is written.
+//
+// Options rather than a function per combination, so that the default -
+// seeded dice and nobody watching - stays the shortest call, and the engine
+// does not grow an entry point every time it gains an optional input.
+type Option func(*run)
+
+// WithRoller walks the procedure against a roller of the caller's own, which
+// is how a test replays a particular path: a career past the Aging Table's
+// last printed term, say, that no seed would reach.
+func WithRoller(roller Roller) Option {
+	return func(r *run) { r.roll = roller }
+}
+
+// WithObserver calls watch with each event as the record is written, which
+// is how interactive mode shows the procedure between its questions.
+//
+// It returns nothing, so a watcher cannot change what it watches.
+func WithObserver(watch func(traveller.Event)) Option {
+	return func(r *run) { r.log.watch = watch }
+}
+
+// WithAnswerer names who the decider stands for, which every choice event
+// then records (FR9). A run says the policy answered unless it is told that
+// a person did, so a record read back names the kind of thing that made
+// each choice rather than assuming the automatic one.
+func WithAnswerer(who traveller.DecidedBy) Option {
+	return func(r *run) { r.by = who }
+}
+
 // Generate walks Book 1's character generation procedure, pp. 4-25, rolling
-// from the seed the inputs carry.
+// from the seed the inputs carry unless a roller is given.
 //
 // The order within a term is the exposition's, not the worked example's
 // (E002): survival, commission, promotion, skills, reenlistment, and then
 // the aging round at the end of the term (E006). That order is what a seed
 // means, so it is a fixed choice rather than an incidental one.
-func Generate(in Inputs, decider Decider) (*Character, error) {
-	return GenerateWith(in, dice.New(in.Seed), decider)
-}
-
-// GenerateWith walks the same procedure against a roller of the caller's
-// own, which is how a test replays a particular path - a career past the
-// Aging Table's last printed term, say, that no seed would reach.
-func GenerateWith(in Inputs, roller Roller, decider Decider) (*Character, error) {
+func Generate(in Inputs, decider Decider, options ...Option) (*Character, error) {
 	tables, err := rules.Load()
 	if err != nil {
 		return nil, fmt.Errorf("loading the rules: %w", err)
@@ -40,14 +64,19 @@ func GenerateWith(in Inputs, roller Roller, decider Decider) (*Character, error)
 
 	run := &run{
 		tables: tables,
-		roll:   roller,
-		decide: logging{to: decider, by: traveller.ByPolicy, log: record},
+		roll:   dice.New(in.Seed),
 		log:    record,
+		by:     traveller.ByPolicy,
 		char: &Character{
 			Name: in.Name, Age: traveller.NewAge(startingAge), Inputs: in, Ruleset: Ruleset,
 		},
-		maxTerm: 0,
 	}
+
+	for _, option := range options {
+		option(run)
+	}
+
+	run.decide = logging{to: decider, by: run.by, log: record}
 
 	err = run.generate()
 	if err != nil {
@@ -67,13 +96,13 @@ type run struct {
 	tables *rules.Rules
 	roll   Roller
 	decide Decider
+	by     traveller.DecidedBy
 	log    *log
 	char   *Character
 
 	service  rules.Service
 	drafted  bool
 	dead     bool
-	maxTerm  int
 	eligible int
 }
 

@@ -398,6 +398,15 @@ the whole point of spelling it this way rather than as one method over a
 label. Strings appear only where the engine writes the choice into the
 event log, where they are prose for a reader.
 
+The engine **does not trust the answer**. Every method is handed the set the
+page allows — the fourth skills table only at Education 8 (p. 11), the
+weapon expertise only in one already received (p. 22) — and an answer from
+outside that set is refused rather than applied. A decider is a source of
+choices, not of rules: obeying one that reached past the offer would build a
+character the book does not permit, under a seed that reproduces it forever.
+The check sits in the one wrapper every decider passes through, beside the
+recording of what was offered, so that the two cannot come to disagree.
+
 **FR10 — Dice engine.** 2D throws with DMs against a `Target` per the die
 roll conventions (pp. 2–3), plus the single-die rolls the procedure uses
 (draft, skills tables, mustering out, recovery months). All rolls drawn
@@ -485,11 +494,12 @@ and a failed throw still goes to the draft, which can land anywhere — that
 is what one attempt plus a one-die draft means (p. 5). Interactive mode
 walks the procedure step by step; auto mode applies the policy of
 POLICY.md, whose selectable rows the `--skills`, `--muster`, and `--career`
-flags choose between. `new` writes JSON to stdout unless `-o`; `batch`
-emits JSONL (or one file per character with `-o dir`), requires `--auto`,
-and derives each member's seed from the base seed plus index, recorded in
-each record. Existing files are never overwritten without `--force`. Flags
-precede the filename. `version` reports the build, read from the
+flags choose between. `new` writes JSON to stdout unless `-o`, and
+interactive mode's questions go to stderr so that a guided run still pipes a
+record and not a conversation; `batch` emits JSONL (or one file per
+character with `-o dir`), requires `--auto`, and derives each member's seed
+from the base seed plus index, recorded in each record. Existing files are
+never overwritten without `--force`. Flags precede the filename. `version` reports the build, read from the
 toolchain's embedded build info.
 
 The auto policy is **total** — it can answer every method of the `Decider`
@@ -621,11 +631,29 @@ inputs.
 
 ## Milestones
 
+**Rewritten after the fact.** The list below is what was built, in the order
+it was built; the plan first written here is not what the repository shows,
+and a contract that describes a project this one visibly is not is worse than
+no list. Two boundaries moved for reasons worth keeping:
+
+- **A walking skeleton has to walk all the way.** Aging, mustering out,
+  retirement and titles were planned for third and landed in the first
+  engine milestone, because a skeleton that stops at the end of term 1 walks
+  the first quarter of the procedure. The shape of everything after — the
+  muster tables' two-column choice, the aging throws that can end a career,
+  the retirement branch — was not testable until a character could reach it.
+  The Markdown transcript came forward for the same reason: it is how a
+  generated character was read while the engine was being built.
+- **A benefit is not implemented until something can receive it.** Book 2's
+  ship values were deferred out of that first milestone and landed with the
+  six services, because the Scouts are the first service whose table yields
+  a ship, and a value no path reaches cannot be checked against the page.
+
 0. **The documents that govern the code**: ERRATA.md, with every reading
    this document names decided against the held page and carrying its cite
    and its stamping condition; POLICY.md; CLAUDE.md. All three precede the
    first line of Go — a guard written after the code it guards is not a
-   guard.
+   guard. With them, the source ranking and the CI gate itself.
 1. `traveller` and `dice`: the domain types, the seeded stream, the
    `Target` throw. Then `rules`, and with it **every table of pp. 4–25**,
    transcribed in one visual reading pass with its second transcription in
@@ -634,13 +662,22 @@ inputs.
    copy retyped from the first checks nothing. Then a walking skeleton
    through one service (Other — no commissions, no ranks, the shortest
    path through the table) with the event log wired in from the start,
-   JSON out, and a rendered sheet.
+   JSON out, and a rendered sheet — and, for the reason above, aging,
+   mustering out, retirement, titles, the total auto policy with its named
+   strategies, and the Markdown transcript. Exit criterion: a living
+   COVERAGE.md.
 2. All six services: enlistment, draft, survival, commission, promotion,
    reenlistment, ranks, and the four skills tables with weapon choices and
-   rank-and-service skills. Exit criterion: a living COVERAGE.md.
-3. Aging, retirement, and mustering out, including the ship benefits' Book
-   2 values and the Book 3 titles.
-4. Interactive mode polish; batch mode; the Markdown transcript.
+   rank-and-service skills. Then Book 2's ships, now that one can be drawn,
+   and the book's own worked character replayed against the engine.
+3. The record described and held to its description:
+   `character.schema.json`, with every golden and both documented examples
+   validated against it in CI. An unvalidated schema is a description that
+   drifts away from the thing it describes.
+4. Output and the modes a person drives: `-o` and `--force`, the `render`
+   subcommand, batch generation with its seed arithmetic — and interactive
+   mode, the third implementation of `Decider` and the only one that cannot
+   be replayed.
 
 ## Sources
 

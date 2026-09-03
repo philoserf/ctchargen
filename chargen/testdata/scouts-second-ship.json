@@ -1295,7 +1295,8 @@
         "Laser Rifle",
         "Automatic Rifle",
         "Submachine Gun",
-        "Shotgun"
+        "Shotgun",
+        "expertise in Body Pistol"
       ],
       "chosen": "expertise in Body Pistol"
     },
@@ -1422,7 +1423,8 @@
         "Laser Rifle",
         "Automatic Rifle",
         "Submachine Gun",
-        "Shotgun"
+        "Shotgun",
+        "expertise in Body Pistol"
       ],
       "chosen": "expertise in Body Pistol"
     },

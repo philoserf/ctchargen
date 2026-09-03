@@ -16,21 +16,25 @@ import (
 var errUsage = errors.New("usage")
 
 func main() {
-	err := run(os.Args[1:], os.Stdout)
+	err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ctchargen:", err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string, out io.Writer) error {
+// run takes the two output channels apart. `out` is the data channel - the
+// record, the sheet, the transcript - and `asking` is where the tool talks to
+// the person driving it. Interactive mode writes its questions to the second,
+// so that `ctchargen new --seed 7 | jq` pipes a record and not a conversation.
+func run(args []string, in io.Reader, out, asking io.Writer) error {
 	if len(args) == 0 {
 		return fmt.Errorf("%w: ctchargen new|batch|render|version", errUsage)
 	}
 
 	switch args[0] {
 	case "new":
-		return newCharacter(args[1:], out)
+		return newCharacter(args[1:], in, out, asking)
 	case "batch":
 		return batch(args[1:], out)
 	case "render":
