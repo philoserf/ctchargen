@@ -156,7 +156,7 @@ Seed 56, strategies serve/advanced/cash.
 112. aging, Strength: rolled 2+5 = 7 against 8+, missed
 113. Strength -1, 3 to 2 (from 112) [E006 E007]
 114. aging, Dexterity: rolled 2+1 = 3 against 7+, missed
-115. Dexterity -1, 1 to 0 (from 114) [E006 E007]
+115. Dexterity -1, 1 to 0 (from 114) [E006 E007 E010]
 116. medical crisis, Dexterity at zero: rolled 6+4 = 10 against 8+, made
 117. months of recovery: rolled 2
 118. recovered: Dexterity to 1, and 2 months older, now aged 46 years 2 months (from 117) [E008 E009]

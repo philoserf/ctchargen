@@ -104,14 +104,6 @@ func (r *run) join(how traveller.Enlistment, name traveller.ServiceName) error {
 	r.char.Served = true
 	r.service = r.tables.Service(name)
 
-	// Commissions, promotions and ranks arrive with milestone 2. P. 10
-	// makes them one fact, so a service that prints a rank column prints
-	// all three, and this engine walks the two that print none.
-	if r.service.Commissions() {
-		return fmt.Errorf("%w: the %v commission and promote, which arrives at milestone 2",
-			ErrNotYetImplemented, name)
-	}
-
 	return r.grantsOnEntering()
 }
 

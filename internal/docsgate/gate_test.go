@@ -155,57 +155,8 @@ func TestChoicePointsMatchTheDecider(t *testing.T) {
 	compare(t, inCode, deciderMethods(), "the ChoicePoint enum", "the Decider interface")
 }
 
-// notYetReachable names the errata no generated character can carry yet,
-// because the service or the step that would stamp them is not implemented.
-//
-// The PRD asks that every erratum heading be reachable by some path. The
-// engine now reaches ten of the fourteen by a generated record, and two more
-// - E003 and E014 - by a scripted die, which is the instrument the PRD gives
-// for a path no seed reaches. What is left needs a service with ranks. The
-// list may only shrink, and must be empty when the six services are done.
-//
-// It is a list and not a map keyed by Erratum on purpose: a map keyed by the
-// enum reads as a complete table of every reading, and this is the opposite
-// — the few that are still owed.
-type exemption struct {
-	erratum traveller.Erratum
-	because string
-}
-
-const notThisMilestone = "needs a service with ranks, which arrives at milestone 2"
-
-var notYetReachable = []exemption{
-	{traveller.E005, "the engine reaches it only in a service that grants one"},
-	{traveller.E013, notThisMilestone},
-}
-
-// stampedOnNoRecord is E012 and only E012, which by design names no record:
-// a spelling is a transcription, not a reading, and nothing about a
-// character changes with the choice.
-var stampedOnNoRecord = []traveller.Erratum{traveller.E012}
-
-// Until the engine exists, this reports what the reachability gate still
-// owes rather than asserting it. It fails only if the exemption list names
-// an erratum that does not exist, which would mean the list has gone stale
-// in the one direction that hides work.
-func TestReachabilityGateOwes(t *testing.T) {
-	t.Parallel()
-
-	t.Logf("reachability gate owes %d of %d errata; it must owe none once the six services and mustering out are complete",
-		len(notYetReachable), len(traveller.Errata))
-
-	for _, e := range notYetReachable {
-		if !slices.Contains(traveller.Errata[:], e.erratum) {
-			t.Errorf("%s is exempted from the reachability gate but is not an erratum", e.erratum)
-		}
-
-		if slices.Contains(stampedOnNoRecord, e.erratum) {
-			t.Errorf("%s is both exempted and stamped on no record; it needs one status, not two", e.erratum)
-		}
-
-		// The reason is the whole point of writing the exemption down, so
-		// it is printed rather than merely stored: a list of ids says what
-		// is owed, and only the reason says what would settle it.
-		t.Logf("  %s: %s", e.erratum, e.because)
-	}
-}
+// The PRD's fourth gate - every erratum heading reachable by some path - is
+// held in chargen's TestEveryReadingIsReachable, because reaching a reading
+// takes the engine and the golden roster, and both live there. It owes
+// nothing now: every reading but E012 is carried by some generated or
+// scripted character, and E012 by design names no record.

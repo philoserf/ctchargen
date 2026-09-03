@@ -156,6 +156,6 @@ Seed 17, strategies serve/advanced/cash.
 112. aging, Strength: rolled 2+6 = 8 against 8+, made
 113. Strength holds (from 112) [E006 E007]
 114. aging, Dexterity: rolled 2+1 = 3 against 7+, missed
-115. Dexterity -1, 1 to 0 (from 114) [E006 E007]
+115. Dexterity -1, 1 to 0 (from 114) [E006 E007 E010]
 116. medical crisis, Dexterity at zero: rolled 4+2 = 6 against 8+, missed
 117. died of a medical crisis in term 7, Dexterity having reached zero (from 116) [E008 E009]

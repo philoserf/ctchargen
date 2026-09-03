@@ -64,14 +64,14 @@ func (d *departureCodec) Retired() error {
 }
 
 func (d *departureCodec) KilledBySurvivalThrow() error {
-	d.out = departureRecord{How: "killed by the survival throw"}
+	d.out = departureRecord{How: "killed by the survival throw", Fatal: true}
 
 	return nil
 }
 
 func (d *departureCodec) KilledByMedicalCrisis(characteristic traveller.Characteristic) error {
 	d.out = departureRecord{
-		How: "killed by a medical crisis", Characteristic: characteristic.String(),
+		How: "killed by a medical crisis", Fatal: true, Characteristic: characteristic.String(),
 	}
 
 	return nil

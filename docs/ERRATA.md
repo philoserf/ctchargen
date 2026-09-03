@@ -394,10 +394,16 @@ restoration to 1. A negative characteristic appears nowhere in the three
 books and would have no rule to resolve it. Clamping at 0 makes the crisis
 text apply literally as written, which the alternative does not.
 
-**Stamped on.** Records in which an aging reduction was actually stopped by
-the floor — a −2 taken against a characteristic standing at 1. A −1 taken
-against a 1 reaches 0 under either reading and does not exercise the clamp,
-so a record whose only crisis arrived that way is not stamped.
+**Stamped on.** Records in which an aging reduction carried a characteristic
+below 1 — which is every reduction that reaches 0, and so every medical
+crisis that aging caused.
+
+An earlier wording of this condition restricted it to a −2 taken against a 1,
+on the ground that "a −1 taken against a 1 reaches 0 under either reading".
+That is arithmetically false and is corrected here: under the floor of 1, a
+−1 against a 1 gives **1**, and no crisis follows. The two readings diverge
+at exactly the point a reduction would carry a characteristic below 1, which
+is the condition above.
 
 ---
 

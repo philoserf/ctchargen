@@ -34,6 +34,24 @@ type fixture struct {
 //nolint:gochecknoglobals // an immutable roster, and Go has no const slice.
 var fixtures = []fixture{
 	{"other-serve", 7, traveller.Other, true, chargen.DefaultPolicy()},
+
+	// The four services that print a rank column (p. 10).
+	{"navy-captain", 4, traveller.Navy, true, chargen.DefaultPolicy()},
+	{"marines-serve", 4, traveller.Marines, true, chargen.DefaultPolicy()},
+	{"army-serve", 4, traveller.Army, true, chargen.DefaultPolicy()},
+	// Captain of the Merchants, which is the top of that column (E013), and
+	// the only column whose Table 1 awards a Free Trader.
+	{"merchants-captain", 145, traveller.Merchants, true, chargen.DefaultPolicy()},
+	// Rejected by the Navy, drafted into the Merchants, and commissioned
+	// there in a later term - p. 5 bars a draftee from a commission in his
+	// first term only: "they do become eligible during the second and
+	// subsequent terms of service if they reenlist."
+	{"drafted-then-commissioned", 7, traveller.Navy, true, chargen.DefaultPolicy()},
+	// Rank 5 taking the +1 the page allows on Table 1 (p. 9).
+	{
+		"merchants-table1-modifier", 52, traveller.Merchants, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterGoods},
+	},
 	// A characteristic reduced to zero, and the crisis survived - the one
 	// path that puts months on an age (pp. 7-8).
 	{"other-crisis-survived", 56, traveller.Other, true, chargen.DefaultPolicy()},
@@ -41,9 +59,18 @@ var fixtures = []fixture{
 	{"other-crisis-died", 17, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-death", 5, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-title", 4, traveller.Other, true, chargen.DefaultPolicy()},
+	// Killed in the Scouts, which is where the service-wide grant of p. 23
+	// is carried by a character who never lived to muster out.
 	{
-		"scouts-retire", 1, traveller.Scouts, true,
+		"scouts-died", 1, traveller.Scouts, true,
 		chargen.Policy{Career: chargen.CareerRetire, Skills: chargen.SkillsService, Muster: chargen.MusterSpartan},
+	},
+	// The scout ship rolled twice. P. 23: "Only one scout ship may be
+	// acquired by a character, and throws resulting in additional ships are
+	// lost."
+	{
+		"scouts-second-ship", 55, traveller.Scouts, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterGoods},
 	},
 	// Rejected by the Navy, drafted into Other, and killed there.
 	{
@@ -157,71 +184,123 @@ func TestGoldensRegenerate(t *testing.T) {
 	}
 }
 
+// Every recorded reading is reachable by some path.
+//
+// This is the gate the PRD asks for, and until the engine walked the ranked
+// services it could not hold. E012 is the one reading stamped on no record
+// by design - a spelling is a transcription, not a reading, and nothing
+// about a character changes with the choice.
+//
+// E003 and E014 come from the scripted career rather than a fixture: past
+// term 7 only a 12 grants another term, so no seed reaches the Aging Table's
+// last printed column.
+func TestEveryReadingIsReachable(t *testing.T) {
+	t.Parallel()
+
+	stamped := map[traveller.Erratum]bool{}
+
+	for _, f := range fixtures {
+		for _, erratum := range f.generate(t).Errata {
+			stamped[erratum] = true
+		}
+	}
+
+	scripted, err := chargen.GenerateWith(
+		fixtures[0].inputs(), &scripted{twelves: 80}, chargen.DefaultPolicy(),
+	)
+	if err != nil {
+		t.Fatalf("the scripted career: %v", err)
+	}
+
+	for _, erratum := range scripted.Errata {
+		stamped[erratum] = true
+	}
+
+	for _, erratum := range traveller.Errata {
+		if erratum == traveller.E012 {
+			if stamped[erratum] {
+				t.Errorf("%v is stamped on a record; ERRATA.md says it names none", erratum)
+			}
+
+			continue
+		}
+
+		if !stamped[erratum] {
+			t.Errorf("%v is reachable by no path this repository tests", erratum)
+		}
+	}
+}
+
+// pathsReached names every path a single character walked, which is what
+// the roster is checked against below.
+func pathsReached(character *chargen.Character, reached map[string]bool) {
+	mark := func(when bool, path string) {
+		if when {
+			reached[path] = true
+		}
+	}
+
+	_, drafted := character.Enlistment.(traveller.Drafted)
+	_, dead := character.Departure.(traveller.KilledBySurvivalThrow)
+
+	mark(!character.Served, "civilian")
+	mark(drafted, "draftee")
+	mark(dead, "death")
+	mark(character.Title.Eligible, "title")
+	mark(character.Age.Months() > 0, "months on an age")
+	mark(len(character.Benefits.Weapons) > 0, "a weapon benefit")
+	mark(len(character.Benefits.Weapons) > 1, "a second weapon benefit")
+	mark(character.Rank.Commissioned(), "a commission")
+	mark(drafted && character.Rank.Commissioned(), "a draftee commissioned later")
+	mark(character.Rank > 1, "a promotion")
+	mark(character.RankTitle != "", "a rank title")
+	mark(character.Pension > 0, "retirement pay")
+
+	for _, ship := range character.Benefits.Ships {
+		mark(ship.Kind == traveller.FreeTrader, "a Free Trader")
+		mark(ship.Kind == traveller.ScoutShip, "a scout ship")
+		mark(ship.Kind == traveller.FreeTrader && ship.Years > 0, "a Free Trader received twice")
+	}
+
+	mark(character.DuplicateShips > 0, "a scout ship received twice")
+
+	for _, erratum := range character.Errata {
+		// A slice and not a map keyed by Erratum: a map keyed by the enum
+		// claims to be a complete table of every reading, and this looks
+		// for four of fourteen.
+		for _, watched := range []struct {
+			erratum traveller.Erratum
+			path    string
+		}{
+			{traveller.E005, "service grant"},
+			{traveller.E006, "aging"},
+			{traveller.E008, "medical crisis"},
+			{traveller.E013, "the top of a rank column"},
+		} {
+			mark(erratum == watched.erratum, watched.path)
+		}
+	}
+}
+
 // The roster must reach every path it claims to, or a fixture that stopped
 // reaching one would read exactly like a fixture that still does.
 func TestTheRosterReachesItsPaths(t *testing.T) {
 	t.Parallel()
 
 	reached := map[string]bool{}
-
 	for _, f := range fixtures {
-		character := f.generate(t)
-
-		if !character.Served {
-			reached["civilian"] = true
-		}
-
-		if _, drafted := character.Enlistment.(traveller.Drafted); drafted {
-			reached["draftee"] = true
-		}
-
-		if _, dead := character.Departure.(traveller.KilledBySurvivalThrow); dead {
-			reached["death"] = true
-		}
-
-		if character.Title.Eligible {
-			reached["title"] = true
-		}
-
-		for _, erratum := range character.Errata {
-			// A slice and not a map keyed by Erratum: a map keyed by the
-			// enum claims to be a complete table of every reading, and this
-			// looks for three of fourteen.
-			for _, watched := range []struct {
-				erratum traveller.Erratum
-				path    string
-			}{
-				{traveller.E005, "service grant"},
-				{traveller.E006, "aging"},
-				{traveller.E008, "medical crisis"},
-			} {
-				if erratum == watched.erratum {
-					reached[watched.path] = true
-				}
-			}
-		}
-
-		if character.Age.Months() > 0 {
-			reached["months on an age"] = true
-		}
-
-		// The two ways a repeat weapon row can be taken (p. 22). Both are
-		// end-to-end paths, not just policy rows: without a fixture each,
-		// MusterWeapon and the fold that records what it returned are
-		// reached by nothing but a unit test of the policy.
-		if len(character.Benefits.Weapons) > 0 {
-			reached["a weapon benefit"] = true
-		}
-
-		if len(character.Benefits.Weapons) > 1 {
-			reached["a second weapon benefit"] = true
-		}
+		pathsReached(f.generate(t), reached)
 	}
 
 	for _, path := range []string{
 		"civilian", "draftee", "death", "title", "service grant",
 		"medical crisis", "aging", "months on an age",
 		"a weapon benefit", "a second weapon benefit",
+		"a commission", "a draftee commissioned later", "a promotion",
+		"a rank title", "retirement pay",
+		"a Free Trader", "a Free Trader received twice",
+		"a scout ship", "a scout ship received twice",
+		"the top of a rank column",
 	} {
 		if !reached[path] {
 			t.Errorf("no fixture reaches %q", path)

@@ -40,6 +40,7 @@ type record struct {
 	Enlistment      enlistmentRecord  `json:"enlistment"`
 	Service         string            `json:"service,omitempty"`
 	Rank            int               `json:"rank,omitempty"`
+	RankTitle       string            `json:"rankTitle,omitempty"`
 	Skills          []skillRecord     `json:"skills"`
 	Benefits        benefitsRecord    `json:"benefits"`
 	Pension         int64             `json:"annualRetirementPay,omitempty"`
@@ -76,12 +77,14 @@ type benefitsRecord struct {
 	Cash          int64        `json:"cash"`
 	Passages      []string     `json:"passages,omitempty"`
 	TravellersAid bool         `json:"travellersAid,omitempty"`
+	LostShips     int          `json:"scoutShipsLost,omitempty"`
 	Weapons       []string     `json:"weapons,omitempty"`
 	Ships         []shipRecord `json:"ships,omitempty"`
 }
 
 type departureRecord struct {
 	How            string `json:"how"`
+	Fatal          bool   `json:"fatal,omitempty"`
 	Characteristic string `json:"characteristic,omitempty"`
 }
 
@@ -109,8 +112,9 @@ func project(character *chargen.Character) (record, error) {
 		Terms:           character.Terms,
 		Enlistment:      foldEnlistment(character.Enlistment),
 		Rank:            int(character.Rank),
+		RankTitle:       character.RankTitle,
 		Skills:          make([]skillRecord, 0, len(character.Skills)),
-		Benefits:        projectBenefits(character.Benefits),
+		Benefits:        projectBenefits(character.Benefits, character.DuplicateShips),
 		Pension:         int64(character.Pension),
 		Inputs:          projectInputs(character.Inputs),
 		Errata:          make([]string, 0, len(character.Errata)),
@@ -168,8 +172,8 @@ func projectInputs(in chargen.Inputs) inputsRecord {
 	return out
 }
 
-func projectBenefits(b chargen.Benefits) benefitsRecord {
-	out := benefitsRecord{Cash: int64(b.Cash), TravellersAid: b.TravellersAid}
+func projectBenefits(b chargen.Benefits, lost int) benefitsRecord {
+	out := benefitsRecord{Cash: int64(b.Cash), TravellersAid: b.TravellersAid, LostShips: lost}
 
 	for _, passage := range b.Passages {
 		out.Passages = append(out.Passages, passage.String())

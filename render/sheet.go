@@ -49,7 +49,12 @@ func headline(character *chargen.Character) string {
 		return strings.Join(append(parts, "civilian, no prior service"), ", ")
 	}
 
-	parts = append(parts, fmt.Sprintf("%v, %d terms", character.Service, character.Terms))
+	service := fmt.Sprintf("%v, %d terms", character.Service, character.Terms)
+	if character.RankTitle != "" {
+		service = fmt.Sprintf("%v %s, %d terms", character.Service, character.RankTitle, character.Terms)
+	}
+
+	parts = append(parts, service)
 
 	if character.Title.Assumed {
 		parts = append(parts, character.Title.Rank.String())
@@ -133,12 +138,14 @@ func serviceLines(character *chargen.Character) []string {
 	lines := []string{fmt.Sprintf("%s, %s", enlistment.Service, enlistment.How)}
 
 	departure := foldDeparture(character.Departure)
-	if departure.Characteristic != "" {
-		lines = append(lines, fmt.Sprintf("%s in term %d (%s reached zero)",
+
+	switch {
+	case departure.Characteristic != "":
+		return append(lines, fmt.Sprintf("%s in term %d (%s reached zero)",
 			departure.How, character.Terms, departure.Characteristic))
-
-		return lines
+	case departure.Fatal:
+		return append(lines, fmt.Sprintf("%s in term %d", departure.How, character.Terms))
+	default:
+		return append(lines, fmt.Sprintf("%s after term %d", departure.How, character.Terms))
 	}
-
-	return append(lines, fmt.Sprintf("%s after term %d", departure.How, character.Terms))
 }

@@ -25,13 +25,12 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"no command":           {nil, "new|version"},
-		"unknown command":      {[]string{"generate"}, "unknown command"},
-		"no --auto":            {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
-		"unknown flag":         {[]string{cmdNew, flagAuto, "--wat"}, "usage"},
-		"no such service":      {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
-		"no such strategy":     {[]string{cmdNew, flagAuto, "--career", "dawdle"}, "no such strategy"},
-		"a service with ranks": {[]string{cmdNew, flagAuto, flagSeed, "1", flagService, "navy"}, "milestone 2"},
+		"no command":       {nil, "new|version"},
+		"unknown command":  {[]string{"generate"}, "unknown command"},
+		"no --auto":        {[]string{cmdNew}, "interactive mode arrives at milestone 4"},
+		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, "usage"},
+		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
+		"no such strategy": {[]string{cmdNew, flagAuto, "--career", "dawdle"}, "no such strategy"},
 	} {
 		err := run(tc.args, io.Discard)
 

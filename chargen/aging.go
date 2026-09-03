@@ -75,9 +75,10 @@ func (r *run) age(
 	after := r.char.Profile[characteristic]
 
 	errata := agingErrata(term)
-	if before-reduction < crisisFloor {
-		// The reduction was stopped by the floor, which is the reading
-		// itself rather than a consequence of it.
+	if before-reduction < traveller.MinCharacteristic {
+		// Below 1 is where the two readings of p. 4's floor diverge: the
+		// ordinary floor would have stopped here and no crisis would
+		// follow, and E010 is what carries it to 0 instead.
 		errata = append(errata, traveller.E010)
 	}
 
