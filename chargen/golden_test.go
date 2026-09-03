@@ -188,6 +188,8 @@ func documentedExample(t *testing.T, name string, encoded []byte) {
 func TestGoldens(t *testing.T) {
 	t.Parallel()
 
+	written := map[string]bool{}
+
 	for _, fixture := range fixtures {
 		character := fixture.generate(t)
 
@@ -200,10 +202,22 @@ func TestGoldens(t *testing.T) {
 
 		if name, documents := documented[fixture.name]; documents {
 			documentedExample(t, name, encoded)
+
+			written[fixture.name] = true
 		}
 
 		golden(t, fixture.name+".sheet.md", []byte(render.Sheet(character)))
 		golden(t, fixture.name+".transcript.md", []byte(render.Transcript(character)))
+	}
+
+	// Without this, renaming or dropping a fixture that documents an
+	// example leaves the example behind: nothing regenerates it, nothing
+	// compares it, and the schema's published record silently stops being
+	// one the engine emits.
+	for name := range documented {
+		if !written[name] {
+			t.Errorf("%s documents an example but is not in the fixture roster", name)
+		}
 	}
 }
 

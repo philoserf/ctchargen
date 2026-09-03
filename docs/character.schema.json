@@ -9,7 +9,7 @@
   "additionalProperties": false,
   "required": [
     "name", "upp", "characteristics", "age", "terms",
-    "enlistment", "skills", "benefits", "inputs", "errata", "events"
+    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
   ],
 
   "properties": {
@@ -135,6 +135,10 @@
           "minimum": 1,
           "description": "Scout ships a duplicate roll lost. P. 23: \"Only one scout ship may be acquired by a character, and throws resulting in additional ships are lost.\""
         }
+      },
+      "not": {
+        "required": ["travellersAid", "ships"],
+        "description": "P. 9 prints Travellers' Aid only in the Navy and Marines columns of Mustering Out Table 1 and the two starships only in the Scout and Merchant columns, and a character serves one service. No record this tool can generate carries both."
       }
     },
     "annualRetirementPay": {
@@ -200,9 +204,13 @@
       "description": "Every recorded reading of docs/ERRATA.md that governed this record, in id order. A reading applied without appearing here is the one defect no gate catches.",
       "items": { "type": "string", "pattern": "^E[0-9]{3}$" }
     },
+    "ruleset": {
+      "const": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
+      "description": "The text this record was generated under. Every page cite in its log is to these three books and nothing else."
+    },
     "build": {
       "type": "string",
-      "description": "The build that wrote the record, from debug.ReadBuildInfo. With cross-build reproduction unpromised, naming the build is the whole of what makes a record reasonable about."
+      "description": "The build that wrote the record, from debug.ReadBuildInfo - the same source the version subcommand reports. With cross-build reproduction unpromised, naming the build is the whole of what makes a record reasonable about.\n\nThe command fills it, and only the command: a record generated in-process by a test carries none, because a test binary's build info is not the build of a released tool and would make a golden differ by machine. So the goldens and the two examples beside this schema have no build, and a record written by ctchargen does."
     },
     "events": {
       "type": "array",

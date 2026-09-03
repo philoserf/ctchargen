@@ -51,7 +51,14 @@ func TestRunWritesEachRendering(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"json":       {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"seed": 7`},
+		"json": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"seed": 7`},
+		// The command is what fills the build, so a record it writes says
+		// which tool wrote it where a test-generated one says nothing.
+		"json build": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"build"`},
+		"json ruleset": {
+			[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other},
+			`"ruleset": "Classic Traveller, Books 1-3`,
+		},
 		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
 		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--sheet"}, "UPP "},
 		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},

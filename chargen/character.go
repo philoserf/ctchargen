@@ -46,7 +46,21 @@ type Character struct {
 	Inputs Inputs
 	Events []traveller.Event
 	Errata []traveller.Erratum
-	Build  string
+
+	// Ruleset is what this record was generated under. It is constant for
+	// this tool, and carried so that a record says so rather than leaving a
+	// reader to assume it.
+	Ruleset string
+
+	// Build is what wrote the record, from debug.ReadBuildInfo - the same
+	// source the version subcommand reports. With cross-build reproduction
+	// unpromised, naming the build is the whole of what makes a record
+	// reasonable about.
+	//
+	// The command fills it. A record generated in-process by a test does
+	// not carry one, because the build info of a test binary is not the
+	// build of a released tool and would make a golden differ by machine.
+	Build string
 }
 
 // Title is what the record carries about nobility: whether the character was
