@@ -46,10 +46,13 @@ func TestAgingTable(t *testing.T) {
 		},
 	} {
 		for _, term := range tc.terms {
-			var got []string
-			for _, e := range r.Aging.At(term) {
+			effects := r.Aging.At(term)
+
+			got := make([]string, 0, len(effects))
+			for _, e := range effects {
 				got = append(got, fmt.Sprintf("%v -%d %v", e.Characteristic, e.Reduction, e.Saving))
 			}
+
 			if fmt.Sprint(got) != fmt.Sprint(tc.want) {
 				t.Errorf("term %d: %v, want %v", term, got, tc.want)
 			}
@@ -62,6 +65,7 @@ func TestAgingTable(t *testing.T) {
 			t.Errorf("term %d: %v, want no aging", term, got)
 		}
 	}
+
 	if got := r.Aging.FirstTerm(); got != 4 {
 		t.Errorf("aging first applies at term %d, want 4", got)
 	}
@@ -87,9 +91,11 @@ func TestMedicalCrisis(t *testing.T) {
 	if got := crisis.Saving.String(); got != "8+" {
 		t.Errorf("crisis saving throw is %s, want 8+", got)
 	}
+
 	if crisis.RecoversTo != 1 {
 		t.Errorf("crisis recovers to %d, want 1", crisis.RecoversTo)
 	}
+
 	if crisis.MonthsDice != 1 {
 		t.Errorf("crisis adds %dD months, want 1D", crisis.MonthsDice)
 	}
@@ -117,8 +123,10 @@ func TestWeaponLists(t *testing.T) {
 			right:    []string{"Laser Carbine", "Laser Rifle", "Automatic Rifle", "Submachine Gun", "Shotgun"},
 		},
 	} {
-		var want []traveller.WeaponName
-		for _, name := range append(append([]string{}, tc.left...), tc.right...) {
+		printed := append(append([]string{}, tc.left...), tc.right...)
+
+		want := make([]traveller.WeaponName, 0, len(printed))
+		for _, name := range printed {
 			want = append(want, traveller.WeaponName(name))
 		}
 
@@ -146,10 +154,13 @@ func TestRankAndServiceSkills(t *testing.T) {
 		traveller.Other:     nil,
 	}
 	for service, want := range onEntering {
-		var got []string
-		for _, result := range r.GrantsOnEntering(service) {
+		grants := r.GrantsOnEntering(service)
+
+		got := make([]string, 0, len(grants))
+		for _, result := range grants {
 			got = append(got, describe(t, result))
 		}
+
 		if fmt.Sprint(got) != fmt.Sprint(want) {
 			t.Errorf("%v on entering: %v, want %v", service, got, want)
 		}
@@ -170,9 +181,11 @@ func TestRankAndServiceSkills(t *testing.T) {
 	}
 	for _, tc := range byRank {
 		var got []string
+
 		for _, result := range r.GrantsAtRank(tc.service, tc.rank) {
 			got = append(got, describe(t, result))
 		}
+
 		if fmt.Sprint(got) != fmt.Sprint(tc.want) {
 			t.Errorf("%v rank %d: %v, want %v", tc.service, tc.rank, got, tc.want)
 		}
@@ -219,8 +232,10 @@ func TestEligibility(t *testing.T) {
 	if r.Education.Table != traveller.AdvancedEducationEight {
 		t.Errorf("the education gate opens %v", r.Education.Table)
 	}
+
 	for education, open := range map[int]bool{6: false, 7: false, 8: true, 9: true, 15: true} {
 		var p traveller.Profile
+
 		p[traveller.Education] = education
 		if got := r.Education.Open(p); got != open {
 			t.Errorf("education %d opens the fourth table: %v, want %v", education, got, open)
@@ -243,7 +258,12 @@ func TestMusterRollsAndPassages(t *testing.T) {
 		rank  traveller.Rank
 		want  int
 	}{
-		{4, 0, 4}, {4, 1, 5}, {4, 2, 5}, {4, 3, 6}, {4, 6, 6}, {1, 0, 1},
+		{4, 0, 4},
+		{4, 1, 5},
+		{4, 2, 5},
+		{4, 3, 6},
+		{4, 6, 6},
+		{1, 0, 1},
 		// Jamison musters out at 5 terms and rank 5, entitled to two extra
 		// rolls, "in addition to the 5 rolls (for 5 terms of service)".
 		{5, 5, 7},
@@ -256,6 +276,7 @@ func TestMusterRollsAndPassages(t *testing.T) {
 	if r.Muster.MaxOnTable2 != 3 {
 		t.Errorf("max rolls on table 2 is %d, want 3", r.Muster.MaxOnTable2)
 	}
+
 	if r.Muster.Table1DMFromRank5or6 != 1 || r.Muster.Table2DMFromGambling != 1 {
 		t.Errorf("the two optional DMs are %d and %d, want 1 and 1",
 			r.Muster.Table1DMFromRank5or6, r.Muster.Table2DMFromGambling)
@@ -268,6 +289,7 @@ func TestMusterRollsAndPassages(t *testing.T) {
 			t.Errorf("%v costs %v, want %v", class, got, want)
 		}
 	}
+
 	if r.Muster.ResalePercent != 90 {
 		t.Errorf("passages resell at %d%%, want 90%%", r.Muster.ResalePercent)
 	}
@@ -288,6 +310,7 @@ func TestNobility(t *testing.T) {
 			t.Errorf("social standing %d: %v (%v), want %v", social, got, ok, want)
 		}
 	}
+
 	for _, social := range []int{1, 7, 10} {
 		if _, ok := r.TitleFor(social); ok {
 			t.Errorf("social standing %d confers a title; nobility begins at 11", social)
@@ -299,7 +322,7 @@ func TestNobility(t *testing.T) {
 // required for the Navy is 8+; DM of +1 allowed for intelligence of 8 or
 // greater, and DM of +2 is allowed for education of 9 or greater. Assuming a
 // character has intelligence of 6 and education of 10 ... he would be
-// allowed a DM of +2 (for his education)." (p. 5)
+// allowed a DM of +2 (for his education)." (p. 5).
 func TestModifierIsCumulative(t *testing.T) {
 	t.Parallel()
 
@@ -308,6 +331,7 @@ func TestModifierIsCumulative(t *testing.T) {
 
 	profile := func(intelligence, education int) traveller.Profile {
 		var p traveller.Profile
+
 		p[traveller.Intelligence] = intelligence
 		p[traveller.Education] = education
 
@@ -333,7 +357,9 @@ func TestModifierIsCumulative(t *testing.T) {
 	// intelligence of greater than 6", his strength of 6 earning nothing
 	// (p. 24).
 	var jamison traveller.Profile
+
 	copy(jamison[:], []int{6, 8, 8, 12, 8, 9})
+
 	if got := r.Service(traveller.Merchants).Enlistment.Modifier(jamison); got != 2 {
 		t.Errorf("Jamison's enlistment DM is %+d, want +2", got)
 	}
@@ -354,8 +380,10 @@ func TestDraft(t *testing.T) {
 			t.Errorf("draft %d: %v (%v), want %v", die, got, err, want)
 		}
 	}
+
 	for _, die := range []int{0, 7} {
-		if _, err := r.Draft(die); err == nil {
+		_, err := r.Draft(die)
+		if err == nil {
 			t.Errorf("draft %d named a service; the draft is one die", die)
 		}
 	}
@@ -392,12 +420,15 @@ func TestRollsOffTheEndAreRefused(t *testing.T) {
 	navy := load(t).Service(traveller.Navy)
 
 	for _, die := range []int{0, 7} {
-		if _, err := navy.Result(traveller.ServiceSkills, die); err == nil {
+		_, err := navy.Result(traveller.ServiceSkills, die)
+		if err == nil {
 			t.Errorf("skills table accepted a roll of %d", die)
 		}
 	}
+
 	for _, row := range []int{0, 8} {
-		if _, _, err := navy.Row(row); err == nil {
+		_, _, err := navy.Row(row)
+		if err == nil {
 			t.Errorf("mustering out accepted row %d", row)
 		}
 	}

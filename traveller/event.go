@@ -10,17 +10,17 @@ import "fmt"
 // own fields, and a renderer that grows a fifth kind cannot forget to handle
 // it.
 type Event interface {
-	Fold(EventCases) error
+	Fold(cases EventCases) error
 	Sequence() int
 	sealedEvent()
 }
 
 // EventCases handles each kind of log entry.
 type EventCases interface {
-	Step(StepEvent) error
-	Throw(ThrowEvent) error
-	Choice(ChoiceEvent) error
-	Outcome(OutcomeEvent) error
+	Step(e StepEvent) error
+	Throw(e ThrowEvent) error
+	Choice(e ChoiceEvent) error
+	Outcome(e OutcomeEvent) error
 }
 
 // StepEvent records a procedure step being entered, with the pages that

@@ -36,6 +36,7 @@ func TestAgeCarriesMonthsIntoYears(t *testing.T) {
 			t.Errorf("%s: %d years %d months, want %d years %d months",
 				tc.name, tc.age.Years(), tc.age.Months(), tc.wantYears, tc.wantMonths)
 		}
+
 		if m := tc.age.Months(); m < 0 || m >= traveller.MonthsPerYear {
 			t.Errorf("%s: Months() = %d, outside 0 through 11", tc.name, m)
 		}
@@ -48,6 +49,7 @@ func TestAgeReads(t *testing.T) {
 	if got := traveller.NewAge(38).String(); got != "38" {
 		t.Errorf("a whole-year age reads %q", got)
 	}
+
 	if got := traveller.NewAge(38).PlusMonths(5).String(); got != "38 years 5 months" {
 		t.Errorf("an age with months reads %q", got)
 	}
@@ -69,6 +71,7 @@ func TestRankZeroIsNotCommissioned(t *testing.T) {
 	if traveller.Rank(0).Commissioned() {
 		t.Error("rank 0 reported itself commissioned")
 	}
+
 	if !traveller.Rank(1).Commissioned() {
 		t.Error("rank 1 reported itself uncommissioned")
 	}
@@ -93,6 +96,7 @@ func TestThrowEventTotalsDiceAndModifier(t *testing.T) {
 	if got := throw.Total(); got != 13 {
 		t.Errorf("Total() = %d, want 13", got)
 	}
+
 	if got := (traveller.ThrowEvent{}).Total(); got != 0 {
 		t.Errorf("an empty throw totals %d, want 0", got)
 	}

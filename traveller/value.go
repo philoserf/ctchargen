@@ -1,6 +1,9 @@
 package traveller
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 // Credits is money, in whole credits. It is its own type so that it cannot
 // be confused with any other integer in the procedure — a term ordinal, a
@@ -42,6 +45,7 @@ func (a Age) PlusYears(n int) Age { return Age{years: a.years + n, months: a.mon
 // break the one invariant this type has — that Months is 0 through 11.
 func (a Age) PlusMonths(n int) Age {
 	total := a.months + n
+
 	years, months := a.years+total/MonthsPerYear, total%MonthsPerYear
 	if months < 0 {
 		years, months = years-1, months+MonthsPerYear
@@ -58,7 +62,7 @@ func (a Age) Months() int { return a.months }
 
 func (a Age) String() string {
 	if a.months == 0 {
-		return fmt.Sprintf("%d", a.years)
+		return strconv.Itoa(a.years)
 	}
 
 	return fmt.Sprintf("%d years %d months", a.years, a.months)

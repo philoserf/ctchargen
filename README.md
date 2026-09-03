@@ -27,9 +27,14 @@ yet that generates a character.
 task
 ```
 
-Formatting, `go vet`, golangci-lint, NilAway, `go test -race`, and a coverage
-ratchet that holds each package's count of uncovered statements. CI runs
-exactly this. The toolchain is unpinned on purpose.
+`go mod tidy -diff`, `go vet`, golangci-lint, NilAway, `go test -race`, and a
+coverage ratchet that holds each package's count of uncovered statements. CI
+runs exactly this.
+
+The toolchain is unpinned on purpose, and golangci-lint runs with
+`default: all`, so a linter added upstream arrives switched on. Formatting is
+`gofumpt`, run *inside* golangci-lint rather than beside it, so there is one
+definition of formatted rather than two that can disagree.
 
 ## Licence
 

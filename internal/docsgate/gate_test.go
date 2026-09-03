@@ -26,7 +26,7 @@ import (
 // docs is where the governing documents live, relative to this package.
 const docs = "../../docs"
 
-// erratumHeading matches ERRATA.md's own heading form: "### E001 — ...".
+// erratumHeading matches ERRATA.md's own heading form: "### E001 — ..."
 var erratumHeading = regexp.MustCompile(`(?m)^### (E\d{3}) `)
 
 // policyRow matches POLICY.md's own row form, a level-three heading whose
@@ -40,6 +40,7 @@ func read(t *testing.T, name string) string {
 	if err != nil {
 		t.Fatalf("the gate cannot read the document it guards: %v", err)
 	}
+
 	if len(text) == 0 {
 		t.Fatalf("%s is empty", name)
 	}
@@ -57,13 +58,17 @@ func read(t *testing.T, name string) string {
 func found(t *testing.T, re *regexp.Regexp, text, what string) []string {
 	t.Helper()
 
-	var names []string
-	for _, m := range re.FindAllStringSubmatch(text, -1) {
+	matches := re.FindAllStringSubmatch(text, -1)
+
+	names := make([]string, 0, len(matches))
+	for _, m := range matches {
 		names = append(names, m[1])
 	}
+
 	if len(names) == 0 {
 		t.Fatalf("no %s found; the gate's pattern no longer matches the document", what)
 	}
+
 	slices.Sort(names)
 
 	for i := 1; i < len(names); i++ {
@@ -84,6 +89,7 @@ func compare(t *testing.T, inCode, inDoc []string, code, doc string) {
 			t.Errorf("%s is in %s but has no entry in %s", name, code, doc)
 		}
 	}
+
 	for _, name := range inDoc {
 		if !slices.Contains(inCode, name) {
 			t.Errorf("%s is in %s but does not exist in %s", name, doc, code)
@@ -100,6 +106,7 @@ func TestErrataMatchTheDocument(t *testing.T) {
 	for _, e := range traveller.Errata {
 		inCode = append(inCode, e.String())
 	}
+
 	slices.Sort(inCode)
 
 	inDoc := found(t, erratumHeading, read(t, "ERRATA.md"), "erratum headings")
@@ -115,6 +122,7 @@ func deciderMethods() []string {
 	for m := range iface.Methods() {
 		names = append(names, m.Name)
 	}
+
 	slices.Sort(names)
 
 	return names
@@ -141,6 +149,7 @@ func TestChoicePointsMatchTheDecider(t *testing.T) {
 	for _, c := range traveller.ChoicePoints {
 		inCode = append(inCode, c.String())
 	}
+
 	slices.Sort(inCode)
 
 	compare(t, inCode, deciderMethods(), "the ChoicePoint enum", "the Decider interface")
@@ -202,6 +211,7 @@ func TestReachabilityGateOwes(t *testing.T) {
 		if !slices.Contains(traveller.Errata[:], e.erratum) {
 			t.Errorf("%s is exempted from the reachability gate but is not an erratum", e.erratum)
 		}
+
 		if slices.Contains(stampedOnNoRecord, e.erratum) {
 			t.Errorf("%s is both exempted and stamped on no record; it needs one status, not two", e.erratum)
 		}

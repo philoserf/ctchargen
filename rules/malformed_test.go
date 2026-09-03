@@ -1,4 +1,4 @@
-package rules
+package rules //nolint:testpackage // the lift's guards are unexported
 
 import (
 	"strings"
@@ -83,66 +83,79 @@ func TestMalformedServices(t *testing.T) {
 	}
 }
 
-func TestMalformedGrantsAndRetirement(t *testing.T) {
-	t.Parallel()
+// retirementFixture lifts the real prior service table and hands back the
+// wire beside it, so a case can break exactly one row of one table.
+func retirementFixture(t *testing.T) (*Rules, wireServices) {
+	t.Helper()
 
-	base := func(t *testing.T) (*Rules, wireServices) {
-		t.Helper()
+	wire := mustRead[wireServices](t, "services.json")
 
-		wire := mustRead[wireServices](t, "services.json")
-		r := &Rules{normalize: map[string]string{}}
-		if err := r.liftPriorService(wire); err != nil {
-			t.Fatalf("lifting the prior service table: %v", err)
-		}
+	r := &Rules{normalize: map[string]string{}}
 
-		// The cases below break one row of each of these, so a fixture that
-		// quietly lost them would make them vacuous rather than failing.
-		if len(wire.RankAndServiceSkills) == 0 || len(wire.RetirementPay.ByTerms) < 2 ||
-			len(wire.RetirementPay.PaidBy) == 0 {
-			t.Fatalf("the fixture is too thin to break: %d grants, %d pension rows, %d payers",
-				len(wire.RankAndServiceSkills), len(wire.RetirementPay.ByTerms),
-				len(wire.RetirementPay.PaidBy))
-		}
-
-		return r, wire
+	err := r.liftPriorService(wire)
+	if err != nil {
+		t.Fatalf("lifting the prior service table: %v", err)
 	}
 
-	r, wire := base(t)
+	// The cases below break one row of each of these, so a fixture that
+	// quietly lost them would make them vacuous rather than failing.
+	if len(wire.RankAndServiceSkills) == 0 || len(wire.RetirementPay.ByTerms) < 2 ||
+		len(wire.RetirementPay.PaidBy) == 0 {
+		t.Fatalf("the fixture is too thin to break: %d grants, %d pension rows, %d payers",
+			len(wire.RankAndServiceSkills), len(wire.RetirementPay.ByTerms),
+			len(wire.RetirementPay.PaidBy))
+	}
+
+	return r, wire
+}
+
+// The Rank and Service Skills box keys each grant to a service and a rank.
+func TestMalformedGrants(t *testing.T) {
+	t.Parallel()
+
+	r, wire := retirementFixture(t)
+
 	wire.RankAndServiceSkills[0].Service = "Marine"
 	refuses(t, "a grant to a service that does not exist", r.liftGrants(wire), "Marine")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RankAndServiceSkills[0].Rank = 9
 	refuses(t, "a grant at a rank past the table", r.liftGrants(wire), "past the service's table of ranks")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RankAndServiceSkills[0].Grant = "+1 Charisma"
 	refuses(t, "a grant of something that is not a result", r.liftGrants(wire), "Charisma")
+}
 
-	r, wire = base(t)
+// The retirement pay table validates its own shape, so break it six ways.
+func TestMalformedRetirement(t *testing.T) {
+	t.Parallel()
+
+	r, wire := retirementFixture(t)
+
 	wire.RetirementPay.PaidBy[0] = "Merchant"
 	refuses(t, "a pension paid by a service that does not exist", r.liftRetirement(wire), "Merchant")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RetirementPay.ByTerms[1].Pay = 0
 	refuses(t, "a pension row that pays nothing", r.liftRetirement(wire), "is not a pension")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RetirementPay.ByTerms[0], wire.RetirementPay.ByTerms[1] =
 		wire.RetirementPay.ByTerms[1], wire.RetirementPay.ByTerms[0]
 	refuses(t, "pension rows out of order", r.liftRetirement(wire), "the table's rows ascend")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RetirementPay.PerTermBeyondEight = 0
 	refuses(t, "nothing paid past the table", r.liftRetirement(wire), "per additional term")
 
 	// The two cases that empty a slice come last: nothing may index these
 	// fixtures afterwards.
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RetirementPay.PaidBy = nil
 	refuses(t, "a pension no service pays", r.liftRetirement(wire), "no service pays it")
 
-	r, wire = base(t)
+	r, wire = retirementFixture(t)
 	wire.RetirementPay.ByTerms = nil
 	refuses(t, "a pension table with no rows", r.liftRetirement(wire), "prints no rows")
 }
@@ -252,9 +265,14 @@ func TestMalformedMustering(t *testing.T) {
 func TestMalformedAging(t *testing.T) {
 	t.Parallel()
 
-	valid := func(t *testing.T) wireAging { return mustRead[wireAging](t, "aging.json") }
+	valid := func(t *testing.T) wireAging {
+		t.Helper()
+
+		return mustRead[wireAging](t, "aging.json")
+	}
 
 	wire := valid(t)
+
 	wire.Bands[0].Effects[0].Characteristic = "Wisdom"
 	refuses(t, "a band reducing a characteristic that does not exist", (&Rules{}).liftAging(wire), "Wisdom")
 
@@ -287,6 +305,7 @@ func TestMalformedWeaponsAndNobility(t *testing.T) {
 	refuses(t, "a weapon listed twice", (&Rules{}).liftWeapons(wire), "listed twice")
 
 	nobility := mustRead[wireNobility](t, "nobility.json")
+
 	nobility.Titles[0].Title = "archduke"
 	refuses(t, "a title Book 3 does not print", (&Rules{}).liftNobility(nobility), "archduke")
 

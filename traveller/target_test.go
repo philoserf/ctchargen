@@ -30,6 +30,7 @@ func TestParseTarget(t *testing.T) {
 
 			continue
 		}
+
 		if got.Number() != tc.number || got.Modality() != tc.modality {
 			t.Errorf("ParseTarget(%q) = %d%v, want %d%v",
 				tc.in, got.Number(), got.Modality(), tc.number, tc.modality)
@@ -43,7 +44,8 @@ func TestParseTargetRefusesNonsense(t *testing.T) {
 	t.Parallel()
 
 	for _, in := range []string{"", "   ", "+", "-", "−", "8++", "eight", "8+3", "12abc", "-8"} {
-		if got, err := traveller.ParseTarget(in); err == nil {
+		got, err := traveller.ParseTarget(in)
+		if err == nil {
 			t.Errorf("ParseTarget(%q) = %v, want an error", in, got)
 		}
 	}
@@ -86,6 +88,7 @@ func TestTargetRoundTripsItsNotation(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ParseTarget(%q): %v", in, err)
 		}
+
 		if got.String() != in {
 			t.Errorf("ParseTarget(%q).String() = %q", in, got.String())
 		}
@@ -100,10 +103,12 @@ func TestModalityNamesAnUnknownValue(t *testing.T) {
 	if got := traveller.Modality(99).String(); got != "Modality(99)" {
 		t.Errorf("Modality(99).String() = %q", got)
 	}
+
 	// A target built with a modality that does not exist satisfies nothing.
 	if traveller.NewTarget(8, traveller.Modality(99)).Satisfied(9) {
 		t.Error("a target with an unknown modality was satisfied")
 	}
+
 	// A Target nobody set must fail closed. Two dice cannot total 0, so a
 	// zero Target satisfies nothing the procedure can throw.
 	unset := traveller.Target{}

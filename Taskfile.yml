@@ -1,10 +1,11 @@
-version: "3"
-
-# The gate. CI runs exactly `task` and nothing else.
+# The gate. CI runs exactly `task` -- never add a check to CI that this does
+# not run, and never add a tool to the gate without also installing it there.
 #
-# The toolchain is deliberately unpinned: the gate is meant to fail when a
-# tool moves, rather than drift behind it. A red gate on untouched code is
-# the signal working. Answer the finding; do not pin a tool to silence it.
+# The toolchain is deliberately unpinned. The gate is meant to fail when a
+# tool moves rather than drift behind it, so a red gate on code you did not
+# touch is the signal working. Answer the finding; do not pin a tool or add
+# a linter disable to silence it.
+version: "3"
 
 vars:
   PROFILE: coverage.out
@@ -12,61 +13,82 @@ vars:
 
 tasks:
   default:
-    desc: Run the whole gate
+    desc: The whole gate, in the order a failure is cheapest to read
     cmds:
-      - task: fmt
+      - task: tidy
       - task: vet
       - task: lint
       - task: nilaway
       - task: test
       - task: ratchet
 
-  fmt:
-    desc: Formatting is clean
+  tidy:
+    desc: go.mod and go.sum are current
     cmds:
-      - |
-        unformatted=$(gofmt -l .)
-        if [ -n "$unformatted" ]; then
-          echo "gofmt would change:"
-          echo "$unformatted"
-          exit 1
-        fi
+      - go mod tidy -diff
 
   vet:
-    desc: go vet
     cmds:
       - go vet ./...
 
   lint:
-    desc: golangci-lint
+    desc: golangci-lint, which also reports any formatting difference
     cmds:
-      - golangci-lint run
+      # First, because a malformed .golangci.yml otherwise surfaces as a
+      # runtime linter error rather than a config error -- an invalid
+      # setting reads as "the linter is broken" and costs a round trip to
+      # place. `default: all` means this config carries real settings for a
+      # dozen linters, so it is the likeliest breakage.
+      - golangci-lint config verify
+      - golangci-lint run ./...
+
+  fix:
+    desc: Apply every autofix the enabled formatters and linters offer
+    # Not part of the gate: `lint` already reports everything this repairs.
+    #
+    # Read the diff before committing it. Two of these fixers have rewritten
+    # this repository incorrectly: godot appended a period after a closing
+    # quotation mark in eleven doc comments, and dupword deleted a word from
+    # a verbatim quotation of Book 1 p. 3. Both are configured off that
+    # behaviour now, but an autofix on a codebase that quotes a primary
+    # source is not a safe blind operation.
+    cmds:
+      - golangci-lint run ./... --fix
 
   nilaway:
-    desc: NilAway
     cmds:
       - nilaway ./...
 
   test:
-    desc: Tests under the race detector, with a coverage profile
+    desc: The suite, with the race detector, writing a coverage profile
+    # Once per invocation: `default` runs the suite and then `ratchet`,
+    # which depends on it. Without this the whole -race suite runs twice on
+    # every gate and every CI run, for one profile that does not change.
+    run: once
     cmds:
       - go test -race -covermode=atomic -coverprofile={{.PROFILE}} ./...
 
   ratchet:
-    desc: No package may gain uncovered statements
+    desc: Uncovered statements per package have not moved
+    # A failure here is often not lost coverage. Blank lines split coverage
+    # blocks, so any reflow by wsl_v5, and any extraction of a helper, moves
+    # these counts without changing what the tests reach. Read the named
+    # packages first: if the change was a reflow or a refactor,
+    # `task ratchet:update` is the answer. If it was neither, something
+    # stopped being covered.
+    deps: [test]
     cmds:
-      - |
-        if [ ! -f {{.PROFILE}} ]; then
-          echo "no {{.PROFILE}}: run 'task test' first, or just 'task'"
-          exit 1
-        fi
       - go run ./tools/ratchet check {{.PROFILE}} {{.RATCHET}}
 
   ratchet:update:
-    desc: Record the current uncovered counts
+    desc: Record the current uncovered-statement counts
+    deps: [test]
     cmds:
-      - go test -covermode=atomic -coverprofile={{.PROFILE}} ./...
       - go run ./tools/ratchet update {{.PROFILE}} {{.RATCHET}}
+
+  build:
+    cmds:
+      - go build ./...
 
   clean:
     desc: Remove build and coverage artifacts

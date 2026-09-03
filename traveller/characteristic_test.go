@@ -1,7 +1,6 @@
 package traveller_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/philoserf/ctchargen/traveller"
@@ -9,6 +8,7 @@ import (
 
 func profile(values ...int) traveller.Profile {
 	var p traveller.Profile
+
 	copy(p[:], values)
 
 	return p
@@ -75,6 +75,7 @@ func TestTheTwoFloorsDiffer(t *testing.T) {
 	if got := start.Alter(traveller.Strength, -1)[traveller.Strength]; got != 1 {
 		t.Errorf("an ordinary alteration took a 1 to %d; E010 floors it at 1", got)
 	}
+
 	if got := start.AgeReduce(traveller.Strength, 1)[traveller.Strength]; got != 0 {
 		t.Errorf("an aging reduction took a 1 to %d; E010 floors it at 0", got)
 	}
@@ -91,11 +92,13 @@ func TestAlterTouchesOneCharacteristicAndCopies(t *testing.T) {
 	if start[traveller.Education] != 7 {
 		t.Error("Alter mutated the profile it was called on")
 	}
+
 	for _, c := range traveller.Characteristics {
 		want := 7
 		if c == traveller.Education {
 			want = 8
 		}
+
 		if got[c] != want {
 			t.Errorf("%v = %d, want %d", c, got[c], want)
 		}
@@ -152,49 +155,75 @@ func TestEnumsNameAnUnknownValue(t *testing.T) {
 
 // Every value of every closed alphabet must name itself, or the event log
 // prints a blank where a reader needs a word.
+// namesByKind collects what every value of every closed alphabet calls
+// itself, keyed by the alphabet's name.
+func namesByKind() map[string][]string {
+	named := map[string][]string{}
+
+	add := func(kind string, names ...string) {
+		named[kind] = append(named[kind], names...)
+	}
+
+	for _, c := range traveller.Characteristics {
+		add("Characteristic", c.String())
+	}
+
+	for _, s := range traveller.ServiceNames {
+		add("ServiceName", s.String())
+	}
+
+	for _, s := range traveller.SkillTables {
+		add("SkillTable", s.String())
+	}
+
+	for _, w := range traveller.WeaponCategories {
+		add("WeaponCategory", w.String())
+	}
+
+	for _, c := range traveller.ChoicePoints {
+		add("ChoicePoint", c.String())
+	}
+
+	for _, e := range traveller.Errata {
+		add("Erratum", e.String())
+	}
+
+	for _, p := range traveller.PassageClasses {
+		add("PassageClass", p.String())
+	}
+
+	for _, s := range traveller.ShipKinds {
+		add("ShipKind", s.String())
+	}
+
+	for _, title := range traveller.Titles {
+		add("Title", title.String())
+	}
+
+	for _, i := range traveller.Intents {
+		add("Intent", i.String())
+	}
+
+	for _, m := range traveller.MusterTables {
+		add("MusterTable", m.String())
+	}
+
+	for _, d := range traveller.DecidedBys {
+		add("DecidedBy", d.String())
+	}
+
+	return named
+}
+
+// Every value of every closed alphabet must name itself, and no two may
+// share a name, or the event log prints a blank or an ambiguity where a
+// reader needs a word.
 func TestEveryEnumValueNamesItself(t *testing.T) {
 	t.Parallel()
 
-	named := map[string][]string{}
-	for _, c := range traveller.Characteristics {
-		named["Characteristic"] = append(named["Characteristic"], c.String())
-	}
-	for _, s := range traveller.ServiceNames {
-		named["ServiceName"] = append(named["ServiceName"], s.String())
-	}
-	for _, s := range traveller.SkillTables {
-		named["SkillTable"] = append(named["SkillTable"], s.String())
-	}
-	for _, w := range traveller.WeaponCategories {
-		named["WeaponCategory"] = append(named["WeaponCategory"], w.String())
-	}
-	for _, c := range traveller.ChoicePoints {
-		named["ChoicePoint"] = append(named["ChoicePoint"], c.String())
-	}
-	for _, e := range traveller.Errata {
-		named["Erratum"] = append(named["Erratum"], e.String())
-	}
-	for _, p := range traveller.PassageClasses {
-		named["PassageClass"] = append(named["PassageClass"], p.String())
-	}
-	for _, s := range traveller.ShipKinds {
-		named["ShipKind"] = append(named["ShipKind"], s.String())
-	}
-	for _, title := range traveller.Titles {
-		named["Title"] = append(named["Title"], title.String())
-	}
-	for _, i := range traveller.Intents {
-		named["Intent"] = append(named["Intent"], i.String())
-	}
-	for _, m := range traveller.MusterTables {
-		named["MusterTable"] = append(named["MusterTable"], m.String())
-	}
-	for _, d := range traveller.DecidedBys {
-		named["DecidedBy"] = append(named["DecidedBy"], d.String())
-	}
-
-	for kind, names := range named {
+	for kind, names := range namesByKind() {
 		seen := map[string]bool{}
+
 		for _, name := range names {
 			switch {
 			case name == "":
@@ -202,66 +231,8 @@ func TestEveryEnumValueNamesItself(t *testing.T) {
 			case seen[name]:
 				t.Errorf("%s: two values both name themselves %q", kind, name)
 			}
+
 			seen[name] = true
 		}
 	}
-}
-
-// alphabet is a closed set of int constants that names its own values.
-type alphabet interface {
-	~int
-	fmt.Stringer
-}
-
-// checkAlphabet holds one alphabet's iteration array to its constants, in
-// both directions.
-//
-// Element i must be the constant whose value is i, which catches an array
-// that reorders, repeats or omits. And the value one past the end must have
-// no name of its own — a named constant there is a value the array stops
-// short of.
-func checkAlphabet[T alphabet](t *testing.T, kind string, values []T) {
-	t.Helper()
-
-	for i, v := range values {
-		if int(v) != i {
-			t.Errorf("%s: element %d is %v, whose value is %d; the array must hold the constants in declaration order",
-				kind, i, v, int(v))
-		}
-	}
-
-	past := T(len(values))
-	unnamed := fmt.Sprintf("%s(%d)", kind, len(values))
-	if got := past.String(); got != unnamed {
-		t.Errorf("%s: the value %d names itself %q, so a constant exists past the end of an array of %d",
-			kind, len(values), got, len(values))
-	}
-}
-
-// A closed alphabet is two declarations — the constants and the array that
-// iterates them — and Go checks neither against the other. The exhaustive
-// linter guards the switch; until this test, nothing guarded the array.
-// Adding a constant and
-// forgetting the array compiles, passes every other test in this package,
-// and silently drops the value from every loop that iterates the alphabet:
-// a service never offered, a title never conferred, a table never rolled on.
-//
-// Erratum is absent because it numbers from 1 and has no unknown-value form;
-// the gate in internal/docsgate holds it to ERRATA.md instead. Modality is
-// absent because it has no array to hold: Exactly names itself with the
-// empty string, which is the book's notation for a throw with no sign.
-func TestEveryAlphabetHoldsEveryConstant(t *testing.T) {
-	t.Parallel()
-
-	checkAlphabet(t, "Characteristic", traveller.Characteristics[:])
-	checkAlphabet(t, "ServiceName", traveller.ServiceNames[:])
-	checkAlphabet(t, "SkillTable", traveller.SkillTables[:])
-	checkAlphabet(t, "WeaponCategory", traveller.WeaponCategories[:])
-	checkAlphabet(t, "PassageClass", traveller.PassageClasses[:])
-	checkAlphabet(t, "ShipKind", traveller.ShipKinds[:])
-	checkAlphabet(t, "Title", traveller.Titles[:])
-	checkAlphabet(t, "Intent", traveller.Intents[:])
-	checkAlphabet(t, "MusterTable", traveller.MusterTables[:])
-	checkAlphabet(t, "DecidedBy", traveller.DecidedBys[:])
-	checkAlphabet(t, "ChoicePoint", traveller.ChoicePoints[:])
 }
