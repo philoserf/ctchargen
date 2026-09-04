@@ -292,6 +292,22 @@ func (p *player) next(options int) (int, bool, error) {
 	return chosen, true, nil
 }
 
+// leftover refuses a list longer than the run had questions for.
+//
+// The same signal as an answer out of range, and the same answer to it: the
+// questions a seed asks are fixed, so a resumption that replays its own
+// answers consumes every one of them. Anything left means the list came from
+// another run, and a character built from the first half of it is wrong in a
+// way nothing on the sheet shows.
+func (p *player) leftover() error {
+	if len(p.replay) == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("%w: the procedure ran out of questions with %d of --%s unspent, "+
+		"so the list belongs to another run", errUsage, len(p.replay), answersFlag)
+}
+
 func (p *player) wroteErr() error {
 	if p.wrote == nil {
 		return nil
@@ -309,14 +325,16 @@ func (p *player) wroteErr() error {
 //
 // Either way the half-built character is lost - it is not a record, and does
 // not match the schema - but the seed and the answers are enough to walk back
-// to the same question, and those are what a long session cannot retype.
+// to the same question, and those are what a long session cannot retype. So
+// the offer is made before the two are told apart: a read that failed is the
+// stop the operator did not choose, and the one that most needs the way back.
 func (p *player) stopped() error {
+	p.sayf("\n%s\n", p.resumeLine())
+
 	err := p.in.Err()
 	if err != nil {
 		return fmt.Errorf("reading the answer: %w", err)
 	}
-
-	p.sayf("\n%s\n", p.resumeLine())
 
 	return errNoAnswer
 }
@@ -325,11 +343,16 @@ func (p *player) stopped() error {
 //
 // It names flags to add rather than a whole command line, because the
 // operator's own is in his shell history and this one cannot know what else
-// he typed. Both values are digits, so neither needs quoting and neither can
-// carry anything.
+// he typed - and it says "the same command" for that reason. An answer is an
+// index into the list a question offered, so a re-run that drops --service
+// or --name asks a different sequence and spends the answers on it. Both
+// values are digits, so neither needs quoting and neither can carry
+// anything.
 func (p *player) resumeLine() string {
 	if len(p.given) == 0 {
-		return fmt.Sprintf("Nothing was answered. --seed %d walks the same character again.", p.seed)
+		return fmt.Sprintf(
+			"Nothing was answered. The same command with --seed %d walks the same character again.",
+			p.seed)
 	}
 
 	answered := make([]string, 0, len(p.given))
@@ -337,7 +360,8 @@ func (p *player) resumeLine() string {
 		answered = append(answered, strconv.Itoa(chosen))
 	}
 
-	return fmt.Sprintf("Re-run with --seed %d --answers %s to pick up at this question.",
+	return fmt.Sprintf(
+		"Re-run the same command with --seed %d --answers %s to pick up at this question.",
 		p.seed, strings.Join(answered, ","))
 }
 

@@ -515,11 +515,14 @@ func TestAMalformedAnswerListIsRefused(t *testing.T) {
 func TestAFailedReadIsNotTheInputEnding(t *testing.T) {
 	t.Parallel()
 
-	// One line longer than bufio's default buffer, which Scan refuses.
-	huge := strings.Repeat("9", 128*1024) + "\n"
+	// One answer that reads, then a line longer than bufio's default
+	// buffer, which Scan refuses.
+	huge := "1\n" + strings.Repeat("9", 128*1024) + "\n"
+
+	var asking strings.Builder
 
 	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
-		strings.NewReader(huge), io.Discard, io.Discard)
+		strings.NewReader(huge), io.Discard, &asking)
 
 	switch {
 	case err == nil:
@@ -528,5 +531,54 @@ func TestAFailedReadIsNotTheInputEnding(t *testing.T) {
 		t.Errorf("a failed read was reported as the input ending: %v", err)
 	case !strings.Contains(err.Error(), "reading the answer"):
 		t.Errorf("error %q does not say the read failed", err)
+	}
+
+	// The stop the operator did not choose is the one that most needs the
+	// way back in, so the offer is made whichever way the answers ran out.
+	if want := "--seed 7 --answers 1"; !strings.Contains(asking.String(), want) {
+		t.Errorf("a failed read was not offered the way back in:\n%s", asking.String())
+	}
+}
+
+// A list longer than the run had questions for belongs to another run.
+//
+// The same signal as an answer out of range: the questions a seed asks are
+// fixed, so a resumption replaying its own answers spends every one of them.
+// Half a list quietly applied builds a character wrong in a way nothing on
+// the sheet shows.
+func TestAnswersLeftOverBelongToAnotherRun(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{
+		cmdNew, flagSeed, "7", flagService, other,
+		flagAnswers, strings.TrimSuffix(strings.Repeat("1,", 400), ","),
+	}, nil, io.Discard, io.Discard)
+
+	switch {
+	case err == nil:
+		t.Fatal("a list longer than the procedure had questions for was accepted")
+	case !errors.Is(err, errUsage):
+		t.Errorf("error %q is not a usage error", err)
+	case !strings.Contains(err.Error(), "belongs to another run"):
+		t.Errorf("error %q does not say the list came from elsewhere", err)
+	}
+}
+
+// --auto has nobody to replay answers for, and says so rather than dropping
+// them: a character the answers had no part in reads as a resumption that
+// went wrong somewhere unnameable.
+func TestAnswersAndAutoCannotBothBeGiven(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{cmdNew, flagSeed, "7", flagAuto, flagAnswers, "1"},
+		nil, io.Discard, io.Discard)
+
+	switch {
+	case err == nil:
+		t.Fatal("--answers was accepted alongside --auto and then ignored")
+	case !errors.Is(err, errUsage):
+		t.Errorf("error %q is not a usage error", err)
+	case !strings.Contains(err.Error(), "--auto"):
+		t.Errorf("error %q does not name the flag it conflicts with", err)
 	}
 }

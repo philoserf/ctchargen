@@ -75,6 +75,15 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		return err
 	}
 
+	// --auto decides at every choice, so there is nobody for a replayed
+	// answer to stand in for. Taking the list and then never consulting it
+	// would hand back a character the answers had no part in, which reads
+	// as a resumption that went wrong somewhere unnameable.
+	if *auto && len(answers) > 0 {
+		return fmt.Errorf("%w: --%s and --auto cannot both be given; --auto answers every question itself",
+			errUsage, answersFlag)
+	}
+
 	return writeCharacter(inputs, answers, newRendering{
 		auto: *auto, sheet: *sheet, history: *history, output: *output, force: *force,
 	}, in, out, asking)
@@ -149,17 +158,6 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 	return in, fmt.Errorf("%w: no service is called %q", errUsage, service)
 }
 
-// generate runs the procedure under the auto policy, or asks the player.
-//
-// The strategies come off the inputs rather than off the flags a second
-// time, so that what is checked and what is written into the record cannot
-// name different strategies. They are validated in both modes: an
-// interactive run records them too, and a record naming a strategy that is
-// not a POLICY.md row is one its own schema refuses.
-//
-// Interactive mode watches the record as it is written, so the throws and
-// their consequences reach the player between his questions; --auto passes
-// no observer, because nobody is reading.
 // answersFrom reads --answers, which is a list of the numbers a player typed.
 //
 // Empty is not an error and not an empty run: it is the ordinary case, a
@@ -186,6 +184,17 @@ func answersFrom(list string) ([]int, error) {
 	return answers, nil
 }
 
+// generate runs the procedure under the auto policy, or asks the player.
+//
+// The strategies come off the inputs rather than off the flags a second
+// time, so that what is checked and what is written into the record cannot
+// name different strategies. They are validated in both modes: an
+// interactive run records them too, and a record naming a strategy that is
+// not a POLICY.md row is one its own schema refuses.
+//
+// Interactive mode watches the record as it is written, so the throws and
+// their consequences reach the player between his questions; --auto passes
+// no observer, because nobody is reading.
 func generate(inputs chargen.Inputs, auto bool, answers []int, in io.Reader, asking io.Writer) (
 	*chargen.Character, error,
 ) {
@@ -213,6 +222,11 @@ func generate(inputs chargen.Inputs, auto bool, answers []int, in io.Reader, ask
 		chargen.WithObserver(asked.watch), chargen.WithAnswerer(traveller.ByPlayer))
 	if err != nil {
 		return nil, fmt.Errorf("generating: %w", err)
+	}
+
+	left := asked.leftover()
+	if left != nil {
+		return nil, left
 	}
 
 	return character, nil
