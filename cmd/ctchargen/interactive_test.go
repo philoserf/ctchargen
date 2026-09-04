@@ -19,6 +19,14 @@ func answers(choice string, times int) io.Reader {
 	return strings.NewReader(strings.Repeat(choice+"\n", times))
 }
 
+// unusableFirst puts three answers the prompt cannot use in front of such a
+// walk: a word, a number below the range, and one above it. Both tests of
+// the refusal drive the same three, so they are written once - a walk that
+// answered differently would be testing something else.
+func unusableFirst() io.Reader {
+	return io.MultiReader(strings.NewReader("banana\n0\n99\n"), answers("1", 200))
+}
+
 // A bare new walks the procedure, asking at every choice point and showing
 // what happened between the questions.
 func TestInteractiveWalksACharacter(t *testing.T) {
@@ -85,11 +93,8 @@ func TestInteractiveReAsksWhatItCannotRead(t *testing.T) {
 
 	var out strings.Builder
 
-	// The first three answers to the first question are unusable: a word, a
-	// number below the range, and one above it.
-	script := strings.NewReader("banana\n0\n99\n" + strings.Repeat("1\n", 200))
-
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, script, &out, &out)
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
+		unusableFirst(), &out, &out)
 	if err != nil {
 		t.Fatalf("walking a character: %v", err)
 	}
@@ -129,9 +134,7 @@ func TestABadAnswerDoesNotReprintTheMenu(t *testing.T) {
 
 	var out strings.Builder
 
-	script := strings.NewReader("banana\n0\n99\n" + strings.Repeat("1\n", 200))
-
-	err := run([]string{cmdNew, flagSeed, "7", flagSheet}, script, &out, &out)
+	err := run([]string{cmdNew, flagSeed, "7", flagSheet}, unusableFirst(), &out, &out)
 	if err != nil {
 		t.Fatalf("walking a character: %v", err)
 	}

@@ -7,15 +7,20 @@ import (
 	"github.com/philoserf/ctchargen/traveller"
 )
 
-// EventLine renders one event as the transcript renders it, for a reader
-// watching a generation happen rather than reading it afterwards.
+// EventLine renders one event for a reader watching a generation happen
+// rather than reading it afterwards.
 //
-// It goes through the same writeEvent the transcript does: the wire shape
-// and the domain shape both converge on eventJSON before anything is
-// written, so a live line and a transcript line cannot come to differ.
+// Throws and outcomes go through the same writeEvent the transcript does:
+// the wire shape and the domain shape both converge on eventJSON before
+// anything is written, so those lines cannot come to differ.
 //
-// A choice returns the empty string. Interactive mode is the only caller,
-// and it has just asked the question and read the answer; repeating it back
+// Steps and choices are written here instead, and deliberately do differ.
+// A step's heading is unnumbered in the transcript, and a choice used to
+// render as nothing at all here; either leaves a gap a watcher reads as a
+// lost event, so both are written with their number. The choice is echoed
+// as that number and the answer alone rather than the transcript's full
+// form, because the player has just been asked the question and can still
+// see the point, the decider and the alternatives above him; repeating them
 // pushes the useful lines off the screen.
 //
 // It returns no error, as foldDeparture does not: every case of liveCodec
@@ -27,14 +32,9 @@ func EventLine(event traveller.Event) string {
 
 	_ = event.Fold(&lined)
 
-	// Two kinds are written here rather than by the transcript's renderer,
-	// because they are read by a person watching his own generation rather
-	// than by one auditing someone else's.
-	//
-	// Both carry a sequence number the transcript does not print, and the
-	// gap that leaves is what made the numbers appear to skip - 17, 18, then
-	// 20. Nothing was ever missing; the headings and the questions were
-	// simply unnumbered.
+	// The gap these two close is what made the numbers appear to skip - 17,
+	// 18, then 20. Nothing was ever missing: the headings printed without
+	// their number, and the questions printed nothing at all.
 	switch lined.event.Kind {
 	case kindStep:
 		return fmt.Sprintf("\n## %d. %s (%s)\n\n",
