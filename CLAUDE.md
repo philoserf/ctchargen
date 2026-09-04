@@ -40,11 +40,22 @@ so in the record itself. Nothing in the record names its shape yet — `build`
 names the writer and `ruleset` names the source text — so the promise has
 something to attach to only once a version field exists.
 
+**Windows binaries ship, and no document mentions Windows.**
+`release.yml` builds `windows/amd64` and `windows/arm64` alongside the other
+four and attaches them like the rest. Nothing else names the platform — not
+the README, not the help, not a release note, not a reply on an issue. The
+silence is the decision and not a gap in one: an artefact sitting on a
+releases page promises nothing, while a sentence saying either "supported" or
+"not supported" starts a conversation this repo has chosen not to have. A
+Windows defect is not a referee's finding in the sense that governs the work
+here. So: do not add the README line, and do not delete the two matrix rows
+for want of a document naming them.
+
 **The two paragraphs above the `v1.0.0` ones** are the thing here that goes
 stale on its own — what is delivered, and which release is current. Correct
 them when the work moves rather than letting the file describe a tree that no
-longer exists. The two rules below them do not go stale: they state a bar and a
-promise, and both hold until a decision changes them.
+longer exists. The three rules below them do not go stale: they state a bar, a promise and a
+scope, and all hold until a decision changes them.
 
 ## Authority — read this before implementing any rule
 
@@ -155,15 +166,15 @@ its list of places the book is silent, and the readings it reached there.
 
 ## Documents and what each governs
 
-| File               | Governs                                                                   |
-| ------------------ | ------------------------------------------------------------------------- |
-| `docs/PRD.md`      | Nothing now. The delivered v1 contract, kept as the record of why the tree has this shape. |
-| `docs/ERRATA.md`   | Every recorded reading, with its page cite and stamping condition.        |
-| `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
-| `docs/COVERAGE.md` | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect. |
+| File                         | Governs                                                                                                                                                                                        |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/PRD.md`                | Nothing now. The delivered v1 contract, kept as the record of why the tree has this shape.                                                                                                     |
+| `docs/ERRATA.md`             | Every recorded reading, with its page cite and stamping condition.                                                                                                                             |
+| `docs/POLICY.md`             | The `--auto` decision table: one row per `Decider` method.                                                                                                                                     |
+| `docs/COVERAGE.md`           | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect.                           |
 | `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
-| `docs/PRERELEASE.md` | One section per tag: what it ships with open and why, and the review that preceded it where there was one. A finding is recorded before it is fixed. |
-| `CLAUDE.md`        | This file.                                                                |
+| `docs/PRERELEASE.md`         | One section per tag: what it ships with open and why, and the review that preceded it where there was one. A finding is recorded before it is fixed.                                           |
+| `CLAUDE.md`                  | This file.                                                                                                                                                                                     |
 
 The documents are held to the code in both directions once code exists: every
 erratum id stamped in code resolves to an `ERRATA.md` heading and every
@@ -203,7 +214,8 @@ exists. Each gate is verified by breaking it.
 - Commits and PRs only when asked. Branch off `main` first; the history is
   squash-merged PRs with sentence-case subjects that say what changed
   ("Correct two typed ranges, name the font trap, and add milestone 0").
-- **Cutting a release bumps two things nothing checks**: the README's
-  `go install` line, which names a tag, and the current-state paragraph above.
-  A published document that went stale while nobody noticed is what issue #31
-  was, and neither of these is held by the gate.
+- **Cutting a release bumps three things nothing checks**: the README's
+  `go install` line, the README's `curl` line — which names the tag twice, once
+  in the URL path and once in the filename — and the current-state paragraph
+  above. A published document that went stale while nobody noticed is what
+  issue #31 was, and none of these is held by the gate.
