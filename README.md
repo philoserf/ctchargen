@@ -9,6 +9,23 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 
 ## Install
 
+A binary, needing no Go toolchain. This is the line for an Apple-silicon Mac:
+
+```sh
+curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-alpha.4/ctchargen-v1.0.0-alpha.4-darwin-arm64
+chmod +x ctchargen
+```
+
+For another machine, substitute `darwin-amd64`, `linux-amd64` or `linux-arm64`
+in the filename. The tag is named rather than `releases/latest`, which resolves
+only to a non-prerelease and so resolves to nothing here. A `checksums.txt` is
+attached beside the binaries.
+
+`curl` is what the line uses because a **browser** download is quarantined and
+needs `xattr -d com.apple.quarantine ctchargen` before it will run. The
+binaries are also **unsigned**, so a recent macOS may refuse one regardless —
+if it does, the tool is not broken; install it with Go instead:
+
 ```sh
 go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.4
 ```
@@ -101,11 +118,11 @@ else entirely — the sheet says that too.
 `new` and `batch`. [`docs/POLICY.md`](docs/POLICY.md) carries a row per choice
 point saying what each one does:
 
-| Flag | Values |
-| --- | --- |
-| `--career` | `serve` (default) · `retire` · `oneterm` |
+| Flag       | Values                                        |
+| ---------- | --------------------------------------------- |
+| `--career` | `serve` (default) · `retire` · `oneterm`      |
 | `--skills` | `advanced` (default) · `service` · `personal` |
-| `--muster` | `cash` (default) · `goods` · `spartan` |
+| `--muster` | `cash` (default) · `goods` · `spartan`        |
 
 **Nothing is overwritten without `--force`.** `-o` onto an existing file is
 refused, and so is a `batch` any of whose members would replace one — the
@@ -117,15 +134,15 @@ Death is an outcome and not an error: a character killed by a survival throw
 
 ## The documents
 
-| File | What it holds |
-| --- | --- |
-| [docs/PRD.md](docs/PRD.md) | The delivered v1 contract — historical, kept for why the tree has this shape. |
-| [docs/ERRATA.md](docs/ERRATA.md) | Every recorded reading, with its page cite and its stamping condition. |
-| [docs/POLICY.md](docs/POLICY.md) | The `--auto` decision table, one row per choice point. |
-| [docs/COVERAGE.md](docs/COVERAGE.md) | Every implemented rule mapped to its page cite, its implementation and its test. |
-| [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it. |
-| [docs/PRERELEASE.md](docs/PRERELEASE.md) | What each tag ships with open, and the review that preceded it. |
-| [CLAUDE.md](CLAUDE.md) | Authority, source precedence, and the working rules for agents. |
+| File                                                     | What it holds                                                                    |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [docs/PRD.md](docs/PRD.md)                               | The delivered v1 contract — historical, kept for why the tree has this shape.    |
+| [docs/ERRATA.md](docs/ERRATA.md)                         | Every recorded reading, with its page cite and its stamping condition.           |
+| [docs/POLICY.md](docs/POLICY.md)                         | The `--auto` decision table, one row per choice point.                           |
+| [docs/COVERAGE.md](docs/COVERAGE.md)                     | Every implemented rule mapped to its page cite, its implementation and its test. |
+| [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it.           |
+| [docs/PRERELEASE.md](docs/PRERELEASE.md)                 | What each tag ships with open, and the review that preceded it.                  |
+| [CLAUDE.md](CLAUDE.md)                                   | Authority, source precedence, and the working rules for agents.                  |
 
 ## The gate
 
@@ -139,7 +156,7 @@ runs exactly this.
 
 The toolchain is unpinned on purpose, and golangci-lint runs with
 `default: all`, so a linter added upstream arrives switched on. Formatting is
-`gofumpt`, run *inside* golangci-lint rather than beside it, so there is one
+`gofumpt`, run _inside_ golangci-lint rather than beside it, so there is one
 definition of formatted rather than two that can disagree.
 
 ## Licence
