@@ -3,6 +3,7 @@ package chargen
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/philoserf/ctchargen/traveller"
 )
@@ -53,14 +54,27 @@ func DefaultPolicy() Policy {
 	return Policy{Career: CareerServe, Skills: SkillsAdvanced, Muster: MusterCash}
 }
 
+// StrategyList is the values a strategy flag takes, as a reader is shown
+// them.
+//
+// It is one function because there are two places that show them - this
+// package's rejection and the command's help - and two joins of the same
+// table can come to disagree about the separator, the order, or which table
+// they read.
+func StrategyList(flag string) string { return strings.Join(Strategies[flag], ", ") }
+
 // Validate reports a strategy name that no row of POLICY.md carries.
+//
+// The message names the values, not the document. POLICY.md is a repository
+// file, and the reader most likely to be told his strategy is wrong is the
+// one who typed `go install` and has never seen this tree.
 func (p Policy) Validate() error {
 	for flag, chosen := range map[string]string{
 		"career": p.Career, "skills": p.Skills, "muster": p.Muster,
 	} {
 		if !slices.Contains(Strategies[flag], chosen) {
-			return fmt.Errorf("%w: --%s %q; POLICY.md carries %v",
-				errNoSuchStrategy, flag, chosen, Strategies[flag])
+			return fmt.Errorf("%w: --%s %q; want %s",
+				errNoSuchStrategy, flag, chosen, StrategyList(flag))
 		}
 	}
 

@@ -7,6 +7,26 @@ Character generation is Book 1 pp. 4–25; Books 2 and 3 are consulted only
 where Book 1 points at them. Every implemented rule carries its printed-page
 cite, and every place the text is silent or ambiguous has a recorded reading.
 
+## Install
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.4
+```
+
+Go excludes prereleases from `@latest`, so an alpha installs by name. That is
+the intended friction.
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation — they have
+a `replay` subcommand and flags this tool does not. Their release notes are
+accurate about the tag they head and describe nothing below.
+
+From a clone:
+
+```sh
+go build ./cmd/ctchargen
+```
+
 ## Status
 
 All six services generate, the book's own worked character (pp. 23–25)
@@ -15,15 +35,61 @@ written to files, generated in batches and read back. `new` without
 `--auto` walks the procedure a question at a time, showing each throw
 between the questions.
 
+Every command lists its own flags, which is where the current set lives:
+
+```sh
+ctchargen --help          # the commands
+ctchargen new --help      # one command's flags, with their values and defaults
+```
+
+## Using it
+
+Four commands. `new` generates one character; `batch` generates many from one
+base seed; `render` reads a record back as a sheet or as the transcript; and
+`version` writes the build.
+
 ```sh
 ctchargen new --auto --seed 145 --service merchants --sheet
+ctchargen new --auto --name "Alexander Jamison" -o jamison.json
+ctchargen new --auto --history                  # the transcript, throw by throw
+ctchargen new --seed 145 --sheet                # asks at every choice point
+
+ctchargen batch --count 20 --auto --seed 145 --service merchants
 ctchargen batch --count 20 --auto --seed 145 --service merchants -o characters/
+
 ctchargen render characters/00000000000000000145.json
-ctchargen new --seed 145 --sheet    # asks at every choice point
+ctchargen render --history characters/00000000000000000145.json
 ```
 
 Batch members number from zero, so the first of that batch is the character
-the first command generated, and the third command shows the same sheet.
+the first `new` above generated, and `render` shows the same sheet.
+
+**`batch` with no `-o` writes NDJSON to standard output**, one record to the
+line, which is the shape that pipes:
+
+```sh
+ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] | @tsv'
+```
+
+`batch` requires `--auto`, because it has nobody to ask.
+
+**Three flags steer `--auto`** where the procedure offers a choice, on both
+`new` and `batch`. [`docs/POLICY.md`](docs/POLICY.md) carries a row per choice
+point saying what each one does:
+
+| Flag | Values |
+| --- | --- |
+| `--career` | `serve` (default) · `retire` · `oneterm` |
+| `--skills` | `advanced` (default) · `service` · `personal` |
+| `--muster` | `cash` (default) · `goods` · `spartan` |
+
+**Nothing is overwritten without `--force`.** `-o` onto an existing file is
+refused, and so is a `batch` any of whose members would replace one — the
+whole batch, before a byte is written, so a refusal leaves the directory as it
+was.
+
+Death is an outcome and not an error: a character killed by a survival throw
+(Book 1 p. 5) gets a complete record like anyone else, and no flag rerolls him.
 
 ## The documents
 
@@ -34,7 +100,7 @@ the first command generated, and the third command shows the same sheet.
 | [docs/POLICY.md](docs/POLICY.md) | The `--auto` decision table, one row per choice point. |
 | [docs/COVERAGE.md](docs/COVERAGE.md) | Every implemented rule mapped to its page cite, its implementation and its test. |
 | [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it. |
-| [docs/PRERELEASE.md](docs/PRERELEASE.md) | The review before the tag: what each pass checked, what it found, and the shipping bar. |
+| [docs/PRERELEASE.md](docs/PRERELEASE.md) | What each tag ships with open, and the review that preceded it. |
 | [CLAUDE.md](CLAUDE.md) | Authority, source precedence, and the working rules for agents. |
 
 ## The gate

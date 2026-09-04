@@ -1,16 +1,21 @@
-# PRERELEASE: the review before the tag
+# PRERELEASE: what each tag ships with open
 
-2026-09-03. Companion to `PRD.md`, and the document that governs whether
-`v1.0.0-alpha.3` ships.
-
-Every milestone of `PRD.md` is complete. What the PRD and `CLAUDE.md` both
-say remains is a review of the whole tool against the four documents. This
-file records what each pass checked and what it found. A finding is written
-here **before** it is fixed: a finding fixed in passing is a finding nobody
-can audit.
+Companion to `PRD.md`. One section per tag, newest last: the review that
+preceded it where there was one, and what was still open when it was cut. A
+finding is written here **before** it is fixed: a finding fixed in passing is
+a finding nobody can audit.
 
 Findings are numbered by pass. **Status** is `open`, `fixed` (with the PR),
 or `won't fix` (with the reason).
+
+---
+
+# v1.0.0-alpha.3 — 2026-09-03
+
+The tag the `PRD.md` milestones were finished for. Every milestone is
+complete; what the PRD and `CLAUDE.md` both say remains is a review of the
+whole tool against the four documents, and this section records what each
+pass checked and what it found.
 
 ## The shipping bar
 
@@ -338,3 +343,52 @@ precisely the gap it was written for.
   each takes an input that ends at that exact question. They are one-line
   returns, and the ratchet holds them at a count rather than pretending
   otherwise.
+
+---
+
+# v1.0.0-alpha.4 — 2026-09-04
+
+The first tag cut for a referee's finding rather than for a milestone.
+
+## What changed since alpha.3
+
+- **#69, closing #29** — every command lists its own flags. `new --help` and
+  `batch -h` printed `usage: flag: help requested` and exited 1; `--help` at
+  top level read as a mistyped subcommand; `new extra-arg` ignored the word
+  and started an interactive generation on a drawn seed. Reviewed at
+  `/code-review high`; the findings, one of which was a test that did not test
+  what it claimed, were applied in `860dd9e`.
+- **This PR, closing #30 and #31** — the README gained an install section and
+  the flags it never documented, and the rejection for an unknown strategy
+  stopped naming a repository file at a reader who has only a binary.
+
+No new pass was run. The three passes above reviewed the engine and the
+documents against the page; nothing since has touched either. What changed is
+the command surface and the prose, both of which the gate covers.
+
+## What ships open, and why
+
+**This tag departs from the shipping bar above.** That bar — no finding of
+severity high open when the tag is cut — was written for the review of the v1
+contract, and it held for alpha.3. Three high findings from the code audit
+(#27) are open here:
+
+| | | Why it ships open |
+| --- | --- | --- |
+| #41 | `Policy` strategy names are strings | Structural. The runtime validation that compensates is tested and holds. |
+| #42 | The record carries a sum *and* the flag it replaced | Structural. Nothing today writes them into disagreement. |
+| #43 | Where a printed number lives | Structural, and the one number with teeth — `lastPrintedTerm` — is E014's stamping condition, which is stamped correctly. |
+
+None of the three changes a character the tool generates. They are findings
+about the shape of the code, raised by a review that came after alpha.3 was
+tagged, and an alpha is where a structural finding ships open with a reason
+rather than blocking a fix a referee asked for.
+
+Also open, and named so the release notes do not have to restate them:
+
+- **The rest of the referee's report** (#26) — the seed absent from the sheet
+  (#32), `batch` silent about what it generated (#33), and #34–#40, #67, #68.
+- **#70 — `ctchargen version junk` is now an error.** Shipping this tag with
+  the refusal in it is **not** a decision on that issue, which was opened to
+  settle it separately.
+- Medium and low audit findings #44–#61, and the five open questions #62–#66.
