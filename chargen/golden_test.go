@@ -60,6 +60,17 @@ var fixtures = []fixture{
 	{"other-crisis-died", 17, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-death", 5, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-title", 4, traveller.Other, true, chargen.DefaultPolicy()},
+	// Killed by a survival throw holding a Social Standing of 12. E011
+	// assesses the dead and does not ask them, and no other fixture reaches
+	// that branch: every other death in this roster ends below 11.
+	{"died-a-noble", 39, traveller.Navy, true, chargen.DefaultPolicy()},
+	// Rank 5 declining the +1 that p. 9 allows him on Table 1. Spartan is
+	// the only strategy that declines it, and until this fixture no
+	// generated character both held the rank and refused the modifier.
+	{
+		"navy-spartan-declines", 4, traveller.Navy, true,
+		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterSpartan},
+	},
 	// Killed in the Scouts, which is where the service-wide grant of p. 23
 	// is carried by a character who never lived to muster out.
 	{

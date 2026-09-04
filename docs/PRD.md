@@ -344,8 +344,12 @@ Table 2 (cash), the rest on Table 1 (material benefits); table designated
 before each roll; +1 DM available on Table 1 at rank 5–6 and on Table 2 with
 gambling skill (pp. 7, 9). Benefits per the tables (p. 9) and their
 definitions (pp. 21–23): cash; characteristic alterations, +1 or +2 as the
-row prints (p. 9), applied immediately; passages (High CR 10,000, Middle CR
-8,000, Low CR 1,000, sellable at 90%; pp. 21–22); Travellers' Aid
+row prints (p. 9), applied immediately; passages, recorded by class; their
+prices (High CR 10,000, Middle CR 8,000, Low CR 1,000, sellable at 90%;
+pp. 21–22) are lifted from the page and available from `rules`, but v1
+applies them to nothing and the record reports no cash value for a passage —
+the book prices Jamison's middle passage in its summary (p. 25) and a sheet
+could do the same, which is a candidate for after the tag, not a v1 promise; Travellers' Aid
 membership, once per character ever, duplicate rolls wasted (p. 22);
 weapons, where a repeat receipt may take the same weapon, a different one,
 or +1 expertise in a weapon already received as a benefit (p. 22); and
@@ -479,7 +483,9 @@ mistakes it for more.
 ## JSON conventions
 
 Characteristics stored numeric with the UPP hex string derived and stored
-alongside; money as integer credits; age in whole years with terms served.
+alongside; money as integer credits; age in years and terms served, with the
+months a medical-crisis recovery adds (pp. 7-8) carried beside the years and
+normalized into them at twelve — so months, when present, are 1 through 11.
 Skills are name plus level, with the specific weapon where the rules demand
 one. `character.schema.json` (draft 2020-12) describes what the engine
 writes, with a minimal and a complete example beside it, and is validated
