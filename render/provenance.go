@@ -77,9 +77,10 @@ func regenerateWith(r record, rendering string) string {
 // line is printed to be pasted, which makes an unquoted field a way to put
 // words in the operator's shell.
 func command(r record, rendering string) []string {
+	// The seed is the one value that cannot need quoting: it is a uint64
+	// written in base ten, so it is digits or nothing.
 	args := []string{
-		"ctchargen", "new", autoFlag,
-		seedFlag, shellQuote(strconv.FormatUint(r.Inputs.Seed, 10)),
+		"ctchargen", "new", autoFlag, seedFlag, strconv.FormatUint(r.Inputs.Seed, 10),
 	}
 
 	// The service asked for, which is what reproduces the run - not the
@@ -141,7 +142,13 @@ func codeSpan(text string) string {
 
 // safeToken matches a value a shell reads back as itself, which is every
 // value this tool writes and none of the ones worth worrying about.
-var safeToken = regexp.MustCompile(`^[A-Za-z0-9@%+=:,./_-]+$`)
+//
+// No `=`: zsh sets EQUALS by default, so a word beginning with one is
+// expanded to the path of the command named after it - `=ls` becomes
+// /bin/ls, and `=nosuch` fails the line before the tool sees it. Nothing
+// this tool writes carries one, so the class is narrowed rather than the
+// position reasoned about.
+var safeToken = regexp.MustCompile(`^[A-Za-z0-9@%+:,./_-]+$`)
 
 // shellQuote writes a value so that a shell reads it back as one word.
 //
@@ -159,7 +166,67 @@ func shellQuote(value string) string {
 		return value
 	}
 
+	// Single quotes carry a control character literally, and a newline
+	// carried literally ends the line - which breaks the code span, ends
+	// the markdown paragraph, and leaves the rest of the record rendering
+	// as prose of its own. See escaped.
+	if strings.ContainsFunc(value, isControl) {
+		return escaped(value)
+	}
+
 	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
+}
+
+// isControl reports a byte a printed line cannot carry as itself.
+func isControl(r rune) bool {
+	return r < 0x20 || r == 0x7f
+}
+
+// escaped writes a value carrying control characters as one word on one line.
+//
+// This is the one place the line leaves POSIX sh for the shells a person
+// actually pastes into: $'...' is bash and zsh, and in sh it is a plain
+// single-quoted string behind a stray $, so the value comes back wrong -
+// wrong but inert, which is the trade. A record whose name carries a newline
+// is already not a record this tool wrote, and the alternative is a sheet
+// whose markdown the record gets to write.
+//
+// Inert is the half that has to be earned. It holds only because the body
+// carries no quote of its own: a `\'` is the escape bash reads, but sh reads
+// the same two bytes as a backslash and then the end of the string, and what
+// follows is unquoted - a command substitution again. `\x27` says the same
+// thing to bash and zsh and says nothing at all to sh.
+func escaped(value string) string {
+	var out strings.Builder
+
+	out.WriteString("$'")
+
+	for i := range len(value) {
+		switch char := value[i]; char {
+		case '\\':
+			out.WriteString(`\\`)
+		case '\'':
+			out.WriteString(`\x27`)
+		case '\n':
+			out.WriteString(`\n`)
+		case '\r':
+			out.WriteString(`\r`)
+		case '\t':
+			out.WriteString(`\t`)
+		default:
+			if isControl(rune(char)) {
+				fmt.Fprintf(&out, `\x%02x`, char)
+
+				continue
+			}
+
+			out.WriteByte(char)
+		}
+	}
+
+	out.WriteString("'")
+
+	return out.String()
 }
 
 // answeredByThePlayer is the line for a character the seed does not bring

@@ -7,30 +7,44 @@ import (
 	"io"
 	"maps"
 	"os"
-	"path/filepath"
-	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 )
 
-// printedCommand finds the command a rendering offers.
-//
-// It matches the prose around the span rather than the span's own fence,
-// because the fence widens to hold a command carrying a backtick and Go's
-// regexp has no backreference to match an opening run against its close.
-var printedCommand = regexp.MustCompile(`(?m)^Regenerate with (.+?)(?:, on .+)?\.$`)
+// offered is the prose the command follows, and the only place a rendering
+// hands the reader a line to paste.
+const offered = "Regenerate with "
 
-// commandIn pulls the command out of a rendering, unwrapping the code span.
-func commandIn(t *testing.T, rendering string) (string, bool) {
-	t.Helper()
-
-	found := printedCommand.FindStringSubmatch(rendering)
-	if found == nil {
+// commandIn pulls the command out of a rendering, reading the code span the
+// way CommonMark does rather than pattern-matching the prose around it: the
+// span is opened by a run of backticks and closed by the first run of the
+// same length. Reading the fence is what lets this find a command that
+// carries a backtick of its own, which a regexp cannot - Go's has no
+// backreference to hold a close to its open.
+func commandIn(rendering string) (string, bool) {
+	_, line, found := strings.Cut(rendering, offered)
+	if !found {
 		return "", false
 	}
 
-	return strings.TrimSpace(strings.Trim(found[1], "`")), true
+	// The offer is one line, and a span that does not close on it is not
+	// one the reader is shown: the paragraph ends at the blank line, and
+	// what follows lands on the sheet as markdown of its own.
+	line, _, _ = strings.Cut(line, "\n")
+
+	fence := len(line) - len(strings.TrimLeft(line, "`"))
+	if fence == 0 {
+		return "", false
+	}
+
+	command, _, closed := strings.Cut(line[fence:], strings.Repeat("`", fence))
+	if !closed {
+		return "", false
+	}
+
+	return command, true
 }
 
 // The command a rendering prints reproduces that rendering, byte for byte.
@@ -69,7 +83,7 @@ func TestAPrintedCommandReproducesWhatPrintedIt(t *testing.T) {
 			continue
 		}
 
-		printed, found := commandIn(t, first.String())
+		printed, found := commandIn(first.String())
 		if !found {
 			t.Errorf("%s: no command in\n%s", name, first.String())
 
@@ -120,7 +134,7 @@ func TestAPrintedCommandNamesEveryStrategy(t *testing.T) {
 		t.Fatalf("generating: %v", err)
 	}
 
-	printed, found := commandIn(t, out.String())
+	printed, found := commandIn(out.String())
 	if !found {
 		t.Fatalf("no command in\n%s", out.String())
 	}
@@ -147,7 +161,8 @@ func TestAnAnsweredCharacterIsNotOfferedACommand(t *testing.T) {
 		t.Fatalf("generating: %v", err)
 	}
 
-	if printedCommand.MatchString(out.String()) {
+	_, hasCommand := commandIn(out.String())
+	if hasCommand {
 		t.Errorf("a sheet the player answered for offers a command:\n%s", out.String())
 	}
 
@@ -160,6 +175,10 @@ func TestAnAnsweredCharacterIsNotOfferedACommand(t *testing.T) {
 
 // errUnbalanced reports a printed command whose quoting does not close.
 var errUnbalanced = errors.New("unbalanced quote")
+
+// errBadEscape reports a $'...' escape the shells this line is written for
+// would not read back.
+var errBadEscape = errors.New("unreadable escape")
 
 // shellFields splits a printed command the way a shell would.
 //
@@ -198,6 +217,17 @@ func shellFields(line string) ([]string, error) {
 			started = true
 
 			i += end + 2
+		case char == '$' && i+1 < len(line) && line[i+1] == '\'':
+			read, width, err := ansiC(line[i+2:])
+			if err != nil {
+				return nil, fmt.Errorf("%w in %q", err, line)
+			}
+
+			token.WriteString(read)
+
+			started = true
+
+			i += width + 2
 		case char == '\\' && i+1 < len(line):
 			token.WriteByte(line[i+1])
 
@@ -220,6 +250,61 @@ func shellFields(line string) ([]string, error) {
 	return fields, nil
 }
 
+// ansiC reads a $'...' string from just after its opening quote, and returns
+// what it holds and how far it ran.
+//
+// A value carrying a control character cannot be written in plain single
+// quotes: they hold a newline literally, which ends the line the offer is
+// written on. bash and zsh read the escapes back, which is why the printing
+// reaches for this form and why the test has to know it.
+func ansiC(rest string) (string, int, error) {
+	var out strings.Builder
+
+	for i := 0; i < len(rest); {
+		switch {
+		case rest[i] == '\'':
+			return out.String(), i + 1, nil
+		case rest[i] != '\\' || i+1 >= len(rest):
+			out.WriteByte(rest[i])
+
+			i++
+		case rest[i+1] == 'x':
+			if i+4 > len(rest) {
+				return "", 0, errBadEscape
+			}
+
+			code, err := strconv.ParseUint(rest[i+2:i+4], 16, 8)
+			if err != nil {
+				return "", 0, fmt.Errorf("%w %q: %w", errBadEscape, rest[i:i+4], err)
+			}
+
+			out.WriteByte(byte(code))
+
+			i += 4
+		default:
+			out.WriteByte(named(rest[i+1]))
+
+			i += 2
+		}
+	}
+
+	return "", 0, errUnbalanced
+}
+
+// named reads the one-letter escapes the printing writes.
+func named(char byte) byte {
+	switch char {
+	case 'n':
+		return '\n'
+	case 'r':
+		return '\r'
+	case 't':
+		return '\t'
+	default:
+		return char
+	}
+}
+
 // A record cannot put words in the operator's shell.
 //
 // render reads whatever it is handed - PRERELEASE.md says so deliberately,
@@ -238,13 +323,16 @@ func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
 	const (
 		smuggledFlags = "other --force -o /etc/hosts"
 		substitution  = "serve`touch /tmp/ctchargen-should-not-exist`"
-		anApostrophe  = "O'Brien"
+		// An apostrophe closes the quoting, and a newline ends the line
+		// the quoting is written on - which is the same escape by another
+		// door, and takes the markdown of the sheet with it.
+		aBrokenLine = "O'Brien\t\r\x01\\\n\n## Not his name\n\nPaste this instead: rm -rf ~"
 	)
 
 	path := recordWithInputs(t, map[string]any{
 		"service": smuggledFlags,
 		"career":  substitution,
-		"name":    anApostrophe,
+		"name":    aBrokenLine,
 	})
 
 	var out strings.Builder
@@ -254,7 +342,7 @@ func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
 		t.Fatalf("rendering: %v", err)
 	}
 
-	printed, found := commandIn(t, out.String())
+	printed, found := commandIn(out.String())
 	if !found {
 		t.Fatalf("no command in\n%s", out.String())
 	}
@@ -268,7 +356,7 @@ func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
 	for flag, want := range map[string]string{
 		flagService: smuggledFlags,
 		flagCareer:  substitution,
-		flagName:    anApostrophe,
+		flagName:    aBrokenLine,
 	} {
 		at := slices.Index(got, flag)
 		if at < 0 || at+1 >= len(got) {
@@ -289,16 +377,19 @@ func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
 func recordWithInputs(t *testing.T, doctored map[string]any) string {
 	t.Helper()
 
-	path := filepath.Join(t.TempDir(), "hostile.json")
+	path := writeRecord(t)
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagOutput, path},
-		nil, io.Discard, io.Discard)
+	text, err := os.ReadFile(path)
 	if err != nil {
-		t.Fatalf("writing a record: %v", err)
+		t.Fatalf("reading %s: %v", path, err)
 	}
 
 	record := map[string]any{}
-	read(t, path, &record)
+
+	err = json.Unmarshal(text, &record)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
 
 	inputs, ok := record["inputs"].(map[string]any)
 	if !ok {
@@ -307,29 +398,7 @@ func recordWithInputs(t *testing.T, doctored map[string]any) string {
 
 	maps.Copy(inputs, doctored)
 
-	write(t, path, record)
-
-	return path
-}
-
-func read(t *testing.T, path string, into any) {
-	t.Helper()
-
-	text, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("reading %s: %v", path, err)
-	}
-
-	err = json.Unmarshal(text, into)
-	if err != nil {
-		t.Fatalf("reading %s: %v", path, err)
-	}
-}
-
-func write(t *testing.T, path string, from any) {
-	t.Helper()
-
-	text, err := json.Marshal(from)
+	text, err = json.Marshal(record)
 	if err != nil {
 		t.Fatalf("writing %s: %v", path, err)
 	}
@@ -338,4 +407,6 @@ func write(t *testing.T, path string, from any) {
 	if err != nil {
 		t.Fatalf("writing %s: %v", path, err)
 	}
+
+	return path
 }
