@@ -27,9 +27,24 @@ them is answered: every command describes its own flags, and `v1.0.0-alpha.4`
 is the current release. `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the
 rebuild at `41a213a` and install a different tool; their notes say so.
 
-This paragraph is the one thing here that goes stale on its own; correct it
-when the work moves rather than letting the file describe a tree that no
-longer exists.
+**What `v1.0.0` means, decided in #74.** Two things, and both must hold: a
+referee can trust what the tool prints at the table, **and** the record is
+frozen and supported. The `v1` label carries which issues that covers today —
+this paragraph states the bar and never the list, because a list here goes
+stale every time one closes.
+
+**The record freezes at `v1.0.0`, and is free to move before it (#62).** Until
+that tag, a record written by one build is not promised to be readable by the
+next; from it, the shape is a public contract and a build that changes it says
+so in the record itself. Nothing in the record names its shape yet — `build`
+names the writer and `ruleset` names the source text — so the promise has
+something to attach to only once a version field exists.
+
+**The two paragraphs above the `v1.0.0` ones** are the thing here that goes
+stale on its own — what is delivered, and which release is current. Correct
+them when the work moves rather than letting the file describe a tree that no
+longer exists. The two rules below them do not go stale: they state a bar and a
+promise, and both hold until a decision changes them.
 
 ## Authority — read this before implementing any rule
 
@@ -75,6 +90,14 @@ longer exists.
 5. **Where the text is silent or ambiguous, the reading goes in
    `docs/ERRATA.md`** with its page cite and its stamping condition, and is
    named on every record it governed. Never applied silently.
+
+6. **A number that indexes a printed table is data; a bare procedural bound is
+   a constant with its cite** (#65). The aging table's last printed term
+   indexes a column, so it belongs in `aging.json` and not in Go; the three-roll
+   cash cap and the rank thresholds bound a procedure and index nothing, so they
+   belong beside the code that applies them. The rule is stated once here rather
+   than argued per number, and it moves numbers both ways — a number on the
+   wrong side of it is a finding, not a preference.
 
 ### Page offsets
 
@@ -162,6 +185,12 @@ exists. Each gate is verified by breaking it.
 - **Goldens are regenerated, never hand-edited.**
 - **A new invariant is not done until a deliberate mutation has been shown to
   kill it**, and the failure names what was broken.
+- **An erratum's stamping condition is machine-checked, not just reachable**
+  (#66). `ERRATA.md` states each as a predicate over the finished record, and a
+  gate holds what a record stamps to what the document says it should. Write the
+  predicate from the document's prose, never from the stamping code: a condition
+  transcribed from the thing it checks is one reading written twice, which is
+  the same trap rule 3 above exists for.
 - Package arrows point one way: `traveller` imports none of the others;
   `rules` and `chargen` import `traveller`; `render` imports the record. A
   domain type that needs to know about dice or JSON is in the wrong package.
