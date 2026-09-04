@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -26,13 +27,16 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 	flags.SetOutput(io.Discard)
 
 	var (
-		seed    = flags.Uint64("seed", 0, "the seed to generate from; one is drawn if absent")
-		auto    = flags.Bool("auto", false, "let the policy decide, rather than the player")
-		service = flags.String("service", "", "force the enlistment attempt into this service")
+		seed    = flags.Uint64(seedFlag, 0, "the seed to generate from; one is drawn if absent")
+		auto    = flags.Bool("auto", false, "decide by the policy at every choice, rather than asking")
+		service = flags.String("service", "", "attempt enlistment in this service: "+serviceChoices())
 		name    = flags.String("name", "", "the character's name")
-		career  = flags.String("career", chargen.CareerServe, "the --auto career strategy")
-		skills  = flags.String("skills", chargen.SkillsAdvanced, "the --auto skills strategy")
-		muster  = flags.String("muster", chargen.MusterCash, "the --auto mustering out strategy")
+		career  = flags.String(careerFlag, chargen.CareerServe,
+			"the --auto career strategy: "+strategyChoices(careerFlag))
+		skills = flags.String(skillsFlag, chargen.SkillsAdvanced,
+			"the --auto skills strategy: "+strategyChoices(skillsFlag))
+		muster = flags.String(musterFlag, chargen.MusterCash,
+			"the --auto mustering out strategy: "+strategyChoices(musterFlag))
 		sheet   = flags.Bool("sheet", false, "write the character sheet rather than JSON")
 		history = flags.Bool("history", false, "write the generation record rather than JSON")
 		output  = flags.String("o", "", "write to this file rather than to standard output")
@@ -40,12 +44,25 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 	)
 
 	err := flags.Parse(args)
-	if err != nil {
-		return fmt.Errorf("%w: %w", errUsage, err)
+
+	switch {
+	case errors.Is(err, flag.ErrHelp):
+		return writeHelp(out, newUsage, flags)
+	case err != nil:
+		return fmt.Errorf("%w: %w; run `ctchargen new --help`", errUsage, err)
+	}
+
+	// `new` takes no positional argument, and the one it used to ignore was
+	// a typo that became an interactive session on a seed nobody chose. The
+	// flag package stops at the first non-flag word, so `new foo --auto`
+	// left --auto unparsed as well: refusing the word catches both.
+	if flags.NArg() > 0 {
+		return fmt.Errorf("%w: %s; it takes no arguments, and was given %q",
+			errUsage, newUsage, flags.Arg(0))
 	}
 
 	inputs, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster,
-		isSet(flags, "seed"))
+		isSet(flags, seedFlag))
 	if err != nil {
 		return err
 	}

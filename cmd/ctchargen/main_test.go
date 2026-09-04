@@ -16,10 +16,18 @@ const (
 	cmdVersion  = "version"
 	wantUsage   = "usage"
 	wantNoRow   = "no such strategy"
+	wantUnknown = "unknown command"
 	flagSheet   = "--sheet"
 	flagAuto    = "--auto"
 	flagSeed    = "--seed"
 	flagService = "--service"
+	flagName    = "--name"
+	flagCareer  = "--career"
+	flagSkills  = "--skills"
+	flagMuster  = "--muster"
+	flagHistory = "--history"
+	flagForce   = "--force"
+	flagOutput  = "-o"
 	other       = "other"
 	navy        = "navy"
 	merchants   = "merchants"
@@ -33,18 +41,18 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		mentions string
 	}{
 		"no command":      {nil, "new|batch|render|version"},
-		"unknown command": {[]string{"generate"}, "unknown command"},
+		"unknown command": {[]string{"generate"}, wantUnknown},
 		// Interactive mode with nothing to read from asks its first
 		// question and reports that the input ended, rather than answering
 		// it on the player's behalf.
 		"no input to read": {[]string{cmdNew}, "the input ended"},
 		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, wantUsage},
 		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
-		"no such strategy": {[]string{cmdNew, flagAuto, "--career", "dawdle"}, wantNoRow},
+		"no such strategy": {[]string{cmdNew, flagAuto, flagCareer, "dawdle"}, wantNoRow},
 		// The strategies are recorded whichever mode runs, and the schema
 		// restricts them to POLICY.md's rows, so an unknown one is refused
 		// without --auto too rather than being written into a record.
-		"no such strategy, asking": {[]string{cmdNew, "--career", "dawdle"}, wantNoRow},
+		"no such strategy, asking": {[]string{cmdNew, flagCareer, "dawdle"}, wantNoRow},
 	} {
 		err := run(tc.args, nil, io.Discard, io.Discard)
 
@@ -75,7 +83,7 @@ func TestRunWritesEachRendering(t *testing.T) {
 		},
 		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
 		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet}, "UPP "},
-		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, "--history"}, "Generation record"},
+		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagHistory}, "Generation record"},
 		"version":    {[]string{cmdVersion}, "ctchargen"},
 	} {
 		var out strings.Builder

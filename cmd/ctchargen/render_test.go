@@ -21,7 +21,7 @@ func writeRecord(t *testing.T) string {
 
 	path := filepath.Join(t.TempDir(), "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, "-o", path},
+	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagOutput, path},
 		nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("writing a record: %v", err)
@@ -41,7 +41,7 @@ func TestRenderReadsARecordBack(t *testing.T) {
 		mentions string
 	}{
 		"sheet":      {[]string{cmdRender, path}, "UPP 674979"},
-		"transcript": {[]string{cmdRender, "--history", path}, "Generation record"},
+		"transcript": {[]string{cmdRender, flagHistory, path}, "Generation record"},
 	} {
 		var out strings.Builder
 
@@ -81,7 +81,7 @@ func TestRenderWritesToAFile(t *testing.T) {
 	source := writeRecord(t)
 	out := filepath.Join(t.TempDir(), "sheet.md")
 
-	err := run([]string{cmdRender, "-o", out, source}, nil, io.Discard, io.Discard)
+	err := run([]string{cmdRender, flagOutput, out, source}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("render -o: %v", err)
 	}
@@ -96,12 +96,12 @@ func TestRenderWritesToAFile(t *testing.T) {
 	}
 
 	// The same refusal new makes: an existing file is not replaced.
-	err = run([]string{cmdRender, "-o", out, source}, nil, io.Discard, io.Discard)
+	err = run([]string{cmdRender, flagOutput, out, source}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("render replaced an existing file without --force")
 	}
 
-	err = run([]string{cmdRender, "-o", out, "--force", source}, nil, io.Discard, io.Discard)
+	err = run([]string{cmdRender, flagOutput, out, flagForce, source}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Errorf("--force did not replace the sheet: %v", err)
 	}
@@ -146,7 +146,7 @@ func TestOutputRefusesAPathItCannotOpen(t *testing.T) {
 
 	unwritable := filepath.Join(t.TempDir(), "no-such-directory", "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "1", flagService, other, "-o", unwritable},
+	err := run([]string{cmdNew, flagAuto, flagSeed, "1", flagService, other, flagOutput, unwritable},
 		nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("new wrote to a path whose directory does not exist")

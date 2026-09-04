@@ -136,7 +136,7 @@ func TestBatchIntoADirectory(t *testing.T) {
 	dir := t.TempDir()
 
 	err := run([]string{
-		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
 	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("batch into a directory: %v", err)
@@ -153,14 +153,14 @@ func TestBatchIntoADirectory(t *testing.T) {
 
 	// A second run refuses to replace them, and --force replaces them.
 	err = run([]string{
-		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
 	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Error("a second batch overwrote the first without --force")
 	}
 
 	err = run([]string{
-		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir, "--force",
+		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir, flagForce,
 	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Errorf("--force did not replace the members: %v", err)
@@ -237,7 +237,7 @@ func TestBatchCreatesTheOutputDirectory(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "characters") + string(filepath.Separator)
 
 	err := run([]string{
-		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
 	}, nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("batch into a directory that is not there yet: %v", err)
@@ -269,7 +269,7 @@ func TestARefusedBatchWritesNothing(t *testing.T) {
 	}
 
 	err = run([]string{
-		cmdBatch, flagCount, "4", flagAuto, flagSeed, "7", flagService, other, "-o", dir,
+		cmdBatch, flagCount, "4", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
 	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Fatal("a batch overwrote an existing member without --force")
@@ -300,7 +300,7 @@ func TestBatchReportsADirectoryItCannotMake(t *testing.T) {
 
 	err = run([]string{
 		cmdBatch, flagCount, "2", flagAuto, flagSeed, "7", flagService, other,
-		"-o", filepath.Join(blocking, "members") + string(filepath.Separator),
+		flagOutput, filepath.Join(blocking, "members") + string(filepath.Separator),
 	}, nil, io.Discard, io.Discard)
 	if err == nil {
 		t.Fatal("a batch wrote into a directory it could not make")
