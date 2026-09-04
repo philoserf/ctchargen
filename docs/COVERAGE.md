@@ -129,6 +129,8 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Every reading that governed a record is named on it | Authority | `chargen.log.stamped` | `chargen.TestEveryReadingIsReachable` |
 | One seed reproduces one character | Determinism | `dice.Stream` | `chargen.TestGoldensRegenerate` |
 | The record matches the schema that describes it | JSON conventions | `docs/character.schema.json` | `render.TestEveryGoldenMatchesTheSchema` |
+| What the command writes matches the schema, build stamp and all | JSON conventions | `cmd/ctchargen.run` | `ctchargen.TestWhatTheCommandWritesMatchesTheSchema` |
+| Every batch member matches the schema | JSON conventions | `cmd/ctchargen.batch` | `ctchargen.TestEveryBatchMemberMatchesTheSchema` |
 | The two documented examples are generated, not written | Documents | `chargen.documentedExample` | `chargen.TestGoldens` |
 | The record names its ruleset and the build that wrote it | Determinism | `chargen.Ruleset`, `cmd/ctchargen` | `ctchargen.TestRunWritesEachRendering` |
 | Every row here cites a test and a golden that exist | Documents | `internal/docsgate` | `docsgate.TestCoverageCitesTestsThatExist` |
@@ -142,6 +144,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Every question the player is asked is one the engine asked | FR9 | `cmd/ctchargen.player` | `ctchargen.TestInteractiveWalksACharacter` |
 | The alternatives offered are exactly the engine's | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveAsksTheYesOrNoPoints` |
 | An answer outside the offered set is refused, not applied | FR9 | `chargen.logging.record` | `chargen.TestAnAnswerOutsideTheOfferIsRefused` |
+| A decider built out of strategies that do not exist is refused | FR9 | `chargen.validate` | `chargen.TestADeciderBuiltOutOfNothingIsRefused` |
 | An unreadable answer is asked again, never guessed at | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveReAsksWhatItCannotRead` |
 | The input ending is an error, not a default | FR9 | `cmd/ctchargen.errNoAnswer` | `ctchargen.TestInteractiveRefusesToInventAnAnswer` |
 | A player nobody can be shown anything is not asked | FR9 | `cmd/ctchargen.player.sayf` | `ctchargen.TestInteractiveStopsWhenItCannotBeRead` |

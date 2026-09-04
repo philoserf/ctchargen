@@ -76,6 +76,11 @@ func Generate(in Inputs, decider Decider, options ...Option) (*Character, error)
 		option(run)
 	}
 
+	invalid := validate(decider)
+	if invalid != nil {
+		return nil, invalid
+	}
+
 	run.decide = logging{to: decider, by: run.by, log: record}
 
 	err = run.generate()
@@ -89,6 +94,34 @@ func Generate(in Inputs, decider Decider, options ...Option) (*Character, error)
 	run.char.Errata = record.stamped()
 
 	return run.char, nil
+}
+
+// selfChecking is a decider that can be handed a configuration it does not
+// recognize, and knows it.
+type selfChecking interface{ Validate() error }
+
+// validate asks a decider whether it was built out of things that exist.
+//
+// The engine already refuses an answer from outside the offered set (FR9);
+// this refuses a decider that could not have produced a legal answer in the
+// first place. Before it existed, `Policy{Muster: "gold"}` generated a whole
+// character - the strategy matched no branch, so it silently behaved as
+// another one - and wrote "gold" into the record's inputs, where no row of
+// POLICY.md answers to it. The command validated its flags and the engine
+// trusted whatever it was handed, which is the same shape of gap as trusting
+// an answer the procedure never offered.
+func validate(decider Decider) error {
+	checkable, ok := decider.(selfChecking)
+	if !ok {
+		return nil
+	}
+
+	invalid := checkable.Validate()
+	if invalid != nil {
+		return fmt.Errorf("the decider: %w", invalid)
+	}
+
+	return nil
 }
 
 // run is one generation in progress.

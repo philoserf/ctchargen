@@ -21,7 +21,7 @@ func writeRecord(t *testing.T) string {
 
 	path := filepath.Join(t.TempDir(), "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", "-o", path},
+	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, "-o", path},
 		nil, io.Discard, io.Discard)
 	if err != nil {
 		t.Fatalf("writing a record: %v", err)
@@ -60,7 +60,7 @@ func TestRenderReadsARecordBack(t *testing.T) {
 	// And the sheet render matches what generating it produced.
 	var direct, viaFile strings.Builder
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, "merchants", flagSheet}, nil, &direct, io.Discard)
+	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagSheet}, nil, &direct, io.Discard)
 	if err != nil {
 		t.Fatalf("generating: %v", err)
 	}

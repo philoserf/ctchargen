@@ -242,9 +242,99 @@ Pass 1 added the row to `CLAUDE.md`'s table and not to the README's.
 
 ## Pass 3 — the invariants against themselves
 
-Not yet run. Its checklist: break every gate deliberately and record the
-message it produced — the six `internal/docsgate` tests, the ratchet in both
-directions, the golden comparison, the schema validation, the Jamison
-replay; sweep for values validated in one place and trusted in another; and
-extend schema validation past the goldens to records the CLI actually
-writes.
+### Every gate, broken on purpose
+
+`CLAUDE.md`: "a gate never seen to fail has not been shown to hold." Each was
+broken deliberately and the message it produced recorded. All thirteen fail,
+and each names what was broken.
+
+| Gate                                    | Break                                   | What it said                                                     |
+| --------------------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
+| `TestErrataMatchTheDocument`            | E015's heading renamed to E016           | reported **both** directions: E015 missing, E016 unknown           |
+| `TestPolicyRowsMatchTheDecider`         | the `AssumeTitle` row's heading broken   | "AssumeTitle is in the Decider interface but has no entry"          |
+| `TestChoicePointsMatchTheDecider`       | `ChoiceMusterWeapon` dropped from the list | "MusterWeapon … does not exist in the ChoicePoint enum"           |
+| `TestCoverageCitesTestsThatExist`       | a cited test misspelled                  | named the citation and that no test file declares it               |
+| `TestCoverageCitesGoldensThatExist`     | a cited golden misspelled                | named the citation and that it is not in `chargen/testdata`        |
+| `TestGoldens`                           | a golden record hand-edited              | named the file and said to regenerate and read the diff            |
+| `TestGoldensRegenerate`                 | a stray die drawn on every second run    | named the fixture that did not reproduce from its own seed         |
+| `TestEveryGoldenMatchesTheSchema`       | `terms` capped at 1                      | named each golden that no longer matches                           |
+| `TestTheDocumentedExamplesMatchTheSchema` | `character.complete.json`'s UPP broken | named the example                                                  |
+| `TestTheWorkedExampleReproduces`        | the Merchants' survival target 5+ → 9+   | "the example narrates 17 throws and 14 dice the engine never asked for" |
+| `rules.TestRankAndServiceSkills`        | the Scouts' service-wide grant removed   | caught by the second transcription, and by six goldens besides     |
+| the ratchet, rising                     | an uncovered function added              | "coverage fell — these packages gained uncovered statements"        |
+| the ratchet, falling                    | any pass that covers more                | "coverage improved — lock it in, a stale number is a ratchet that has stopped holding" |
+
+Two of the breaks were **invalid on the first attempt**, and both are worth
+recording because they look exactly like a passing gate:
+
+- Altering the **Navy's** survival target left the worked example untouched,
+  because Jamison is a Merchant. Aimed at the right column, it failed at once.
+- Making generation nondeterministic with `time.Now().UnixNano() % 2` never
+  varied: macOS reports microsecond granularity, so the nanosecond parity is
+  always even and the mutation was really "always draw", which
+  `TestGoldensRegenerate` correctly does not catch because both runs shift
+  alike. A counter that alternates between calls killed it immediately.
+
+A mutation that does not apply is indistinguishable from an invariant that
+does not hold. Every surviving mutant in this pass was the mutation's fault,
+and each was re-aimed until it either killed or was understood.
+
+### Findings
+
+#### P3-1 — The command validated the strategies and the engine trusted them
+
+**Severity.** Medium. **Cite.** `PRD.md` FR9; `POLICY.md`. **Status.** fixed,
+this pass.
+
+`Policy.Validate()` was called from `cmd/ctchargen` and from nowhere else.
+`chargen.Generate` never checked the decider it was handed, so
+
+```go
+chargen.Generate(inputs, chargen.Policy{Career: "dawdle", Skills: "osmosis", Muster: "gold"})
+```
+
+generated a complete seven-term character and wrote those three words into
+the record's `inputs`, where no row of `POLICY.md` answers to any of them.
+Nothing failed, because an unrecognized strategy matches no branch and
+silently behaves as whichever one the conditionals fall through to.
+
+This is the same shape as the gap #22 found — the engine applying a
+caller-supplied value that no page allows — and it is now refused in the same
+spirit: `chargen.validate` asks any decider that can be misconfigured whether
+it was built out of things that exist, before generation starts. A decider
+with no `Validate` is not asked, so the scripted test deciders are unaffected.
+
+#### P3-2 — Nothing validated what the command writes
+
+**Severity.** Medium. **Cite.** `PRD.md`, JSON conventions. **Status.** fixed,
+this pass.
+
+`render`'s schema test validated the goldens and the two documented examples
+— what the *engine* produces. What the *command* writes was validated by
+nothing, and the two are not the same document: the command stamps `build`
+and fills `name`, neither of which any golden carries, and a batch member and
+a guided run are further paths again.
+
+This is why #22's `--career dawdle` record could be schema-invalid with CI
+green. `cmd/ctchargen.TestWhatTheCommandWritesMatchesTheSchema` now validates
+an automatic run, a named character, a death, and a guided run;
+`TestEveryBatchMemberMatchesTheSchema` validates every line of a batch.
+
+Shown to hold by deleting `build` from the schema: the golden test stays
+green — no golden carries the field — and the new test fails. That is
+precisely the gap it was written for.
+
+### Decided, not a finding
+
+- **`render` trusts the record it reads.** It accepts `terms: -5`, a UPP of
+  `"zzz"`, a Strength of 99 and a missing service, and renders a sheet for
+  each. This is deliberate and `decode` says so: nothing is rebuilt into a
+  domain type, because the record is a projection of the domain values and a
+  sheet is a projection of the record. The behaviour was undocumented outside
+  that comment, so the CLI sketch now states it — a record is something this
+  tool wrote, and a sheet of a hand-edited one is the answer the operator
+  asked for.
+- **The `Decider` methods' error propagations remain uncovered.** Reaching
+  each takes an input that ends at that exact question. They are one-line
+  returns, and the ratchet holds them at a count rather than pretending
+  otherwise.

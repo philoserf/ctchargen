@@ -22,6 +22,7 @@ const (
 	flagService = "--service"
 	other       = "other"
 	navy        = "navy"
+	merchants   = "merchants"
 )
 
 func TestRunRejectsBadCommandLines(t *testing.T) {
