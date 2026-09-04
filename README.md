@@ -29,7 +29,7 @@ the first command generated, and the third command shows the same sheet.
 
 | File | What it holds |
 | --- | --- |
-| [docs/PRD.md](docs/PRD.md) | The v1 contract: goals, domain model, requirements, determinism, milestones. |
+| [docs/PRD.md](docs/PRD.md) | The delivered v1 contract — historical, kept for why the tree has this shape. |
 | [docs/ERRATA.md](docs/ERRATA.md) | Every recorded reading, with its page cite and its stamping condition. |
 | [docs/POLICY.md](docs/POLICY.md) | The `--auto` decision table, one row per choice point. |
 | [docs/COVERAGE.md](docs/COVERAGE.md) | Every implemented rule mapped to its page cite, its implementation and its test. |

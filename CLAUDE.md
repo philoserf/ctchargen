@@ -1,24 +1,32 @@
 # CLAUDE.md
 
-Guidance for Claude Code in this repository. `docs/PRD.md` is the contract;
-this file adds only what an agent needs and a human reader does not.
+Guidance for Claude Code in this repository. `docs/PRD.md` was the v1
+contract and is delivered and historical; this file carries the authority
+model live, and adds what an agent needs and a human reader does not.
 
 ## What this repo is
 
 A Go CLI that generates rules-accurate Classic Traveller characters from
 Books 1–3 (© 1977 text, FFE reprints). The repo was emptied at `41a213a` and
-is being rebuilt from `docs/PRD.md`.
+rebuilt from `docs/PRD.md`.
 
-**Current state: every milestone of `docs/PRD.md` is complete.** All six
-services run, every table of pp. 4–25 is lifted and consulted, the book's own
-worked character replays against the engine, `docs/character.schema.json`
-describes the record with every golden validated against it, characters are
-written to files, generated in batches and read back, and interactive mode
-walks the procedure a question at a time. What remains before a tag is a
-prerelease review of the whole tool against the four documents.
+**Current state: the v1 contract is delivered and the prerelease review is
+done.** All six services run, every table of pp. 4–25 is lifted and consulted,
+the book's own worked character replays against the engine,
+`docs/character.schema.json` describes the record with every golden validated
+against it, characters are written to files, generated in batches and read
+back, interactive mode walks the procedure a question at a time, and
+`docs/PRERELEASE.md`'s three passes closed with no finding open.
+`v1.0.0-alpha.3` is tagged.
+
+**What governs the work now is what Classic Traveller referees report about
+using the tool**, not a remaining milestone — there are none. Issue #26 is the
+first such report and names the gap plainly: the engine earns trust, and
+everything around it is still alpha. A referee's finding is the unit of work;
+the page and the clean room still govern how it gets answered.
 
 This paragraph is the one thing here that goes stale on its own; correct it
-when a milestone moves rather than letting the file describe a tree that no
+when the work moves rather than letting the file describe a tree that no
 longer exists.
 
 ## Authority — read this before implementing any rule
@@ -124,7 +132,7 @@ its list of places the book is silent, and the readings it reached there.
 
 | File               | Governs                                                                   |
 | ------------------ | ------------------------------------------------------------------------- |
-| `docs/PRD.md`      | The v1 contract: goals, domain model, FR1–FR11, determinism, milestones.  |
+| `docs/PRD.md`      | Nothing now. The delivered v1 contract, kept as the record of why the tree has this shape. |
 | `docs/ERRATA.md`   | Every recorded reading, with its page cite and stamping condition.        |
 | `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
 | `docs/COVERAGE.md` | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect. |

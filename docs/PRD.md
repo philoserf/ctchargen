@@ -1,6 +1,16 @@
 # PRD: Classic Traveller Character Generator, domain-typed (Go CLI)
 
-2026-08-30. Status: draft — the v1 contract, before any code.
+2026-08-30. Status: **delivered at `8beb612`, closed 2026-09-03 —
+historical.**
+
+Every milestone below was built, and the three passes of
+`docs/PRERELEASE.md` closed with no finding open. This document was the
+contract for v1 and it was met in full. **It no longer governs what gets
+built next**; what does is what Classic Traveller referees report about
+using the tool. Read it for why the tree has the shape it has — the
+authority model, the domain typing, the determinism argument — not for
+what to do with it. Nothing below is edited to keep up with the code; a
+historical document amended piecemeal stops being either.
 
 ## The second attempt
 
