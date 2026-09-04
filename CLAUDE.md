@@ -20,12 +20,21 @@ back, interactive mode walks the procedure a question at a time, and
 
 **What governs the work now is what Classic Traveller referees report about
 using the tool**, not a remaining milestone — there are none. Issue #26 is the
-first such report and names the gap plainly: the engine earns trust, and
-everything around it is still alpha. A referee's finding is the unit of work;
-the page and the clean room still govern how it gets answered. The first of
-them is answered: every command describes its own flags, and `v1.0.0-alpha.4`
-is the current release. `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the
-rebuild at `41a213a` and install a different tool; their notes say so.
+first such report and named the gap plainly: the engine earned trust, and
+everything around it was still alpha. **That report is now answered in full.**
+Every command describes its own flags, the sheet names whose service it is and
+prints the seed, a session that stops offers the way back in, the line the tool
+tells you to paste is quoted, and a release carries binaries a referee can
+download without a Go toolchain. `v1.0.0-alpha.5` is the current release.
+`v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the rebuild at `41a213a` and
+install a different tool; their notes say so.
+
+**With no report outstanding, what is queued is the prerelease code audit**
+(#27) — structural findings about the shape of the code, none of which changes
+a character the tool generates. A referee's finding still outranks all of it,
+and arriving is all it has to do to: the audit is work this repo chose for
+itself, a report is work the tool earned. Either way the page and the clean
+room govern how it gets answered.
 
 **What `v1.0.0` means, decided in #74.** Two things, and both must hold: a
 referee can trust what the tool prints at the table, **and** the record is
@@ -51,7 +60,7 @@ Windows defect is not a referee's finding in the sense that governs the work
 here. So: do not add the README line, and do not delete the two matrix rows
 for want of a document naming them.
 
-**The two paragraphs above the `v1.0.0` ones** are the thing here that goes
+**The paragraphs above the `v1.0.0` ones** are the thing here that goes
 stale on its own — what is delivered, and which release is current. Correct
 them when the work moves rather than letting the file describe a tree that no
 longer exists. The three rules below them do not go stale: they state a bar, a promise and a
