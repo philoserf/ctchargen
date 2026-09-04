@@ -1,6 +1,6 @@
 # (unnamed)
 
-UPP 64599B, age 22, Other, 1 terms, knight/dame, discharged
+UPP 64599B, age 22, Other (service chosen by the policy), 1 term, knight/dame, discharged
 
 ## Possessions
 
@@ -10,10 +10,6 @@ UPP 64599B, age 22, Other, 1 terms, knight/dame, discharged
 
 - Other, enlisted
 - discharged after term 1
-
-## Readings applied
-
-- E002, E011
 
 ---
 

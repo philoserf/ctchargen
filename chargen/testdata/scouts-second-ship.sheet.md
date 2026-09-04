@@ -21,10 +21,6 @@ UPP 578A9B, age 46, Scouts, 7 terms, knight/dame, retired
 - Scouts, enlisted
 - retired after term 7
 
-## Readings applied
-
-- E002, E005, E006, E007, E011
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 55 --service scouts --career serve --skills advanced --muster goods --sheet`.

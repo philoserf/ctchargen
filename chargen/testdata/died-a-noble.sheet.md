@@ -1,6 +1,6 @@
 # (unnamed)
 
-UPP 335C6C, age 38, Other, 5 terms, killed by the survival throw
+UPP 335C6C, age 38, Other (drafted after the Navy refused him), 5 terms, killed by the survival throw
 
 ## Skills
 
@@ -12,10 +12,6 @@ UPP 335C6C, age 38, Other, 5 terms, killed by the survival throw
 
 - Other, drafted
 - killed by the survival throw in term 5
-
-## Readings applied
-
-- E001, E002, E004, E006, E007, E011
 
 ---
 

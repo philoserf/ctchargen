@@ -44,15 +44,22 @@ func sheetOf(r record) (string, error) {
 	var out strings.Builder
 
 	fmt.Fprintf(&out, "# %s\n\n", nameOrBlank(r.Name))
-	fmt.Fprintf(&out, "%s\n\n", headline(r))
+
+	lead, err := headline(r)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Fprintf(&out, "%s\n\n", lead)
 
 	writeSection(&out, "Skills", skillLines(r))
 	writeSection(&out, "Possessions", possessionLines(r))
 	writeSection(&out, "Service record", serviceLines(r))
 
-	if len(r.Errata) > 0 {
-		writeSection(&out, "Readings applied", []string{strings.Join(r.Errata, ", ")})
-	}
+	// The errata are deliberately not here. They stay in the record and on
+	// the transcript, where an id beside the outcome it governed is how a
+	// reading is checked against the page. On a sheet handed to a player
+	// they are four codes he cannot expand and does not need.
 
 	told, err := provenance(r, sheetRendering)
 	if err != nil {
@@ -84,19 +91,24 @@ func age(a ageRecord) string {
 
 // headline is the line the book itself leads with: the UPP, the age, and
 // what the character is.
-func headline(r record) string {
+func headline(r record) (string, error) {
 	parts := []string{"UPP " + r.UPP, "age " + age(r.Age)}
 
 	if r.Service == "" {
-		return strings.Join(append(parts, "civilian, no prior service"), ", ")
+		return strings.Join(append(parts, "civilian, no prior service"), ", "), nil
 	}
 
-	service := fmt.Sprintf("%s, %d terms", r.Service, r.Terms)
+	serving := r.Service
 	if r.RankTitle != "" {
-		service = fmt.Sprintf("%s %s, %d terms", r.Service, r.RankTitle, r.Terms)
+		serving += " " + r.RankTitle
 	}
 
-	parts = append(parts, service)
+	whose, err := whoseService(r)
+	if err != nil {
+		return "", err
+	}
+
+	parts = append(parts, serving+whose+", "+terms(r.Terms))
 
 	if r.Title != nil && r.Title.Assumed {
 		parts = append(parts, r.Title.Rank)
@@ -106,7 +118,57 @@ func headline(r record) string {
 		parts = append(parts, r.Departure.How)
 	}
 
-	return strings.Join(parts, ", ")
+	return strings.Join(parts, ", "), nil
+}
+
+// terms is the count and the word, so a one-term character does not read
+// "1 terms".
+func terms(count int) string {
+	if count == oneTerm {
+		return "1 term"
+	}
+
+	return fmt.Sprintf("%d terms", count)
+}
+
+// oneTerm is the only count the plural is wrong for.
+const oneTerm = 1
+
+// whoseService says, where it is not obvious, that the service on the
+// headline is not the one that was asked for.
+//
+// The service record four sections down has always been honest - it says
+// "drafted" - but the headline is the line a referee reads, and a character
+// who typed --service marines and got a Navy man had nothing there to explain
+// it. Two cases need saying, and the record separates them without being
+// asked to carry anything new:
+//
+//   - a service was named and he is not in it: the enlistment throw failed and
+//     the draft put him somewhere else.
+//   - no service was named and the policy picked one: the tool chose, and
+//     nothing on the sheet said so.
+//
+// A player who chose interactively gets nothing added. He knows.
+func whoseService(r record) (string, error) {
+	if r.Inputs.Service != "" {
+		if strings.EqualFold(r.Inputs.Service, r.Service) {
+			return "", nil
+		}
+
+		return fmt.Sprintf(" (%s after the %s refused him)",
+			r.Enlistment.How, r.Inputs.Service), nil
+	}
+
+	by, asked, err := chosenBy(r, traveller.ChoiceService.String())
+	if err != nil {
+		return "", err
+	}
+
+	if asked && by == traveller.ByPolicy.String() {
+		return " (service chosen by the policy)", nil
+	}
+
+	return "", nil
 }
 
 func writeSection(out *strings.Builder, heading string, lines []string) {

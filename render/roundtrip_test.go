@@ -1,6 +1,7 @@
 package render_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -173,15 +174,142 @@ func TestARecordMustCarryAUPPAndARuleset(t *testing.T) {
 func TestAnEventThatWillNotReadIsRefused(t *testing.T) {
 	t.Parallel()
 
-	unreadable := minimalRecord(`"events":[3]`)
+	// Both, because the sheet reads the events twice for two questions and
+	// reaches them by different routes. A civilian returns from the headline
+	// before it asks whose service this is, so only a record carrying one
+	// exercises that path - and it is the path that would otherwise print a
+	// headline about a record it could not finish reading.
+	for name, unreadable := range map[string][]byte{
+		"a civilian": minimalRecord(`"events":[3]`),
+		"a serving character": minimalRecord(
+			`"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"events":[3]`),
+	} {
+		_, err := render.SheetFrom(unreadable)
+		if err == nil || !strings.Contains(err.Error(), "an event will not read") {
+			t.Errorf("%s: the sheet rendered a record it could not read: %v", name, err)
+		}
 
-	_, err := render.SheetFrom(unreadable)
-	if err == nil || !strings.Contains(err.Error(), "an event will not read") {
-		t.Errorf("the sheet rendered a record it could not read: %v", err)
+		_, err = render.TranscriptFrom(unreadable)
+		if err == nil || !strings.Contains(err.Error(), "an event will not read") {
+			t.Errorf("%s: the transcript rendered a record it could not read: %v", name, err)
+		}
+	}
+}
+
+// The headline says whose service it is, where that is not obvious.
+//
+// The service record four sections down has always been honest. The headline
+// is the line a referee reads, and a character who was typed as a Marine and
+// came back a Navy man had nothing there to explain it.
+func TestTheHeadlineSaysWhoseServiceItIs(t *testing.T) {
+	t.Parallel()
+
+	const chose = `"events":[{"seq":1,"kind":"choice","point":"Service",` +
+		`"by":%q,"alternatives":["Navy","Other"],"chosen":"Navy"}]`
+
+	for name, tc := range map[string]struct {
+		body        string
+		wants, does string
+	}{
+		"asked for one service and got another": {
+			body:  `"service":"Navy","terms":2,"enlistment":{"how":"drafted"},"inputs":{"seed":1,"service":"Marines"}`,
+			wants: "Navy (drafted after the Marines refused him)",
+		},
+		"asked for a service and got it": {
+			body:  `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1,"service":"Navy"}`,
+			wants: "Navy, 2 terms",
+			does:  "refused",
+		},
+		"asked for nothing and the policy picked": {
+			body: `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1},` +
+				fmt.Sprintf(chose, "policy"),
+			wants: "Navy (service chosen by the policy)",
+		},
+		// A player who named it himself is told nothing he does not know.
+		"asked for nothing and the player picked": {
+			body: `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1},` +
+				fmt.Sprintf(chose, "player"),
+			wants: "Navy, 2 terms",
+			does:  "chosen by",
+		},
+	} {
+		sheet, err := render.SheetFrom(minimalRecord(tc.body))
+		if err != nil {
+			t.Errorf("%s: %v", name, err)
+
+			continue
+		}
+
+		if !strings.Contains(sheet, tc.wants) {
+			t.Errorf("%s: the headline does not read %q:\n%s", name, tc.wants, sheet)
+		}
+
+		if tc.does != "" && strings.Contains(sheet, tc.does) {
+			t.Errorf("%s: the headline reads %q and should not:\n%s", name, tc.does, sheet)
+		}
+	}
+}
+
+// One term is one term.
+//
+// "1 term" is a substring of "1 terms", so the singular case is pinned by what
+// must NOT appear. Asserting only the positive would pass on the bug.
+func TestOneTermIsSingular(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		terms       int
+		wants, does string
+	}{
+		"one":  {1, "1 term", "1 terms"},
+		"two":  {2, "2 terms", ""},
+		"none": {0, "0 terms", ""},
+	} {
+		sheet, err := render.SheetFrom(minimalRecord(fmt.Sprintf(
+			`"service":"Navy","terms":%d,"enlistment":{"how":"enlisted"},"inputs":{"seed":1,"service":"Navy"}`,
+			tc.terms)))
+		if err != nil {
+			t.Errorf("%s: %v", name, err)
+
+			continue
+		}
+
+		if !strings.Contains(sheet, tc.wants) {
+			t.Errorf("%s: the headline does not read %q:\n%s", name, tc.wants, sheet)
+		}
+
+		if tc.does != "" && strings.Contains(sheet, tc.does) {
+			t.Errorf("%s: the headline reads %q:\n%s", name, tc.does, sheet)
+		}
+	}
+}
+
+// The errata are on the transcript and not on the sheet.
+//
+// On a sheet handed to a player they are codes he cannot expand; beside the
+// outcome they governed they are how a reading is checked against the page,
+// which is what the transcript is for.
+func TestTheErrataAreOnTheTranscriptAndNotTheSheet(t *testing.T) {
+	t.Parallel()
+
+	record := minimalRecord(`"errata":["E001"],` +
+		`"events":[{"seq":1,"kind":"outcome","description":"drafted","errata":["E001"]}]`)
+
+	sheet, err := render.SheetFrom(record)
+	if err != nil {
+		t.Fatalf("the sheet: %v", err)
 	}
 
-	_, err = render.TranscriptFrom(unreadable)
-	if err == nil || !strings.Contains(err.Error(), "an event will not read") {
-		t.Errorf("the transcript rendered a record it could not read: %v", err)
+	if strings.Contains(sheet, "E001") || strings.Contains(sheet, "Readings applied") {
+		t.Errorf("the sheet carries an erratum id:\n%s", sheet)
+	}
+
+	transcript, err := render.TranscriptFrom(record)
+	if err != nil {
+		t.Fatalf("the transcript: %v", err)
+	}
+
+	if !strings.Contains(transcript, "E001") {
+		t.Errorf("the transcript lost the erratum that governed an outcome:\n%s", transcript)
 	}
 }

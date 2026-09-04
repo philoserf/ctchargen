@@ -73,6 +73,12 @@ ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] 
 
 `batch` requires `--auto`, because it has nobody to ask.
 
+**Without `--service` the tool picks one**, and with `--auto` that pick is the
+policy's rather than yours. The sheet says so on its headline, and so does the
+record. Naming a service does not guarantee you get it either: a failed
+enlistment throw sends the character to the draft, which may put him somewhere
+else entirely — the sheet says that too.
+
 **Three flags steer `--auto`** where the procedure offers a choice, on both
 `new` and `batch`. [`docs/POLICY.md`](docs/POLICY.md) carries a row per choice
 point saying what each one does:

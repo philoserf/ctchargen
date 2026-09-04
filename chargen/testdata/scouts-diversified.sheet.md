@@ -23,10 +23,6 @@ UPP 855EAC, age 46, Scouts, 7 terms, baron/baroness, retired
 - Scouts, enlisted
 - retired after term 7
 
-## Readings applied
-
-- E002, E005, E006, E007, E011
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve --skills advanced --muster spartan --sheet`.
