@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -55,7 +56,7 @@ func provenance(r record, rendering string) (string, error) {
 // regenerateWith is the line for a character the policy decided, which the
 // seed does bring back.
 func regenerateWith(r record, rendering string) string {
-	line := "Regenerate with `" + strings.Join(command(r, rendering), " ") + "`"
+	line := "Regenerate with " + codeSpan(strings.Join(command(r, rendering), " "))
 
 	// A record generated in-process carries no build - stamp fills it only
 	// from the command - and a build nobody recorded is not one to warn
@@ -70,28 +71,95 @@ func regenerateWith(r record, rendering string) string {
 }
 
 // command is the argument list that reproduces this character.
+//
+// Every value out of the record goes through shellQuote. The record is not
+// something this tool wrote - render reads whatever it is handed - and this
+// line is printed to be pasted, which makes an unquoted field a way to put
+// words in the operator's shell.
 func command(r record, rendering string) []string {
 	args := []string{
-		"ctchargen", "new", autoFlag, seedFlag, strconv.FormatUint(r.Inputs.Seed, 10),
+		"ctchargen", "new", autoFlag,
+		seedFlag, shellQuote(strconv.FormatUint(r.Inputs.Seed, 10)),
 	}
 
 	// The service asked for, which is what reproduces the run - not the
 	// service the character ended up in, which the draft may have decided.
 	if r.Inputs.Service != "" {
-		args = append(args, serviceFlag, strings.ToLower(r.Inputs.Service))
+		args = append(args, serviceFlag, shellQuote(strings.ToLower(r.Inputs.Service)))
 	}
 
-	// Quoted, always. It is the one value that is not a bare token, and this
-	// line is meant to be pasted into a shell before it is anything else.
 	if r.Inputs.Name != "" {
-		args = append(args, nameFlag, strconv.Quote(r.Inputs.Name))
+		args = append(args, nameFlag, shellQuote(r.Inputs.Name))
 	}
 
 	return append(args,
-		careerFlag, r.Inputs.Career,
-		skillsFlag, r.Inputs.Skills,
-		musterFlag, r.Inputs.Muster,
+		careerFlag, shellQuote(r.Inputs.Career),
+		skillsFlag, shellQuote(r.Inputs.Skills),
+		musterFlag, shellQuote(r.Inputs.Muster),
 		rendering)
+}
+
+// codeSpan wraps the command in a markdown code span wide enough to hold it.
+//
+// CommonMark closes a span on the first run of backticks matching the run
+// that opened it, so a command carrying one breaks a single-backtick span and
+// the reader is shown half a line - and half a command line is worse than
+// none. The fence is one backtick longer than the longest run inside.
+//
+// CommonMark also wants a space either side where the content begins or ends
+// with a backtick. There is none here, and none is written: command builds a
+// line starting with "ctchargen" and ending with the rendering flag, both
+// constants in this file, so neither end can be one.
+//
+// Shell quoting already makes such a value inert; this is about the reader
+// being shown the whole of what he is being offered.
+func codeSpan(text string) string {
+	longest := 0
+
+	for i := 0; i < len(text); {
+		if text[i] != '`' {
+			i++
+
+			continue
+		}
+
+		run := 0
+
+		for i < len(text) && text[i] == '`' {
+			run++
+
+			i++
+		}
+
+		longest = max(longest, run)
+	}
+
+	fence := strings.Repeat("`", longest+1)
+
+	return fence + text + fence
+}
+
+// safeToken matches a value a shell reads back as itself, which is every
+// value this tool writes and none of the ones worth worrying about.
+var safeToken = regexp.MustCompile(`^[A-Za-z0-9@%+=:,./_-]+$`)
+
+// shellQuote writes a value so that a shell reads it back as one word.
+//
+// Not strconv.Quote, which is Go's syntax rather than the shell's. A shell
+// still expands `$`, a backtick and a backslash inside double quotes, so
+// strconv.Quote("a`id`") produces a command substitution the moment it is
+// pasted - which is what the earlier quoting of --name did. Single quotes
+// expand nothing at all, and a single quote inside them is closed, escaped
+// and reopened.
+//
+// A value needing none is written bare, because the common case is a line a
+// person reads and every value this tool writes is a bare token.
+func shellQuote(value string) string {
+	if safeToken.MatchString(value) {
+		return value
+	}
+
+	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
 }
 
 // answeredByThePlayer is the line for a character the seed does not bring

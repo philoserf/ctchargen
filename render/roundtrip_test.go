@@ -370,3 +370,43 @@ func TestTheErrataAreOnTheTranscriptAndNotTheSheet(t *testing.T) {
 		t.Errorf("the transcript lost the erratum that governed an outcome:\n%s", transcript)
 	}
 }
+
+// A backtick in the record does not break the code span holding the command.
+//
+// Markdown closes a code span on the first run of backticks matching the run
+// that opened it, so a command carrying one inside a single-backtick span
+// ends early and the reader is shown half a command line - which is worse
+// than none, because the half looks complete.
+//
+// Shell quoting is what makes such a value harmless; this is the separate
+// question of whether the reader sees all of what he is offered.
+func TestABacktickDoesNotBreakTheCodeSpan(t *testing.T) {
+	t.Parallel()
+
+	sheet, err := render.SheetFrom(minimalRecord(
+		"\"inputs\":{\"seed\":1,\"career\":\"serve`id`\",\"skills\":\"advanced\",\"muster\":\"cash\"}"))
+	if err != nil {
+		t.Fatalf("rendering: %v", err)
+	}
+
+	_, line, found := strings.Cut(sheet, "Regenerate with ")
+	if !found {
+		t.Fatalf("no regenerate line in\n%s", sheet)
+	}
+
+	fence := len(line) - len(strings.TrimLeft(line, "`"))
+	if fence == 0 {
+		t.Fatalf("the command is not in a code span: %q", line)
+	}
+
+	// The command sits between the fences; a run as long as the fence
+	// anywhere inside would close the span early.
+	body, _, _ := strings.Cut(line[fence:], strings.Repeat("`", fence))
+	if strings.Contains(body, strings.Repeat("`", fence)) {
+		t.Errorf("a %d-backtick fence does not hold a command containing one: %q", fence, body)
+	}
+
+	if !strings.Contains(body, "--sheet") {
+		t.Errorf("the span closed before the end of the command: %q", body)
+	}
+}
