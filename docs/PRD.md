@@ -513,7 +513,12 @@ interactive mode's questions go to stderr so that a guided run still pipes a
 record and not a conversation; `batch` emits JSONL (or one file per
 character with `-o dir`), requires `--auto`, and derives each member's seed
 from the base seed plus index, recorded in each record. Existing files are
-never overwritten without `--force`. Flags precede the filename. `version` reports the build, read from the
+never overwritten without `--force`. Flags precede the filename. `render`
+reads a record without rebuilding it into domain types and without validating
+it against the schema — it checks that the file is JSON carrying a UPP and a
+ruleset, and renders what it is given. A record is something this tool wrote;
+a hand-edited one is the operator's business, and a sheet of his own nonsense
+is the answer he asked for. `version` reports the build, read from the
 toolchain's embedded build info.
 
 The auto policy is **total** — it can answer every method of the `Decider`

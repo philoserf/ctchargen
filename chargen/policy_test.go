@@ -7,6 +7,14 @@ import (
 	"github.com/philoserf/ctchargen/traveller"
 )
 
+// Strategy names POLICY.md does not carry, used wherever a test needs one
+// that cannot exist.
+const (
+	noSuchCareer = "dawdle"
+	noSuchSkills = "osmosis"
+	noSuchMuster = "gold"
+)
+
 // Every row of POLICY.md, checked against what the document says. The gate
 // in internal/docsgate holds the row set to the interface; this holds each
 // row's answer to what the row promises.
@@ -211,9 +219,9 @@ func TestValidateRefusesAStrategyNoRowCarries(t *testing.T) {
 	}
 
 	for _, invalid := range []chargen.Policy{
-		{Career: "dawdle", Skills: chargen.SkillsAdvanced, Muster: chargen.MusterCash},
-		{Career: chargen.CareerServe, Skills: "osmosis", Muster: chargen.MusterCash},
-		{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: "hoard"},
+		{Career: noSuchCareer, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterCash},
+		{Career: chargen.CareerServe, Skills: noSuchSkills, Muster: chargen.MusterCash},
+		{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: noSuchMuster},
 	} {
 		err := invalid.Validate()
 		if err == nil {

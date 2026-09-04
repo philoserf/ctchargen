@@ -202,3 +202,40 @@ func TestAnAnswerOutsideTheOfferIsRefused(t *testing.T) {
 		})
 	}
 }
+
+// A decider built out of strategies that do not exist is refused.
+//
+// The command validates its flags, but the engine used to trust whatever
+// decider it was handed: `Policy{Muster: "gold"}` matched no branch, behaved
+// silently as another strategy, generated a complete seven-term character,
+// and wrote "gold" into the record's inputs where no POLICY.md row answers
+// to it. That is the same shape as trusting an answer the procedure never
+// offered, and it is refused in the same place.
+func TestADeciderBuiltOutOfNothingIsRefused(t *testing.T) {
+	t.Parallel()
+
+	inputs := chargen.Inputs{
+		Seed: 4, Service: traveller.Navy, Forced: true,
+		Career: noSuchCareer, Skills: noSuchSkills, Muster: noSuchMuster,
+	}
+
+	_, err := chargen.Generate(inputs, chargen.Policy{
+		Career: noSuchCareer, Skills: noSuchSkills, Muster: noSuchMuster,
+	})
+
+	switch {
+	case err == nil:
+		t.Fatal("the engine generated a character under strategies that do not exist")
+	case !strings.Contains(err.Error(), "no such strategy"):
+		t.Errorf("error %q does not name the strategy that does not exist", err)
+	}
+
+	// A decider that cannot be misconfigured is not asked.
+	_, err = chargen.Generate(chargen.Inputs{
+		Seed: 4, Service: traveller.Other, Forced: true,
+		Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterCash,
+	}, answeringOutsideTheOffer{Decider: chargen.DefaultPolicy()})
+	if err != nil {
+		t.Errorf("a decider with no Validate was refused anyway: %v", err)
+	}
+}
