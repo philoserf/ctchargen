@@ -20,3 +20,6 @@ UPP A68AAC, age 22, Other, 1 terms, baron/baroness, forced out
 
 - E002, E011
 
+---
+
+Regenerate with `ctchargen new --auto --seed 4 --service other --career serve --skills advanced --muster cash --sheet`.

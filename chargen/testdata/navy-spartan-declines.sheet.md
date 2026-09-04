@@ -30,3 +30,6 @@ UPP 765BCD, age 46, Navy Captain, 7 terms, marquis/marchioness, retired
 
 - E002, E006, E007, E011
 
+---
+
+Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --skills advanced --muster spartan --sheet`.

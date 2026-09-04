@@ -23,3 +23,6 @@ UPP 763777, age 34, Other, 4 terms, forced out
 
 - E002, E006, E007
 
+---
+
+Regenerate with `ctchargen new --auto --seed 7 --service other --career serve --skills advanced --muster cash --sheet`.

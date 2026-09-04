@@ -11,26 +11,28 @@ import (
 // The command line's own words, so a typo in one place is a compile error
 // rather than a test that quietly stops testing the flag it names.
 const (
-	cmdNew      = "new"
-	cmdRender   = "render"
-	cmdVersion  = "version"
-	wantUsage   = "usage"
-	wantNoRow   = "no such strategy"
-	wantUnknown = "unknown command"
-	flagSheet   = "--sheet"
-	flagAuto    = "--auto"
-	flagSeed    = "--seed"
-	flagService = "--service"
-	flagName    = "--name"
-	flagCareer  = "--career"
-	flagSkills  = "--skills"
-	flagMuster  = "--muster"
-	flagHistory = "--history"
-	flagForce   = "--force"
-	flagOutput  = "-o"
-	other       = "other"
-	navy        = "navy"
-	merchants   = "merchants"
+	cmdNew         = "new"
+	cmdRender      = "render"
+	cmdVersion     = "version"
+	wantUsage      = "usage"
+	wantNoRow      = "no such strategy"
+	wantUnknown    = "unknown command"
+	flagSheet      = "--sheet"
+	flagAuto       = "--auto"
+	flagSeed       = "--seed"
+	flagService    = "--service"
+	flagName       = "--name"
+	flagCareer     = "--career"
+	flagSkills     = "--skills"
+	flagMuster     = "--muster"
+	flagHistory    = "--history"
+	flagForce      = "--force"
+	flagOutput     = "-o"
+	wantSheet      = "sheet"
+	wantTranscript = "transcript"
+	other          = "other"
+	navy           = "navy"
+	merchants      = "merchants"
 )
 
 func TestRunRejectsBadCommandLines(t *testing.T) {
@@ -81,10 +83,10 @@ func TestRunWritesEachRendering(t *testing.T) {
 			[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other},
 			`"ruleset": "Classic Traveller, Books 1-3`,
 		},
-		"json upp":   {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
-		"sheet":      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet}, "UPP "},
-		"transcript": {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagHistory}, "Generation record"},
-		"version":    {[]string{cmdVersion}, "ctchargen"},
+		"json upp":     {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, `"upp"`},
+		wantSheet:      {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet}, "UPP "},
+		wantTranscript: {[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagHistory}, "Generation record"},
+		"version":      {[]string{cmdVersion}, "ctchargen"},
 	} {
 		var out strings.Builder
 

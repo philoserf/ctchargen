@@ -15,3 +15,6 @@ UPP 64599B, age 22, Other, 1 terms, knight/dame, discharged
 
 - E002, E011
 
+---
+
+Regenerate with `ctchargen new --auto --seed 19 --career oneterm --skills personal --muster goods --sheet`.

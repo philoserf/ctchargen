@@ -18,3 +18,6 @@ UPP 506C43, age 46, Other, 7 terms, killed by a medical crisis
 
 - E002, E006, E007, E008, E009, E010
 
+---
+
+Regenerate with `ctchargen new --auto --seed 17 --service other --career serve --skills advanced --muster cash --sheet`.

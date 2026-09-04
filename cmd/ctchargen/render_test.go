@@ -40,8 +40,8 @@ func TestRenderReadsARecordBack(t *testing.T) {
 		args     []string
 		mentions string
 	}{
-		"sheet":      {[]string{cmdRender, path}, "UPP 674979"},
-		"transcript": {[]string{cmdRender, flagHistory, path}, "Generation record"},
+		wantSheet:      {[]string{cmdRender, path}, "UPP 674979"},
+		wantTranscript: {[]string{cmdRender, flagHistory, path}, "Generation record"},
 	} {
 		var out strings.Builder
 

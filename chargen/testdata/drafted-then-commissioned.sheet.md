@@ -28,3 +28,6 @@ UPP 641777, age 42, Merchants 3rd Officer, 6 terms, retired
 
 - E001, E002, E006, E007
 
+---
+
+Regenerate with `ctchargen new --auto --seed 7 --service navy --career serve --skills advanced --muster cash --sheet`.

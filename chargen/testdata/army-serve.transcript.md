@@ -1,6 +1,6 @@
 # Generation record: (unnamed)
 
-Seed 4, strategies serve/advanced/cash.
+Regenerate with `ctchargen new --auto --seed 4 --service army --career serve --skills advanced --muster cash --history`.
 
 
 ## characteristics (p. 4)

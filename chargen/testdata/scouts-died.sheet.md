@@ -16,3 +16,6 @@ UPP 7C8669, age 26, Scouts, 2 terms, killed by the survival throw
 
 - E002, E004, E005
 
+---
+
+Regenerate with `ctchargen new --auto --seed 1 --service scouts --career retire --skills service --muster spartan --sheet`.
