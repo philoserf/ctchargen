@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -227,5 +228,34 @@ func TestValidateRefusesAStrategyNoRowCarries(t *testing.T) {
 		if err == nil {
 			t.Errorf("%+v was accepted", invalid)
 		}
+	}
+}
+
+// The rejection tells the reader what to type, and names no file.
+//
+// The reader most likely to see it is the one who typed `go install`: he has
+// a binary and no tree, so a message pointing at POLICY.md - which this one
+// used to do - names a document he cannot open. The values come from the
+// same function the --help text reads, so the two cannot disagree.
+func TestTheRejectionNamesTheValuesAndNoDocument(t *testing.T) {
+	t.Parallel()
+
+	invalid := chargen.Policy{
+		Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: noSuchMuster,
+	}
+
+	err := invalid.Validate()
+	if err == nil {
+		t.Fatalf("%+v was accepted", invalid)
+	}
+
+	for _, want := range []string{chargen.MusterCash, chargen.MusterGoods, chargen.MusterSpartan} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("the rejection %q does not offer %q", err, want)
+		}
+	}
+
+	if strings.Contains(err.Error(), ".md") {
+		t.Errorf("the rejection %q names a file the reader may not have", err)
 	}
 }

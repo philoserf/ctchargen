@@ -168,12 +168,9 @@ func zeroDefault(value string) bool {
 // the engine validates against rather than repeated here.
 //
 // A strategy added to POLICY.md and to chargen.Strategies is offered by the
-// help without anyone remembering to come back for it. It is also where a
-// `go install` user learns the values at all: the rejection message names
-// POLICY.md, which is a repo file he does not have.
-func strategyChoices(name string) string {
-	return strings.Join(chargen.Strategies[name], ", ")
-}
+// help without anyone remembering to come back for it, and the help and the
+// rejection say the same words because they are the same function.
+func strategyChoices(name string) string { return chargen.StrategyList(name) }
 
 // serviceChoices is the --service flag's own description: the six of p. 10,
 // in the book's order, spelled the way they are typed.

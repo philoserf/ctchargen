@@ -17,13 +17,15 @@ the book's own worked character replays against the engine,
 against it, characters are written to files, generated in batches and read
 back, interactive mode walks the procedure a question at a time, and
 `docs/PRERELEASE.md`'s three passes closed with no finding open.
-`v1.0.0-alpha.3` is tagged.
 
 **What governs the work now is what Classic Traveller referees report about
 using the tool**, not a remaining milestone — there are none. Issue #26 is the
 first such report and names the gap plainly: the engine earns trust, and
 everything around it is still alpha. A referee's finding is the unit of work;
-the page and the clean room still govern how it gets answered.
+the page and the clean room still govern how it gets answered. The first of
+them is answered: every command describes its own flags, and `v1.0.0-alpha.4`
+is the current release. `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the
+rebuild at `41a213a` and install a different tool; their notes say so.
 
 This paragraph is the one thing here that goes stale on its own; correct it
 when the work moves rather than letting the file describe a tree that no
@@ -137,7 +139,7 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
 | `docs/COVERAGE.md` | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect. |
 | `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
-| `docs/PRERELEASE.md` | The review before the tag: what each pass checked, what it found, and the shipping bar. A finding is recorded before it is fixed. |
+| `docs/PRERELEASE.md` | One section per tag: what it ships with open and why, and the review that preceded it where there was one. A finding is recorded before it is fixed. |
 | `CLAUDE.md`        | This file.                                                                |
 
 The documents are held to the code in both directions once code exists: every
@@ -172,3 +174,7 @@ exists. Each gate is verified by breaking it.
 - Commits and PRs only when asked. Branch off `main` first; the history is
   squash-merged PRs with sentence-case subjects that say what changed
   ("Correct two typed ranges, name the font trap, and add milestone 0").
+- **Cutting a release bumps two things nothing checks**: the README's
+  `go install` line, which names a tag, and the current-state paragraph above.
+  A published document that went stale while nobody noticed is what issue #31
+  was, and neither of these is held by the gate.

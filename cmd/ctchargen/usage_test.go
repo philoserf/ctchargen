@@ -79,9 +79,9 @@ func TestHelpNamesEveryFlag(t *testing.T) {
 
 // The values a strategy flag takes, and the one it takes when left alone.
 //
-// This is where a `go install` user learns them: the rejection message names
-// POLICY.md, which is a file he does not have, and the release notes he read
-// document three strategies that were renamed under him.
+// This is where a `go install` user learns them before he gets one wrong,
+// and the release notes he read document three strategies that were renamed
+// under him. The rejection names the same values, from the same function.
 func TestHelpNamesTheStrategiesAndTheirDefaults(t *testing.T) {
 	t.Parallel()
 
