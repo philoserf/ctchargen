@@ -16,10 +16,6 @@ UPP 8C9469, age 42, Merchants Captain, 6 terms, killed by the survival throw
 - Merchants, enlisted
 - killed by the survival throw in term 6
 
-## Readings applied
-
-- E002, E004, E006, E007
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 52 --service merchants --career serve --skills advanced --muster goods --sheet`.

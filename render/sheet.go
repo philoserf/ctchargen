@@ -44,15 +44,22 @@ func sheetOf(r record) (string, error) {
 	var out strings.Builder
 
 	fmt.Fprintf(&out, "# %s\n\n", nameOrBlank(r.Name))
-	fmt.Fprintf(&out, "%s\n\n", headline(r))
+
+	lead, err := headline(r)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Fprintf(&out, "%s\n\n", lead)
 
 	writeSection(&out, "Skills", skillLines(r))
 	writeSection(&out, "Possessions", possessionLines(r))
 	writeSection(&out, "Service record", serviceLines(r))
 
-	if len(r.Errata) > 0 {
-		writeSection(&out, "Readings applied", []string{strings.Join(r.Errata, ", ")})
-	}
+	// The errata are deliberately not here. They stay in the record and on
+	// the transcript, where an id beside the outcome it governed is how a
+	// reading is checked against the page. On a sheet handed to a player
+	// they are four codes he cannot expand and does not need.
 
 	told, err := provenance(r, sheetRendering)
 	if err != nil {
@@ -84,19 +91,24 @@ func age(a ageRecord) string {
 
 // headline is the line the book itself leads with: the UPP, the age, and
 // what the character is.
-func headline(r record) string {
+func headline(r record) (string, error) {
 	parts := []string{"UPP " + r.UPP, "age " + age(r.Age)}
 
 	if r.Service == "" {
-		return strings.Join(append(parts, "civilian, no prior service"), ", ")
+		return strings.Join(append(parts, "civilian, no prior service"), ", "), nil
 	}
 
-	service := fmt.Sprintf("%s, %d terms", r.Service, r.Terms)
+	serving := r.Service
 	if r.RankTitle != "" {
-		service = fmt.Sprintf("%s %s, %d terms", r.Service, r.RankTitle, r.Terms)
+		serving += " " + r.RankTitle
 	}
 
-	parts = append(parts, service)
+	whose, err := whoseService(r)
+	if err != nil {
+		return "", err
+	}
+
+	parts = append(parts, serving+whose+", "+terms(r.Terms))
 
 	if r.Title != nil && r.Title.Assumed {
 		parts = append(parts, r.Title.Rank)
@@ -106,7 +118,72 @@ func headline(r record) string {
 		parts = append(parts, r.Departure.How)
 	}
 
-	return strings.Join(parts, ", ")
+	return strings.Join(parts, ", "), nil
+}
+
+// terms is the count and the word, so a one-term character does not read
+// "1 terms".
+func terms(count int) string {
+	if count == oneTerm {
+		return "1 term"
+	}
+
+	return fmt.Sprintf("%d terms", count)
+}
+
+// oneTerm is the only count the plural is wrong for.
+const oneTerm = 1
+
+// whoseService says, where it is not obvious, that the service on the
+// headline is not the one that was attempted.
+//
+// The service record four sections down has always been honest - it says
+// "drafted" - but the headline is the line a referee reads, and a character
+// who typed --service marines and got a Navy man had nothing there to explain
+// it.
+//
+// Everything turns on the service that was ATTEMPTED, which is not the same
+// question as who named it. A policy that picks Other and sees the throw fail
+// gets whatever the draft hands him, and saying "chosen by the policy" over
+// that service credits the policy with a choice it never made - in exactly
+// the case this exists to expose.
+func whoseService(r record) (string, error) {
+	attempted, byPolicy, err := serviceAttempted(r)
+	if err != nil {
+		return "", err
+	}
+
+	switch {
+	case attempted == "":
+		return "", nil
+	case !strings.EqualFold(attempted, r.Service):
+		return fmt.Sprintf(" (%s after the %s refused him)", r.Enlistment.How, attempted), nil
+	case byPolicy:
+		return " (service chosen by the policy)", nil
+	default:
+		// He asked for this service and is in it. He knows.
+		return "", nil
+	}
+}
+
+// serviceAttempted is the service the enlistment throw was made against, and
+// whether the policy is what named it.
+//
+// The record holds it in two places for two reasons, and neither is
+// redundant. A forced run carries it in `inputs` and logs no choice at all -
+// there was nothing to ask. An unforced run logs the choice and leaves
+// `inputs.service` empty, and that answer is the one the draft can override.
+func serviceAttempted(r record) (string, bool, error) {
+	if r.Inputs.Service != "" {
+		return r.Inputs.Service, false, nil
+	}
+
+	choice, asked, err := choiceAt(r, traveller.ChoiceService.String())
+	if err != nil || !asked {
+		return "", false, err
+	}
+
+	return choice.Chosen, choice.By == traveller.ByPolicy.String(), nil
 }
 
 func writeSection(out *strings.Builder, heading string, lines []string) {

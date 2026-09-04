@@ -1,6 +1,6 @@
 # (unnamed)
 
-UPP 641777, age 42, Merchants 3rd Officer, 6 terms, retired
+UPP 641777, age 42, Merchants 3rd Officer (drafted after the Navy refused him), 6 terms, retired
 
 ## Skills
 
@@ -23,10 +23,6 @@ UPP 641777, age 42, Merchants 3rd Officer, 6 terms, retired
 
 - Merchants, drafted
 - retired after term 6
-
-## Readings applied
-
-- E001, E002, E006, E007
 
 ---
 

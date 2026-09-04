@@ -3,7 +3,7 @@
 github.com/philoserf/ctchargen/chargen 49
 github.com/philoserf/ctchargen/cmd/ctchargen 24
 github.com/philoserf/ctchargen/dice 0
-github.com/philoserf/ctchargen/render 12
+github.com/philoserf/ctchargen/render 11
 github.com/philoserf/ctchargen/rules 16
 github.com/philoserf/ctchargen/tools/ratchet 11
 github.com/philoserf/ctchargen/traveller 0

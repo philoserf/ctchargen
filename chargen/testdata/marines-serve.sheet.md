@@ -24,10 +24,6 @@ UPP 765CBE, age 46, Marines Colonel, 7 terms, count/countess, retired
 - Marines, enlisted
 - retired after term 7
 
-## Readings applied
-
-- E002, E005, E006, E007, E011
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 4 --service marines --career serve --skills advanced --muster cash --sheet`.

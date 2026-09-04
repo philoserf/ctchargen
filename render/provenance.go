@@ -115,6 +115,31 @@ func answeredByThePlayer(r record) string {
 	return out.String()
 }
 
+// choices reads the record's choice events, which are the only place it says
+// who decided anything.
+//
+// Two readers want them - whether the seed reproduces the character, and who
+// named the service - so the walk is here once rather than in each. A record
+// whose events will not read then fails the same way for both.
+func choices(r record) ([]eventJSON, error) {
+	var found []eventJSON
+
+	for _, raw := range r.Events {
+		var event eventJSON
+
+		err := unmarshalEvent(raw, &event)
+		if err != nil {
+			return nil, err
+		}
+
+		if event.Kind == kindChoice {
+			found = append(found, event)
+		}
+	}
+
+	return found, nil
+}
+
 // decidedByPlayer reports whether any choice was answered at the keyboard.
 //
 // The question is about choices actually made, not about the mode the run was
@@ -122,18 +147,37 @@ func answeredByThePlayer(r record) string {
 // with no choice events at all is reproducible from its seed whoever was
 // sitting there, and this gets that right by asking nothing else.
 func decidedByPlayer(r record) (bool, error) {
-	for _, raw := range r.Events {
-		var event eventJSON
+	made, err := choices(r)
+	if err != nil {
+		return false, err
+	}
 
-		err := unmarshalEvent(raw, &event)
-		if err != nil {
-			return false, err
-		}
-
-		if event.Kind == kindChoice && event.By == traveller.ByPlayer.String() {
+	for _, choice := range made {
+		if choice.By == traveller.ByPlayer.String() {
 			return true, nil
 		}
 	}
 
 	return false, nil
+}
+
+// choiceAt returns a named choice point's event, and whether it was put at
+// all. A point nobody was asked is not the same as one the policy took.
+//
+// It hands back the whole event rather than who answered, because both halves
+// are wanted together: who chose, and what they chose. Asking only who leads
+// to crediting a decider with an outcome he did not pick.
+func choiceAt(r record, point string) (eventJSON, bool, error) {
+	made, err := choices(r)
+	if err != nil {
+		return eventJSON{}, false, err
+	}
+
+	for _, choice := range made {
+		if choice.Point == point {
+			return choice, true, nil
+		}
+	}
+
+	return eventJSON{}, false, nil
 }

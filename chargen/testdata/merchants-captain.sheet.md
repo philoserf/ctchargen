@@ -24,10 +24,6 @@ UPP 674979, age 46, Merchants Captain, 7 terms, retired
 - Merchants, enlisted
 - retired after term 7
 
-## Readings applied
-
-- E002, E006, E007, E013
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 145 --service merchants --career serve --skills advanced --muster cash --sheet`.

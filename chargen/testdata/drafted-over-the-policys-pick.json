@@ -1,0 +1,844 @@
+{
+  "name": "",
+  "upp": "692682",
+  "characteristics": {
+    "Dexterity": 9,
+    "Education": 8,
+    "Endurance": 2,
+    "Intelligence": 6,
+    "Social Standing": 2,
+    "Strength": 6
+  },
+  "age": {
+    "years": 38
+  },
+  "terms": 5,
+  "enlistment": {
+    "how": "drafted",
+    "service": "Marines"
+  },
+  "service": "Marines",
+  "skills": [
+    {
+      "name": "Administration",
+      "level": 2
+    },
+    {
+      "name": "Computer",
+      "level": 1
+    },
+    {
+      "name": "Cutlass",
+      "level": 1
+    },
+    {
+      "name": "Medical",
+      "level": 2
+    }
+  ],
+  "benefits": {
+    "cash": 0
+  },
+  "departure": {
+    "how": "killed by the survival throw",
+    "fatal": true
+  },
+  "inputs": {
+    "seed": 150,
+    "career": "serve",
+    "skills": "advanced",
+    "muster": "cash"
+  },
+  "errata": [
+    "E001",
+    "E002",
+    "E004",
+    "E005",
+    "E006",
+    "E007"
+  ],
+  "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
+  "events": [
+    {
+      "seq": 1,
+      "kind": "step",
+      "step": "characteristics",
+      "pages": "p. 4"
+    },
+    {
+      "seq": 2,
+      "kind": "throw",
+      "step": "Strength",
+      "dice": [
+        2,
+        5
+      ],
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 3,
+      "kind": "outcome",
+      "because": 2,
+      "description": "Strength 7"
+    },
+    {
+      "seq": 4,
+      "kind": "throw",
+      "step": "Dexterity",
+      "dice": [
+        4,
+        5
+      ],
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 5,
+      "kind": "outcome",
+      "because": 4,
+      "description": "Dexterity 9"
+    },
+    {
+      "seq": 6,
+      "kind": "throw",
+      "step": "Endurance",
+      "dice": [
+        2,
+        1
+      ],
+      "total": 3,
+      "succeeded": true
+    },
+    {
+      "seq": 7,
+      "kind": "outcome",
+      "because": 6,
+      "description": "Endurance 3"
+    },
+    {
+      "seq": 8,
+      "kind": "throw",
+      "step": "Intelligence",
+      "dice": [
+        2,
+        4
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 9,
+      "kind": "outcome",
+      "because": 8,
+      "description": "Intelligence 6"
+    },
+    {
+      "seq": 10,
+      "kind": "throw",
+      "step": "Education",
+      "dice": [
+        3,
+        5
+      ],
+      "total": 8,
+      "succeeded": true
+    },
+    {
+      "seq": 11,
+      "kind": "outcome",
+      "because": 10,
+      "description": "Education 8"
+    },
+    {
+      "seq": 12,
+      "kind": "throw",
+      "step": "Social Standing",
+      "dice": [
+        1,
+        1
+      ],
+      "total": 2,
+      "succeeded": true
+    },
+    {
+      "seq": 13,
+      "kind": "outcome",
+      "because": 12,
+      "description": "Social Standing 2"
+    },
+    {
+      "seq": 14,
+      "kind": "outcome",
+      "description": "UPP 793682 at age 18"
+    },
+    {
+      "seq": 15,
+      "kind": "step",
+      "step": "enlistment",
+      "pages": "pp. 5, 10"
+    },
+    {
+      "seq": 16,
+      "kind": "choice",
+      "point": "Service",
+      "by": "policy",
+      "alternatives": [
+        "Navy",
+        "Marines",
+        "Army",
+        "Scouts",
+        "Merchants",
+        "Other"
+      ],
+      "chosen": "Other"
+    },
+    {
+      "seq": 17,
+      "kind": "throw",
+      "step": "enlistment, Other",
+      "dice": [
+        1,
+        1
+      ],
+      "target": "3+",
+      "total": 2,
+      "succeeded": false
+    },
+    {
+      "seq": 18,
+      "kind": "outcome",
+      "because": 17,
+      "description": "the Other rejected him"
+    },
+    {
+      "seq": 19,
+      "kind": "choice",
+      "point": "SubmitToDraft",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 20,
+      "kind": "throw",
+      "step": "draft",
+      "dice": [
+        2
+      ],
+      "total": 2,
+      "succeeded": true
+    },
+    {
+      "seq": 21,
+      "kind": "outcome",
+      "because": 20,
+      "description": "drafted into the Marines",
+      "errata": [
+        "E001"
+      ]
+    },
+    {
+      "seq": 22,
+      "kind": "step",
+      "step": "rank and service skills",
+      "pages": "p. 23"
+    },
+    {
+      "seq": 23,
+      "kind": "outcome",
+      "description": "Cutlass-1",
+      "errata": [
+        "E005"
+      ]
+    },
+    {
+      "seq": 24,
+      "kind": "step",
+      "step": "term 1",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 25,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        5,
+        4
+      ],
+      "target": "6+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 26,
+      "kind": "outcome",
+      "because": 25,
+      "description": "survived term 1"
+    },
+    {
+      "seq": 27,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 28,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Advanced Education Table (education 8+)"
+    },
+    {
+      "seq": 29,
+      "kind": "throw",
+      "step": "Advanced Education Table (education 8+)",
+      "dice": [
+        6
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 30,
+      "kind": "outcome",
+      "because": 29,
+      "description": "Administration-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 31,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Advanced Education Table (education 8+)"
+    },
+    {
+      "seq": 32,
+      "kind": "throw",
+      "step": "Advanced Education Table (education 8+)",
+      "dice": [
+        1
+      ],
+      "total": 1,
+      "succeeded": true
+    },
+    {
+      "seq": 33,
+      "kind": "outcome",
+      "because": 32,
+      "description": "Medical-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 34,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        6,
+        1
+      ],
+      "target": "6+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 35,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 36,
+      "kind": "outcome",
+      "because": 34,
+      "description": "reenlisted for term 2"
+    },
+    {
+      "seq": 37,
+      "kind": "step",
+      "step": "term 2",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 38,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        5,
+        5
+      ],
+      "target": "6+",
+      "total": 10,
+      "succeeded": true
+    },
+    {
+      "seq": 39,
+      "kind": "outcome",
+      "because": 38,
+      "description": "survived term 2"
+    },
+    {
+      "seq": 40,
+      "kind": "choice",
+      "point": "AttemptCommission",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 41,
+      "kind": "throw",
+      "step": "commission",
+      "dice": [
+        3,
+        3
+      ],
+      "dm": 1,
+      "target": "9+",
+      "total": 7,
+      "succeeded": false
+    },
+    {
+      "seq": 42,
+      "kind": "outcome",
+      "because": 41,
+      "description": "not commissioned this term"
+    },
+    {
+      "seq": 43,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 44,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Advanced Education Table (education 8+)"
+    },
+    {
+      "seq": 45,
+      "kind": "throw",
+      "step": "Advanced Education Table (education 8+)",
+      "dice": [
+        4
+      ],
+      "total": 4,
+      "succeeded": true
+    },
+    {
+      "seq": 46,
+      "kind": "outcome",
+      "because": 45,
+      "description": "Computer-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 47,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        5,
+        5
+      ],
+      "target": "6+",
+      "total": 10,
+      "succeeded": true
+    },
+    {
+      "seq": 48,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 49,
+      "kind": "outcome",
+      "because": 47,
+      "description": "reenlisted for term 3"
+    },
+    {
+      "seq": 50,
+      "kind": "step",
+      "step": "term 3",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 51,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        3,
+        4
+      ],
+      "target": "6+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 52,
+      "kind": "outcome",
+      "because": 51,
+      "description": "survived term 3"
+    },
+    {
+      "seq": 53,
+      "kind": "choice",
+      "point": "AttemptCommission",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 54,
+      "kind": "throw",
+      "step": "commission",
+      "dice": [
+        5,
+        1
+      ],
+      "dm": 1,
+      "target": "9+",
+      "total": 7,
+      "succeeded": false
+    },
+    {
+      "seq": 55,
+      "kind": "outcome",
+      "because": 54,
+      "description": "not commissioned this term"
+    },
+    {
+      "seq": 56,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 57,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Advanced Education Table (education 8+)"
+    },
+    {
+      "seq": 58,
+      "kind": "throw",
+      "step": "Advanced Education Table (education 8+)",
+      "dice": [
+        1
+      ],
+      "total": 1,
+      "succeeded": true
+    },
+    {
+      "seq": 59,
+      "kind": "outcome",
+      "because": 58,
+      "description": "Medical-2",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 60,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        4,
+        6
+      ],
+      "target": "6+",
+      "total": 10,
+      "succeeded": true
+    },
+    {
+      "seq": 61,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 62,
+      "kind": "outcome",
+      "because": 60,
+      "description": "reenlisted for term 4"
+    },
+    {
+      "seq": 63,
+      "kind": "step",
+      "step": "term 4",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 64,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        2,
+        5
+      ],
+      "target": "6+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 65,
+      "kind": "outcome",
+      "because": 64,
+      "description": "survived term 4"
+    },
+    {
+      "seq": 66,
+      "kind": "choice",
+      "point": "AttemptCommission",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 67,
+      "kind": "throw",
+      "step": "commission",
+      "dice": [
+        1,
+        3
+      ],
+      "dm": 1,
+      "target": "9+",
+      "total": 5,
+      "succeeded": false
+    },
+    {
+      "seq": 68,
+      "kind": "outcome",
+      "because": 67,
+      "description": "not commissioned this term"
+    },
+    {
+      "seq": 69,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 70,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
+      ],
+      "chosen": "Advanced Education Table (education 8+)"
+    },
+    {
+      "seq": 71,
+      "kind": "throw",
+      "step": "Advanced Education Table (education 8+)",
+      "dice": [
+        6
+      ],
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 72,
+      "kind": "outcome",
+      "because": 71,
+      "description": "Administration-2",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 73,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        5,
+        1
+      ],
+      "target": "6+",
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 74,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 75,
+      "kind": "outcome",
+      "because": 73,
+      "description": "reenlisted for term 5"
+    },
+    {
+      "seq": 76,
+      "kind": "step",
+      "step": "aging, end of term 4",
+      "pages": "pp. 7-9"
+    },
+    {
+      "seq": 77,
+      "kind": "throw",
+      "step": "aging, Strength",
+      "dice": [
+        6,
+        1
+      ],
+      "target": "8+",
+      "total": 7,
+      "succeeded": false
+    },
+    {
+      "seq": 78,
+      "kind": "outcome",
+      "because": 77,
+      "description": "Strength -1, 7 to 6",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 79,
+      "kind": "throw",
+      "step": "aging, Dexterity",
+      "dice": [
+        4,
+        4
+      ],
+      "target": "7+",
+      "total": 8,
+      "succeeded": true
+    },
+    {
+      "seq": 80,
+      "kind": "outcome",
+      "because": 79,
+      "description": "Dexterity holds",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 81,
+      "kind": "throw",
+      "step": "aging, Endurance",
+      "dice": [
+        1,
+        2
+      ],
+      "target": "8+",
+      "total": 3,
+      "succeeded": false
+    },
+    {
+      "seq": 82,
+      "kind": "outcome",
+      "because": 81,
+      "description": "Endurance -1, 3 to 2",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 83,
+      "kind": "step",
+      "step": "term 5",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 84,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        2,
+        2
+      ],
+      "target": "6+",
+      "total": 4,
+      "succeeded": false
+    },
+    {
+      "seq": 85,
+      "kind": "outcome",
+      "because": 84,
+      "description": "died in term 5, aged 38",
+      "errata": [
+        "E004"
+      ]
+    }
+  ]
+}

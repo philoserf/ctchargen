@@ -1,15 +1,11 @@
 # (unnamed)
 
-UPP 8777A8, age 22, Other, 1 terms, killed by the survival throw
+UPP 8777A8, age 22, Other (drafted after the Navy refused him), 1 term, killed by the survival throw
 
 ## Service record
 
 - Other, drafted
 - killed by the survival throw in term 1
-
-## Readings applied
-
-- E001, E004
 
 ---
 

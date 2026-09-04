@@ -19,10 +19,6 @@ UPP 763777, age 34, Other, 4 terms, forced out
 - Other, enlisted
 - forced out after term 4
 
-## Readings applied
-
-- E002, E006, E007
-
 ---
 
 Regenerate with `ctchargen new --auto --seed 7 --service other --career serve --skills advanced --muster cash --sheet`.

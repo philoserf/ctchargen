@@ -1,6 +1,6 @@
 # (unnamed)
 
-UPP A68AAC, age 22, Other, 1 terms, baron/baroness, forced out
+UPP A68AAC, age 22, Other, 1 term, baron/baroness, forced out
 
 ## Skills
 
@@ -15,10 +15,6 @@ UPP A68AAC, age 22, Other, 1 terms, baron/baroness, forced out
 
 - Other, enlisted
 - forced out after term 1
-
-## Readings applied
-
-- E002, E011
 
 ---
 
