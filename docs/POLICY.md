@@ -291,9 +291,21 @@ Table 2.
 | `goods`          | yes    |
 | `spartan`        | **no** |
 
-`spartan` exists so that the declined branch of both DMs is reachable by a
-generated golden. A branch no fixture exercises is a branch nothing tests
-(PRD, Testing and the gate).
+`spartan` is the only strategy that declines either DM, and the two
+declined branches are reached differently:
+
+- **Table 1's** is reached by a generated golden, `navy-spartan-declines` —
+  spartan prefers Table 1, so a spartan character who reaches rank 5 is
+  asked and refuses.
+- **Table 2's cannot be reached by any strategy.** Spartan is the only one
+  that would decline it and also the only one that never rolls on Table 2,
+  because it prefers Table 1 and Table 1 is always on offer. The branch is
+  held instead by `ctchargen.TestInteractiveOffersTheGamblingModifier`,
+  where a person is asked and answers no.
+
+The distinction is worth writing down: a branch no fixture exercises is a
+branch nothing tests (PRD, Testing and the gate), and this one is reachable
+only from outside the policy.
 
 ### `MusterWeapon(cat, from, received) (WeaponBenefit, error)`
 

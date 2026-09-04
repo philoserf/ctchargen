@@ -126,14 +126,119 @@ guidance describes a defence weaker than the one that worked.
 
 ## Pass 2 — the documents against the code
 
-Not yet run. Its checklist: `PRD.md` sentence by sentence (FR1–FR11, Goals,
-Non-goals, the CLI sketch, Determinism, JSON conventions, Architecture
-notes, Testing); all 15 `ERRATA.md` readings, each **Stamped on.** condition
-re-checked by arithmetic against the code that stamps it; all 12 `POLICY.md`
-rows against the `Decider` method's behaviour; `README.md` and `CLAUDE.md`
-against the tool as built; and the interactive menu's third wording of the
-p. 22 alternative (`+1 expertise in the Dagger` against the record's
-`expertise in Dagger`).
+The class both of #22's shipped bugs came from: the document being right and
+the code not having re-read it. Each sentence checked against what the code
+does, not against memory of it.
+
+### What was checked and found correct
+
+- **All 15 `ERRATA.md` stamping conditions**, re-checked against the errata
+  every golden actually carries. They agree, including the two that turn on
+  a distinction rather than a count: E006/E007 are absent from `other-death`,
+  which served four terms but died at the fourth survival throw and never
+  reached the round; and E004 is absent from `other-crisis-died`, which died
+  of a crisis rather than a survival throw.
+- **`Age` normalization.** Months carry into years at twelve, and
+  `traveller.TestAgeReads` holds the 0–11 invariant across addition,
+  subtraction and multiple crises, so a record cannot violate the schema's
+  `months` bound.
+- **The CLI sketch**, command by command: `--name`, `-o`, `--force`,
+  `--history`, the batch filenames (`00000000000000000145.json`), members
+  numbering from zero, `--service` forcing only the attempt, and the build
+  stamp read from `debug.ReadBuildInfo`.
+- **The README's gate list** against `Taskfile.yml`'s `default` — tidy, vet,
+  lint, nilaway, test, ratchet, in that order.
+- **FR8's record fields**, against goldens that carry each: rank and
+  `rankTitle`, `annualRetirementPay` (CR 8,000 at seven terms, absent for
+  the Scouts), the ship with its age and remaining payments, and the dead
+  character's term and cause.
+
+### Findings
+
+#### P2-1 — The passage prices are lifted, tested, and applied to nothing
+
+**Severity.** Low. **Cite.** `PRD.md` FR6; Book 1 pp. 21–22. **Status.**
+fixed, this pass.
+
+FR6 named the passage prices and the 90% resale rate as part of the
+requirement. They are lifted by `rules.liftPassages`, reachable through
+`Rules.Passage()` and `Muster.ResalePercent`, and asserted in
+`rules.TestTheMusterNotes` — and no engine path, render or record field
+reads either. The record reports which passages a character holds and never
+what one is worth.
+
+FR6 now says so: the prices are reference data v1 applies to nothing.
+Pricing a passage on the sheet, as the book's own summary does for Jamison
+(p. 25), is a candidate for after the tag rather than a v1 promise.
+
+#### P2-2 — The PRD said age is whole years
+
+**Severity.** Low. **Cite.** `PRD.md`, JSON conventions. **Status.** fixed,
+this pass.
+
+"age in whole years with terms served" — but a medical-crisis recovery adds
+1D months (FR5, pp. 7–8), the schema carries a `months` property bounded 1
+to 11, and `other-crisis-survived` records `{"years": 46, "months": 2}`. The
+schema was precise where the PRD was not.
+
+#### P2-3 — `COVERAGE.md` cited a golden that cannot show the rule
+
+**Severity.** Medium. **Cite.** `COVERAGE.md`, Titles; E011. **Status.**
+fixed, this pass.
+
+The row "The dead are assessed but not asked" cited golden `other-death`.
+That character's final Social Standing is 5: he is not eligible, carries no
+`title` block and no E011 stamp, so the golden cannot demonstrate the rule
+it was cited for. Every other death in the roster also ended below 11, so
+**nothing exercised the branch** — `assessTitle`'s `if r.dead` arm, which
+sets eligibility and declines to ask.
+
+This is the third time a `COVERAGE.md` citation has named a fixture that
+does not carry its rule, and the `docsgate` gate cannot catch it: it checks
+that a cited golden exists, not that it exercises anything.
+
+Fixed by adding golden `died-a-noble` — seed 39 through the Navy, killed by
+a survival throw holding Social Standing 12, recorded `{"eligible": true,
+"rank": "baron/baroness", "assumed": false}` and stamped E011 — and citing
+it instead.
+
+#### P2-4 — `POLICY.md` claimed a branch was golden-reachable that no strategy can reach
+
+**Severity.** Medium. **Cite.** `POLICY.md`, the muster DMs; Book 1 p. 9.
+**Status.** fixed, this pass.
+
+`POLICY.md` said "`spartan` exists so that the declined branch of both DMs
+is reachable by a generated golden," and named the standard it was meeting:
+"a branch no fixture exercises is a branch nothing tests." Across all
+eighteen goldens both DMs were answered **yes** every time.
+
+Worse for Table 2, the claim cannot be made true by any fixture: `spartan`
+is the only strategy that declines a DM and also the only one that never
+rolls on Table 2, because it prefers Table 1 and Table 1 is always offered.
+The declined branch is unreachable from the auto policy entirely.
+
+Fixed in two parts. Table 1's declined branch is now carried by a generated
+golden, `navy-spartan-declines` — seed 4 through the Navy under `spartan`,
+which reaches rank 5 and refuses the +1 nine times. Table 2's is held by
+`ctchargen.TestInteractiveOffersTheGamblingModifier`, where a person is
+asked and answers no; `POLICY.md` now says which branch is reached how, and
+that one of them is reachable only from outside the policy.
+
+#### P2-5 — The README's document table omitted `PRERELEASE.md`
+
+**Severity.** Low. **Cite.** `README.md`. **Status.** fixed, this pass.
+
+Pass 1 added the row to `CLAUDE.md`'s table and not to the README's.
+
+### Decided, not a finding
+
+- **The interactive menu's third wording of p. 22's alternative.** The menu
+  offers `+1 expertise in the Dagger` where the record says `expertise in
+  Dagger`. They are kept apart deliberately — one addresses a person reading
+  a numbered list, the other a record — and nothing compares them, because
+  the engine's gate folds the benefit rather than matching the string. Now
+  said so in `interactive.go`, so a later pass does not unify them by
+  mistake.
 
 ## Pass 3 — the invariants against themselves
 

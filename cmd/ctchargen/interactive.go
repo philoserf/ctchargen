@@ -135,6 +135,12 @@ func (p *player) MusterWeapon(
 
 	// P. 22 offers the expertise only in lieu of a weapon "of exactly the
 	// same type", so it appears only for one already received.
+	//
+	// The wording here is the menu's, not the record's: a person choosing
+	// from a list reads "+1 expertise in the Dagger" better than the
+	// record's "expertise in Dagger". They are deliberately two, because
+	// they address two readers, and nothing compares them - the engine's
+	// gate folds the benefit and compares that.
 	for _, held := range received {
 		offers = append(offers, weaponOffer{
 			text: "+1 expertise in the " + string(held), means: traveller.TakeExpertise{Weapon: held},

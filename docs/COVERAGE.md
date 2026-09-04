@@ -100,6 +100,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | The table is designated before the die | 1:9 | `chargen.run.chooseMusterTable` | golden transcripts |
 | At most three rolls on Table 2 | 1:9 | `chargen.run.chooseMusterTable` | `rules.TestMusterRollsAndPassages` |
 | The +1 at rank 5 or 6 on Table 1 | 1:9 | `chargen.run.musterModifier` | golden `merchants-table1-modifier` |
+| The +1 on Table 1 may be declined | 1:9 | `chargen.run.musterModifier` | golden `navy-spartan-declines` |
 | The +1 with gambling on Table 2 | 1:9 | `chargen.run.musterModifier` | golden transcripts |
 | The seven kinds of Table 1 row | 1:9, 21–23 | `chargen.applyBenefit` | `traveller.TestBenefitRowFolds` |
 | The dash rows deliver nothing | 1:9 | `rules` lift | `rules.TestTheDashCellsAreNothing` |
@@ -116,7 +117,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | --- | --- | --- | --- |
 | Social Standing 11+ may assume the hereditary title | 1:5; 3:22 | `chargen.run.assessTitle` | golden `other-title` |
 | Assessed once, at the end, against the final value | 1:5; 3:22 (E011) | `chargen.run.assessTitle` | golden `other-title` |
-| The dead are assessed but not asked | (E011) | `chargen.run.assessTitle` | golden `other-death` |
+| The dead are assessed but not asked | (E011) | `chargen.run.assessTitle` | golden `died-a-noble` |
 | The five ranks of nobility | 3:22 | `rules.Rules.TitleFor` | `rules.TestNobility` |
 
 ## The record

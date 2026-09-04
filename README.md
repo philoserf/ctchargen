@@ -34,6 +34,7 @@ the first command generated, and the third command shows the same sheet.
 | [docs/POLICY.md](docs/POLICY.md) | The `--auto` decision table, one row per choice point. |
 | [docs/COVERAGE.md](docs/COVERAGE.md) | Every implemented rule mapped to its page cite, its implementation and its test. |
 | [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it. |
+| [docs/PRERELEASE.md](docs/PRERELEASE.md) | The review before the tag: what each pass checked, what it found, and the shipping bar. |
 | [CLAUDE.md](CLAUDE.md) | Authority, source precedence, and the working rules for agents. |
 
 ## The gate
