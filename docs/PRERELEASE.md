@@ -239,7 +239,7 @@ Pass 1 added the row to `CLAUDE.md`'s table and not to the README's.
 
 - **The interactive menu's third wording of p. 22's alternative.** The menu
   offers `+1 expertise in the Dagger` where the record says `expertise in
-  Dagger`. They are kept apart deliberately — one addresses a person reading
+Dagger`. They are kept apart deliberately — one addresses a person reading
   a numbered list, the other a record — and nothing compares them, because
   the engine's gate folds the benefit rather than matching the string. Now
   said so in `interactive.go`, so a later pass does not unify them by
@@ -253,21 +253,21 @@ Pass 1 added the row to `CLAUDE.md`'s table and not to the README's.
 broken deliberately and the message it produced recorded. All thirteen fail,
 and each names what was broken.
 
-| Gate                                    | Break                                   | What it said                                                     |
-| --------------------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
-| `TestErrataMatchTheDocument`            | E015's heading renamed to E016           | reported **both** directions: E015 missing, E016 unknown           |
-| `TestPolicyRowsMatchTheDecider`         | the `AssumeTitle` row's heading broken   | "AssumeTitle is in the Decider interface but has no entry"          |
-| `TestChoicePointsMatchTheDecider`       | `ChoiceMusterWeapon` dropped from the list | "MusterWeapon … does not exist in the ChoicePoint enum"           |
-| `TestCoverageCitesTestsThatExist`       | a cited test misspelled                  | named the citation and that no test file declares it               |
-| `TestCoverageCitesGoldensThatExist`     | a cited golden misspelled                | named the citation and that it is not in `chargen/testdata`        |
-| `TestGoldens`                           | a golden record hand-edited              | named the file and said to regenerate and read the diff            |
-| `TestGoldensRegenerate`                 | a stray die drawn on every second run    | named the fixture that did not reproduce from its own seed         |
-| `TestEveryGoldenMatchesTheSchema`       | `terms` capped at 1                      | named each golden that no longer matches                           |
-| `TestTheDocumentedExamplesMatchTheSchema` | `character.complete.json`'s UPP broken | named the example                                                  |
-| `TestTheWorkedExampleReproduces`        | the Merchants' survival target 5+ → 9+   | "the example narrates 17 throws and 14 dice the engine never asked for" |
-| `rules.TestRankAndServiceSkills`        | the Scouts' service-wide grant removed   | caught by the second transcription, and by six goldens besides     |
-| the ratchet, rising                     | an uncovered function added              | "coverage fell — these packages gained uncovered statements"        |
-| the ratchet, falling                    | any pass that covers more                | "coverage improved — lock it in, a stale number is a ratchet that has stopped holding" |
+| Gate                                      | Break                                      | What it said                                                                           |
+| ----------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `TestErrataMatchTheDocument`              | E015's heading renamed to E016             | reported **both** directions: E015 missing, E016 unknown                               |
+| `TestPolicyRowsMatchTheDecider`           | the `AssumeTitle` row's heading broken     | "AssumeTitle is in the Decider interface but has no entry"                             |
+| `TestChoicePointsMatchTheDecider`         | `ChoiceMusterWeapon` dropped from the list | "MusterWeapon … does not exist in the ChoicePoint enum"                                |
+| `TestCoverageCitesTestsThatExist`         | a cited test misspelled                    | named the citation and that no test file declares it                                   |
+| `TestCoverageCitesGoldensThatExist`       | a cited golden misspelled                  | named the citation and that it is not in `chargen/testdata`                            |
+| `TestGoldens`                             | a golden record hand-edited                | named the file and said to regenerate and read the diff                                |
+| `TestGoldensRegenerate`                   | a stray die drawn on every second run      | named the fixture that did not reproduce from its own seed                             |
+| `TestEveryGoldenMatchesTheSchema`         | `terms` capped at 1                        | named each golden that no longer matches                                               |
+| `TestTheDocumentedExamplesMatchTheSchema` | `character.complete.json`'s UPP broken     | named the example                                                                      |
+| `TestTheWorkedExampleReproduces`          | the Merchants' survival target 5+ → 9+     | "the example narrates 17 throws and 14 dice the engine never asked for"                |
+| `rules.TestRankAndServiceSkills`          | the Scouts' service-wide grant removed     | caught by the second transcription, and by six goldens besides                         |
+| the ratchet, rising                       | an uncovered function added                | "coverage fell — these packages gained uncovered statements"                           |
+| the ratchet, falling                      | any pass that covers more                  | "coverage improved — lock it in, a stale number is a ratchet that has stopped holding" |
 
 Two of the breaks were **invalid on the first attempt**, and both are worth
 recording because they look exactly like a passing gate:
@@ -315,7 +315,7 @@ with no `Validate` is not asked, so the scripted test deciders are unaffected.
 this pass.
 
 `render`'s schema test validated the goldens and the two documented examples
-— what the *engine* produces. What the *command* writes was validated by
+— what the _engine_ produces. What the _command_ writes was validated by
 nothing, and the two are not the same document: the command stamps `build`
 and fills `name`, neither of which any golden carries, and a batch member and
 a guided run are further paths again.
@@ -373,11 +373,11 @@ severity high open when the tag is cut — was written for the review of the v1
 contract, and it held for alpha.3. Three high findings from the code audit
 (#27) are open here:
 
-| | | Why it ships open |
-| --- | --- | --- |
-| #41 | `Policy` strategy names are strings | Structural. The runtime validation that compensates is tested and holds. |
-| #42 | The record carries a sum *and* the flag it replaced | Structural. Nothing today writes them into disagreement. |
-| #43 | Where a printed number lives | Structural, and the one number with teeth — `lastPrintedTerm` — is E014's stamping condition, which is stamped correctly. |
+|     |                                                     | Why it ships open                                                                                                         |
+| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| #41 | `Policy` strategy names are strings                 | Structural. The runtime validation that compensates is tested and holds.                                                  |
+| #42 | The record carries a sum _and_ the flag it replaced | Structural. Nothing today writes them into disagreement.                                                                  |
+| #43 | Where a printed number lives                        | Structural, and the one number with teeth — `lastPrintedTerm` — is E014's stamping condition, which is stamped correctly. |
 
 None of the three changes a character the tool generates. They are findings
 about the shape of the code, raised by a review that came after alpha.3 was
@@ -392,3 +392,80 @@ Also open, and named so the release notes do not have to restate them:
   the refusal in it is **not** a decision on that issue, which was opened to
   settle it separately.
 - Medium and low audit findings #44–#61, and the five open questions #62–#66.
+
+---
+
+# v1.0.0-alpha.5 — 2026-09-04
+
+The tag that closes the referee's report. Every finding of #26 is answered and
+the `2 · The referee's table` milestone is empty.
+
+## What changed since alpha.4
+
+- **#72, closing #32** — the sheet prints the seed, and the footer stops
+  offering to regenerate a character the seed cannot bring back.
+- **#78, answering #62–#66, #70, #73 and #74** — the eight open questions. Four
+  answers became standing rules in `CLAUDE.md`: what `v1.0.0` means, that the
+  record freezes at that tag, where the data/constant line falls, and that a
+  stamping condition must be machine-checked rather than merely reachable. Two
+  became issues instead of answers (#76, #77).
+- **#79, closing #35, #36 and #37** — the headline says whose service it is,
+  and names the service that refused him where the draft placed him elsewhere;
+  errata come off the sheet and stay in the record and the transcript; a
+  one-term character no longer prints "1 terms".
+- **#80, closing #38, #39 and #67** — interactive event numbers no longer skip,
+  the two Advanced Education menu entries are told apart, and a non-numeric
+  answer is complained about by name instead of silently re-printing the menu.
+- **#85, closing #81** — the regenerate line quotes what it pastes. A record is
+  a file people share, and its fields were reaching the reader's shell
+  unquoted; the markdown fence now widens to hold a value carrying backticks of
+  its own.
+- **#86, closing #40 and #82** — a session that stops before the end prints the
+  seed and the answers given, so `--answers` walks back to the question it
+  stopped on; and a scanner failure is no longer reported as "the input ended".
+- **#87, closing #68** — a release carries binaries, and the workflow that
+  attaches them asserts that what it built knows which release it is.
+
+## The review that preceded it
+
+**No whole-tool pass.** alpha.3's three passes read the engine and the
+documents against the page, and nothing since has touched either: every change
+above is to the command surface, the rendering, or the release plumbing, all of
+which the gate covers.
+
+What ran instead was a review per PR, and that is worth recording because of
+what it caught. Three consecutive PRs contained a regression introduced while
+fixing something else — a headline that ignored the choice event it was
+reading, a quoting fix that dropped control-character escaping, and four
+`--answers` interaction bugs. Each was found before merge and fixed. Four test
+assertions were also found to be passing for the wrong reason, one of which had
+never passed in the sense it claimed.
+
+That is the pattern this tag ships knowing about. It is the argument for the
+per-PR review continuing rather than being folded into a pass at the next
+milestone: each of those regressions was in new surface written minutes
+earlier, which a milestone pass reads last and least.
+
+## What ships open, and why
+
+**This tag departs from the shipping bar**, as alpha.4 did and for the same
+reason: #41, #42 and #43 are still open. They are structural findings from the
+prerelease code audit (#27), none of them changes a character the tool
+generates, and answering them is milestone 3's first work.
+
+Also open, by milestone:
+
+- **3 · Structure the engine** — #41–#43, #45, #47–#49, #61, and #77, the gate
+  that would hold an erratum to the records it is supposed to govern.
+- **4 · Batch and the record's shape** — #33, #34, #44, #46, #50, and #76. That
+  last one matters more than its number suggests: the record does not name its
+  own shape, so the freeze promised at `v1.0.0` has nothing to attach to.
+- **5 · Housekeeping** — #51–#60, #83 and #84.
+
+## One thing a reader of these notes should know
+
+**This is the first tag whose binaries were attached by CI.** alpha.4's six
+were built on a laptop and uploaded by hand, which its notes say; these come
+from `release.yml`, checking out the tag itself. The workflow was rehearsed
+locally against the runner's own checkout shape and reproduced those six byte
+for byte — but a rehearsal is not a run, and this tag is its first.
