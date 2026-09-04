@@ -28,20 +28,36 @@ type player struct {
 	in  *bufio.Scanner
 	out io.Writer
 
+	// seed is carried only so that the line offered when the input ends can
+	// name it. A drawn seed is otherwise nowhere the player can reach, and
+	// it is the half of a resumption he cannot retype from memory.
+	seed uint64
+
+	// replay is what --answers supplied, taken before the input is read.
+	// When it runs out the procedure asks the next question as normal -
+	// that is the whole point, and a resumption that stopped at the end of
+	// the list would be a replay rather than a way back in.
+	replay []int
+
+	// given is every answer accepted so far, in order, which is what a
+	// resumption needs and what nothing else records: the log holds what was
+	// chosen, not which number was typed to choose it.
+	given []int
+
 	// wrote is the first failure writing to the player, kept so that a
 	// broken pipe stops the generation at the next question rather than
 	// being swallowed a dozen times over.
 	wrote error
 }
 
-func newPlayer(in io.Reader, out io.Writer) *player {
+func newPlayer(in io.Reader, out io.Writer, seed uint64, replay []int) *player {
 	if in == nil {
 		// Nothing to read from is not a reason to invent answers; the first
 		// question asked will report that the input ended.
 		in = strings.NewReader("")
 	}
 
-	return &player{in: bufio.NewScanner(in), out: out}
+	return &player{in: bufio.NewScanner(in), out: out, seed: seed, replay: replay}
 }
 
 // pick asks which of a list the player wants and hands back the thing
@@ -210,28 +226,143 @@ func (p *player) choose(question string, options []string) (int, error) {
 	}
 
 	for {
+		replayed, ok, err := p.next(len(options))
+		if err != nil {
+			return 0, err
+		}
+
+		if ok {
+			p.sayf("> %d\n\n", replayed)
+
+			return replayed - 1, p.wroteErr()
+		}
+
 		p.sayf("> ")
 
 		if p.wrote != nil {
-			return 0, fmt.Errorf("asking the player: %w", p.wrote)
+			return 0, p.wroteErr()
 		}
 
 		if !p.in.Scan() {
-			return 0, errNoAnswer
+			return 0, p.stopped()
 		}
 
-		given := strings.TrimSpace(p.in.Text())
+		typed := strings.TrimSpace(p.in.Text())
 
-		chosen, err := strconv.Atoi(given)
+		chosen, err := strconv.Atoi(typed)
 		if err == nil && chosen >= 1 && chosen <= len(options) {
 			p.sayf("\n")
+
+			p.given = append(p.given, chosen)
 
 			return chosen - 1, nil
 		}
 
 		p.sayf("  %q is not one of them; answer with a number from 1 to %d\n",
-			given, len(options))
+			typed, len(options))
 	}
+}
+
+// next takes the head of a replayed list, if there is one left.
+//
+// A replayed answer is echoed at the prompt as though it had been typed, so
+// that a resumed session reads the same as the one it continues rather than
+// jumping to a question with no visible answers above it.
+func (p *player) next(options int) (int, bool, error) {
+	if len(p.replay) == 0 {
+		return 0, false, nil
+	}
+
+	chosen := p.replay[0]
+
+	p.replay = p.replay[1:]
+
+	// Out of range for this question, which means the list belongs to some
+	// other run. Saying so beats answering the question with it, and beats
+	// falling through to the prompt, which would spend the next answer on
+	// the retry.
+	if chosen < 1 || chosen > options {
+		return 0, false, fmt.Errorf(
+			"%w: answer %d of --%s is %d, and this question offers 1 to %d",
+			errUsage, len(p.given)+1, answersFlag, chosen, options)
+	}
+
+	p.given = append(p.given, chosen)
+
+	return chosen, true, nil
+}
+
+// leftover refuses a list longer than the run had questions for.
+//
+// The same signal as an answer out of range, and the same answer to it: the
+// questions a seed asks are fixed, so a resumption that replays its own
+// answers consumes every one of them. Anything left means the list came from
+// another run, and a character built from the first half of it is wrong in a
+// way nothing on the sheet shows.
+func (p *player) leftover() error {
+	if len(p.replay) == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("%w: the procedure ran out of questions with %d of --%s unspent, "+
+		"so the list belongs to another run", errUsage, len(p.replay), answersFlag)
+}
+
+func (p *player) wroteErr() error {
+	if p.wrote == nil {
+		return nil
+	}
+
+	return fmt.Errorf("asking the player: %w", p.wrote)
+}
+
+// stopped reports why the answers ran out, and offers the way back in.
+//
+// A scanner returns false for two different reasons and only one of them is
+// the input ending: a line past bufio's 64KB bound, or a read failure on the
+// reader beneath, both come back the same way. Blaming the input for ending
+// sends the reader looking in the wrong place.
+//
+// Either way the half-built character is lost - it is not a record, and does
+// not match the schema - but the seed and the answers are enough to walk back
+// to the same question, and those are what a long session cannot retype. So
+// the offer is made before the two are told apart: a read that failed is the
+// stop the operator did not choose, and the one that most needs the way back.
+func (p *player) stopped() error {
+	p.sayf("\n%s\n", p.resumeLine())
+
+	err := p.in.Err()
+	if err != nil {
+		return fmt.Errorf("reading the answer: %w", err)
+	}
+
+	return errNoAnswer
+}
+
+// resumeLine is the flags that walk back to the question the input ended on.
+//
+// It names flags to add rather than a whole command line, because the
+// operator's own is in his shell history and this one cannot know what else
+// he typed - and it says "the same command" for that reason. An answer is an
+// index into the list a question offered, so a re-run that drops --service
+// or --name asks a different sequence and spends the answers on it. Both
+// values are digits, so neither needs quoting and neither can carry
+// anything.
+func (p *player) resumeLine() string {
+	if len(p.given) == 0 {
+		return fmt.Sprintf(
+			"Nothing was answered. The same command with --seed %d walks the same character again.",
+			p.seed)
+	}
+
+	answered := make([]string, 0, len(p.given))
+	for _, chosen := range p.given {
+		answered = append(answered, strconv.Itoa(chosen))
+	}
+
+	return fmt.Sprintf(
+		"Re-run the same command with --seed %d --answers %s to pick up at this question.",
+		p.seed, strings.Join(answered, ","))
 }
 
 // confirm asks a question the procedure puts as yes or no.

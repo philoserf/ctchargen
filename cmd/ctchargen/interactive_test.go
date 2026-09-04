@@ -403,3 +403,182 @@ func TestTheQuestionsStayOutOfTheRecord(t *testing.T) {
 		t.Fatal("the record holds no choice events, so it asserts nothing about who answered")
 	}
 }
+
+// A session cut short offers the way back to the question it stopped on.
+//
+// The half-built character is lost either way - it is not a record and does
+// not match the schema - but the seed and the answers are what a long session
+// cannot retype, and losing those to a stray Ctrl-D is what was reported.
+func TestAStoppedSessionOffersTheWayBackIn(t *testing.T) {
+	t.Parallel()
+
+	var asking strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
+		strings.NewReader("1\n2\n1\n"), io.Discard, &asking)
+	if !errors.Is(err, errNoAnswer) {
+		t.Fatalf("stopping short gave %v, want the input ending", err)
+	}
+
+	if want := "--seed 7 --answers 1,2,1"; !strings.Contains(asking.String(), want) {
+		t.Errorf("the offer does not read %q:\n%s", want, asking.String())
+	}
+}
+
+// And nothing answered says so, rather than offering an empty list.
+func TestANeverStartedSessionSaysSo(t *testing.T) {
+	t.Parallel()
+
+	var asking strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
+		strings.NewReader(""), io.Discard, &asking)
+	if !errors.Is(err, errNoAnswer) {
+		t.Fatalf("stopping short gave %v, want the input ending", err)
+	}
+
+	if !strings.Contains(asking.String(), "Nothing was answered") {
+		t.Errorf("the offer invents a resumption:\n%s", asking.String())
+	}
+}
+
+// Replaying every answer reproduces the character that was typed.
+//
+// This is the property the offer promises. Anything weaker - that it does not
+// crash, that it reaches the end - would pass on a replay that consumed the
+// list and then answered for itself.
+func TestAReplayReproducesTheTypedCharacter(t *testing.T) {
+	t.Parallel()
+
+	var typed strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
+		answers("1", 200), &typed, io.Discard)
+	if err != nil {
+		t.Fatalf("typing a character: %v", err)
+	}
+
+	// One "1" per choice the run made, which is what the operator typed.
+	made := strings.Count(typed.String(), `"kind": "choice"`)
+	if made == 0 {
+		t.Fatal("the run made no choices, so a replay proves nothing")
+	}
+
+	var replayed strings.Builder
+
+	err = run([]string{
+		cmdNew, flagSeed, "7", flagService, other,
+		flagAnswers, strings.TrimSuffix(strings.Repeat("1,", made), ","),
+	}, nil, &replayed, io.Discard)
+	if err != nil {
+		t.Fatalf("replaying: %v", err)
+	}
+
+	if typed.String() != replayed.String() {
+		t.Error("the replayed character is not the one that was typed")
+	}
+}
+
+// An answer no question could take belongs to another run, and is refused
+// rather than spent on the question in front of it.
+func TestAnAnswerOutOfRangeIsRefused(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagAnswers, "1,99"},
+		nil, io.Discard, io.Discard)
+
+	switch {
+	case err == nil:
+		t.Fatal("an answer of 99 was accepted")
+	case !errors.Is(err, errUsage):
+		t.Errorf("error %q is not a usage error", err)
+	case !strings.Contains(err.Error(), "answer 2 of --answers is 99"):
+		t.Errorf("error %q does not name which answer was wrong", err)
+	}
+}
+
+// A list that is not numbers is refused before a die is thrown.
+func TestAMalformedAnswerListIsRefused(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{cmdNew, flagSeed, "7", flagAnswers, "1,two"}, nil, io.Discard, io.Discard)
+	if err == nil || !strings.Contains(err.Error(), `"two" is not one`) {
+		t.Errorf("a malformed list was refused as %v", err)
+	}
+}
+
+// A read that fails is not the input ending.
+//
+// bufio.Scanner returns false for both, and only one of them is the reader
+// running out. A line past its 64KB bound comes back the same way, and
+// blaming the input for ending sends the reader looking in the wrong place.
+func TestAFailedReadIsNotTheInputEnding(t *testing.T) {
+	t.Parallel()
+
+	// One answer that reads, then a line longer than bufio's default
+	// buffer, which Scan refuses.
+	huge := "1\n" + strings.Repeat("9", 128*1024) + "\n"
+
+	var asking strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
+		strings.NewReader(huge), io.Discard, &asking)
+
+	switch {
+	case err == nil:
+		t.Fatal("a line too long to read was accepted")
+	case errors.Is(err, errNoAnswer):
+		t.Errorf("a failed read was reported as the input ending: %v", err)
+	case !strings.Contains(err.Error(), "reading the answer"):
+		t.Errorf("error %q does not say the read failed", err)
+	}
+
+	// The stop the operator did not choose is the one that most needs the
+	// way back in, so the offer is made whichever way the answers ran out.
+	if want := "--seed 7 --answers 1"; !strings.Contains(asking.String(), want) {
+		t.Errorf("a failed read was not offered the way back in:\n%s", asking.String())
+	}
+}
+
+// A list longer than the run had questions for belongs to another run.
+//
+// The same signal as an answer out of range: the questions a seed asks are
+// fixed, so a resumption replaying its own answers spends every one of them.
+// Half a list quietly applied builds a character wrong in a way nothing on
+// the sheet shows.
+func TestAnswersLeftOverBelongToAnotherRun(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{
+		cmdNew, flagSeed, "7", flagService, other,
+		flagAnswers, strings.TrimSuffix(strings.Repeat("1,", 400), ","),
+	}, nil, io.Discard, io.Discard)
+
+	switch {
+	case err == nil:
+		t.Fatal("a list longer than the procedure had questions for was accepted")
+	case !errors.Is(err, errUsage):
+		t.Errorf("error %q is not a usage error", err)
+	case !strings.Contains(err.Error(), "belongs to another run"):
+		t.Errorf("error %q does not say the list came from elsewhere", err)
+	}
+}
+
+// --auto has nobody to replay answers for, and says so rather than dropping
+// them: a character the answers had no part in reads as a resumption that
+// went wrong somewhere unnameable.
+func TestAnswersAndAutoCannotBothBeGiven(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{cmdNew, flagSeed, "7", flagAuto, flagAnswers, "1"},
+		nil, io.Discard, io.Discard)
+
+	switch {
+	case err == nil:
+		t.Fatal("--answers was accepted alongside --auto and then ignored")
+	case !errors.Is(err, errUsage):
+		t.Errorf("error %q is not a usage error", err)
+	case !strings.Contains(err.Error(), "--auto"):
+		t.Errorf("error %q does not name the flag it conflicts with", err)
+	}
+}

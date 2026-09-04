@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"strconv"
 	"strings"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -41,6 +42,8 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		history = flags.Bool("history", false, "write the generation record rather than JSON")
 		output  = flags.String("o", "", "write to this file rather than to standard output")
 		force   = flags.Bool("force", false, "replace the output file if it already exists")
+		replay  = flags.String(answersFlag, "",
+			"answers to replay before asking, as 1,2,1; what a stopped session prints")
 	)
 
 	err := flags.Parse(args)
@@ -67,19 +70,49 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		return err
 	}
 
-	character, err := generate(inputs, *auto, in, asking)
+	answers, err := answersFrom(*replay)
+	if err != nil {
+		return err
+	}
+
+	// --auto decides at every choice, so there is nobody for a replayed
+	// answer to stand in for. Taking the list and then never consulting it
+	// would hand back a character the answers had no part in, which reads
+	// as a resumption that went wrong somewhere unnameable.
+	if *auto && len(answers) > 0 {
+		return fmt.Errorf("%w: --%s and --auto cannot both be given; --auto answers every question itself",
+			errUsage, answersFlag)
+	}
+
+	return writeCharacter(inputs, answers, newRendering{
+		auto: *auto, sheet: *sheet, history: *history, output: *output, force: *force,
+	}, in, out, asking)
+}
+
+// newRendering is what the flags say to do with the character once it exists,
+// gathered so that newCharacter reads as the four steps it takes rather than
+// as eleven flags threaded through them.
+type newRendering struct {
+	auto, sheet, history, force bool
+	output                      string
+}
+
+func writeCharacter(inputs chargen.Inputs, answers []int, how newRendering,
+	in io.Reader, out, asking io.Writer,
+) error {
+	character, err := generate(inputs, how.auto, answers, in, asking)
 	if err != nil {
 		return err
 	}
 
 	stamp(character)
 
-	text, err := rendered(character, *sheet, *history)
+	text, err := rendered(character, how.sheet, how.history)
 	if err != nil {
 		return err
 	}
 
-	where, err := openDestination(out, *output, *force)
+	where, err := openDestination(out, how.output, how.force)
 	if err != nil {
 		return err
 	}
@@ -125,6 +158,32 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 	return in, fmt.Errorf("%w: no service is called %q", errUsage, service)
 }
 
+// answersFrom reads --answers, which is a list of the numbers a player typed.
+//
+// Empty is not an error and not an empty run: it is the ordinary case, a
+// session nobody is resuming.
+func answersFrom(list string) ([]int, error) {
+	if list == "" {
+		return nil, nil
+	}
+
+	fields := strings.Split(list, ",")
+
+	answers := make([]int, 0, len(fields))
+
+	for _, field := range fields {
+		chosen, err := strconv.Atoi(strings.TrimSpace(field))
+		if err != nil {
+			return nil, fmt.Errorf("%w: --%s takes numbers separated by commas, and %q is not one",
+				errUsage, answersFlag, field)
+		}
+
+		answers = append(answers, chosen)
+	}
+
+	return answers, nil
+}
+
 // generate runs the procedure under the auto policy, or asks the player.
 //
 // The strategies come off the inputs rather than off the flags a second
@@ -136,7 +195,7 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 // Interactive mode watches the record as it is written, so the throws and
 // their consequences reach the player between his questions; --auto passes
 // no observer, because nobody is reading.
-func generate(inputs chargen.Inputs, auto bool, in io.Reader, asking io.Writer) (
+func generate(inputs chargen.Inputs, auto bool, answers []int, in io.Reader, asking io.Writer) (
 	*chargen.Character, error,
 ) {
 	policy := chargen.Policy{
@@ -157,12 +216,17 @@ func generate(inputs chargen.Inputs, auto bool, in io.Reader, asking io.Writer) 
 		return character, nil
 	}
 
-	asked := newPlayer(in, asking)
+	asked := newPlayer(in, asking, inputs.Seed, answers)
 
 	character, err := chargen.Generate(inputs, asked,
 		chargen.WithObserver(asked.watch), chargen.WithAnswerer(traveller.ByPlayer))
 	if err != nil {
 		return nil, fmt.Errorf("generating: %w", err)
+	}
+
+	left := asked.leftover()
+	if left != nil {
+		return nil, left
 	}
 
 	return character, nil

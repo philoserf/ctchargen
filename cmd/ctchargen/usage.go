@@ -54,6 +54,11 @@ const (
 // then ask the set whether it was given.
 const seedFlag = "seed"
 
+// answersFlag is named here because the message that offers it and the flag
+// that reads it are in different files, and a resumption the tool prints and
+// then refuses would be worse than none.
+const answersFlag = "answers"
+
 // shortFlag is the length of a flag name written with one dash. There is one
 // of them, `-o`, and it is written that way everywhere else.
 const shortFlag = 1
