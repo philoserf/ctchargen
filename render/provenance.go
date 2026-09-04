@@ -161,19 +161,23 @@ func decidedByPlayer(r record) (bool, error) {
 	return false, nil
 }
 
-// chosenBy reports who answered a named choice point, and whether it was put
-// at all. A point nobody was asked is not the same as one the policy took.
-func chosenBy(r record, point string) (string, bool, error) {
+// choiceAt returns a named choice point's event, and whether it was put at
+// all. A point nobody was asked is not the same as one the policy took.
+//
+// It hands back the whole event rather than who answered, because both halves
+// are wanted together: who chose, and what they chose. Asking only who leads
+// to crediting a decider with an outcome he did not pick.
+func choiceAt(r record, point string) (eventJSON, bool, error) {
 	made, err := choices(r)
 	if err != nil {
-		return "", false, err
+		return eventJSON{}, false, err
 	}
 
 	for _, choice := range made {
 		if choice.Point == point {
-			return choice.By, true, nil
+			return choice, true, nil
 		}
 	}
 
-	return "", false, nil
+	return eventJSON{}, false, nil
 }

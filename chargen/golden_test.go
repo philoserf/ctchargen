@@ -107,6 +107,12 @@ var fixtures = []fixture{
 		"other-oneterm", 19, traveller.Other, false,
 		chargen.Policy{Career: chargen.CareerOneTerm, Skills: chargen.SkillsPersonal, Muster: chargen.MusterGoods},
 	},
+	// Unforced AND drafted, which nothing else in this roster is. The policy
+	// picked Other, the throw failed, and the draft put him in the Marines -
+	// so the service he ended in is one nobody chose. Every other unforced
+	// fixture got the service it asked for, which let the sheet credit the
+	// policy with a draft's outcome and no golden notice.
+	{"drafted-over-the-policys-pick", 150, traveller.Other, false, chargen.DefaultPolicy()},
 }
 
 func (f fixture) inputs() chargen.Inputs {

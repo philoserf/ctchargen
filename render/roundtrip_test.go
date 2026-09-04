@@ -196,57 +196,114 @@ func TestAnEventThatWillNotReadIsRefused(t *testing.T) {
 	}
 }
 
+// headlineCase is one record and what its headline must and must not read.
+type headlineCase struct{ body, wants, does string }
+
+// served is a record of a character in a service, with whatever the case
+// under test wants to say about how he got there.
+func served(service, how, provenance string) string {
+	return fmt.Sprintf(`"service":%q,"terms":2,"enlistment":{"how":%q},%s`,
+		service, how, provenance)
+}
+
+// chose is a Service choice event answered by whoever the case names.
+func chose(by string) string {
+	return fmt.Sprintf(`"inputs":{"seed":1},"events":[{"seq":1,"kind":"choice",`+
+		`"point":"Service","by":%q,"alternatives":["Navy","Other"],"chosen":"Navy"}]`, by)
+}
+
+// unchanged is the headline of a character with nothing to explain.
+const unchanged = "Navy, 2 terms"
+
 // The headline says whose service it is, where that is not obvious.
 //
 // The service record four sections down has always been honest. The headline
 // is the line a referee reads, and a character who was typed as a Marine and
 // came back a Navy man had nothing there to explain it.
+//
+// Everything turns on the service ATTEMPTED, not on who named it. The draft
+// can override either decider, and crediting one with an outcome it did not
+// pick is worse than saying nothing.
 func TestTheHeadlineSaysWhoseServiceItIs(t *testing.T) {
 	t.Parallel()
 
-	const chose = `"events":[{"seq":1,"kind":"choice","point":"Service",` +
-		`"by":%q,"alternatives":["Navy","Other"],"chosen":"Navy"}]`
-
-	for name, tc := range map[string]struct {
-		body        string
-		wants, does string
-	}{
+	for name, tc := range map[string]headlineCase{
 		"asked for one service and got another": {
-			body:  `"service":"Navy","terms":2,"enlistment":{"how":"drafted"},"inputs":{"seed":1,"service":"Marines"}`,
+			body:  served("Navy", "drafted", `"inputs":{"seed":1,"service":"Marines"}`),
 			wants: "Navy (drafted after the Marines refused him)",
 		},
 		"asked for a service and got it": {
-			body:  `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1,"service":"Navy"}`,
-			wants: "Navy, 2 terms",
-			does:  "refused",
+			body:  served("Navy", "enlisted", `"inputs":{"seed":1,"service":"Navy"}`),
+			wants: unchanged, does: "refused",
 		},
 		"asked for nothing and the policy picked": {
-			body: `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1},` +
-				fmt.Sprintf(chose, "policy"),
+			body:  served("Navy", "enlisted", chose("policy")),
 			wants: "Navy (service chosen by the policy)",
 		},
 		// A player who named it himself is told nothing he does not know.
 		"asked for nothing and the player picked": {
-			body: `"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"inputs":{"seed":1},` +
-				fmt.Sprintf(chose, "player"),
-			wants: "Navy, 2 terms",
-			does:  "chosen by",
+			body:  served("Navy", "enlisted", chose("player")),
+			wants: unchanged, does: "chosen by",
+		},
+		// The draft overrides the attempt. Saying "chosen by the policy"
+		// over a draft's outcome credits the policy with a choice it never
+		// made, in the case this exists to expose.
+		"the policy picked one and the draft gave another": {
+			body:  served("Marines", "drafted", chose("policy")),
+			wants: "Marines (drafted after the Navy refused him)", does: "chosen by the policy",
+		},
+		// And after a draft the player does not know either: he chose Navy.
+		"the player picked one and the draft gave another": {
+			body:  served("Marines", "drafted", chose("player")),
+			wants: "Marines (drafted after the Navy refused him)",
+		},
+		// A record saying nothing about how he got there. The tool writes
+		// none, but the renderer is handed records rather than generating
+		// them, and inventing a decider is worse than saying nothing.
+		"nothing recorded about the service at all": {
+			body:  served("Navy", "enlisted", `"inputs":{"seed":1}`),
+			wants: unchanged, does: "(",
 		},
 	} {
-		sheet, err := render.SheetFrom(minimalRecord(tc.body))
-		if err != nil {
-			t.Errorf("%s: %v", name, err)
+		checkHeadline(t, name, tc)
+	}
+}
 
-			continue
-		}
+// checkHeadline reads the headline out of the sheet and asserts on that
+// alone. Searching the whole sheet is too loose - "(" would find the
+// "(unnamed)" title - and the headline is what every case here is about.
+func checkHeadline(t *testing.T, name string, tc headlineCase) {
+	t.Helper()
 
-		if !strings.Contains(sheet, tc.wants) {
-			t.Errorf("%s: the headline does not read %q:\n%s", name, tc.wants, sheet)
-		}
+	sheet, err := render.SheetFrom(minimalRecord(tc.body))
+	if err != nil {
+		t.Errorf("%s: %v", name, err)
 
-		if tc.does != "" && strings.Contains(sheet, tc.does) {
-			t.Errorf("%s: the headline reads %q and should not:\n%s", name, tc.does, sheet)
+		return
+	}
+
+	lead := ""
+
+	for line := range strings.Lines(sheet) {
+		if strings.HasPrefix(line, "UPP ") {
+			lead = line
+
+			break
 		}
+	}
+
+	if lead == "" {
+		t.Errorf("%s: no headline in\n%s", name, sheet)
+
+		return
+	}
+
+	if !strings.Contains(lead, tc.wants) {
+		t.Errorf("%s: the headline does not read %q: %q", name, tc.wants, lead)
+	}
+
+	if tc.does != "" && strings.Contains(lead, tc.does) {
+		t.Errorf("%s: the headline reads %q and should not: %q", name, tc.does, lead)
 	}
 }
 

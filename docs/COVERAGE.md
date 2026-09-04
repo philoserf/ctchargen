@@ -139,6 +139,9 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | An explicit seed is never re-bounded | Determinism | `cmd/ctchargen.inputsFrom` | `ctchargen.TestAnExplicitSeedIsNeverReBounded` |
 | A record renders to what generating it rendered | FR8 | `render.SheetFrom` | `render.TestARecordRendersToWhatGeneratedItRendered` |
 | A ship's terms follow its kind, not its numbers | 1:22–23 | `render.shipLine` | `render.TestAShipsTermsFollowItsKind` |
+| The headline names the service attempted, not the one the draft gave | 1:5 | `render.whoseService` | `render.TestTheHeadlineSaysWhoseServiceItIs` |
+| A one-term character reads as one term | Presentation | `render.terms` | `render.TestOneTermIsSingular` |
+| The errata are on the transcript and not the sheet | FR11 | `render.sheetOf` | `render.TestTheErrataAreOnTheTranscriptAndNotTheSheet` |
 | An event kind this build does not know is said to be unknown | FR11 | `render.writeEvent` | `render.TestAnUnknownEventKindIsSaidToBeUnknown` |
 | A refused batch writes none of itself | CLI sketch | `cmd/ctchargen.noMemberExists` | `ctchargen.TestARefusedBatchWritesNothing` |
 | Every question the player is asked is one the engine asked | FR9 | `cmd/ctchargen.player` | `ctchargen.TestInteractiveWalksACharacter` |

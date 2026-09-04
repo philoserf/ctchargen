@@ -135,40 +135,55 @@ func terms(count int) string {
 const oneTerm = 1
 
 // whoseService says, where it is not obvious, that the service on the
-// headline is not the one that was asked for.
+// headline is not the one that was attempted.
 //
 // The service record four sections down has always been honest - it says
 // "drafted" - but the headline is the line a referee reads, and a character
 // who typed --service marines and got a Navy man had nothing there to explain
-// it. Two cases need saying, and the record separates them without being
-// asked to carry anything new:
+// it.
 //
-//   - a service was named and he is not in it: the enlistment throw failed and
-//     the draft put him somewhere else.
-//   - no service was named and the policy picked one: the tool chose, and
-//     nothing on the sheet said so.
-//
-// A player who chose interactively gets nothing added. He knows.
+// Everything turns on the service that was ATTEMPTED, which is not the same
+// question as who named it. A policy that picks Other and sees the throw fail
+// gets whatever the draft hands him, and saying "chosen by the policy" over
+// that service credits the policy with a choice it never made - in exactly
+// the case this exists to expose.
 func whoseService(r record) (string, error) {
-	if r.Inputs.Service != "" {
-		if strings.EqualFold(r.Inputs.Service, r.Service) {
-			return "", nil
-		}
-
-		return fmt.Sprintf(" (%s after the %s refused him)",
-			r.Enlistment.How, r.Inputs.Service), nil
-	}
-
-	by, asked, err := chosenBy(r, traveller.ChoiceService.String())
+	attempted, byPolicy, err := serviceAttempted(r)
 	if err != nil {
 		return "", err
 	}
 
-	if asked && by == traveller.ByPolicy.String() {
+	switch {
+	case attempted == "":
+		return "", nil
+	case !strings.EqualFold(attempted, r.Service):
+		return fmt.Sprintf(" (%s after the %s refused him)", r.Enlistment.How, attempted), nil
+	case byPolicy:
 		return " (service chosen by the policy)", nil
+	default:
+		// He asked for this service and is in it. He knows.
+		return "", nil
+	}
+}
+
+// serviceAttempted is the service the enlistment throw was made against, and
+// whether the policy is what named it.
+//
+// The record holds it in two places for two reasons, and neither is
+// redundant. A forced run carries it in `inputs` and logs no choice at all -
+// there was nothing to ask. An unforced run logs the choice and leaves
+// `inputs.service` empty, and that answer is the one the draft can override.
+func serviceAttempted(r record) (string, bool, error) {
+	if r.Inputs.Service != "" {
+		return r.Inputs.Service, false, nil
 	}
 
-	return "", nil
+	choice, asked, err := choiceAt(r, traveller.ChoiceService.String())
+	if err != nil || !asked {
+		return "", false, err
+	}
+
+	return choice.Chosen, choice.By == traveller.ByPolicy.String(), nil
 }
 
 func writeSection(out *strings.Builder, heading string, lines []string) {
