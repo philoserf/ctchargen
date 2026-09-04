@@ -64,9 +64,13 @@ func TestHelpNamesEveryFlag(t *testing.T) {
 				t.Errorf("%s %s: no usage line: %q", name, asked, help)
 			}
 
-			for _, flag := range tc.flags {
-				if !strings.Contains(help, flag+" ") {
-					t.Errorf("%s %s: the help does not name %s", name, asked, flag)
+			// Anchored to the start of a printed line. An unanchored
+			// search passes on a description: `new`'s strategy flags all
+			// say "the --auto ... strategy", so a `--auto` the printer had
+			// stopped writing would still be found in three of them.
+			for _, wanted := range tc.flags {
+				if !strings.Contains(help, "\n  "+wanted+" ") {
+					t.Errorf("%s %s: the help does not name %s", name, asked, wanted)
 				}
 			}
 		}
@@ -154,6 +158,10 @@ func TestAPositionalArgumentIsRefused(t *testing.T) {
 		cmdNew:            {cmdNew, wantTypo},
 		"new before auto": {cmdNew, wantTypo, flagAuto},
 		cmdBatch:          {cmdBatch, flagAuto, flagCount, "1", wantTypo},
+		// The two that have no flag set of their own refuse a word too,
+		// rather than printing as though nothing had been typed.
+		cmdVersion: {cmdVersion, wantTypo},
+		cmdHelp:    {cmdHelp, wantTypo},
 	} {
 		err := run(args, nil, io.Discard, io.Discard)
 		if err == nil {
@@ -225,6 +233,29 @@ func TestHelpReportsAWriteThatFailed(t *testing.T) {
 			t.Errorf("%s: a help nobody received was reported as written", name)
 		case !errors.Is(err, errClosedPipe):
 			t.Errorf("%s: error %q does not carry the write failure", name, err)
+		}
+	}
+}
+
+// `version --help` is a help and not the build. The top-level help tells the
+// reader that every command it lists answers --help, and version is one of
+// the four; answering with the build breaks that promise for a script that
+// asked what the command takes.
+func TestVersionAnswersHelp(t *testing.T) {
+	t.Parallel()
+
+	for _, asked := range []string{flagHelp, flagShort} {
+		var out strings.Builder
+
+		err := run([]string{cmdVersion, asked}, nil, &out, io.Discard)
+		if err != nil {
+			t.Errorf("version %s: %v", asked, err)
+
+			continue
+		}
+
+		if out.String() != "usage: ctchargen version\n" {
+			t.Errorf("version %s: not the usage: %q", asked, out.String())
 		}
 	}
 }

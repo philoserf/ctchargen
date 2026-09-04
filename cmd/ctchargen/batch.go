@@ -24,7 +24,7 @@ func batch(args []string, out io.Writer) error {
 
 	var (
 		count   = flags.Int("count", 0, "how many characters to generate")
-		seed    = flags.Uint64(seedFlag, 0, "the base seed; member i is generated from it plus i")
+		seed    = flags.Uint64(seedFlag, 0, "the base seed, drawn if absent; member i is generated from it plus i")
 		auto    = flags.Bool("auto", false, "required: a batch has nobody to ask")
 		service = flags.String("service", "",
 			"attempt every enlistment in this service: "+serviceChoices())

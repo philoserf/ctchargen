@@ -24,9 +24,10 @@ const commandList = "new|batch|render|version"
 // Each is the shape alone: errUsage prints the word "usage" ahead of an
 // error, and writeHelp prints "usage: ctchargen " ahead of the help.
 const (
-	newUsage    = "new [flags]"
-	batchUsage  = "batch --auto --count N [flags]"
-	renderUsage = "render [flags] <character.json>"
+	newUsage     = "new [flags]"
+	batchUsage   = "batch --auto --count N [flags]"
+	renderUsage  = "render [flags] <character.json>"
+	versionUsage = "version"
 )
 
 // topLevelUsage answers `ctchargen --help`: what the commands are, and where
@@ -57,13 +58,21 @@ const seedFlag = "seed"
 // of them, `-o`, and it is written that way everywhere else.
 const shortFlag = 1
 
-// helpWidth is the column the descriptions start in, wide enough for the
-// longest flag this command line has: `  --service string`.
-const helpWidth = 19
-
 // writeTopLevelHelp answers --help before a subcommand is named.
 func writeTopLevelHelp(out io.Writer) error {
-	_, err := io.WriteString(out, topLevelUsage)
+	return writeUsageText(out, topLevelUsage)
+}
+
+// writeVersionUsage answers `ctchargen version --help`. `version` has no flag
+// set, so it cannot go through writeHelp: that would print the usage line, a
+// blank line, and then nothing at all.
+func writeVersionUsage(out io.Writer) error {
+	return writeUsageText(out, "usage: ctchargen "+versionUsage+"\n")
+}
+
+// writeUsageText writes a usage that is already composed.
+func writeUsageText(out io.Writer, text string) error {
+	_, err := io.WriteString(out, text)
 	if err != nil {
 		return fmt.Errorf("writing the usage: %w", err)
 	}
@@ -87,6 +96,10 @@ func writeHelp(out io.Writer, line string, flags *flag.FlagSet) error {
 	return writeFlags(out, flags)
 }
 
+// helpLine is one flag as the help prints it: the name and kind on the left,
+// the description on the right.
+type helpLine struct{ named, description string }
+
 // writeFlags lists a command's flags, with their descriptions and defaults.
 //
 // It exists rather than flag.PrintDefaults because PrintDefaults writes one
@@ -94,14 +107,17 @@ func writeHelp(out io.Writer, line string, flags *flag.FlagSet) error {
 // and the referee's own transcript. The defaults are printed because a
 // strategy flag left alone still chooses, and the reader who could not see
 // which one it chose is the one who reported this.
+//
+// The description column is measured from the set rather than typed as a
+// constant, so a flag with a longer name than any here arrives aligned
+// instead of pushing one line out of the column nothing checks.
 func writeFlags(out io.Writer, flags *flag.FlagSet) error {
-	var failed error
+	var (
+		lines []helpLine
+		width int
+	)
 
 	flags.VisitAll(func(each *flag.Flag) {
-		if failed != nil {
-			return
-		}
-
 		kind, description := flag.UnquoteUsage(each)
 
 		named := "  " + dashed(each.Name)
@@ -113,11 +129,18 @@ func writeFlags(out io.Writer, flags *flag.FlagSet) error {
 			description += " (default " + each.DefValue + ")"
 		}
 
-		_, failed = fmt.Fprintf(out, "%-*s %s\n", helpWidth, named, description)
+		// A column one wider than the longest name, so that even the
+		// longest line has two spaces before its description rather than
+		// running into it.
+		width = max(width, len(named)+1)
+		lines = append(lines, helpLine{named: named, description: description})
 	})
 
-	if failed != nil {
-		return fmt.Errorf("writing the flags: %w", failed)
+	for _, line := range lines {
+		_, err := fmt.Fprintf(out, "%-*s %s\n", width, line.named, line.description)
+		if err != nil {
+			return fmt.Errorf("writing the flags: %w", err)
+		}
 	}
 
 	return nil
