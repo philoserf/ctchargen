@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/philoserf/ctchargen/traveller"
@@ -26,8 +27,24 @@ func EventLine(event traveller.Event) string {
 
 	_ = event.Fold(&lined)
 
-	if lined.event.Kind == kindChoice {
-		return ""
+	// Two kinds are written here rather than by the transcript's renderer,
+	// because they are read by a person watching his own generation rather
+	// than by one auditing someone else's.
+	//
+	// Both carry a sequence number the transcript does not print, and the
+	// gap that leaves is what made the numbers appear to skip - 17, 18, then
+	// 20. Nothing was ever missing; the headings and the questions were
+	// simply unnumbered.
+	switch lined.event.Kind {
+	case kindStep:
+		return fmt.Sprintf("\n## %d. %s (%s)\n\n",
+			lined.event.Seq, lined.event.Step, lined.event.Pages)
+	case kindChoice:
+		// Echoed after the answer, because a choice's number does not exist
+		// until it is made - the prompt cannot carry it. The transcript's
+		// own line names the point, the decider and the alternatives, all
+		// of which the person who just typed the answer can see above.
+		return fmt.Sprintf("%3d. you chose %s\n", lined.event.Seq, lined.event.Chosen)
 	}
 
 	var out strings.Builder
@@ -60,7 +77,11 @@ func (l *liveCodec) Throw(from traveller.ThrowEvent) error {
 }
 
 func (l *liveCodec) Choice(from traveller.ChoiceEvent) error {
-	l.event = eventJSON{Seq: from.Seq, Kind: kindChoice}
+	// Chosen is carried because the live view echoes it. It was dropped
+	// while choices rendered as nothing at all, which is a field the fold
+	// cannot catch: a case that stops filling one still compiles, and only
+	// what reads it notices.
+	l.event = eventJSON{Seq: from.Seq, Kind: kindChoice, Chosen: from.Chosen}
 
 	return nil
 }
