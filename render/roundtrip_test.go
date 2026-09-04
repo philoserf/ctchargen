@@ -370,3 +370,104 @@ func TestTheErrataAreOnTheTranscriptAndNotTheSheet(t *testing.T) {
 		t.Errorf("the transcript lost the erratum that governed an outcome:\n%s", transcript)
 	}
 }
+
+// A backtick in the record does not break the code span holding the command.
+//
+// Markdown closes a code span on the first run of backticks matching the run
+// that opened it, so a command carrying one inside a single-backtick span
+// ends early and the reader is shown half a command line - which is worse
+// than none, because the half looks complete.
+//
+// Shell quoting is what makes such a value harmless; this is the separate
+// question of whether the reader sees all of what he is offered.
+func TestABacktickDoesNotBreakTheCodeSpan(t *testing.T) {
+	t.Parallel()
+
+	sheet, err := render.SheetFrom(minimalRecord(
+		"\"inputs\":{\"seed\":1,\"career\":\"serve`id`\",\"skills\":\"advanced\",\"muster\":\"cash\"}"))
+	if err != nil {
+		t.Fatalf("rendering: %v", err)
+	}
+
+	_, line, found := strings.Cut(sheet, "Regenerate with ")
+	if !found {
+		t.Fatalf("no regenerate line in\n%s", sheet)
+	}
+
+	fence := len(line) - len(strings.TrimLeft(line, "`"))
+	if fence == 0 {
+		t.Fatalf("the command is not in a code span: %q", line)
+	}
+
+	// The command is what sits between the fences. Both ends are the
+	// assertion: the record's backtick survived inside the span, and the
+	// span still ran to the end of the command rather than closing on it.
+	body, _, closed := strings.Cut(line[fence:], strings.Repeat("`", fence))
+	if !closed {
+		t.Fatalf("the code span never closes: %q", line)
+	}
+
+	if !strings.Contains(body, "serve`id`") {
+		t.Errorf("the span does not carry the value the record put in it: %q", body)
+	}
+
+	if !strings.Contains(body, "--sheet") {
+		t.Errorf("the span closed before the end of the command: %q", body)
+	}
+}
+
+// A value the shell would act on is quoted, and the offer stays one line.
+//
+// Two ways a record reaches past the code span. A word beginning with `=` is
+// expanded by zsh, which sets EQUALS by default, to the path of the command
+// named after it - so `=id` written bare is not a value the shell reads back
+// as itself. A newline ends the line the offer is written on, which closes
+// the paragraph, leaves the code span open, and lands the rest of the value
+// on the sheet as markdown of its own.
+func TestAValueTheShellWouldActOnIsNotWrittenBare(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct{ career, avoid, wants string }{
+		// Bare, the word is one zsh expands before the tool sees it.
+		"a word zsh expands": {career: "=id", avoid: " =id ", wants: "'=id'"},
+		// Unescaped, the newlines end the offer and the heading is real.
+		// The rest is every other byte the escaping has to spell: a tab, a
+		// return, a backslash, a quote of its own, and one with no name.
+		//
+		// The quote is spelled \x27 rather than \', because the escaped
+		// form has to stay one inert word in a shell that does not read
+		// $'...': sh sees a plain single-quoted string, and a quote of its
+		// own inside it would end that string and leave the rest bare.
+		"a value carrying a newline": {
+			career: `serve\t\r\u0001\\'\n\n## Not a career\n\nrm -rf ~`,
+			avoid:  "\n## Not a career",
+			wants:  `\x27`,
+		},
+	} {
+		sheet, err := render.SheetFrom(minimalRecord(
+			`"inputs":{"seed":1,"career":"` + tc.career +
+				`","skills":"advanced","muster":"cash"}`))
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+
+		if strings.Contains(sheet, tc.avoid) {
+			t.Errorf("%s: the sheet carries %q:\n%s", name, tc.avoid, sheet)
+		}
+
+		_, offer, found := strings.Cut(sheet, "Regenerate with ")
+		if !found {
+			t.Fatalf("%s: no regenerate line in\n%s", name, sheet)
+		}
+
+		offer, _, _ = strings.Cut(offer, "\n")
+
+		if !strings.Contains(offer, tc.wants) {
+			t.Errorf("%s: the offer does not spell the value %q: %q", name, tc.wants, offer)
+		}
+
+		if !strings.Contains(offer, "--sheet") {
+			t.Errorf("%s: the offer does not reach the end of the command: %q", name, offer)
+		}
+	}
+}

@@ -1,17 +1,51 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
-	"regexp"
+	"maps"
+	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
 )
 
-// printedCommand matches the command a rendering offers, which the render
-// package writes between backticks.
-var printedCommand = regexp.MustCompile("`(ctchargen [^`]*)`")
+// offered is the prose the command follows, and the only place a rendering
+// hands the reader a line to paste.
+const offered = "Regenerate with "
+
+// commandIn pulls the command out of a rendering, reading the code span the
+// way CommonMark does rather than pattern-matching the prose around it: the
+// span is opened by a run of backticks and closed by the first run of the
+// same length. Reading the fence is what lets this find a command that
+// carries a backtick of its own, which a regexp cannot - Go's has no
+// backreference to hold a close to its open.
+func commandIn(rendering string) (string, bool) {
+	_, line, found := strings.Cut(rendering, offered)
+	if !found {
+		return "", false
+	}
+
+	// The offer is one line, and a span that does not close on it is not
+	// one the reader is shown: the paragraph ends at the blank line, and
+	// what follows lands on the sheet as markdown of its own.
+	line, _, _ = strings.Cut(line, "\n")
+
+	fence := len(line) - len(strings.TrimLeft(line, "`"))
+	if fence == 0 {
+		return "", false
+	}
+
+	command, _, closed := strings.Cut(line[fence:], strings.Repeat("`", fence))
+	if !closed {
+		return "", false
+	}
+
+	return command, true
+}
 
 // The command a rendering prints reproduces that rendering, byte for byte.
 //
@@ -49,14 +83,14 @@ func TestAPrintedCommandReproducesWhatPrintedIt(t *testing.T) {
 			continue
 		}
 
-		printed := printedCommand.FindStringSubmatch(first.String())
-		if printed == nil {
+		printed, found := commandIn(first.String())
+		if !found {
 			t.Errorf("%s: no command in\n%s", name, first.String())
 
 			continue
 		}
 
-		again, err := shellFields(printed[1])
+		again, err := shellFields(printed)
 		if err != nil {
 			t.Errorf("%s: %v", name, err)
 
@@ -64,7 +98,7 @@ func TestAPrintedCommandReproducesWhatPrintedIt(t *testing.T) {
 		}
 
 		if len(again) == 0 || again[0] != "ctchargen" {
-			t.Errorf("%s: the line does not name the tool: %q", name, printed[1])
+			t.Errorf("%s: the line does not name the tool: %q", name, printed)
 
 			continue
 		}
@@ -73,14 +107,14 @@ func TestAPrintedCommandReproducesWhatPrintedIt(t *testing.T) {
 
 		err = run(again[1:], nil, &second, io.Discard)
 		if err != nil {
-			t.Errorf("%s: running %q: %v", name, printed[1], err)
+			t.Errorf("%s: running %q: %v", name, printed, err)
 
 			continue
 		}
 
 		if first.String() != second.String() {
 			t.Errorf("%s: %q did not reproduce what printed it:\n--- first\n%s\n--- again\n%s",
-				name, printed[1], first.String(), second.String())
+				name, printed, first.String(), second.String())
 		}
 	}
 }
@@ -100,16 +134,16 @@ func TestAPrintedCommandNamesEveryStrategy(t *testing.T) {
 		t.Fatalf("generating: %v", err)
 	}
 
-	printed := printedCommand.FindStringSubmatch(out.String())
-	if printed == nil {
+	printed, found := commandIn(out.String())
+	if !found {
 		t.Fatalf("no command in\n%s", out.String())
 	}
 
 	for _, want := range []string{
 		flagCareer, "serve", flagSkills, "advanced", flagMuster, "cash",
 	} {
-		if !strings.Contains(printed[1], want) {
-			t.Errorf("%q does not name %q", printed[1], want)
+		if !strings.Contains(printed, want) {
+			t.Errorf("%q does not name %q", printed, want)
 		}
 	}
 }
@@ -127,7 +161,8 @@ func TestAnAnsweredCharacterIsNotOfferedACommand(t *testing.T) {
 		t.Fatalf("generating: %v", err)
 	}
 
-	if printedCommand.MatchString(out.String()) {
+	_, hasCommand := commandIn(out.String())
+	if hasCommand {
 		t.Errorf("a sheet the player answered for offers a command:\n%s", out.String())
 	}
 
@@ -138,38 +173,240 @@ func TestAnAnsweredCharacterIsNotOfferedACommand(t *testing.T) {
 	}
 }
 
+// errUnbalanced reports a printed command whose quoting does not close.
+var errUnbalanced = errors.New("unbalanced quote")
+
+// errBadEscape reports a $'...' escape the shells this line is written for
+// would not read back.
+var errBadEscape = errors.New("unreadable escape")
+
 // shellFields splits a printed command the way a shell would.
 //
-// strings.Fields would do for every argument but one: a name is printed
-// quoted because it can hold a space, and splitting on whitespace would make
-// it two arguments and a stray quote. Reading the quotes here is what lets
-// the test above notice if the printing stopped writing them.
+// It reads single quotes, because that is what the line is written with: a
+// shell expands a backtick inside double quotes and expands nothing at all
+// inside single ones, so a line meant to be pasted has to use the latter.
+// A quote within them is closed, escaped and reopened - 'O'\”Brien' - which
+// means a token is a run of quoted and unquoted pieces rather than one span,
+// and that is why this scans rather than cutting on spaces.
 func shellFields(line string) ([]string, error) {
-	var fields []string
+	var (
+		fields  []string
+		token   strings.Builder
+		started bool
+	)
 
-	for rest := strings.TrimSpace(line); rest != ""; rest = strings.TrimSpace(rest) {
-		if strings.HasPrefix(rest, `"`) {
-			quoted, err := strconv.QuotedPrefix(rest)
-			if err != nil {
-				return nil, fmt.Errorf("unbalanced quote in %q: %w", line, err)
+	for i := 0; i < len(line); {
+		switch char := line[i]; {
+		case char == ' ':
+			if started {
+				fields = append(fields, token.String())
+				token.Reset()
+
+				started = false
 			}
 
-			value, err := strconv.Unquote(quoted)
-			if err != nil {
-				return nil, fmt.Errorf("reading %s in %q: %w", quoted, line, err)
+			i++
+		case char == '\'':
+			end := strings.IndexByte(line[i+1:], '\'')
+			if end < 0 {
+				return nil, fmt.Errorf("%w in %q", errUnbalanced, line)
 			}
 
-			fields = append(fields, value)
-			rest = rest[len(quoted):]
+			token.WriteString(line[i+1 : i+1+end])
+
+			started = true
+
+			i += end + 2
+		case char == '$' && i+1 < len(line) && line[i+1] == '\'':
+			read, width, err := ansiC(line[i+2:])
+			if err != nil {
+				return nil, fmt.Errorf("%w in %q", err, line)
+			}
+
+			token.WriteString(read)
+
+			started = true
+
+			i += width + 2
+		case char == '\\' && i+1 < len(line):
+			token.WriteByte(line[i+1])
+
+			started = true
+
+			i += 2
+		default:
+			token.WriteByte(char)
+
+			started = true
+
+			i++
+		}
+	}
+
+	if started {
+		fields = append(fields, token.String())
+	}
+
+	return fields, nil
+}
+
+// ansiC reads a $'...' string from just after its opening quote, and returns
+// what it holds and how far it ran.
+//
+// A value carrying a control character cannot be written in plain single
+// quotes: they hold a newline literally, which ends the line the offer is
+// written on. bash and zsh read the escapes back, which is why the printing
+// reaches for this form and why the test has to know it.
+func ansiC(rest string) (string, int, error) {
+	var out strings.Builder
+
+	for i := 0; i < len(rest); {
+		switch {
+		case rest[i] == '\'':
+			return out.String(), i + 1, nil
+		case rest[i] != '\\' || i+1 >= len(rest):
+			out.WriteByte(rest[i])
+
+			i++
+		case rest[i+1] == 'x':
+			if i+4 > len(rest) {
+				return "", 0, errBadEscape
+			}
+
+			code, err := strconv.ParseUint(rest[i+2:i+4], 16, 8)
+			if err != nil {
+				return "", 0, fmt.Errorf("%w %q: %w", errBadEscape, rest[i:i+4], err)
+			}
+
+			out.WriteByte(byte(code))
+
+			i += 4
+		default:
+			out.WriteByte(named(rest[i+1]))
+
+			i += 2
+		}
+	}
+
+	return "", 0, errUnbalanced
+}
+
+// named reads the one-letter escapes the printing writes.
+func named(char byte) byte {
+	switch char {
+	case 'n':
+		return '\n'
+	case 'r':
+		return '\r'
+	case 't':
+		return '\t'
+	default:
+		return char
+	}
+}
+
+// A record cannot put words in the operator's shell.
+//
+// render reads whatever it is handed - PRERELEASE.md says so deliberately,
+// and it is right for a value that is only displayed. This line is different:
+// the tool tells the reader to paste it. Character records exist to be
+// shared, so a referee rendering one a player sent him is the ordinary path,
+// not an exotic one.
+//
+// The assertion is that each hostile value arrives as exactly ONE argument.
+// That is the property that matters: a value which reaches the tool whole is
+// then refused by the tool's own validation, which is the right place for it
+// to fail.
+func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
+	t.Parallel()
+
+	const (
+		smuggledFlags = "other --force -o /etc/hosts"
+		substitution  = "serve`touch /tmp/ctchargen-should-not-exist`"
+		// An apostrophe closes the quoting, and a newline ends the line
+		// the quoting is written on - which is the same escape by another
+		// door, and takes the markdown of the sheet with it.
+		aBrokenLine = "O'Brien\t\r\x01\\\n\n## Not his name\n\nPaste this instead: rm -rf ~"
+	)
+
+	path := recordWithInputs(t, map[string]any{
+		"service": smuggledFlags,
+		"career":  substitution,
+		"name":    aBrokenLine,
+	})
+
+	var out strings.Builder
+
+	err := run([]string{cmdRender, path}, nil, &out, io.Discard)
+	if err != nil {
+		t.Fatalf("rendering: %v", err)
+	}
+
+	printed, found := commandIn(out.String())
+	if !found {
+		t.Fatalf("no command in\n%s", out.String())
+	}
+
+	got, err := shellFields(printed)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	// Each value whole, and in the position its flag put it.
+	for flag, want := range map[string]string{
+		flagService: smuggledFlags,
+		flagCareer:  substitution,
+		flagName:    aBrokenLine,
+	} {
+		at := slices.Index(got, flag)
+		if at < 0 || at+1 >= len(got) {
+			t.Errorf("%s is not in the line: %q", flag, printed)
 
 			continue
 		}
 
-		field, remainder, _ := strings.Cut(rest, " ")
+		if got[at+1] != want {
+			t.Errorf("%s arrived as %q, want the whole of %q", flag, got[at+1], want)
+		}
+	}
+}
 
-		fields = append(fields, field)
-		rest = remainder
+// recordWithInputs writes a real record and then edits its inputs, which is
+// how a hostile one would reach the tool: nothing here writes these values,
+// and render reads what it is handed.
+func recordWithInputs(t *testing.T, doctored map[string]any) string {
+	t.Helper()
+
+	path := writeRecord(t)
+
+	text, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
 	}
 
-	return fields, nil
+	record := map[string]any{}
+
+	err = json.Unmarshal(text, &record)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+
+	inputs, ok := record["inputs"].(map[string]any)
+	if !ok {
+		t.Fatalf("the record carries no inputs: %v", record["inputs"])
+	}
+
+	maps.Copy(inputs, doctored)
+
+	text, err = json.Marshal(record)
+	if err != nil {
+		t.Fatalf("writing %s: %v", path, err)
+	}
+
+	err = os.WriteFile(path, text, 0o600)
+	if err != nil {
+		t.Fatalf("writing %s: %v", path, err)
+	}
+
+	return path
 }
