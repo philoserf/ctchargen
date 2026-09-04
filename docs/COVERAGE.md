@@ -146,6 +146,9 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | A refused batch writes none of itself | CLI sketch | `cmd/ctchargen.noMemberExists` | `ctchargen.TestARefusedBatchWritesNothing` |
 | Every question the player is asked is one the engine asked | FR9 | `cmd/ctchargen.player` | `ctchargen.TestInteractiveWalksACharacter` |
 | The alternatives offered are exactly the engine's | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveAsksTheYesOrNoPoints` |
+| A stopped session offers the way back to its question | CLI sketch | `cmd/ctchargen.stopped` | `ctchargen.TestAStoppedSessionOffersTheWayBackIn` |
+| A replay reproduces the character that was typed | Determinism | `cmd/ctchargen.next` | `ctchargen.TestAReplayReproducesTheTypedCharacter` |
+| A read that fails is not the input ending | FR9 | `cmd/ctchargen.stopped` | `ctchargen.TestAFailedReadIsNotTheInputEnding` |
 | An answer outside the offered set is refused, not applied | FR9 | `chargen.logging.record` | `chargen.TestAnAnswerOutsideTheOfferIsRefused` |
 | A decider built out of strategies that do not exist is refused | FR9 | `chargen.validate` | `chargen.TestADeciderBuiltOutOfNothingIsRefused` |
 | An unreadable answer is asked again, never guessed at | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveReAsksWhatItCannotRead` |

@@ -28,6 +28,7 @@ const (
 	flagHistory    = "--history"
 	flagForce      = "--force"
 	flagOutput     = "-o"
+	flagAnswers    = "--answers"
 	wantSheet      = "sheet"
 	wantTranscript = "transcript"
 	other          = "other"

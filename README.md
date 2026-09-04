@@ -73,6 +73,19 @@ ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] 
 
 `batch` requires `--auto`, because it has nobody to ask.
 
+**A session that stops before the end offers the way back in.** A half-built
+character is not a record, so it cannot be written out — but the seed and the
+answers already given are enough to walk back to the question you stopped on,
+and those are what a long session cannot retype:
+
+```sh
+$ ctchargen new --seed 7 --service other
+...
+Re-run with --seed 7 --answers 1,2,1 to pick up at this question.
+```
+
+`--answers` replays those and then asks the next question as normal.
+
 **Without `--service` the tool picks one**, and with `--auto` that pick is the
 policy's rather than yours. The sheet says so on its headline, and so does the
 record. Naming a service does not guarantee you get it either: a failed
