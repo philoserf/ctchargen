@@ -1,20 +1,26 @@
 package render
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/philoserf/ctchargen/traveller"
 )
 
-// EventLine renders one event as the transcript renders it, for a reader
-// watching a generation happen rather than reading it afterwards.
+// EventLine renders one event for a reader watching a generation happen
+// rather than reading it afterwards.
 //
-// It goes through the same writeEvent the transcript does: the wire shape
-// and the domain shape both converge on eventJSON before anything is
-// written, so a live line and a transcript line cannot come to differ.
+// Throws and outcomes go through the same writeEvent the transcript does:
+// the wire shape and the domain shape both converge on eventJSON before
+// anything is written, so those lines cannot come to differ.
 //
-// A choice returns the empty string. Interactive mode is the only caller,
-// and it has just asked the question and read the answer; repeating it back
+// Steps and choices are written here instead, and deliberately do differ.
+// A step's heading is unnumbered in the transcript, and a choice used to
+// render as nothing at all here; either leaves a gap a watcher reads as a
+// lost event, so both are written with their number. The choice is echoed
+// as that number and the answer alone rather than the transcript's full
+// form, because the player has just been asked the question and can still
+// see the point, the decider and the alternatives above him; repeating them
 // pushes the useful lines off the screen.
 //
 // It returns no error, as foldDeparture does not: every case of liveCodec
@@ -26,8 +32,19 @@ func EventLine(event traveller.Event) string {
 
 	_ = event.Fold(&lined)
 
-	if lined.event.Kind == kindChoice {
-		return ""
+	// The gap these two close is what made the numbers appear to skip - 17,
+	// 18, then 20. Nothing was ever missing: the headings printed without
+	// their number, and the questions printed nothing at all.
+	switch lined.event.Kind {
+	case kindStep:
+		return fmt.Sprintf("\n## %d. %s (%s)\n\n",
+			lined.event.Seq, lined.event.Step, lined.event.Pages)
+	case kindChoice:
+		// Echoed after the answer, because a choice's number does not exist
+		// until it is made - the prompt cannot carry it. The transcript's
+		// own line names the point, the decider and the alternatives, all
+		// of which the person who just typed the answer can see above.
+		return fmt.Sprintf("%3d. you chose %s\n", lined.event.Seq, lined.event.Chosen)
 	}
 
 	var out strings.Builder
@@ -60,7 +77,11 @@ func (l *liveCodec) Throw(from traveller.ThrowEvent) error {
 }
 
 func (l *liveCodec) Choice(from traveller.ChoiceEvent) error {
-	l.event = eventJSON{Seq: from.Seq, Kind: kindChoice}
+	// Chosen is carried because the live view echoes it. It was dropped
+	// while choices rendered as nothing at all, which is a field the fold
+	// cannot catch: a case that stops filling one still compiles, and only
+	// what reads it notices.
+	l.event = eventJSON{Seq: from.Seq, Kind: kindChoice, Chosen: from.Chosen}
 
 	return nil
 }

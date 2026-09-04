@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -15,6 +17,14 @@ import (
 // a character by always taking the first option offered.
 func answers(choice string, times int) io.Reader {
 	return strings.NewReader(strings.Repeat(choice+"\n", times))
+}
+
+// unusableFirst puts three answers the prompt cannot use in front of such a
+// walk: a word, a number below the range, and one above it. Both tests of
+// the refusal drive the same three, so they are written once - a walk that
+// answered differently would be testing something else.
+func unusableFirst() io.Reader {
+	return io.MultiReader(strings.NewReader("banana\n0\n99\n"), answers("1", 200))
 }
 
 // A bare new walks the procedure, asking at every choice point and showing
@@ -33,10 +43,12 @@ func TestInteractiveWalksACharacter(t *testing.T) {
 	shown := out.String()
 
 	for _, want := range []string{
-		// The procedure, shown as it runs.
-		"## characteristics (p. 4)",
+		// The procedure, shown as it runs. The headings carry their
+		// sequence number, which is what stops the numbers appearing to
+		// skip past them.
+		"## 1. characteristics (p. 4)",
 		"Strength: rolled",
-		"## term 1 (pp. 5-7)",
+		"## 18. term 1 (pp. 5-7)",
 		"survival: rolled",
 		// A question, with the alternatives the engine offered.
 		"Which skills table? It is designated before the die (p. 11)",
@@ -49,10 +61,29 @@ func TestInteractiveWalksACharacter(t *testing.T) {
 		}
 	}
 
-	// The choices are not echoed back: the player answered them a line
-	// earlier, and repeating them pushes the useful lines off the screen.
+	// A choice is echoed back, and in one line.
+	//
+	// It used to be shown as nothing at all, on the reasoning that the
+	// player answered it a line earlier and repeating it pushes the useful
+	// lines off the screen. That reasoning still holds against the
+	// transcript's own form - "SubmitToDraft: player chose yes from yes, no"
+	// - which names the point, the decider and every alternative he can
+	// still see above him. What it does not survive is the cost: a choice
+	// holds a sequence number, and showing nothing left the numbers with
+	// holes in them that read as lost events.
+	//
+	// So the echo is the number and the answer, and nothing else.
 	if strings.Contains(shown, "player chose") {
-		t.Error("the run echoed the player's own choices back at him")
+		t.Error("the live view used the transcript's form, which repeats what he can see")
+	}
+
+	// Named against the answer, not against the words around it. An echo
+	// reading "you chose " with nothing after it keeps the numbering whole
+	// and says nothing - which is what happens the moment liveCodec stops
+	// carrying the field, a drift the fold cannot catch because the case
+	// still compiles.
+	if !strings.Contains(shown, "you chose Personal Development Table") {
+		t.Error("the echo does not name what was chosen")
 	}
 }
 
@@ -62,11 +93,8 @@ func TestInteractiveReAsksWhatItCannotRead(t *testing.T) {
 
 	var out strings.Builder
 
-	// The first three answers to the first question are unusable: a word, a
-	// number below the range, and one above it.
-	script := strings.NewReader("banana\n0\n99\n" + strings.Repeat("1\n", 200))
-
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, script, &out, &out)
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
+		unusableFirst(), &out, &out)
 	if err != nil {
 		t.Fatalf("walking a character: %v", err)
 	}
@@ -78,8 +106,119 @@ func TestInteractiveReAsksWhatItCannotRead(t *testing.T) {
 			strings.Count(shown, "answer with a number from 1 to"))
 	}
 
+	// The complaint names what was typed, so a reader can see which of his
+	// answers was refused rather than inferring it.
+	for _, given := range []string{`"banana"`, `"0"`, `"99"`} {
+		if !strings.Contains(shown, given+" is not one of them") {
+			t.Errorf("the complaint does not name %s", given)
+		}
+	}
+
 	if !strings.Contains(shown, "UPP ") {
 		t.Error("the run did not finish after the answers became usable")
+	}
+}
+
+// A bad answer does not re-print the menu.
+//
+// Re-printing it is what buried the complaint: the message landed on the
+// prompt row and six lines of options followed, so the tool read as though it
+// had said nothing. The question is asked once and the prompt comes back on
+// its own.
+//
+// Driven without --service, because the enlistment menu is the one question
+// asked exactly once in a run - counting it is meaningless for a question the
+// procedure puts every term.
+func TestABadAnswerDoesNotReprintTheMenu(t *testing.T) {
+	t.Parallel()
+
+	var out strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagSheet}, unusableFirst(), &out, &out)
+	if err != nil {
+		t.Fatalf("walking a character: %v", err)
+	}
+
+	shown := out.String()
+
+	const question = "Which service will you try to enlist in?"
+
+	if asked := strings.Count(shown, question); asked != 1 {
+		t.Errorf("three bad answers printed the menu %d times, want 1", asked)
+	}
+
+	if refused := strings.Count(shown, "is not one of them"); refused != 3 {
+		t.Errorf("three bad answers drew %d complaints, want 3", refused)
+	}
+}
+
+// The numbers a player watches do not skip.
+//
+// They appeared to - 17, 18, then 20 - because the headings and the questions
+// hold sequence numbers and rendered unnumbered. Nothing was ever missing, but
+// a gap in a transcript whose whole purpose is auditability costs a reader
+// trust he should not have to spend.
+func TestTheNumbersAPlayerWatchesDoNotSkip(t *testing.T) {
+	t.Parallel()
+
+	var out strings.Builder
+
+	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
+		answers("1", 200), &out, &out)
+	if err != nil {
+		t.Fatalf("walking a character: %v", err)
+	}
+
+	numbered := regexp.MustCompile(`(?m)^\s*(?:## )?(\d+)\. `)
+
+	lines := numbered.FindAllStringSubmatch(out.String(), -1)
+	seen := make([]int, 0, len(lines))
+
+	for _, m := range lines {
+		n, err := strconv.Atoi(m[1])
+		if err != nil {
+			t.Fatalf("reading %q: %v", m[1], err)
+		}
+
+		seen = append(seen, n)
+	}
+
+	if len(seen) < 2 {
+		t.Fatalf("found %d numbered lines in\n%s", len(seen), out.String())
+	}
+
+	for i := 1; i < len(seen); i++ {
+		if seen[i] != seen[i-1]+1 {
+			t.Errorf("the sequence jumps from %d to %d", seen[i-1], seen[i])
+		}
+	}
+}
+
+// The two Advanced Education tables are told apart at a glance.
+//
+// They are identical up to a parenthesis, which is honest and easy to pick
+// wrong at speed. What separates them belongs at the front, because the eye
+// scans down the left of a numbered list.
+func TestTheTwoAdvancedEducationTablesReadDifferently(t *testing.T) {
+	t.Parallel()
+
+	var out strings.Builder
+
+	// Seed 4 in the Navy reaches a term offering all four tables, which
+	// needs the education 8+ gate open.
+	err := run([]string{cmdNew, flagSeed, "4", flagService, navy, flagSheet},
+		answers("1", 200), &out, &out)
+	if err != nil {
+		t.Fatalf("walking a character: %v", err)
+	}
+
+	shown := out.String()
+	if !strings.Contains(shown, "Advanced Education Table\n") {
+		t.Fatalf("the run never offered the skills tables:\n%s", shown)
+	}
+
+	if !strings.Contains(shown, "Education 8+ table (the second Advanced Education table)") {
+		t.Errorf("the two Advanced Education entries are not told apart:\n%s", shown)
 	}
 }
 

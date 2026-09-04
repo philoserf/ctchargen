@@ -87,7 +87,24 @@ func (p *player) AttemptPromotion() (bool, error) {
 
 func (p *player) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
 	return pick(p, "Which skills table? It is designated before the die (p. 11)",
-		from, traveller.SkillTable.String)
+		from, skillTableMenu)
+}
+
+// skillTableMenu names a skills table for a person reading a list at speed.
+//
+// Two of them are identical up to a parenthesis - "Advanced Education Table"
+// and "Advanced Education Table (education 8+)" - which is honest and easy to
+// pick wrong. What separates them is moved to the front, because the eye scans
+// down the left of a numbered list and never reaches a parenthesis.
+//
+// The wording here is the menu's, not the record's, for the reason
+// MusterWeapon's is: they address two readers and nothing compares them.
+func skillTableMenu(table traveller.SkillTable) string {
+	if table == traveller.AdvancedEducationEight {
+		return "Education 8+ table (the second Advanced Education table)"
+	}
+
+	return table.String()
 }
 
 func (p *player) Weapon(
@@ -169,26 +186,30 @@ func (p *player) sayf(format string, args ...any) {
 	_, p.wrote = fmt.Fprintf(p.out, format, args...)
 }
 
-// watch shows the player the procedure between his questions, through the
-// transcript's own renderer.
+// watch shows the player the procedure between his questions.
+//
+// Every event now renders to something: the choices used to come back empty
+// and were skipped here, which is what left holes in the numbering. Nothing
+// returns nothing, so there is no longer anything to skip - writeEvent's own
+// default writes a line even for a kind this build does not know.
 func (p *player) watch(event traveller.Event) {
-	line := render.EventLine(event)
-	if line == "" {
-		return
-	}
-
-	p.sayf("%s", line)
+	p.sayf("%s", render.EventLine(event))
 }
 
 // choose asks for one of a numbered list and returns its index.
+//
+// The list is printed once. A bad answer used to re-print the whole thing,
+// which buried the complaint under six lines of menu and read as though the
+// tool had said nothing at all - the reported behaviour. Now the complaint
+// names what was typed and the prompt comes back on its own.
 func (p *player) choose(question string, options []string) (int, error) {
+	p.sayf("\n%s\n", question)
+
+	for i, option := range options {
+		p.sayf("  %d) %s\n", i+1, option)
+	}
+
 	for {
-		p.sayf("\n%s\n", question)
-
-		for i, option := range options {
-			p.sayf("  %d) %s\n", i+1, option)
-		}
-
 		p.sayf("> ")
 
 		if p.wrote != nil {
@@ -199,14 +220,17 @@ func (p *player) choose(question string, options []string) (int, error) {
 			return 0, errNoAnswer
 		}
 
-		chosen, err := strconv.Atoi(strings.TrimSpace(p.in.Text()))
+		given := strings.TrimSpace(p.in.Text())
+
+		chosen, err := strconv.Atoi(given)
 		if err == nil && chosen >= 1 && chosen <= len(options) {
 			p.sayf("\n")
 
 			return chosen - 1, nil
 		}
 
-		p.sayf("  answer with a number from 1 to %d\n", len(options))
+		p.sayf("  %q is not one of them; answer with a number from 1 to %d\n",
+			given, len(options))
 	}
 }
 
