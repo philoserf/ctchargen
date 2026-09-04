@@ -17,3 +17,6 @@ UPP 335C6C, age 38, Other, 5 terms, killed by the survival throw
 
 - E001, E002, E004, E006, E007, E011
 
+---
+
+Regenerate with `ctchargen new --auto --seed 39 --service navy --career serve --skills advanced --muster cash --sheet`.

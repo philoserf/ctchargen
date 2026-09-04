@@ -17,3 +17,6 @@ UPP 9346C5, age 34, Other, 4 terms, killed by the survival throw
 
 - E002, E004
 
+---
+
+Regenerate with `ctchargen new --auto --seed 5 --service other --career serve --skills advanced --muster cash --sheet`.

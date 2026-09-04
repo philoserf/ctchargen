@@ -1,6 +1,6 @@
 # Generation record: (unnamed)
 
-Seed 52, strategies serve/advanced/goods.
+Regenerate with `ctchargen new --auto --seed 52 --service merchants --career serve --skills advanced --muster goods --history`.
 
 
 ## characteristics (p. 4)

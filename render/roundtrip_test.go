@@ -162,3 +162,26 @@ func TestARecordMustCarryAUPPAndARuleset(t *testing.T) {
 		t.Errorf("a record with no ruleset was refused as %v", err)
 	}
 }
+
+// A record carrying an event that will not read is refused by both
+// renderings, rather than rendered without it.
+//
+// The sheet is the one that changed: it now reads the events too, to find out
+// whether the player answered any choice. A sheet that swallowed the failure
+// would print the regenerate line - a promise that the seed brings this
+// character back - about a record it could not finish reading.
+func TestAnEventThatWillNotReadIsRefused(t *testing.T) {
+	t.Parallel()
+
+	unreadable := minimalRecord(`"events":[3]`)
+
+	_, err := render.SheetFrom(unreadable)
+	if err == nil || !strings.Contains(err.Error(), "an event will not read") {
+		t.Errorf("the sheet rendered a record it could not read: %v", err)
+	}
+
+	_, err = render.TranscriptFrom(unreadable)
+	if err == nil || !strings.Contains(err.Error(), "an event will not read") {
+		t.Errorf("the transcript rendered a record it could not read: %v", err)
+	}
+}

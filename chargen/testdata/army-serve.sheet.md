@@ -28,3 +28,6 @@ UPP 866CCC, age 42, Army Lt Colonel, 6 terms, baron/baroness, retired
 
 - E002, E005, E006, E007, E011
 
+---
+
+Regenerate with `ctchargen new --auto --seed 4 --service army --career serve --skills advanced --muster cash --sheet`.

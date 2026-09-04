@@ -1,6 +1,6 @@
 # Generation record: (unnamed)
 
-Seed 6, strategies oneterm/personal/goods.
+Regenerate with `ctchargen new --auto --seed 6 --service scouts --career oneterm --skills personal --muster goods --history`.
 
 
 ## characteristics (p. 4)

@@ -17,7 +17,7 @@ func Sheet(character *chargen.Character) (string, error) {
 		return "", err
 	}
 
-	return sheetOf(projected), nil
+	return sheetOf(projected)
 }
 
 // SheetFrom renders a record that was written earlier, which is what the
@@ -32,10 +32,15 @@ func SheetFrom(text []byte) (string, error) {
 		return "", err
 	}
 
-	return sheetOf(projected), nil
+	return sheetOf(projected)
 }
 
-func sheetOf(r record) string {
+// sheetOf writes the sheet, and ends it with how to get the character back.
+//
+// The footer is last because it is not the character: a referee reads the
+// headline and the possessions, and reaches for the seed only once he has
+// decided he wants this one.
+func sheetOf(r record) (string, error) {
 	var out strings.Builder
 
 	fmt.Fprintf(&out, "# %s\n\n", nameOrBlank(r.Name))
@@ -49,7 +54,14 @@ func sheetOf(r record) string {
 		writeSection(&out, "Readings applied", []string{strings.Join(r.Errata, ", ")})
 	}
 
-	return out.String()
+	told, err := provenance(r, sheetRendering)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Fprintf(&out, "---\n\n%s\n", told)
+
+	return out.String(), nil
 }
 
 func nameOrBlank(name string) string {

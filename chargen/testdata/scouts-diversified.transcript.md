@@ -1,6 +1,6 @@
 # Generation record: (unnamed)
 
-Seed 4, strategies serve/advanced/spartan.
+Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve --skills advanced --muster spartan --history`.
 
 
 ## characteristics (p. 4)
