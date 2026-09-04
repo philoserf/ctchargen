@@ -32,12 +32,12 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		auto    = flags.Bool("auto", false, "decide by the policy at every choice, rather than asking")
 		service = flags.String("service", "", "attempt enlistment in this service: "+serviceChoices())
 		name    = flags.String("name", "", "the character's name")
-		career  = flags.String(careerFlag, chargen.CareerServe,
-			"the --auto career strategy: "+strategyChoices(careerFlag))
-		skills = flags.String(skillsFlag, chargen.SkillsAdvanced,
-			"the --auto skills strategy: "+strategyChoices(skillsFlag))
-		muster = flags.String(musterFlag, chargen.MusterCash,
-			"the --auto mustering out strategy: "+strategyChoices(musterFlag))
+		career  = flags.String(careerFlag, chargen.CareerServe.String(),
+			"the --auto career `strategy`: "+chargen.CareerChoices())
+		skills = flags.String(skillsFlag, chargen.SkillsAdvanced.String(),
+			"the --auto skills `strategy`: "+chargen.SkillsChoices())
+		muster = flags.String(musterFlag, chargen.MusterCash.String(),
+			"the --auto mustering out `strategy`: "+chargen.MusterChoices())
 		sheet   = flags.Bool("sheet", false, "write the character sheet rather than JSON")
 		history = flags.Bool("history", false, "write the generation record rather than JSON")
 		output  = flags.String("o", "", "write to this file rather than to standard output")
@@ -132,11 +132,38 @@ func isSet(flags *flag.FlagSet, name string) bool {
 	return found
 }
 
+// withStrategies turns the three strategy flags into domain values.
+//
+// This is the boundary the strategies are parsed at, and the only one: past
+// here a Career is a Career, and no part of the engine asks again whether it
+// is one of three. That is why chargen has no Validate any more (#41).
+func withStrategies(in chargen.Inputs, career, skills, muster string) (chargen.Inputs, error) {
+	var err error
+
+	in.Career, err = chargen.ParseCareer(career)
+	if err != nil {
+		return in, fmt.Errorf("%w: %w", errUsage, err)
+	}
+
+	in.Skills, err = chargen.ParseSkills(skills)
+	if err != nil {
+		return in, fmt.Errorf("%w: %w", errUsage, err)
+	}
+
+	in.Muster, err = chargen.ParseMuster(muster)
+	if err != nil {
+		return in, fmt.Errorf("%w: %w", errUsage, err)
+	}
+
+	return in, nil
+}
+
 func inputsFrom(seed uint64, name, service, career, skills, muster string, seedGiven bool) (
 	chargen.Inputs, error,
 ) {
-	in := chargen.Inputs{
-		Seed: seed, Name: name, Career: career, Skills: skills, Muster: muster,
+	in, err := withStrategies(chargen.Inputs{Seed: seed, Name: name}, career, skills, muster)
+	if err != nil {
+		return in, err
 	}
 
 	if !seedGiven {
@@ -200,11 +227,6 @@ func generate(inputs chargen.Inputs, auto bool, answers []int, in io.Reader, ask
 ) {
 	policy := chargen.Policy{
 		Career: inputs.Career, Skills: inputs.Skills, Muster: inputs.Muster,
-	}
-
-	invalid := policy.Validate()
-	if invalid != nil {
-		return nil, fmt.Errorf("%w: %w", errUsage, invalid)
 	}
 
 	if auto {

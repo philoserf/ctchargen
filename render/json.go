@@ -182,7 +182,7 @@ func project(character *chargen.Character) (record, error) {
 func projectInputs(in chargen.Inputs) inputsRecord {
 	out := inputsRecord{
 		Seed: in.Seed, Name: in.Name,
-		Career: in.Career, Skills: in.Skills, Muster: in.Muster,
+		Career: in.Career.String(), Skills: in.Skills.String(), Muster: in.Muster.String(),
 	}
 	if in.Forced {
 		out.Service = in.Service.String()
