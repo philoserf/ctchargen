@@ -39,6 +39,21 @@ longer exists.
    the PDF. This is the sanctioned exception to preferring Bash for file
    reads.
 
+   **One page at a time when the page carries a table.** A range renders each
+   page smaller, and the prerelease review lost a cell to it: in a six-page
+   read, Merchants row 3 of the Service Skills Table came out `Electronic`
+   where p. 11 prints `Blade Cbt`. Re-reading that page alone was right at
+   once. Ranges are fine for prose; a table gets its own call.
+
+   **And the visual read is not the whole defence.** The substitution reaches
+   the rendered image too, not only the extracted text: p. 23's Rank and
+   Service Skills box shows `Rifl3-1` in the page image, and Rifle-1 is what
+   it means. What catches that is a semantic cross-check — no skill or weapon
+   named `Rifl3` is defined anywhere in the three books, and Rifle is on the
+   p. 13 gun list. Read every extracted name back against the description
+   headings and the weapon lists, and treat one that resolves to nothing as a
+   broken glyph rather than a new name.
+
 3. **Transcribe every table twice.** Once into the embedded data, once into
    the `rules` tests, both from the same visual reading pass. The second
    transcription is the check the font trap needs. Retyping the second copy
@@ -114,6 +129,7 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/POLICY.md`   | The `--auto` decision table: one row per `Decider` method.                |
 | `docs/COVERAGE.md` | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect. |
 | `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
+| `docs/PRERELEASE.md` | The review before the tag: what each pass checked, what it found, and the shipping bar. A finding is recorded before it is fixed. |
 | `CLAUDE.md`        | This file.                                                                |
 
 The documents are held to the code in both directions once code exists: every

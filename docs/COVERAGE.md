@@ -1,6 +1,6 @@
 # COVERAGE: the procedure, mapped to the code
 
-2026-09-03. Milestone 2. Companion to `PRD.md`.
+2026-09-03. Every milestone complete. Companion to `PRD.md`.
 
 Every rule of Book 1 pp. 4–25 that this tool implements, with the page that
 governs it, the code that carries it, and the test that holds it. A rule with
@@ -85,6 +85,8 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Read off the table's term row, not its age row | 1:9 (E006) | `rules.Aging.At` | `rules.TestAgingTable` |
 | Saving throws in the table's row order | 1:9 (E007) | `chargen.run.agingRound` | golden transcripts |
 | The last column is terminal | 1:9 (E014) | `rules.Aging.At` | `chargen.TestACareerPastTheTablesLastColumn` |
+| Education and Social Standing are unaffected by aging | 1:9 | `rules` lift | `rules.TestAgingTable` |
+| Intelligence is unaffected before age 66 | 1:9 | `rules` lift | `rules.TestAgingTable` |
 | A characteristic at zero is a medical crisis, resolved inline | 1:7–8 (E007) | `chargen.run.crisis` | golden `other-crisis-survived` |
 | Saving throw 8+, with no modifier during generation | 1:7 (E009) | `chargen.run.crisis` | `rules.TestMedicalCrisis` |
 | Survival recovers to 1 and adds 1D months | 1:7–8 | `chargen.run.crisis` | golden `other-crisis-survived` |
