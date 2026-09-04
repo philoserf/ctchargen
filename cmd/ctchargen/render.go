@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -28,8 +29,12 @@ func renderRecord(args []string, out io.Writer) error {
 	)
 
 	err := flags.Parse(args)
-	if err != nil {
-		return fmt.Errorf("%w: %w", errUsage, err)
+
+	switch {
+	case errors.Is(err, flag.ErrHelp):
+		return writeHelp(out, renderUsage, flags)
+	case err != nil:
+		return fmt.Errorf("%w: %w; run `ctchargen render --help`", errUsage, err)
 	}
 
 	// The flag package stops at the first non-flag argument, and the PRD's
@@ -37,12 +42,11 @@ func renderRecord(args []string, out io.Writer) error {
 	// puts them after gets more than one positional argument, and deserves
 	// to be told which of the two mistakes he made.
 	if flags.NArg() > 1 {
-		return fmt.Errorf("%w: flags precede the filename: render [--history] [-o file] [--force] <character.json>",
-			errUsage)
+		return fmt.Errorf("%w: flags precede the filename; %s", errUsage, renderUsage)
 	}
 
 	if flags.NArg() == 0 {
-		return fmt.Errorf("%w: render [--history] [-o file] [--force] <character.json>", errUsage)
+		return fmt.Errorf("%w: %s", errUsage, renderUsage)
 	}
 
 	path := flags.Arg(0)

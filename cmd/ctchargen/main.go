@@ -29,7 +29,7 @@ func main() {
 // so that `ctchargen new --seed 7 | jq` pipes a record and not a conversation.
 func run(args []string, in io.Reader, out, asking io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("%w: ctchargen new|batch|render|version", errUsage)
+		return fmt.Errorf("%w: ctchargen %s; run `ctchargen --help`", errUsage, commandList)
 	}
 
 	switch args[0] {
@@ -41,8 +41,15 @@ func run(args []string, in io.Reader, out, asking io.Writer) error {
 		return renderRecord(args[1:], out)
 	case "version":
 		return version(out)
+	// Help asked for is not a misuse: it leaves by out and exits 0. A bare
+	// `ctchargen` stays an error, because nothing was asked for at all.
+	// There is no `help <command>`; --help on the command is the one way in,
+	// so there is one place a command's flags are described.
+	case "help", "-h", "-help", "--help":
+		return writeTopLevelHelp(out)
 	default:
-		return fmt.Errorf("%w: unknown command %q; want new, render, batch or version", errUsage, args[0])
+		return fmt.Errorf("%w: unknown command %q; want %s; run `ctchargen --help`",
+			errUsage, args[0], commandList)
 	}
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -23,20 +24,36 @@ func batch(args []string, out io.Writer) error {
 
 	var (
 		count   = flags.Int("count", 0, "how many characters to generate")
-		seed    = flags.Uint64("seed", 0, "the base seed; one is drawn if absent")
-		auto    = flags.Bool("auto", false, "required: batch has nobody to ask")
-		service = flags.String("service", "", "force every enlistment attempt into this service")
-		name    = flags.String("name", "", "the name to give every character")
-		career  = flags.String("career", chargen.CareerServe, "the career strategy")
-		skills  = flags.String("skills", chargen.SkillsAdvanced, "the skills strategy")
-		muster  = flags.String("muster", chargen.MusterCash, "the mustering out strategy")
-		output  = flags.String("o", "", "a .jsonl file, or a directory to write one file per character")
-		force   = flags.Bool("force", false, "replace output files that already exist")
+		seed    = flags.Uint64(seedFlag, 0, "the base seed; member i is generated from it plus i")
+		auto    = flags.Bool("auto", false, "required: a batch has nobody to ask")
+		service = flags.String("service", "",
+			"attempt every enlistment in this service: "+serviceChoices())
+		name   = flags.String("name", "", "the name to give every character")
+		career = flags.String(careerFlag, chargen.CareerServe,
+			"the career strategy: "+strategyChoices(careerFlag))
+		skills = flags.String(skillsFlag, chargen.SkillsAdvanced,
+			"the skills strategy: "+strategyChoices(skillsFlag))
+		muster = flags.String(musterFlag, chargen.MusterCash,
+			"the mustering out strategy: "+strategyChoices(musterFlag))
+		output = flags.String("o", "",
+			"a .jsonl file, or a directory to write one file per character; absent, JSONL to standard output")
+		force = flags.Bool("force", false, "replace output files that already exist")
 	)
 
 	err := flags.Parse(args)
-	if err != nil {
-		return fmt.Errorf("%w: %w", errUsage, err)
+
+	switch {
+	case errors.Is(err, flag.ErrHelp):
+		return writeHelp(out, batchUsage, flags)
+	case err != nil:
+		return fmt.Errorf("%w: %w; run `ctchargen batch --help`", errUsage, err)
+	}
+
+	// batch takes no positional argument either, for the reason `new` does
+	// not: a word the parser stops at leaves the flags after it unparsed.
+	if flags.NArg() > 0 {
+		return fmt.Errorf("%w: %s; it takes no arguments, and was given %q",
+			errUsage, batchUsage, flags.Arg(0))
 	}
 
 	if !*auto {
@@ -47,7 +64,7 @@ func batch(args []string, out io.Writer) error {
 		return fmt.Errorf("%w: --count must be at least 1", errUsage)
 	}
 
-	base, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster, isSet(flags, "seed"))
+	base, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster, isSet(flags, seedFlag))
 	if err != nil {
 		return err
 	}

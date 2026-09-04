@@ -92,7 +92,7 @@ func TestWhatTheCommandWritesMatchesTheSchema(t *testing.T) {
 		},
 		// A name from the flag, which no golden carries.
 		"a named character": {
-			args: []string{cmdNew, flagAuto, flagSeed, "4", flagService, other, "--name", "Alexander Jamison"},
+			args: []string{cmdNew, flagAuto, flagSeed, "4", flagService, other, flagName, "Alexander Jamison"},
 		},
 		// A death, whose record carries a departure the living do not.
 		"a character killed in service": {
@@ -127,7 +127,7 @@ func TestEveryBatchMemberMatchesTheSchema(t *testing.T) {
 
 	var out strings.Builder
 
-	err := run([]string{"batch", "--count", "5", flagAuto, flagSeed, "145", flagService, merchants},
+	err := run([]string{cmdBatch, flagCount, "5", flagAuto, flagSeed, "145", flagService, merchants},
 		nil, &out, io.Discard)
 	if err != nil {
 		t.Fatalf("generating a batch: %v", err)
