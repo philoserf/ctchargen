@@ -33,7 +33,7 @@ func TranscriptFrom(text []byte) (string, error) {
 	return transcriptOf(projected)
 }
 
-// eventJSON is every event kind at once. On the wire the four are a
+// eventJSON is every event kind at once. On the wire they are a
 // discriminated union, and on the way back in the discriminator is all a
 // reader has to go on.
 type eventJSON struct {
@@ -84,7 +84,10 @@ func writeEvent(out *strings.Builder, event eventJSON) {
 	switch event.Kind {
 	case kindStep:
 		fmt.Fprintf(out, "\n## %s (%s)\n\n", event.Step, event.Pages)
-	case kindThrow:
+	case kindThrow, kindRoll:
+		// One line for both: a roll is a throw whose target is empty, which
+		// is exactly what throwLine already prints. Splitting the kinds
+		// changed the record, not the reading of it.
 		fmt.Fprintln(out, throwLine(event))
 	case kindChoice:
 		fmt.Fprintf(out, "%3d. %s: %s chose %s from %s\n",

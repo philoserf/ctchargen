@@ -215,6 +215,7 @@ type eventRecorder struct{ recorder }
 
 func (r *eventRecorder) Step(e traveller.StepEvent) error   { return r.note("step %s", e.Step) }
 func (r *eventRecorder) Throw(e traveller.ThrowEvent) error { return r.note("throw %d", e.Total()) }
+func (r *eventRecorder) Roll(e traveller.RollEvent) error   { return r.note("roll %d", e.Total()) }
 func (r *eventRecorder) Choice(e traveller.ChoiceEvent) error {
 	return r.note("choice %v", e.Point)
 }
@@ -231,8 +232,9 @@ func TestEventFolds(t *testing.T) {
 	events := []traveller.Event{
 		traveller.StepEvent{Seq: 1, Step: "enlistment"},
 		traveller.ThrowEvent{Seq: 2, Dice: []int{3, 4}, DM: 2},
-		traveller.ChoiceEvent{Seq: 3, Point: traveller.ChoiceSubmitToDraft},
-		traveller.OutcomeEvent{Seq: 4, Description: "drafted into the Marines"},
+		traveller.RollEvent{Seq: 3, Dice: []int{5}, DM: 1},
+		traveller.ChoiceEvent{Seq: 4, Point: traveller.ChoiceSubmitToDraft},
+		traveller.OutcomeEvent{Seq: 5, Description: "drafted into the Marines"},
 	}
 	for i, e := range events {
 		err := e.Fold(&r)
@@ -246,7 +248,7 @@ func TestEventFolds(t *testing.T) {
 	}
 
 	r.check(t, "Event", []string{
-		"step enlistment", "throw 9", "choice SubmitToDraft", "outcome drafted into the Marines",
+		"step enlistment", "throw 9", "roll 6", "choice SubmitToDraft", "outcome drafted into the Marines",
 	})
 }
 

@@ -85,10 +85,11 @@ func foldDeparture(from traveller.Departure) departureRecord {
 	return codec.out
 }
 
-// The four kinds an event's discriminator can be, on the wire.
+// The kinds an event's discriminator can be, on the wire.
 const (
 	kindStep    = "step"
 	kindThrow   = "throw"
+	kindRoll    = "roll"
 	kindChoice  = "choice"
 	kindOutcome = "outcome"
 )
@@ -111,6 +112,18 @@ type throwJSON struct {
 	Succeeded bool   `json:"succeeded"`
 }
 
+// rollJSON is a roll with nothing to meet. It carries no target and no
+// outcome, which is the whole of #50: every one of these used to be written
+// as a throw that had succeeded, against nothing.
+type rollJSON struct {
+	Seq   int    `json:"seq"`
+	Kind  string `json:"kind"`
+	Step  string `json:"step"`
+	Dice  []int  `json:"dice"`
+	DM    int    `json:"dm,omitempty"`
+	Total int    `json:"total"`
+}
+
 type choiceJSON struct {
 	Seq          int      `json:"seq"`
 	Kind         string   `json:"kind"`
@@ -128,10 +141,26 @@ type outcomeJSON struct {
 	Errata      []string `json:"errata,omitempty"`
 }
 
-type eventCodec struct{ out json.RawMessage }
+// eventCodec folds a domain event into the shape it is written in, and into
+// the flat shape a reader gets it back as.
+//
+// It produces both because there used to be two codecs producing one each,
+// and the second mapped the same domain fields a second time - Fold caught a
+// fifth kind, since both stopped compiling, but not a field: liveCodec could
+// have stopped carrying DM and only a transcript golden would have noticed
+// (#46). There is one mapping from the domain now, and flat is derived from
+// what is written rather than built beside it.
+type eventCodec struct {
+	out  json.RawMessage
+	flat eventJSON
+}
 
 func (e *eventCodec) Step(from traveller.StepEvent) error {
-	return e.write(stepJSON{Seq: from.Seq, Kind: kindStep, Step: from.Step, Pages: from.Pages})
+	out := stepJSON{Seq: from.Seq, Kind: kindStep, Step: from.Step, Pages: from.Pages}
+
+	e.flat = eventJSON{Seq: out.Seq, Kind: out.Kind, Step: out.Step, Pages: out.Pages}
+
+	return e.write(out)
 }
 
 func (e *eventCodec) Throw(from traveller.ThrowEvent) error {
@@ -139,18 +168,50 @@ func (e *eventCodec) Throw(from traveller.ThrowEvent) error {
 		Seq: from.Seq, Kind: kindThrow, Step: from.Step, Dice: from.Dice,
 		DM: from.DM, Total: from.Total(), Succeeded: from.Succeeded,
 	}
+
+	// Guarded, though every throw now has a target by construction: a zero
+	// Target stringifies to "0", not to nothing, so writing it unguarded
+	// would put "target": "0" on a throw that has none and satisfy the
+	// schema's requirement with it. Omitted, the record fails its own schema,
+	// which is what should happen to a throw with nothing to meet.
 	if from.Target.Number() != 0 {
 		out.Target = from.Target.String()
+	}
+
+	e.flat = eventJSON{
+		Seq: out.Seq, Kind: out.Kind, Step: out.Step, Dice: out.Dice, DM: out.DM,
+		Target: out.Target, Total: out.Total, Succeeded: out.Succeeded,
+	}
+
+	return e.write(out)
+}
+
+func (e *eventCodec) Roll(from traveller.RollEvent) error {
+	out := rollJSON{
+		Seq: from.Seq, Kind: kindRoll, Step: from.Step,
+		Dice: from.Dice, DM: from.DM, Total: from.Total(),
+	}
+
+	e.flat = eventJSON{
+		Seq: out.Seq, Kind: out.Kind, Step: out.Step,
+		Dice: out.Dice, DM: out.DM, Total: out.Total,
 	}
 
 	return e.write(out)
 }
 
 func (e *eventCodec) Choice(from traveller.ChoiceEvent) error {
-	return e.write(choiceJSON{
+	out := choiceJSON{
 		Seq: from.Seq, Kind: kindChoice, Point: from.Point.String(), By: from.By.String(),
 		Alternatives: from.Alternatives, Chosen: from.Chosen,
-	})
+	}
+
+	e.flat = eventJSON{
+		Seq: out.Seq, Kind: out.Kind, Point: out.Point, By: out.By,
+		Alternatives: out.Alternatives, Chosen: out.Chosen,
+	}
+
+	return e.write(out)
 }
 
 func (e *eventCodec) Outcome(from traveller.OutcomeEvent) error {
@@ -159,6 +220,11 @@ func (e *eventCodec) Outcome(from traveller.OutcomeEvent) error {
 	}
 	for _, erratum := range from.Errata {
 		out.Errata = append(out.Errata, erratum.String())
+	}
+
+	e.flat = eventJSON{
+		Seq: out.Seq, Kind: out.Kind, Because: out.Because,
+		Description: out.Description, Errata: out.Errata,
 	}
 
 	return e.write(out)

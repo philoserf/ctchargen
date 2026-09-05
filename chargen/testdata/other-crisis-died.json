@@ -70,14 +70,13 @@
     },
     {
       "seq": 2,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Strength",
       "dice": [
         4,
         3
       ],
-      "total": 7,
-      "succeeded": true
+      "total": 7
     },
     {
       "seq": 3,
@@ -87,14 +86,13 @@
     },
     {
       "seq": 4,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Dexterity",
       "dice": [
         2,
         1
       ],
-      "total": 3,
-      "succeeded": true
+      "total": 3
     },
     {
       "seq": 5,
@@ -104,14 +102,13 @@
     },
     {
       "seq": 6,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Endurance",
       "dice": [
         3,
         5
       ],
-      "total": 8,
-      "succeeded": true
+      "total": 8
     },
     {
       "seq": 7,
@@ -121,14 +118,13 @@
     },
     {
       "seq": 8,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Intelligence",
       "dice": [
         6,
         6
       ],
-      "total": 12,
-      "succeeded": true
+      "total": 12
     },
     {
       "seq": 9,
@@ -138,14 +134,13 @@
     },
     {
       "seq": 10,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Education",
       "dice": [
         2,
         2
       ],
-      "total": 4,
-      "succeeded": true
+      "total": 4
     },
     {
       "seq": 11,
@@ -155,14 +150,13 @@
     },
     {
       "seq": 12,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Social Standing",
       "dice": [
         2,
         1
       ],
-      "total": 3,
-      "succeeded": true
+      "total": 3
     },
     {
       "seq": 13,
@@ -244,13 +238,12 @@
     },
     {
       "seq": 23,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         5
       ],
-      "total": 5,
-      "succeeded": true
+      "total": 5
     },
     {
       "seq": 24,
@@ -275,13 +268,12 @@
     },
     {
       "seq": 26,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         5
       ],
-      "total": 5,
-      "succeeded": true
+      "total": 5
     },
     {
       "seq": 27,
@@ -366,13 +358,12 @@
     },
     {
       "seq": 36,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         5
       ],
-      "total": 5,
-      "succeeded": true
+      "total": 5
     },
     {
       "seq": 37,
@@ -457,13 +448,12 @@
     },
     {
       "seq": 46,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         5
       ],
-      "total": 5,
-      "succeeded": true
+      "total": 5
     },
     {
       "seq": 47,
@@ -548,13 +538,12 @@
     },
     {
       "seq": 56,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         4
       ],
-      "total": 4,
-      "succeeded": true
+      "total": 4
     },
     {
       "seq": 57,
@@ -711,13 +700,12 @@
     },
     {
       "seq": 73,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         3
       ],
-      "total": 3,
-      "succeeded": true
+      "total": 3
     },
     {
       "seq": 74,
@@ -874,13 +862,12 @@
     },
     {
       "seq": 90,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         5
       ],
-      "total": 5,
-      "succeeded": true
+      "total": 5
     },
     {
       "seq": 91,
@@ -1037,13 +1024,12 @@
     },
     {
       "seq": 107,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
         2
       ],
-      "total": 2,
-      "succeeded": true
+      "total": 2
     },
     {
       "seq": 108,
