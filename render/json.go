@@ -89,6 +89,7 @@ type record struct {
 	Inputs          inputsRecord      `json:"inputs"`
 	Errata          []string          `json:"errata"`
 	Ruleset         string            `json:"ruleset"`
+	Policy          int               `json:"policy"`
 	Events          []json.RawMessage `json:"events"`
 	Build           string            `json:"build,omitempty"`
 }
@@ -162,6 +163,7 @@ func project(character *chargen.Character) (record, error) {
 		Inputs:          projectInputs(character.Inputs),
 		Errata:          make([]string, 0, len(character.Errata)),
 		Ruleset:         character.Ruleset,
+		Policy:          chargen.PolicyVersion,
 		Events:          nil,
 		Build:           character.Build,
 	}

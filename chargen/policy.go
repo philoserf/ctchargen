@@ -22,6 +22,21 @@ type Policy struct {
 	Muster Muster
 }
 
+// PolicyVersion is the version of docs/POLICY.md that this build applies.
+//
+// Every record carries it, beside the ruleset that governed the rules and the
+// build that wrote the file. Those two move for reasons that have nothing to
+// do with what --auto answers; this moves only when an answer does.
+//
+// It is what a referee holding two records from one seed reads to tell why
+// they differ. Without it he can see only that they do, and `build` cannot
+// tell him - it changes when a comment changes.
+//
+// Bumping it is a decision recorded in POLICY.md, and docsgate holds the two
+// to each other. Adding a row for a question that was never asked is not a
+// bump: no seed made a different character under the old table.
+const PolicyVersion = 1
+
 // Career is the --auto career strategy: continue, retire, or take one term.
 //
 // It is a type and not a string because it names a closed set. The engine
