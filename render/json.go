@@ -89,7 +89,7 @@ type record struct {
 	Inputs          inputsRecord      `json:"inputs"`
 	Errata          []string          `json:"errata"`
 	Ruleset         string            `json:"ruleset"`
-	Policy          int               `json:"policy"`
+	Policy          int               `json:"policy,omitempty"`
 	Events          []json.RawMessage `json:"events"`
 	Build           string            `json:"build,omitempty"`
 }
@@ -146,6 +146,25 @@ type inputsRecord struct {
 	Muster  string `json:"muster"`
 }
 
+// policyThatAnswered is the policy version, on a record the policy answered
+// something in, and nothing on one it did not.
+//
+// The field exists so a referee holding two records from one seed can tell
+// why they differ. On a record he walked by hand the policy answered nothing,
+// and naming a decision table that decided none of it is a claim the record
+// cannot support - the same reason a civilian carries no service and no
+// departure.
+func policyThatAnswered(character *chargen.Character) int {
+	for _, event := range character.Events {
+		choice, isChoice := event.(traveller.ChoiceEvent)
+		if isChoice && choice.By == traveller.ByPolicy {
+			return chargen.PolicyVersion
+		}
+	}
+
+	return 0
+}
+
 func project(character *chargen.Character) (record, error) {
 	out := record{
 		Record:          recordShape,
@@ -163,7 +182,7 @@ func project(character *chargen.Character) (record, error) {
 		Inputs:          projectInputs(character.Inputs),
 		Errata:          make([]string, 0, len(character.Errata)),
 		Ruleset:         character.Ruleset,
-		Policy:          chargen.PolicyVersion,
+		Policy:          policyThatAnswered(character),
 		Events:          nil,
 		Build:           character.Build,
 	}

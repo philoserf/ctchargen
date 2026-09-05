@@ -9,15 +9,14 @@
   "additionalProperties": false,
   "required": [
     "record", "name", "upp", "characteristics", "age", "terms",
-    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset",
-    "policy", "events"
+    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
   ],
 
   "properties": {
     "record": {
       "type": "integer",
       "const": 1,
-      "description": "The shape of this record, not the build that wrote it and not the ruleset it reads. It counts the shape alone; a build that changes no field leaves it alone. The record is free to move until v1.0.0 and frozen from it, and this is what the freeze attaches to."
+      "description": "The shape of this record, not the build that wrote it and not the ruleset it reads. It is 1 until v1.0.0 and counts from there, not from every change: the record moves freely before the freeze, so a build that changes the shape before it leaves this alone and two pre-release shapes may both say 1. From v1.0.0 the shape is a public contract and a build that changes it says so here."
     },
     "name": {
       "type": "string",
@@ -217,7 +216,7 @@
     "policy": {
       "type": "integer",
       "minimum": 1,
-      "description": "The version of docs/POLICY.md this build's --auto applies. It moves only when an answer in that table changes, which is what a referee reads to tell why two records from one seed differ; ruleset names the rules and build names the writer, and neither moves for that reason."
+      "description": "The version of docs/POLICY.md that answered this record's choice points. Absent from a record the policy answered nothing in - one walked by hand - because naming a table that decided none of it is a claim the record cannot support. It moves only when an answer in that table changes, which is what a referee reads to tell why two records from one seed differ; ruleset names the rules and build names the writer, and neither moves for that reason."
     },
     "build": {
       "type": "string",

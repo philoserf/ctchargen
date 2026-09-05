@@ -15,6 +15,11 @@ import (
 // errUsage reports a command line the tool cannot act on.
 var errUsage = errors.New("usage")
 
+// errSearch reports a run that was asked for correctly and could not deliver
+// it. The command line was well formed; what failed was the search, and a
+// reader told "usage" goes looking for a flag he typed wrong.
+var errSearch = errors.New("search")
+
 func main() {
 	err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 	if err != nil {
