@@ -467,3 +467,85 @@ func TestOnlyARecordThePolicyAnsweredNamesOne(t *testing.T) {
 		}
 	}
 }
+
+// A directory batch that cannot write a member leaves what came before it.
+//
+// This is the trade #99's fix accepts and does not hide: the guarantee is that
+// a run never silently replaces a file, not that a directory is written
+// atomically. It was true before #98 too.
+//
+// It is deliberately NOT a test that the run writes as it goes. I wrote it as
+// one and it could not have been: an obstruction sits in the write, which a
+// buffered run reaches as well, so both designs leave the same two files.
+// What holds the memory property is plannedPaths' signature - no policy, no
+// roller, so it cannot generate - and the test below holds that.
+func TestADirectoryBatchLeavesWhatItWroteBeforeAnObstruction(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	// Member 2 of a --seed 7 run, by the arithmetic the batch uses.
+	const blockedMember = 2
+
+	blocked := memberPath(dir, memberSeed(7, blockedMember))
+
+	err := os.Mkdir(blocked, recordDirMode)
+	if err != nil {
+		t.Fatalf("blocking a member's path: %v", err)
+	}
+
+	err = run([]string{
+		cmdBatch, flagCount, "6", flagAuto, flagSeed, "7", flagService, other,
+		flagOutput, dir, flagForce,
+	}, nil, io.Discard, io.Discard)
+	if err == nil {
+		t.Fatal("a batch wrote a member over a directory")
+	}
+
+	found, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	if err != nil {
+		t.Fatalf("looking for what was written: %v", err)
+	}
+
+	// Regular files only: the obstruction is a directory carrying a
+	// member's name, so a glob counts it as one of them.
+	written := make([]string, 0, len(found))
+
+	for _, path := range found {
+		info, err := os.Stat(path)
+		if err != nil {
+			t.Fatalf("looking at %s: %v", path, err)
+		}
+
+		if info.Mode().IsRegular() {
+			written = append(written, path)
+		}
+	}
+
+	if len(written) != blockedMember {
+		t.Errorf("%d members are in the directory after the obstruction, want %d",
+			len(written), blockedMember)
+	}
+}
+
+// The collision check for a plain batch cannot generate a character.
+//
+// That is its signature, not its body: plannedPaths takes a seed, a count and
+// a directory, and no policy and no roller. It is the whole of why checking a
+// non-survivors batch costs arithmetic and not a run (#99).
+func TestThePlainCollisionCheckNeedsNoCharacters(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	paths := plannedPaths(7, 3, dir)
+	if len(paths) != 3 {
+		t.Fatalf("%d paths for 3 members", len(paths))
+	}
+
+	for i, path := range paths {
+		if want := memberPath(dir, memberSeed(7, i)); path != want {
+			t.Errorf("member %d is planned at %s, want %s", i, path, want)
+		}
+	}
+}
