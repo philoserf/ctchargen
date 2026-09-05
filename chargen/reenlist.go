@@ -129,10 +129,20 @@ func (r *run) depart(
 // pension records the annual retirement pay, for a departure at the end of
 // the fifth term or later from a service that pays one (p. 21).
 func (r *run) pension() {
-	if r.char.Terms < firstRetiringTerm || !r.service.PaysPension {
+	if !r.service.PaysPension {
 		return
 	}
 
-	r.char.Pension = r.tables.Retirement.Pay(r.char.Terms)
+	// The term count is the table's to judge, not this function's. It said
+	// "at least five terms" here as well, which is the pension table's own
+	// reach restated - and a restated precondition is one that can come to
+	// disagree with the thing it restates (#52). Pay says whether p. 21
+	// prints a pension for a term at all.
+	pay, tabled := r.tables.Retirement.Pay(r.char.Terms)
+	if !tabled {
+		return
+	}
+
+	r.char.Pension = pay
 	r.log.outcomef(0, nil, "retirement pay of %v a year", r.char.Pension)
 }

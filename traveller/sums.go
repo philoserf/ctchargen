@@ -51,6 +51,48 @@ func (Enlisted) sealedEnlistment()                    {}
 func (Drafted) sealedEnlistment()                     {}
 func (DeclinedTheDraft) sealedEnlistment()            {}
 
+// Fatal reports a departure that ended the character's life.
+//
+// It lives here because the cases live here. It was stated twice - once in the
+// command, to decide what --survivors passes over, and once in the renderer,
+// to set the record's fatal flag - and both are folds, so adding a case broke
+// both at compile time. Changing which case is a death would have broken
+// neither, and the two would have disagreed with nothing to say so (#100).
+//
+// A civilian never joined a service and so never left one: nil is not a death.
+func Fatal(departure Departure) bool {
+	if departure == nil {
+		return false
+	}
+
+	var died fatalDeparture
+
+	// A fold over a codec cannot fail: every case only assigns.
+	_ = departure.Fold(&died)
+
+	return died.fatal
+}
+
+// fatalDeparture is Fatal's fold. The two Killed cases are the deaths; the
+// three others are ways of leaving alive.
+type fatalDeparture struct{ fatal bool }
+
+func (*fatalDeparture) Discharged() error { return nil }
+func (*fatalDeparture) ForcedOut() error  { return nil }
+func (*fatalDeparture) Retired() error    { return nil }
+
+func (f *fatalDeparture) KilledBySurvivalThrow() error {
+	f.fatal = true
+
+	return nil
+}
+
+func (f *fatalDeparture) KilledByMedicalCrisis(Characteristic) error {
+	f.fatal = true
+
+	return nil
+}
+
 // TableResult is one row of an Acquired Skills table (pp. 11-12). P. 12
 // names exactly three kinds: "Skills are of three basic types:
 // characteristic alterations (such as +1 Strength), weapon expertise (such

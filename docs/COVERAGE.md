@@ -97,22 +97,24 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 
 ## Mustering out
 
-| Rule                                                                | Page       | Implementation                       | Test                                                   |
-| ------------------------------------------------------------------- | ---------- | ------------------------------------ | ------------------------------------------------------ |
-| One roll per term, plus rank extras                                 | 1:7, 9     | `rules.Muster.Rolls`                 | `rules.TestMusterRollsAndPassages`                     |
-| The table is designated before the die                              | 1:9        | `chargen.run.chooseMusterTable`      | golden transcripts                                     |
-| At most three rolls on Table 2                                      | 1:9        | `chargen.run.chooseMusterTable`      | `chargen.TestAtMostThreeRollsGoOnTableTwo`             |
-| The +1 at rank 5 or 6 on Table 1                                    | 1:9        | `chargen.run.musterModifier`         | golden `merchants-table1-modifier`                     |
-| The +1 on Table 1 may be declined                                   | 1:9        | `chargen.run.musterModifier`         | golden `navy-spartan-declines`                         |
-| The +1 with gambling on Table 2                                     | 1:9        | `chargen.run.musterModifier`         | `rules.TestMusterRollsAndPassages`; golden transcripts |
-| The seven kinds of Table 1 row                                      | 1:9, 21–23 | `chargen.applyBenefit`               | `traveller.TestBenefitRowFolds`                        |
-| The dash rows deliver nothing                                       | 1:9        | `rules` lift                         | `rules.TestTheDashCellsAreNothing`                     |
-| Travellers' Aid only once; duplicates wasted                        | 1:22       | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds`                        |
-| A repeat weapon may be taken as expertise, or as a different weapon | 1:22       | `chargen.takeWeapon`                 | goldens `scouts-expertise`, `scouts-diversified`       |
-| Free Trader: 40 years of payments, 10 off per repeat                | 1:22–23    | `chargen.run.receiveShipAgain`       | golden `merchants-captain`                             |
-| Scout ship: duplicates lost                                         | 1:23       | `chargen.run.receiveShipAgain`       | golden `scouts-second-ship`                            |
-| The ships the two benefits name: Type S, Type A                     | 2:18–19    | `rules.Rules.Hull`                   | `rules.TestShipHulls`                                  |
-| Retirement pay from term 5, not for Scouts or Other                 | 1:7, 21    | `chargen.run.pension`                | `rules.TestRetirementPay`; golden `navy-captain`       |
+| Rule                                                                | Page       | Implementation                       | Test                                                                     |
+| ------------------------------------------------------------------- | ---------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| One roll per term, plus rank extras                                 | 1:7, 9     | `rules.Muster.Rolls`                 | `rules.TestMusterRollsAndPassages`                                       |
+| The table is designated before the die                              | 1:9        | `chargen.run.chooseMusterTable`      | golden transcripts                                                       |
+| At most three rolls on Table 2                                      | 1:9        | `chargen.run.chooseMusterTable`      | `chargen.TestAtMostThreeRollsGoOnTableTwo`                               |
+| The +1 at rank 5 or 6 on Table 1                                    | 1:9        | `chargen.run.musterModifier`         | golden `merchants-table1-modifier`                                       |
+| The +1 on Table 1 may be declined                                   | 1:9        | `chargen.run.musterModifier`         | golden `navy-spartan-declines`                                           |
+| The +1 with gambling on Table 2                                     | 1:9        | `chargen.run.musterModifier`         | `rules.TestMusterRollsAndPassages`; golden transcripts                   |
+| The seven kinds of Table 1 row                                      | 1:9, 21–23 | `chargen.applyBenefit`               | `traveller.TestBenefitRowFolds`                                          |
+| The dash rows deliver nothing                                       | 1:9        | `rules` lift                         | `rules.TestTheDashCellsAreNothing`                                       |
+| Travellers' Aid only once; duplicates wasted                        | 1:22       | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds`                                          |
+| A repeat weapon may be taken as expertise, or as a different weapon | 1:22       | `chargen.takeWeapon`                 | goldens `scouts-expertise`, `scouts-diversified`                         |
+| Free Trader: 40 years of payments, 10 off per repeat                | 1:22–23    | `chargen.run.receiveShipAgain`       | golden `merchants-captain`                                               |
+| Scout ship: duplicates lost                                         | 1:23       | `chargen.run.receiveShipAgain`       | golden `scouts-second-ship`                                              |
+| The ships the two benefits name: Type S, Type A                     | 2:18–19    | `rules.Rules.Hull`                   | `rules.TestShipHulls`                                                    |
+| Retirement pay from term 5, not for Scouts or Other                 | 1:7, 21    | `chargen.run.pension`                | `rules.TestRetirementPay`; golden `navy-captain`                         |
+| The pension table says whether it prices a term at all              | 1:21       | `rules.Retirement.Pay`               | `rules.TestRetirementPay`                                                |
+| Which departures are deaths is said in one place                    | (sums)     | `traveller.Fatal`                    | `ctchargen.TestOnlyTheTwoDeathsCountAsDying`, golden `other-crisis-died` |
 
 ## Titles
 

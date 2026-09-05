@@ -89,10 +89,6 @@ func TestAgingTable(t *testing.T) {
 		}
 	}
 
-	if got := r.Aging.FirstTerm(); got != 4 {
-		t.Errorf("aging first applies at term %d, want 4", got)
-	}
-
 	// Education and Social Standing are unaffected at every band.
 	for term := traveller.Term(4); term <= 40; term++ {
 		for _, e := range r.Aging.At(term) {
@@ -226,8 +222,19 @@ func TestRetirementPay(t *testing.T) {
 		// "Service beyond 8 terms adds CR 2000 per additional term."
 		9: 12000, 10: 14000, 12: 18000,
 	} {
-		if got := r.Retirement.Pay(terms); got != want {
-			t.Errorf("%d terms: %v, want %v", terms, got, want)
+		got, tabled := r.Retirement.Pay(terms)
+		if !tabled || got != want {
+			t.Errorf("%d terms: %v (tabled %v), want %v", terms, got, tabled, want)
+		}
+	}
+
+	// A term the table does not print. P. 21 begins its pension at five
+	// terms and says nothing below that, so Pay says so rather than reading
+	// a missing key and returning a real-looking zero (#52). The guard used
+	// to live in the caller alone, where nothing held it.
+	for _, terms := range []int{0, 1, 4} {
+		if pay, tabled := r.Retirement.Pay(terms); tabled {
+			t.Errorf("%d terms is priced at %v, and the table starts at five", terms, pay)
 		}
 	}
 

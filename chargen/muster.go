@@ -55,7 +55,15 @@ func (r *run) chooseMusterTable(onTableTwo int) (traveller.MusterTable, error) {
 		return traveller.TableOne, nil
 	}
 
-	table, err := r.decide.MusterTable(traveller.MusterTables[:])
+	// Cloned: MusterTables is an exported array and [:] is a window onto it,
+	// so a decider given that slice could write through it and change what
+	// every later character is offered. The gochecknoglobals exemption is
+	// argued and right; this was the one place the immutability was
+	// reachable (#55).
+	offered := make([]traveller.MusterTable, len(traveller.MusterTables))
+	copy(offered, traveller.MusterTables[:])
+
+	table, err := r.decide.MusterTable(offered)
 	if err != nil {
 		return table, fmt.Errorf("designating a mustering out table: %w", err)
 	}
