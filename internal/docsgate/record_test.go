@@ -40,6 +40,7 @@ type record struct {
 type event struct {
 	Kind      string `json:"kind"`
 	Step      string `json:"step"`
+	Point     string `json:"point"`
 	Total     int    `json:"total"`
 	Succeeded bool   `json:"succeeded"`
 

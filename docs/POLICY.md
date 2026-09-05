@@ -2,7 +2,7 @@
 
 2026-09-02. Milestone 0. Companion to `PRD.md`.
 
-**Version 1.** Every record `--auto` writes carries it, in the `policy` field.
+**Version 2.** Every record `--auto` writes carries it, in the `policy` field.
 
 Changing what any row below answers is a version bump, because it changes
 every character `--auto` has ever made from a given seed — and a referee
@@ -239,7 +239,7 @@ negative table result is Other's −1 Social (p. 11) — so no strategy needs an
 answer for an Education that falls back below 8.
 `personal` is the ranking that reaches that one negative result.
 
-### `Weapon(cat WeaponCategory, from []WeaponName) (WeaponName, error)`
+### `Weapon(cat WeaponCategory, from []WeaponName, vary Vary) (WeaponName, error)`
 
 **Asked when** a skills-table result is Blade Cbt or Gun Cbt, immediately
 (p. 11, p. 12, p. 13).
@@ -247,9 +247,24 @@ answer for an Education that falls back below 8.
 **Alphabet.** The blades and polearms list (p. 12) or the guns list (p. 13),
 whichever the category names, in printed order.
 
-| Strategy  | Answer                                                                                         |
-| --------- | ---------------------------------------------------------------------------------------------- |
-| all three | The first name in the printed list for the category — Dagger for blades, Body Pistol for guns. |
+| Strategy  | Answer                                                          |
+| --------- | --------------------------------------------------------------- |
+| all three | A name drawn from the printed list for the category, uniformly. |
+
+**Why drawn and not ranked.** This is the one question the book hands to a
+player and gives no basis for. Where p. 11 makes him designate a table before
+the throw, or p. 21 decides a departure by the term count, the page supplies
+something to decide on and the policy decides on it. Here the page supplies a
+list in printed order, and printed order is not a preference — taking the
+first is as invented as drawing, and drawing admits it.
+
+Version 1 took the first name every time, which made thirty auto-generated
+characters carry twenty-two Body Pistols and seventeen Daggers and nothing
+else (#34), though every name on both lists was offered. No strategy reached
+it, so no flag could change it either.
+
+The draw comes from the run's own dice, so the same seed still makes the same
+character. It is the only variation any strategy takes.
 
 Repeat receipts take the same weapon again, which raises its level (p. 12:
 "Additional acquisitions of expertise in the same weapon increase the present

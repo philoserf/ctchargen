@@ -95,7 +95,7 @@ ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] 
 
 ```sh
 $ ctchargen batch --count 100 --auto --seed 1000 --service scouts > roster.jsonl
-100 written, 74 died
+100 written, 76 died
 ```
 
 That is the rules working — the default `serve` strategy re-enlists until the
@@ -105,7 +105,7 @@ outcomes, **`--survivors`** passes over the dead and goes on to the next seed:
 
 ```sh
 $ ctchargen batch --count 20 --auto --seed 1000 --service scouts --survivors > roster.jsonl
-20 written, 56 passed over for dying
+20 written, 68 passed over for dying
 ```
 
 It does not reroll anybody. Each character written is still exactly the

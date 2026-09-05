@@ -1,69 +1,86 @@
 {
   "record": 1,
   "name": "",
-  "upp": "8C9469",
+  "upp": "4B8879",
   "characteristics": {
-    "Dexterity": 12,
-    "Education": 6,
-    "Endurance": 9,
-    "Intelligence": 4,
+    "Dexterity": 11,
+    "Education": 7,
+    "Endurance": 8,
+    "Intelligence": 8,
     "Social Standing": 9,
-    "Strength": 8
+    "Strength": 4
   },
   "age": {
-    "years": 42
+    "years": 34
   },
-  "terms": 6,
+  "terms": 4,
   "enlistment": {
     "how": "enlisted",
-    "service": "Merchants"
+    "service": "Marines"
   },
-  "service": "Merchants",
-  "rank": 5,
-  "rankTitle": "Captain",
+  "service": "Marines",
+  "rank": 3,
+  "rankTitle": "Force Cmdr",
   "skills": [
+    {
+      "name": "ATV",
+      "level": 1
+    },
+    {
+      "name": "Cudgel",
+      "level": 1
+    },
+    {
+      "name": "Cutlass",
+      "level": 1
+    },
+    {
+      "name": "Dagger",
+      "level": 2
+    },
     {
       "name": "Electronic",
       "level": 2
     },
     {
-      "name": "Gunnery",
-      "level": 3
-    },
-    {
       "name": "Mechanical",
-      "level": 3
-    },
-    {
-      "name": "Medical",
       "level": 1
     },
     {
-      "name": "Navigation",
-      "level": 2
+      "name": "Revolver",
+      "level": 1
     },
     {
-      "name": "Pilot",
+      "name": "Shotgun",
+      "level": 1
+    },
+    {
+      "name": "Tactics",
       "level": 1
     }
   ],
   "benefits": {
-    "cash": 0
+    "cash": 45000,
+    "passages": [
+      "High Passage"
+    ],
+    "weapons": [
+      "Dagger"
+    ]
   },
   "departure": {
-    "how": "killed by the survival throw",
-    "fatal": true
+    "how": "forced out"
   },
   "inputs": {
-    "seed": 52,
-    "service": "Merchants",
+    "seed": 309,
+    "service": "Marines",
     "career": "serve",
     "skills": "advanced",
-    "muster": "goods"
+    "muster": "cash"
   },
   "errata": [
     "E002",
-    "E004",
+    "E005",
     "E006",
     "E007"
   ],
@@ -81,16 +98,16 @@
       "kind": "roll",
       "step": "Strength",
       "dice": [
-        4,
-        6
+        1,
+        4
       ],
-      "total": 10
+      "total": 5
     },
     {
       "seq": 3,
       "kind": "outcome",
       "because": 2,
-      "description": "Strength 10"
+      "description": "Strength 5"
     },
     {
       "seq": 4,
@@ -98,63 +115,63 @@
       "step": "Dexterity",
       "dice": [
         6,
-        6
+        5
       ],
-      "total": 12
+      "total": 11
     },
     {
       "seq": 5,
       "kind": "outcome",
       "because": 4,
-      "description": "Dexterity 12"
+      "description": "Dexterity 11"
     },
     {
       "seq": 6,
       "kind": "roll",
       "step": "Endurance",
       "dice": [
-        6,
+        5,
         3
       ],
-      "total": 9
+      "total": 8
     },
     {
       "seq": 7,
       "kind": "outcome",
       "because": 6,
-      "description": "Endurance 9"
+      "description": "Endurance 8"
     },
     {
       "seq": 8,
       "kind": "roll",
       "step": "Intelligence",
       "dice": [
-        3,
-        1
+        6,
+        2
       ],
-      "total": 4
+      "total": 8
     },
     {
       "seq": 9,
       "kind": "outcome",
       "because": 8,
-      "description": "Intelligence 4"
+      "description": "Intelligence 8"
     },
     {
       "seq": 10,
       "kind": "roll",
       "step": "Education",
       "dice": [
-        3,
+        4,
         3
       ],
-      "total": 6
+      "total": 7
     },
     {
       "seq": 11,
       "kind": "outcome",
       "because": 10,
-      "description": "Education 6"
+      "description": "Education 7"
     },
     {
       "seq": 12,
@@ -175,7 +192,7 @@
     {
       "seq": 14,
       "kind": "outcome",
-      "description": "UPP AC9469 at age 18"
+      "description": "UPP 5B8879 at age 18"
     },
     {
       "seq": 15,
@@ -186,48 +203,63 @@
     {
       "seq": 16,
       "kind": "throw",
-      "step": "enlistment, Merchants",
+      "step": "enlistment, Marines",
       "dice": [
-        3,
-        3
+        5,
+        4
       ],
       "dm": 1,
-      "target": "7+",
-      "total": 7,
+      "target": "9+",
+      "total": 10,
       "succeeded": true
     },
     {
       "seq": 17,
       "kind": "outcome",
       "because": 16,
-      "description": "enlisted in the Merchants"
+      "description": "enlisted in the Marines"
     },
     {
       "seq": 18,
+      "kind": "step",
+      "step": "rank and service skills",
+      "pages": "p. 23"
+    },
+    {
+      "seq": 19,
+      "kind": "outcome",
+      "description": "Cutlass-1",
+      "errata": [
+        "E005"
+      ]
+    },
+    {
+      "seq": 20,
       "kind": "step",
       "step": "term 1",
       "pages": "pp. 5-7"
     },
     {
-      "seq": 19,
+      "seq": 21,
       "kind": "throw",
       "step": "survival",
       "dice": [
-        1,
-        6
+        4,
+        1
       ],
-      "target": "5+",
+      "dm": 2,
+      "target": "6+",
       "total": 7,
       "succeeded": true
     },
     {
-      "seq": 20,
+      "seq": 22,
       "kind": "outcome",
-      "because": 19,
+      "because": 21,
       "description": "survived term 1"
     },
     {
-      "seq": 21,
+      "seq": 23,
       "kind": "choice",
       "point": "AttemptCommission",
       "by": "policy",
@@ -238,25 +270,32 @@
       "chosen": "yes"
     },
     {
-      "seq": 22,
+      "seq": 24,
       "kind": "throw",
       "step": "commission",
       "dice": [
-        3,
-        6
+        5,
+        3
       ],
-      "target": "4+",
+      "dm": 1,
+      "target": "9+",
       "total": 9,
       "succeeded": true
     },
     {
-      "seq": 23,
+      "seq": 25,
       "kind": "outcome",
-      "because": 22,
-      "description": "commissioned: 4th Officer"
+      "because": 24,
+      "description": "commissioned: Lieutenant"
     },
     {
-      "seq": 24,
+      "seq": 26,
+      "kind": "outcome",
+      "because": 24,
+      "description": "Revolver-1"
+    },
+    {
+      "seq": 27,
       "kind": "choice",
       "point": "AttemptPromotion",
       "by": "policy",
@@ -267,58 +306,29 @@
       "chosen": "yes"
     },
     {
-      "seq": 25,
+      "seq": 28,
       "kind": "throw",
       "step": "promotion",
       "dice": [
-        4,
-        1
+        2,
+        5
       ],
-      "target": "10+",
-      "total": 5,
+      "dm": 1,
+      "target": "9+",
+      "total": 8,
       "succeeded": false
     },
     {
-      "seq": 26,
+      "seq": 29,
       "kind": "outcome",
-      "because": 25,
+      "because": 28,
       "description": "not promoted this term"
     },
     {
-      "seq": 27,
+      "seq": 30,
       "kind": "step",
       "step": "skills and training",
       "pages": "pp. 6, 11"
-    },
-    {
-      "seq": 28,
-      "kind": "choice",
-      "point": "SkillTable",
-      "by": "policy",
-      "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
-      ],
-      "chosen": "Advanced Education Table"
-    },
-    {
-      "seq": 29,
-      "kind": "roll",
-      "step": "Advanced Education Table",
-      "dice": [
-        2
-      ],
-      "total": 2
-    },
-    {
-      "seq": 30,
-      "kind": "outcome",
-      "because": 29,
-      "description": "Mechanical-1",
-      "errata": [
-        "E002"
-      ]
     },
     {
       "seq": 31,
@@ -337,15 +347,15 @@
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        3
+        2
       ],
-      "total": 3
+      "total": 2
     },
     {
       "seq": 33,
       "kind": "outcome",
       "because": 32,
-      "description": "Electronic-1",
+      "description": "Mechanical-1",
       "errata": [
         "E002"
       ]
@@ -367,109 +377,21 @@
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        5
+        3
       ],
-      "total": 5
+      "total": 3
     },
     {
       "seq": 36,
       "kind": "outcome",
       "because": 35,
-      "description": "Gunnery-1",
+      "description": "Electronic-1",
       "errata": [
         "E002"
       ]
     },
     {
       "seq": 37,
-      "kind": "throw",
-      "step": "reenlistment",
-      "dice": [
-        3,
-        6
-      ],
-      "target": "4+",
-      "total": 9,
-      "succeeded": true
-    },
-    {
-      "seq": 38,
-      "kind": "choice",
-      "point": "ReenlistIntent",
-      "by": "policy",
-      "alternatives": [
-        "continue",
-        "discharge"
-      ],
-      "chosen": "continue"
-    },
-    {
-      "seq": 39,
-      "kind": "outcome",
-      "because": 37,
-      "description": "reenlisted for term 2"
-    },
-    {
-      "seq": 40,
-      "kind": "step",
-      "step": "term 2",
-      "pages": "pp. 5-7"
-    },
-    {
-      "seq": 41,
-      "kind": "throw",
-      "step": "survival",
-      "dice": [
-        5,
-        2
-      ],
-      "target": "5+",
-      "total": 7,
-      "succeeded": true
-    },
-    {
-      "seq": 42,
-      "kind": "outcome",
-      "because": 41,
-      "description": "survived term 2"
-    },
-    {
-      "seq": 43,
-      "kind": "choice",
-      "point": "AttemptPromotion",
-      "by": "policy",
-      "alternatives": [
-        "yes",
-        "no"
-      ],
-      "chosen": "yes"
-    },
-    {
-      "seq": 44,
-      "kind": "throw",
-      "step": "promotion",
-      "dice": [
-        6,
-        4
-      ],
-      "target": "10+",
-      "total": 10,
-      "succeeded": true
-    },
-    {
-      "seq": 45,
-      "kind": "outcome",
-      "because": 44,
-      "description": "promoted: 3rd Officer"
-    },
-    {
-      "seq": 46,
-      "kind": "step",
-      "step": "skills and training",
-      "pages": "pp. 6, 11"
-    },
-    {
-      "seq": 47,
       "kind": "choice",
       "point": "SkillTable",
       "by": "policy",
@@ -481,22 +403,112 @@
       "chosen": "Advanced Education Table"
     },
     {
-      "seq": 48,
+      "seq": 38,
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        2
+        3
       ],
-      "total": 2
+      "total": 3
     },
     {
-      "seq": 49,
+      "seq": 39,
       "kind": "outcome",
-      "because": 48,
-      "description": "Mechanical-2",
+      "because": 38,
+      "description": "Electronic-2",
       "errata": [
         "E002"
       ]
+    },
+    {
+      "seq": 40,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        3,
+        4
+      ],
+      "target": "6+",
+      "total": 7,
+      "succeeded": true
+    },
+    {
+      "seq": 41,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 42,
+      "kind": "outcome",
+      "because": 40,
+      "description": "reenlisted for term 2"
+    },
+    {
+      "seq": 43,
+      "kind": "step",
+      "step": "term 2",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 44,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        6,
+        4
+      ],
+      "dm": 2,
+      "target": "6+",
+      "total": 12,
+      "succeeded": true
+    },
+    {
+      "seq": 45,
+      "kind": "outcome",
+      "because": 44,
+      "description": "survived term 2"
+    },
+    {
+      "seq": 46,
+      "kind": "choice",
+      "point": "AttemptPromotion",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 47,
+      "kind": "throw",
+      "step": "promotion",
+      "dice": [
+        5,
+        3
+      ],
+      "dm": 1,
+      "target": "9+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 48,
+      "kind": "outcome",
+      "because": 47,
+      "description": "promoted: Captain"
+    },
+    {
+      "seq": 49,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
     },
     {
       "seq": 50,
@@ -515,33 +527,83 @@
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        6
+        1
       ],
-      "total": 6
+      "total": 1
     },
     {
       "seq": 52,
       "kind": "outcome",
       "because": 51,
-      "description": "Medical-1",
+      "description": "ATV-1",
       "errata": [
         "E002"
       ]
     },
     {
       "seq": 53,
-      "kind": "throw",
-      "step": "reenlistment",
-      "dice": [
-        3,
-        4
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
       ],
-      "target": "4+",
-      "total": 7,
-      "succeeded": true
+      "chosen": "Advanced Education Table"
     },
     {
       "seq": 54,
+      "kind": "roll",
+      "step": "Advanced Education Table",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 55,
+      "kind": "choice",
+      "point": "Weapon",
+      "by": "policy",
+      "alternatives": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
+      ],
+      "chosen": "Dagger"
+    },
+    {
+      "seq": 56,
+      "kind": "outcome",
+      "because": 54,
+      "description": "Blade Combat: Dagger-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 57,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        6,
+        3
+      ],
+      "target": "6+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 58,
       "kind": "choice",
       "point": "ReenlistIntent",
       "by": "policy",
@@ -552,37 +614,38 @@
       "chosen": "continue"
     },
     {
-      "seq": 55,
+      "seq": 59,
       "kind": "outcome",
-      "because": 53,
+      "because": 57,
       "description": "reenlisted for term 3"
     },
     {
-      "seq": 56,
+      "seq": 60,
       "kind": "step",
       "step": "term 3",
       "pages": "pp. 5-7"
     },
     {
-      "seq": 57,
+      "seq": 61,
       "kind": "throw",
       "step": "survival",
       "dice": [
-        2,
-        4
+        4,
+        5
       ],
-      "target": "5+",
-      "total": 6,
+      "dm": 2,
+      "target": "6+",
+      "total": 11,
       "succeeded": true
     },
     {
-      "seq": 58,
+      "seq": 62,
       "kind": "outcome",
-      "because": 57,
+      "because": 61,
       "description": "survived term 3"
     },
     {
-      "seq": 59,
+      "seq": 63,
       "kind": "choice",
       "point": "AttemptPromotion",
       "by": "policy",
@@ -593,61 +656,32 @@
       "chosen": "yes"
     },
     {
-      "seq": 60,
+      "seq": 64,
       "kind": "throw",
       "step": "promotion",
       "dice": [
         4,
-        6
+        5
       ],
-      "target": "10+",
+      "dm": 1,
+      "target": "9+",
       "total": 10,
       "succeeded": true
-    },
-    {
-      "seq": 61,
-      "kind": "outcome",
-      "because": 60,
-      "description": "promoted: 2nd Officer"
-    },
-    {
-      "seq": 62,
-      "kind": "step",
-      "step": "skills and training",
-      "pages": "pp. 6, 11"
-    },
-    {
-      "seq": 63,
-      "kind": "choice",
-      "point": "SkillTable",
-      "by": "policy",
-      "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
-      ],
-      "chosen": "Advanced Education Table"
-    },
-    {
-      "seq": 64,
-      "kind": "roll",
-      "step": "Advanced Education Table",
-      "dice": [
-        2
-      ],
-      "total": 2
     },
     {
       "seq": 65,
       "kind": "outcome",
       "because": 64,
-      "description": "Mechanical-3",
-      "errata": [
-        "E002"
-      ]
+      "description": "promoted: Force Cmdr"
     },
     {
       "seq": 66,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 67,
       "kind": "choice",
       "point": "SkillTable",
       "by": "policy",
@@ -659,7 +693,196 @@
       "chosen": "Advanced Education Table"
     },
     {
-      "seq": 67,
+      "seq": 68,
+      "kind": "roll",
+      "step": "Advanced Education Table",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 69,
+      "kind": "choice",
+      "point": "Weapon",
+      "by": "policy",
+      "alternatives": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "chosen": "Shotgun"
+    },
+    {
+      "seq": 70,
+      "kind": "outcome",
+      "because": 68,
+      "description": "Gun Combat: Shotgun-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 71,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
+      ],
+      "chosen": "Advanced Education Table"
+    },
+    {
+      "seq": 72,
+      "kind": "roll",
+      "step": "Advanced Education Table",
+      "dice": [
+        5
+      ],
+      "total": 5
+    },
+    {
+      "seq": 73,
+      "kind": "choice",
+      "point": "Weapon",
+      "by": "policy",
+      "alternatives": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
+      ],
+      "chosen": "Cudgel"
+    },
+    {
+      "seq": 74,
+      "kind": "outcome",
+      "because": 72,
+      "description": "Blade Combat: Cudgel-1",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 75,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        3,
+        3
+      ],
+      "target": "6+",
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 76,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 77,
+      "kind": "outcome",
+      "because": 75,
+      "description": "reenlisted for term 4"
+    },
+    {
+      "seq": 78,
+      "kind": "step",
+      "step": "term 4",
+      "pages": "pp. 5-7"
+    },
+    {
+      "seq": 79,
+      "kind": "throw",
+      "step": "survival",
+      "dice": [
+        3,
+        1
+      ],
+      "dm": 2,
+      "target": "6+",
+      "total": 6,
+      "succeeded": true
+    },
+    {
+      "seq": 80,
+      "kind": "outcome",
+      "because": 79,
+      "description": "survived term 4"
+    },
+    {
+      "seq": 81,
+      "kind": "choice",
+      "point": "AttemptPromotion",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 82,
+      "kind": "throw",
+      "step": "promotion",
+      "dice": [
+        4,
+        2
+      ],
+      "dm": 1,
+      "target": "9+",
+      "total": 7,
+      "succeeded": false
+    },
+    {
+      "seq": 83,
+      "kind": "outcome",
+      "because": 82,
+      "description": "not promoted this term"
+    },
+    {
+      "seq": 84,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 85,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
+      ],
+      "chosen": "Advanced Education Table"
+    },
+    {
+      "seq": 86,
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
@@ -668,515 +891,273 @@
       "total": 4
     },
     {
-      "seq": 68,
+      "seq": 87,
       "kind": "outcome",
-      "because": 67,
-      "description": "Navigation-1",
+      "because": 86,
+      "description": "Tactics-1",
       "errata": [
         "E002"
       ]
     },
     {
-      "seq": 69,
+      "seq": 88,
       "kind": "throw",
       "step": "reenlistment",
+      "dice": [
+        2,
+        1
+      ],
+      "target": "6+",
+      "total": 3,
+      "succeeded": false
+    },
+    {
+      "seq": 89,
+      "kind": "outcome",
+      "because": 88,
+      "description": "left the service after term 4: reenlistment denied"
+    },
+    {
+      "seq": 90,
+      "kind": "step",
+      "step": "aging, end of term 4",
+      "pages": "pp. 7-9"
+    },
+    {
+      "seq": 91,
+      "kind": "throw",
+      "step": "aging, Strength",
+      "dice": [
+        3,
+        4
+      ],
+      "target": "8+",
+      "total": 7,
+      "succeeded": false
+    },
+    {
+      "seq": 92,
+      "kind": "outcome",
+      "because": 91,
+      "description": "Strength -1, 5 to 4",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 93,
+      "kind": "throw",
+      "step": "aging, Dexterity",
       "dice": [
         5,
         5
       ],
-      "target": "4+",
+      "target": "7+",
       "total": 10,
       "succeeded": true
     },
     {
-      "seq": 70,
-      "kind": "choice",
-      "point": "ReenlistIntent",
-      "by": "policy",
-      "alternatives": [
-        "continue",
-        "discharge"
-      ],
-      "chosen": "continue"
-    },
-    {
-      "seq": 71,
+      "seq": 94,
       "kind": "outcome",
-      "because": 69,
-      "description": "reenlisted for term 4"
+      "because": 93,
+      "description": "Dexterity holds",
+      "errata": [
+        "E006",
+        "E007"
+      ]
     },
     {
-      "seq": 72,
-      "kind": "step",
-      "step": "term 4",
-      "pages": "pp. 5-7"
-    },
-    {
-      "seq": 73,
+      "seq": 95,
       "kind": "throw",
-      "step": "survival",
+      "step": "aging, Endurance",
       "dice": [
-        2,
-        6
+        5,
+        3
       ],
-      "target": "5+",
+      "target": "8+",
       "total": 8,
       "succeeded": true
     },
     {
-      "seq": 74,
+      "seq": 96,
       "kind": "outcome",
-      "because": 73,
-      "description": "survived term 4"
+      "because": 95,
+      "description": "Endurance holds",
+      "errata": [
+        "E006",
+        "E007"
+      ]
     },
     {
-      "seq": 75,
+      "seq": 97,
+      "kind": "step",
+      "step": "mustering out, 6 rolls",
+      "pages": "pp. 7, 9, 21-23"
+    },
+    {
+      "seq": 98,
       "kind": "choice",
-      "point": "AttemptPromotion",
+      "point": "MusterTable",
       "by": "policy",
       "alternatives": [
-        "yes",
-        "no"
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
       ],
-      "chosen": "yes"
+      "chosen": "Table 2, Cash Allowances"
     },
     {
-      "seq": 76,
-      "kind": "throw",
-      "step": "promotion",
+      "seq": 99,
+      "kind": "roll",
+      "step": "Table 2, Cash Allowances",
       "dice": [
-        5,
         6
       ],
-      "target": "10+",
-      "total": 11,
-      "succeeded": true
+      "total": 6
     },
     {
-      "seq": 77,
+      "seq": 100,
       "kind": "outcome",
-      "because": 76,
-      "description": "promoted: 1st Officer"
+      "because": 99,
+      "description": "CR 30000, bringing the total to CR 30000"
     },
     {
-      "seq": 78,
-      "kind": "outcome",
-      "because": 76,
-      "description": "Pilot-1"
-    },
-    {
-      "seq": 79,
-      "kind": "step",
-      "step": "skills and training",
-      "pages": "pp. 6, 11"
-    },
-    {
-      "seq": 80,
+      "seq": 101,
       "kind": "choice",
-      "point": "SkillTable",
+      "point": "MusterTable",
       "by": "policy",
       "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Table 2, Cash Allowances"
     },
     {
-      "seq": 81,
+      "seq": 102,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Table 2, Cash Allowances",
+      "dice": [
+        4
+      ],
+      "total": 4
+    },
+    {
+      "seq": 103,
+      "kind": "outcome",
+      "because": 102,
+      "description": "CR 10000, bringing the total to CR 40000"
+    },
+    {
+      "seq": 104,
+      "kind": "choice",
+      "point": "MusterTable",
+      "by": "policy",
+      "alternatives": [
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
+      ],
+      "chosen": "Table 2, Cash Allowances"
+    },
+    {
+      "seq": 105,
+      "kind": "roll",
+      "step": "Table 2, Cash Allowances",
       "dice": [
         3
       ],
       "total": 3
     },
     {
-      "seq": 82,
+      "seq": 106,
       "kind": "outcome",
-      "because": 81,
-      "description": "Electronic-2",
-      "errata": [
-        "E002"
-      ]
+      "because": 105,
+      "description": "CR 5000, bringing the total to CR 45000"
     },
     {
-      "seq": 83,
-      "kind": "choice",
-      "point": "SkillTable",
-      "by": "policy",
-      "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
-      ],
-      "chosen": "Advanced Education Table"
-    },
-    {
-      "seq": 84,
+      "seq": 107,
       "kind": "roll",
-      "step": "Advanced Education Table",
-      "dice": [
-        5
-      ],
-      "total": 5
-    },
-    {
-      "seq": 85,
-      "kind": "outcome",
-      "because": 84,
-      "description": "Gunnery-2",
-      "errata": [
-        "E002"
-      ]
-    },
-    {
-      "seq": 86,
-      "kind": "throw",
-      "step": "reenlistment",
-      "dice": [
-        6,
-        5
-      ],
-      "target": "4+",
-      "total": 11,
-      "succeeded": true
-    },
-    {
-      "seq": 87,
-      "kind": "choice",
-      "point": "ReenlistIntent",
-      "by": "policy",
-      "alternatives": [
-        "continue",
-        "discharge"
-      ],
-      "chosen": "continue"
-    },
-    {
-      "seq": 88,
-      "kind": "outcome",
-      "because": 86,
-      "description": "reenlisted for term 5"
-    },
-    {
-      "seq": 89,
-      "kind": "step",
-      "step": "aging, end of term 4",
-      "pages": "pp. 7-9"
-    },
-    {
-      "seq": 90,
-      "kind": "throw",
-      "step": "aging, Strength",
-      "dice": [
-        3,
-        4
-      ],
-      "target": "8+",
-      "total": 7,
-      "succeeded": false
-    },
-    {
-      "seq": 91,
-      "kind": "outcome",
-      "because": 90,
-      "description": "Strength -1, 10 to 9",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 92,
-      "kind": "throw",
-      "step": "aging, Dexterity",
-      "dice": [
-        6,
-        6
-      ],
-      "target": "7+",
-      "total": 12,
-      "succeeded": true
-    },
-    {
-      "seq": 93,
-      "kind": "outcome",
-      "because": 92,
-      "description": "Dexterity holds",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 94,
-      "kind": "throw",
-      "step": "aging, Endurance",
-      "dice": [
-        6,
-        3
-      ],
-      "target": "8+",
-      "total": 9,
-      "succeeded": true
-    },
-    {
-      "seq": 95,
-      "kind": "outcome",
-      "because": 94,
-      "description": "Endurance holds",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 96,
-      "kind": "step",
-      "step": "term 5",
-      "pages": "pp. 5-7"
-    },
-    {
-      "seq": 97,
-      "kind": "throw",
-      "step": "survival",
-      "dice": [
-        6,
-        2
-      ],
-      "target": "5+",
-      "total": 8,
-      "succeeded": true
-    },
-    {
-      "seq": 98,
-      "kind": "outcome",
-      "because": 97,
-      "description": "survived term 5"
-    },
-    {
-      "seq": 99,
-      "kind": "choice",
-      "point": "AttemptPromotion",
-      "by": "policy",
-      "alternatives": [
-        "yes",
-        "no"
-      ],
-      "chosen": "yes"
-    },
-    {
-      "seq": 100,
-      "kind": "throw",
-      "step": "promotion",
-      "dice": [
-        5,
-        5
-      ],
-      "target": "10+",
-      "total": 10,
-      "succeeded": true
-    },
-    {
-      "seq": 101,
-      "kind": "outcome",
-      "because": 100,
-      "description": "promoted: Captain"
-    },
-    {
-      "seq": 102,
-      "kind": "step",
-      "step": "skills and training",
-      "pages": "pp. 6, 11"
-    },
-    {
-      "seq": 103,
-      "kind": "choice",
-      "point": "SkillTable",
-      "by": "policy",
-      "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
-      ],
-      "chosen": "Advanced Education Table"
-    },
-    {
-      "seq": 104,
-      "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Table 1, Material Benefits",
       "dice": [
         4
       ],
       "total": 4
     },
     {
-      "seq": 105,
-      "kind": "outcome",
-      "because": 104,
-      "description": "Navigation-2",
-      "errata": [
-        "E002"
-      ]
-    },
-    {
-      "seq": 106,
+      "seq": 108,
       "kind": "choice",
-      "point": "SkillTable",
+      "point": "MusterWeapon",
       "by": "policy",
       "alternatives": [
-        "Personal Development Table",
-        "Service Skills Table",
-        "Advanced Education Table"
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
       ],
-      "chosen": "Advanced Education Table"
-    },
-    {
-      "seq": 107,
-      "kind": "roll",
-      "step": "Advanced Education Table",
-      "dice": [
-        5
-      ],
-      "total": 5
-    },
-    {
-      "seq": 108,
-      "kind": "outcome",
-      "because": 107,
-      "description": "Gunnery-3",
-      "errata": [
-        "E002"
-      ]
+      "chosen": "Dagger"
     },
     {
       "seq": 109,
-      "kind": "throw",
-      "step": "reenlistment",
-      "dice": [
-        6,
-        2
-      ],
-      "target": "4+",
-      "total": 8,
-      "succeeded": true
+      "kind": "outcome",
+      "because": 107,
+      "description": "a Dagger"
     },
     {
       "seq": 110,
-      "kind": "choice",
-      "point": "ReenlistIntent",
-      "by": "policy",
-      "alternatives": [
-        "continue",
-        "retire"
+      "kind": "roll",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        6
       ],
-      "chosen": "continue"
+      "total": 6
     },
     {
       "seq": 111,
       "kind": "outcome",
-      "because": 109,
-      "description": "reenlisted for term 6"
+      "because": 110,
+      "description": "a High Passage"
     },
     {
       "seq": 112,
-      "kind": "step",
-      "step": "aging, end of term 5",
-      "pages": "pp. 7-9"
+      "kind": "roll",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        4
+      ],
+      "total": 4
     },
     {
       "seq": 113,
-      "kind": "throw",
-      "step": "aging, Strength",
-      "dice": [
-        4,
-        1
+      "kind": "choice",
+      "point": "MusterWeapon",
+      "by": "policy",
+      "alternatives": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet",
+        "expertise in Dagger"
       ],
-      "target": "8+",
-      "total": 5,
-      "succeeded": false
+      "chosen": "expertise in Dagger"
     },
     {
       "seq": 114,
       "kind": "outcome",
-      "because": 113,
-      "description": "Strength -1, 9 to 8",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 115,
-      "kind": "throw",
-      "step": "aging, Dexterity",
-      "dice": [
-        3,
-        6
-      ],
-      "target": "7+",
-      "total": 9,
-      "succeeded": true
-    },
-    {
-      "seq": 116,
-      "kind": "outcome",
-      "because": 115,
-      "description": "Dexterity holds",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 117,
-      "kind": "throw",
-      "step": "aging, Endurance",
-      "dice": [
-        6,
-        6
-      ],
-      "target": "8+",
-      "total": 12,
-      "succeeded": true
-    },
-    {
-      "seq": 118,
-      "kind": "outcome",
-      "because": 117,
-      "description": "Endurance holds",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 119,
-      "kind": "step",
-      "step": "term 6",
-      "pages": "pp. 5-7"
-    },
-    {
-      "seq": 120,
-      "kind": "throw",
-      "step": "survival",
-      "dice": [
-        3,
-        1
-      ],
-      "target": "5+",
-      "total": 4,
-      "succeeded": false
-    },
-    {
-      "seq": 121,
-      "kind": "outcome",
-      "because": 120,
-      "description": "died in term 6, aged 42",
-      "errata": [
-        "E004"
-      ]
+      "because": 112,
+      "description": "expertise instead: Dagger-2"
     }
   ]
 }

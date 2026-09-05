@@ -53,7 +53,16 @@ type Decider interface {
 
 	// Weapon names the specific weapon for a Blade Combat or Gun Combat
 	// result, immediately (pp. 11-13).
-	Weapon(category traveller.WeaponCategory, from []traveller.WeaponName) (traveller.WeaponName, error)
+	//
+	// It is the one method handed a Vary, because it is the one choice the
+	// book leaves to a player and gives no basis for: the lists of pp. 12-13
+	// are printed in an order, and the order is not a preference. A decider
+	// that wants the first name may ignore it (#34).
+	Weapon(
+		category traveller.WeaponCategory,
+		from []traveller.WeaponName,
+		vary Vary,
+	) (traveller.WeaponName, error)
 
 	// ReenlistIntent asks what the character means to do at the end of a
 	// term (pp. 6-7, 21). Asked only when the reenlistment throw was made,

@@ -11,6 +11,8 @@
 //   - The die is IntN(6) + 1. An IntN(36), or a masked Uint64, is the same
 //     PCG under the same seed and an entirely different character.
 //   - A 2D throw is two of those in sequence, first die then second.
+//   - Among is IntN(n), drawn from the same stream, for the choices the book
+//     leaves to a player without naming a basis.
 //
 // Changing either changes every seeded character. That is an ordinary
 // change, not a breaking one, but it is never an accidental one.
@@ -43,6 +45,23 @@ func (s *Stream) Die() int {
 	s.drawn++
 
 	return s.r.IntN(faces) + 1
+}
+
+// Among returns an index into a set of n alternatives: 0 through n-1.
+//
+// It is not a die. The procedure has no throw here - it is drawn where the
+// book hands the choice to a player and names no basis for it, so that
+// --auto stops answering every such question the same way (#34). A die and a
+// modulo would not do: the weapon lists of pp. 12-13 are longer than six, and
+// even where they are not, 6 mod n makes the first names likelier.
+//
+// It draws from the same stream, so a varied choice consumes like a throw
+// does and the same seed still makes the same character. n must be positive;
+// IntN says so itself.
+func (s *Stream) Among(n int) int {
+	s.drawn++
+
+	return s.r.IntN(n)
 }
 
 // TwoDice returns the two dice of a 2D throw, first die then second.

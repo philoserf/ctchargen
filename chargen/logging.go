@@ -98,9 +98,9 @@ func (l logging) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, 
 }
 
 func (l logging) Weapon(
-	category traveller.WeaponCategory, from []traveller.WeaponName,
+	category traveller.WeaponCategory, from []traveller.WeaponName, vary Vary,
 ) (traveller.WeaponName, error) {
-	chosen, err := l.to.Weapon(category, from)
+	chosen, err := l.to.Weapon(category, from, vary)
 	if err != nil {
 		return chosen, err
 	}

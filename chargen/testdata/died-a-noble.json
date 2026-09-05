@@ -61,7 +61,7 @@
     "E011"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 1,
+  "policy": 2,
   "events": [
     {
       "seq": 1,

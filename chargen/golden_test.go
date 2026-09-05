@@ -113,6 +113,11 @@ var fixtures = []fixture{
 	// fixture got the service it asked for, which let the sheet credit the
 	// policy with a draft's outcome and no golden notice.
 	{"drafted-over-the-policys-pick", 150, traveller.Other, false, chargen.DefaultPolicy()},
+	// Names a weapon, three times, from both lists. Until #34 no fixture on
+	// this roster reached the Weapon choice point at all - eleven of the
+	// twelve were exercised and that one was not - so the answer to it was
+	// covered by nothing, before or after it changed.
+	{"marines-armed", 309, traveller.Marines, true, chargen.DefaultPolicy()},
 }
 
 func (f fixture) inputs() chargen.Inputs {
