@@ -82,7 +82,8 @@ Batch members number from zero, so the first of that batch is the character
 the first `new` above generated, and `render` shows the same sheet.
 
 **`batch` with no `-o` writes NDJSON to standard output**, one record to the
-line, which is the shape that pipes:
+line, which is the shape that pipes — and it streams, so the first record
+reaches the pipe before the run finishes rather than after:
 
 ```sh
 ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] | @tsv'
