@@ -75,18 +75,42 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		return err
 	}
 
-	// --auto decides at every choice, so there is nobody for a replayed
-	// answer to stand in for. Taking the list and then never consulting it
-	// would hand back a character the answers had no part in, which reads
-	// as a resumption that went wrong somewhere unnameable.
-	if *auto && len(answers) > 0 {
-		return fmt.Errorf("%w: --%s and --auto cannot both be given; --auto answers every question itself",
-			errUsage, answersFlag)
+	err = flagsThatContradict(*auto, len(answers) > 0, *sheet, *history)
+	if err != nil {
+		return err
 	}
 
 	return writeCharacter(inputs, answers, newRendering{
 		auto: *auto, sheet: *sheet, history: *history, output: *output, force: *force,
 	}, in, out, asking)
+}
+
+// flagsThatContradict refuses two pairs that cannot both be meant.
+//
+// --auto decides at every choice, so there is nobody for a replayed answer to
+// stand in for: taking the list and never consulting it would hand back a
+// character the answers had no part in, which reads as a resumption that went
+// wrong somewhere unnameable.
+//
+// --sheet and --history are one character asked for two ways. rendered() took
+// the sheet and said nothing, so a referee who asked for the transcript got a
+// sheet and no reason (#58). Neither flag is in the PRD's CLI sketch; what
+// settles it is that preferring one silently is the same defect as swallowing
+// a word after a help flag, and this command refuses that.
+func flagsThatContradict(auto, replaying, sheet, history bool) error {
+	if auto && replaying {
+		return fmt.Errorf("%w: --%s and --auto cannot both be given; --auto answers every question itself",
+			errUsage, answersFlag)
+	}
+
+	if sheet && history {
+		return fmt.Errorf(
+			"%w: --sheet and --history cannot both be given; a character is written one way",
+			errUsage,
+		)
+	}
+
+	return nil
 }
 
 // newRendering is what the flags say to do with the character once it exists,

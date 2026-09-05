@@ -259,3 +259,57 @@ func TestVersionAnswersHelp(t *testing.T) {
 		}
 	}
 }
+
+// A word after a help flag is refused, wherever the help is asked for.
+//
+// #69 made refusing an unexpected word its whole subject. Four paths still
+// dropped one in silence and disagreed with the top level: `ctchargen help
+// junk` refused, while a help flag on any subcommand printed the help and
+// exited 0 (#84). The flag package returns ErrHelp before a command reaches
+// its own NArg check, so the word was never looked at; `version` has no flag
+// set and tested args[0] alone.
+func TestAWordAfterAHelpFlagIsRefused(t *testing.T) {
+	t.Parallel()
+
+	for name, args := range map[string][]string{
+		"top level":     {flagHelp, wantTypo},
+		"top level, -h": {flagShort, wantTypo},
+		cmdHelp:         {cmdHelp, wantTypo},
+		cmdVersion:      {cmdVersion, flagHelp, wantTypo},
+		cmdNew:          {cmdNew, flagHelp, wantTypo},
+		cmdBatch:        {cmdBatch, flagHelp, wantTypo},
+		cmdRender:       {cmdRender, flagHelp, wantTypo},
+	} {
+		err := run(args, nil, io.Discard, io.Discard)
+		if err == nil {
+			t.Errorf("%s: run(%v) printed the help and swallowed the word", name, args)
+
+			continue
+		}
+
+		if !strings.Contains(err.Error(), wantTypo) {
+			t.Errorf("%s: error %q does not name the word", name, err)
+		}
+	}
+}
+
+// One character is written one way.
+//
+// rendered() took the sheet and said nothing, so a referee who asked for the
+// transcript got a sheet and no reason (#58). Preferring one silently is the
+// same defect as swallowing a word, and this command refuses that.
+func TestTheTwoRenderingsCannotBothBeAskedFor(t *testing.T) {
+	t.Parallel()
+
+	err := run([]string{cmdNew, flagAuto, flagSeed, "7", flagSheet, flagHistory},
+		nil, io.Discard, io.Discard)
+	if err == nil {
+		t.Fatal("a character was asked for as a sheet and a transcript at once")
+	}
+
+	for _, want := range []string{flagSheet, flagHistory} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("the refusal %q does not name %s", err, want)
+		}
+	}
+}
