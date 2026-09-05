@@ -109,11 +109,33 @@ func member(base chargen.Inputs, policy chargen.Policy, i int) (*chargen.Charact
 }
 
 // intoStream writes the batch as JSONL, one record to the line.
+//
+// To standard output it streams, writing each record as it is generated.
+// JSONL exists to be piped, and `batch --count 50000 --auto | jq` used to
+// produce nothing until the run finished and to hold the whole run in memory
+// while it did (#44). The atomicity that justifies buffering is about not
+// leaving a file half-written and not clobbering one on a retry, and there is
+// no file to clobber on standard output (#64).
+//
+// To a file it still buffers, for exactly that reason: a half-written batch
+// is worse than none, and the obvious retry is --force, which would then
+// replace what the refusal was protecting.
 func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
 	count int, path string, force bool,
 ) error {
-	var lines strings.Builder
+	if path == "" {
+		return streamed(out, base, policy, count)
+	}
 
+	return buffered(out, base, policy, count, path, force)
+}
+
+// streamed writes each member as it is made.
+//
+// A run that fails partway has already written what came before it, which is
+// what streaming means and is the trade #64 accepted. The error still names
+// the member, so a reader knows where the file stops.
+func streamed(out io.Writer, base chargen.Inputs, policy chargen.Policy, count int) error {
 	for i := range count {
 		character, err := member(base, policy, i)
 		if err != nil {
@@ -125,7 +147,29 @@ func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
 			return fmt.Errorf("member %d: %w", i, err)
 		}
 
-		lines.Write(encoded)
+		_, err = out.Write(encoded)
+		if err != nil {
+			return fmt.Errorf("member %d: %w", i, err)
+		}
+	}
+
+	return nil
+}
+
+// buffered streams the batch into memory and writes it out in one go, so a
+// run that fails partway opens nothing at all.
+//
+// It is the same loop: buffering is streaming to somewhere that cannot be
+// half-read. What differs is only where it streams to and when the file is
+// opened, which is the whole of the distinction #64 drew.
+func buffered(out io.Writer, base chargen.Inputs, policy chargen.Policy,
+	count int, path string, force bool,
+) error {
+	var lines strings.Builder
+
+	err := streamed(&lines, base, policy, count)
+	if err != nil {
+		return err
 	}
 
 	where, err := openDestination(out, path, force)
