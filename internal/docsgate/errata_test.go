@@ -44,10 +44,14 @@ type reading struct {
 
 	// parked names the issue where this reading's document and its code
 	// disagree and neither has yet been ruled wrong. A parked reading is
-	// listed but not compared: shipping it as a failure would make the gate
+	// measured but not judged: shipping it as a failure would make the gate
 	// red for something undecided, and dropping it would hide the
 	// disagreement the gate exists to surface.
-	parked string
+	//
+	// disagreeOn is how many records they differ on. It is asserted, so the
+	// predicate keeps running and the number stays true.
+	parked     string
+	disagreeOn int
 }
 
 // Every reading a record stamps is one whose condition it satisfies, and
@@ -69,25 +73,33 @@ func TestEveryReadingIsStampedWhereItsConditionHolds(t *testing.T) {
 
 	readings := conditions(tables)
 
-	if len(readings) != len(traveller.Errata) {
-		t.Fatalf("%d conditions for %d readings; every entry of ERRATA.md needs one",
-			len(readings), len(traveller.Errata))
-	}
+	oneConditionEach(t, readings)
 
 	stampedSomewhere := map[traveller.Erratum]bool{}
+	disagreements := map[traveller.Erratum]int{}
 
 	for _, rec := range readRecords(t) {
 		for _, r := range readings {
+			want := r.holds(rec)
+
 			got := slices.Contains(rec.Errata, r.id.String())
 			if got {
 				stampedSomewhere[r.id] = true
 			}
 
+			// A parked reading is measured and not judged. Skipping the
+			// predicate outright would leave it compiled and never run, and
+			// a predicate nobody runs rots: rename a step and it quietly
+			// starts answering about nothing.
 			if r.parked != "" {
+				if want != got {
+					disagreements[r.id]++
+				}
+
 				continue
 			}
 
-			switch want := r.holds(rec); {
+			switch {
 			case want && !got:
 				t.Errorf("%s: satisfies %v but does not stamp it — %s", rec.name, r.id, r.quote)
 			case got && !want:
@@ -96,8 +108,41 @@ func TestEveryReadingIsStampedWhereItsConditionHolds(t *testing.T) {
 		}
 	}
 
-	stillParked(t, readings)
+	stillParked(t, readings, disagreements)
 	unreached(t, readings, stampedSomewhere)
+}
+
+// Every entry of ERRATA.md has exactly one condition, and every condition
+// names an entry.
+//
+// This was a comparison of lengths, which is not the same claim and does not
+// hold it: giving one reading another's id leaves the count right, compares
+// that id twice against agreeing predicates, and drops the other reading
+// entirely - and the gate stayed green. Adding a sixteenth erratum and
+// copying a block without changing its id is the way that happens for real.
+func oneConditionEach(t *testing.T, readings []reading) {
+	t.Helper()
+
+	conditions := map[traveller.Erratum]int{}
+	for _, r := range readings {
+		conditions[r.id]++
+	}
+
+	for _, id := range traveller.Errata {
+		switch conditions[id] {
+		case 1:
+		case 0:
+			t.Errorf("%v has no condition; every entry of ERRATA.md needs one", id)
+		default:
+			t.Errorf("%v has %d conditions, so some other reading has none", id, conditions[id])
+		}
+
+		delete(conditions, id)
+	}
+
+	for id := range conditions {
+		t.Errorf("%v has a condition but is not one of traveller.Errata", id)
+	}
 }
 
 // The readings this gate lists but does not compare, pinned so the list
@@ -106,7 +151,7 @@ func TestEveryReadingIsStampedWhereItsConditionHolds(t *testing.T) {
 // Parking one is how a disagreement between a reading and its code gets
 // recorded without being decided in passing. It is meant to be temporary and
 // nothing but this assertion would say if it were not.
-func stillParked(t *testing.T, readings []reading) {
+func stillParked(t *testing.T, readings []reading, disagreements map[traveller.Erratum]int) {
 	t.Helper()
 
 	want := []string{"E011"}
@@ -114,8 +159,19 @@ func stillParked(t *testing.T, readings []reading) {
 	var got []string
 
 	for _, r := range readings {
-		if r.parked != "" {
-			got = append(got, r.id.String())
+		if r.parked == "" {
+			continue
+		}
+
+		got = append(got, r.id.String())
+
+		// The disagreement is counted, not just noted, so the number in the
+		// reading's own comment is re-measured every run. Settling the issue
+		// takes it to zero, which fails here saying so - which is the right
+		// way for a parked reading to ask to be unparked.
+		if n := disagreements[r.id]; n != r.disagreeOn {
+			t.Errorf("%v is parked as %s over %d records, and disagrees on %d now",
+				r.id, r.parked, r.disagreeOn, n)
 		}
 	}
 
@@ -276,7 +332,8 @@ func rankAndTitle(tables *rules.Rules) []reading {
 
 				return threw && (rolled >= nobility) != (final >= nobility)
 			},
-			parked: "#92",
+			parked:     "#92",
+			disagreeOn: 9,
 		},
 		{
 			id:    traveller.E012,

@@ -2,6 +2,11 @@ package traveller_test
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/philoserf/ctchargen/traveller"
@@ -23,6 +28,10 @@ import (
 // Every alphabet is here, not only the ones a Decider offers today, because
 // what makes one reachable is a method signature - and a method that starts
 // offering PassageClasses should not also have to remember this file.
+//
+// "Every" is a claim, so it is held rather than asserted in a comment: the
+// test below reads this package's own source for the alphabets it declares
+// and fails on one nobody checks here.
 func TestNoTwoValuesOfAnAlphabetShareASpelling(t *testing.T) {
 	t.Parallel()
 
@@ -67,5 +76,61 @@ func spelledOnce[T fmt.Stringer](t *testing.T, alphabet string, all []T) {
 		}
 
 		seen[spelled] = i
+	}
+}
+
+// alphabet matches this package's own way of writing one down: an exported
+// array of every value of a type, "var ServiceNames = [...]ServiceName{...}".
+var alphabet = regexp.MustCompile(`(?m)^var ([A-Z]\w*) = \[\.\.\.\]`)
+
+// Every alphabet this package declares is checked above.
+//
+// The list up there is written by hand, and a hand-written list of everything
+// is a claim that goes stale the first time someone adds the thirteenth. The
+// gap it would leave is the one #48 is about: a Decider method that starts
+// offering a new alphabet, and a spelling gate that never looks at it.
+//
+// Reading the source is what holds it. This package is the whole domain and
+// it declares its alphabets one way, so the pattern above finds them all.
+func TestEveryAlphabetDeclaredHereIsChecked(t *testing.T) {
+	t.Parallel()
+
+	checked, err := os.ReadFile("spelling_test.go")
+	if err != nil {
+		t.Fatalf("reading this file: %v", err)
+	}
+
+	sources, err := filepath.Glob("*.go")
+	if err != nil {
+		t.Fatalf("looking for the package: %v", err)
+	}
+
+	var declared []string
+
+	for _, path := range sources {
+		if strings.HasSuffix(path, "_test.go") {
+			continue
+		}
+
+		text, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading %s: %v", path, err)
+		}
+
+		for _, found := range alphabet.FindAllSubmatch(text, -1) {
+			declared = append(declared, string(found[1]))
+		}
+	}
+
+	if len(declared) == 0 {
+		t.Fatal("no alphabets found, so this checks nothing")
+	}
+
+	slices.Sort(declared)
+
+	for _, name := range declared {
+		if !strings.Contains(string(checked), "traveller."+name+"[:]") {
+			t.Errorf("%s is an alphabet and no case above checks its spellings", name)
+		}
 	}
 }
