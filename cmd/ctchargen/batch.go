@@ -10,15 +10,21 @@ import (
 
 	"github.com/philoserf/ctchargen/chargen"
 	"github.com/philoserf/ctchargen/render"
+	"github.com/philoserf/ctchargen/traveller"
 )
 
 // batch generates many characters from one base seed.
 //
 // It emits what it rolled. Death is an outcome and not an error, so a
-// character killed by a survival throw is written like anyone else;
-// filtering the dead is the caller's business, and no flag rerolls them
-// silently.
-func batch(args []string, out io.Writer) error {
+// character killed by a survival throw is written like anyone else and no
+// flag rerolls him.
+// --survivors does not reroll either: it passes over a dead character and
+// goes on to the next seed, so every character written is still the character
+// that seed makes. What changes is which seeds appear (#33).
+//
+// It always says what it did. A run that wrote seventy-four corpses and
+// printed nothing was the trap the report named.
+func batch(args []string, out, asking io.Writer) error {
 	flags := flag.NewFlagSet("batch", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 
@@ -37,7 +43,9 @@ func batch(args []string, out io.Writer) error {
 			"the mustering out `strategy`: "+chargen.MusterChoices())
 		output = flags.String("o", "",
 			"a .jsonl file, or a directory to write one file per character; absent, JSONL to standard output")
-		force = flags.Bool("force", false, "replace output files that already exist")
+		force     = flags.Bool("force", false, "replace output files that already exist")
+		survivors = flags.Bool("survivors", false,
+			"pass over characters who died, and go on until --count of them are living")
 	)
 
 	err := flags.Parse(args)
@@ -71,11 +79,29 @@ func batch(args []string, out io.Writer) error {
 
 	policy := chargen.Policy{Career: base.Career, Skills: base.Skills, Muster: base.Muster}
 
-	if namesDirectory(*output) {
-		return intoDirectory(base, policy, *count, *output, *force)
+	return write(out, asking, base, policy, *count, *output, *force, *survivors)
+}
+
+// write sends the batch where it was asked for, and says what it did either
+// way. A directory takes one file per character; anything else is JSONL.
+func write(out, asking io.Writer, base chargen.Inputs, policy chargen.Policy,
+	count int, path string, force, survivors bool,
+) error {
+	made := intoStream
+	if namesDirectory(path) {
+		made = func(_ io.Writer, base chargen.Inputs, policy chargen.Policy,
+			count int, dir string, force, survivors bool,
+		) (tally, error) {
+			return intoDirectory(base, policy, count, dir, force, survivors)
+		}
 	}
 
-	return intoStream(out, base, policy, *count, *output, *force)
+	done, err := made(out, base, policy, count, path, force, survivors)
+	if err != nil {
+		return err
+	}
+
+	return done.report(asking)
 }
 
 // memberSeed is the seed of batch member i.
@@ -108,6 +134,109 @@ func member(base chargen.Inputs, policy chargen.Policy, i int) (*chargen.Charact
 	return character, nil
 }
 
+// tally is what a batch did, for the line it prints when it is done.
+type tally struct {
+	written int
+	died    int
+	passed  int
+}
+
+// report writes the closing line.
+//
+// It goes to the channel the tool talks to the operator on and never to the
+// data channel: a summary on standard output would be a line of JSONL that is
+// not JSON. After #44 it also arrives after records the reader has already
+// seen, which is why it counts rather than warns.
+func (t tally) report(asking io.Writer) error {
+	line := fmt.Sprintf("%d written", t.written)
+
+	switch {
+	case t.passed > 0:
+		line += fmt.Sprintf(", %d passed over for dying", t.passed)
+	case t.died > 0:
+		line += fmt.Sprintf(", %d died", t.died)
+	default:
+		line += ", none died"
+	}
+
+	_, err := fmt.Fprintln(asking, line)
+	if err != nil {
+		return fmt.Errorf("reporting the batch: %w", err)
+	}
+
+	return nil
+}
+
+// survivorAttempts bounds how many seeds --survivors draws per character
+// asked for. It is a parameter of eachMember rather than read from there, so
+// that a test can reach the bound without needing a hundred deaths per
+// character to do it.
+//
+// It bounds a loop that would otherwise have none, which is the shape of
+// defect #54 names elsewhere. The referee who reported #33 measured 74 dead
+// in 100 under the default strategy - about four seeds a survivor - so a
+// hundred is a margin of twenty-five over the worst case anyone has seen, and
+// reaching it means something is wrong rather than unlucky.
+const survivorAttempts = 100
+
+// died reports a character killed during generation. Both fatal departures
+// are cases of the sum.
+func died(character *chargen.Character) bool {
+	switch character.Departure.(type) {
+	case traveller.KilledBySurvivalThrow, traveller.KilledByMedicalCrisis:
+		return true
+	default:
+		return false
+	}
+}
+
+// eachMember walks the batch, handing each member that is to be written to
+// take, and reports what it did.
+//
+// Without --survivors every member is written, dead or alive. With it a dead
+// character is passed over and the next seed tried - so a written member is
+// still exactly the character his own seed makes, and `new --seed <that>`
+// brings him back. What changes is which seeds appear, not what any of them
+// means (#33).
+func eachMember(base chargen.Inputs, policy chargen.Policy, count int, survivors bool,
+	attempts int, take func(*chargen.Character) error,
+) (tally, error) {
+	var done tally
+
+	for i := 0; done.written < count; i++ {
+		if survivors && i >= count*attempts {
+			return done, fmt.Errorf(
+				"%w: --survivors drew %d seeds for %d living characters and found %d",
+				errUsage, i, count, done.written,
+			)
+		}
+
+		character, err := member(base, policy, i)
+		if err != nil {
+			return done, err
+		}
+
+		if died(character) {
+			if survivors {
+				done.passed++
+
+				continue
+			}
+
+			done.died++
+		}
+
+		err = take(character)
+		if err != nil {
+			return done, err
+		}
+
+		done.written++
+	}
+
+	return done, nil
+}
+
 // intoStream writes the batch as JSONL, one record to the line.
 //
 // To standard output it streams, writing each record as it is generated.
@@ -116,130 +245,130 @@ func member(base chargen.Inputs, policy chargen.Policy, i int) (*chargen.Charact
 // while it did (#44). The atomicity that justifies buffering is about not
 // leaving a file half-written and not clobbering one on a retry, and there is
 // no file to clobber on standard output (#64).
-//
-// To a file it still buffers, for exactly that reason: a half-written batch
-// is worse than none, and the obvious retry is --force, which would then
-// replace what the refusal was protecting.
 func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
-	count int, path string, force bool,
-) error {
+	count int, path string, force, survivors bool,
+) (tally, error) {
 	if path == "" {
-		return streamed(out, base, policy, count)
+		return eachMember(base, policy, count, survivors, survivorAttempts, writingTo(out))
 	}
 
-	return buffered(base, policy, count, path, force)
+	return buffered(base, policy, count, path, force, survivors)
 }
 
-// streamed writes each member as it is made.
+// writingTo is the take a streamed run uses: encode the member and write it.
 //
-// A run that fails partway has already written what came before it, which is
-// what streaming means and is the trade #64 accepted. The error names the
-// member, so a failed write says where the output stops.
-//
-// A closed pipe is not that case. `batch --auto | head -1` never reaches the
-// branch below: the Go runtime turns EPIPE on standard output into an
-// uncaught SIGPIPE, so the run dies by signal 13 with nothing on stderr,
-// which is what a tool in a pipeline should do. What the branch covers is a
-// write error the runtime does hand back - a redirected file that fills up,
-// a device that errors.
-func streamed(out io.Writer, base chargen.Inputs, policy chargen.Policy, count int) error {
-	for i := range count {
-		character, err := member(base, policy, i)
-		if err != nil {
-			return err
-		}
-
+// It names the member by its own seed rather than by its position, because
+// under --survivors those differ and the seed is the one that brings him back.
+func writingTo(out io.Writer) func(*chargen.Character) error {
+	return func(character *chargen.Character) error {
 		encoded, err := render.JSONLine(character)
 		if err != nil {
-			return fmt.Errorf("member %d: %w", i, err)
+			return fmt.Errorf("seed %d: %w", character.Inputs.Seed, err)
 		}
 
 		_, err = out.Write(encoded)
 		if err != nil {
-			return fmt.Errorf("member %d: %w", i, err)
+			return fmt.Errorf("seed %d: %w", character.Inputs.Seed, err)
 		}
-	}
 
-	return nil
+		return nil
+	}
 }
 
-// buffered streams the batch into memory and writes it out in one go, so a
-// run that fails partway opens nothing at all.
+// buffered generates the whole batch before opening the file, so a run that
+// fails partway opens nothing at all.
 //
-// It is the same loop: buffering is streaming to somewhere that cannot be
-// half-read. What differs is only where it streams to and when the file is
+// It is the same walk: buffering is streaming to somewhere that cannot be
+// half-read. What differs is only where it writes and when the file is
 // opened, which is the whole of the distinction #64 drew.
 func buffered(base chargen.Inputs, policy chargen.Policy,
-	count int, path string, force bool,
-) error {
+	count int, path string, force, survivors bool,
+) (tally, error) {
 	var lines strings.Builder
 
-	err := streamed(&lines, base, policy, count)
+	done, err := eachMember(base, policy, count, survivors, survivorAttempts, writingTo(&lines))
 	if err != nil {
-		return err
+		return done, err
 	}
 
-	// nil is the stream, and this path never uses it: intoStream sends only a
-	// named path here, so openDestination always opens a file.
+	// nil, because path is never empty here: intoStream sends an empty one to
+	// the stream above, so openDestination always opens a file.
 	where, err := openDestination(nil, path, force)
 	if err != nil {
-		return err
+		return done, err
 	}
 
-	return where.write(lines.String())
+	return done, where.write(lines.String())
 }
 
 // intoDirectory writes one file per character, named for its own seed.
 //
-// Every member's path is known before a character is generated, so the whole
-// batch is checked for collisions before any of it is written. A batch that
-// stopped halfway would leave a directory holding some of the run and no
-// record of which files were new, and the obvious retry - --force - would
-// then replace the very file the refusal was protecting.
+// The whole batch is generated before any of it is written, so the collision
+// check covers the paths the run actually produces. A batch that stopped
+// halfway would leave a directory holding some of the run and no record of
+// which files were new, and the obvious retry - --force - would then replace
+// the very file the refusal was protecting.
+//
+// It used to check the paths before generating, because members were seeds
+// base through base+count-1 and every path was known in advance. Under
+// --survivors they are not: which seeds are written depends on which
+// characters live (#33). Checking what was actually made keeps the guarantee
+// and stops it resting on an arithmetic that no longer holds.
 func intoDirectory(base chargen.Inputs, policy chargen.Policy,
-	count int, dir string, force bool,
-) error {
+	count int, dir string, force, survivors bool,
+) (tally, error) {
 	err := os.MkdirAll(dir, recordDirMode)
 	if err != nil {
-		return fmt.Errorf("creating %s: %w", dir, err)
+		return tally{}, fmt.Errorf("creating %s: %w", dir, err)
+	}
+
+	var roster []*chargen.Character
+
+	done, err := eachMember(base, policy, count, survivors, survivorAttempts,
+		func(character *chargen.Character) error {
+			roster = append(roster, character)
+
+			return nil
+		})
+	if err != nil {
+		return done, err
 	}
 
 	if !force {
-		err = noMemberExists(base.Seed, count, dir)
+		err = noMemberExists(roster, dir)
 		if err != nil {
-			return err
+			return done, err
 		}
 	}
 
-	for i := range count {
-		character, err := member(base, policy, i)
-		if err != nil {
-			return err
-		}
-
+	for _, character := range roster {
 		encoded, err := render.JSON(character)
 		if err != nil {
-			return fmt.Errorf("member %d: %w", i, err)
+			return done, fmt.Errorf("seed %d: %w", character.Inputs.Seed, err)
 		}
 
 		where, err := openDestination(nil, memberPath(dir, character.Inputs.Seed), force)
 		if err != nil {
-			return err
+			return done, err
 		}
 
 		err = where.write(string(encoded))
 		if err != nil {
-			return err
+			return done, err
 		}
 	}
 
-	return nil
+	return done, nil
 }
 
 // noMemberExists refuses the batch if any member's file is already there.
-func noMemberExists(base uint64, count int, dir string) error {
-	for i := range count {
-		path := memberPath(dir, memberSeed(base, i))
+//
+// It takes the roster rather than a base and a count: under --survivors the
+// members written are not the seeds base through base+count-1, and a check
+// derived from that arithmetic would look at files the run will never write.
+func noMemberExists(roster []*chargen.Character, dir string) error {
+	for _, character := range roster {
+		path := memberPath(dir, character.Inputs.Seed)
 
 		_, err := os.Stat(path)
 		if err == nil {
