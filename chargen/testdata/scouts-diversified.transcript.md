@@ -193,4 +193,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 ## titles (p. 5; Book 3 p. 22)
 
 145. AssumeTitle: policy chose yes from yes, no
-146. social standing 12 confers baron/baroness, and it is assumed [E011]
+146. social standing 12 confers baron/baroness, and it is assumed

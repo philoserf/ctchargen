@@ -246,4 +246,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 ## titles (p. 5; Book 3 p. 22)
 
 200. AssumeTitle: policy chose yes from yes, no
-201. social standing 14 confers count/countess, and it is assumed [E011]
+201. social standing 14 confers count/countess, and it is assumed

@@ -116,6 +116,12 @@ type run struct {
 	dead     bool
 	eligible int
 
+	// rolledSocial is the Social Standing of p. 4, before anything moved
+	// it. E011 turns on whether assessing at the end rather than at 18
+	// changes the answer, and that cannot be known from the final value
+	// alone.
+	rolledSocial int
+
 	// trained counts the results taken off each skills table, which the
 	// decider is handed so it can see where the character is thin. It is
 	// not on the Character: it is a decision aid, not part of the record.
@@ -160,6 +166,10 @@ func (r *run) rollProfile() {
 		first, second := r.roll.TwoDice()
 
 		r.char.Profile[c] = first + second
+
+		if c == traveller.SocialStanding {
+			r.rolledSocial = r.char.Profile[c]
+		}
 
 		seq := r.log.dice(c.String(), first, second)
 		r.log.outcomef(seq, nil, "%v %d", c, first+second)

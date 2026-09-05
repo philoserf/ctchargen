@@ -109,4 +109,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service marines --career serve 
 ## titles (p. 5; Book 3 p. 22)
 
  85. AssumeTitle: policy chose yes from yes, no
- 86. social standing 12 confers baron/baroness, and it is assumed [E011]
+ 86. social standing 12 confers baron/baroness, and it is assumed

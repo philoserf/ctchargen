@@ -235,7 +235,7 @@ func oneConditionEach(t *testing.T, readings []reading) {
 func stillParked(t *testing.T, readings []reading, disagreements map[traveller.Erratum]int) {
 	t.Helper()
 
-	want := []string{"E011"}
+	var want []string
 
 	var got []string
 
@@ -392,13 +392,9 @@ func agingAndCrisis() []reading {
 func rankAndTitle(tables *rules.Rules) []reading {
 	return []reading{
 		{
-			// PARKED. This predicate is ERRATA.md's sentence, and the engine
-			// disagrees with it on nine of the ten records that stamp E011:
-			// assessTitle stamps whenever the final Social Standing confers
-			// a title and never reads the rolled one, while the document
-			// says a character "eligible at 18 and still eligible at the end
-			// ... is not stamped". Which side is wrong is #92, and it is not
-			// being settled as a side effect of building this gate.
+			// Parked while #92 was open, and compared since it was settled:
+			// the document was right and assessTitle over-stamped, naming
+			// the reading on nine records it did nothing to.
 			id: traveller.E011,
 			quote: "records where eligibility on the rolled Social Standing and on the final one " +
 				"differ in either direction, and every record ending in death whose final " +
@@ -413,8 +409,6 @@ func rankAndTitle(tables *rules.Rules) []reading {
 
 				return threw && (rolled >= nobility) != (final >= nobility)
 			},
-			parked:     "#92",
-			disagreeOn: 9,
 		},
 		{
 			id:    traveller.E012,

@@ -116,12 +116,13 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 
 ## Titles
 
-| Rule                                                | Page             | Implementation            | Test                  |
-| --------------------------------------------------- | ---------------- | ------------------------- | --------------------- |
-| Social Standing 11+ may assume the hereditary title | 1:5; 3:22        | `chargen.run.assessTitle` | golden `other-title`  |
-| Assessed once, at the end, against the final value  | 1:5; 3:22 (E011) | `chargen.run.assessTitle` | golden `other-title`  |
-| The dead are assessed but not asked                 | (E011)           | `chargen.run.assessTitle` | golden `died-a-noble` |
-| The five ranks of nobility                          | 3:22             | `rules.Rules.TitleFor`    | `rules.TestNobility`  |
+| Rule                                                      | Page             | Implementation            | Test                                                                                                           |
+| --------------------------------------------------------- | ---------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Social Standing 11+ may assume the hereditary title       | 1:5; 3:22        | `chargen.run.assessTitle` | golden `other-title`                                                                                           |
+| Assessed once, at the end, against the final value        | 1:5; 3:22 (E011) | `chargen.run.assessTitle` | golden `other-title`                                                                                           |
+| The dead are assessed but not asked                       | (E011)           | `chargen.run.assessTitle` | golden `died-a-noble`                                                                                          |
+| E011 is stamped only where the reading changed the answer | (E011)           | `chargen.run.assessTitle` | `docsgate.TestEveryReadingIsStampedWhereItsConditionHolds`; goldens `marines-ennobled`, `other-lost-the-title` |
+| The five ranks of nobility                                | 3:22             | `rules.Rules.TitleFor`    | `rules.TestNobility`                                                                                           |
 
 ## The record
 

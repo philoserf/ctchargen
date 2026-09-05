@@ -144,7 +144,33 @@ func (r *run) assessTitle() error {
 	social := r.char.Profile[traveller.SocialStanding]
 
 	rank, eligible := r.tables.TitleFor(social)
+
+	_, eligibleAtEighteen := r.tables.TitleFor(r.rolledSocial)
+
+	// The reading's two consequences, and the only records it governed:
+	// an alteration conferred or removed a title he did not have or did
+	// have at 18, or he died and is assessed anyway. A character eligible
+	// at 18 and still eligible is assessed the same way under either
+	// reading, so his record does not name a reading that did nothing to
+	// it (#92).
+	governed := eligible != eligibleAtEighteen || (r.dead && eligible)
+
+	errata := []traveller.Erratum(nil)
+	if governed {
+		errata = append(errata, traveller.E011)
+	}
+
 	if !eligible {
+		// Eligible at 18 and not at the end: the reading took the title,
+		// and a record that said nothing at all would be the one place it
+		// mattered most and showed least.
+		if governed {
+			r.log.step("titles", "p. 5; Book 3 p. 22")
+			r.log.outcomef(0, errata,
+				"social standing %d at the end, from %d at 18: no title, where the rolled value allowed one",
+				social, r.rolledSocial)
+		}
+
 		return nil
 	}
 
@@ -153,7 +179,7 @@ func (r *run) assessTitle() error {
 	r.char.Title = Title{Eligible: true, Rank: rank}
 
 	if r.dead {
-		r.log.outcomef(0, []traveller.Erratum{traveller.E011},
+		r.log.outcomef(0, errata,
 			"held a social standing of %d at death, which is %v", social, rank)
 
 		return nil
@@ -166,7 +192,7 @@ func (r *run) assessTitle() error {
 
 	r.char.Title.Assumed = assume
 
-	r.log.outcomef(0, []traveller.Erratum{traveller.E011},
+	r.log.outcomef(0, errata,
 		"social standing %d confers %v, %s assumed", social, rank,
 		map[bool]string{true: "and it is", false: "and it is not"}[assume])
 
