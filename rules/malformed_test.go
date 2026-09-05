@@ -244,15 +244,17 @@ func TestMalformedMustering(t *testing.T) {
 			"not a cash allowance",
 		},
 		"a passage with no price": {
-			func(w *wireMustering) { delete(w.Passages, "Low Passage") },
+			func(w *wireMustering) { delete(w.Passages.Prices, "Low Passage") },
 			"no price for Low Passage",
 		},
-		"a passage price that is not a number": {
-			func(w *wireMustering) { w.Passages["Low Passage"] = "cheap" },
-			"is not a price",
-		},
+		// There is no case here for a price that is not a number. It used to
+		// be one: the prices shared an object with resalePercent, so the
+		// field was map[string]any and the lift asserted its way back to a
+		// float. Prices are map[string]int64 now, so "cheap" is refused by
+		// json.Unmarshal before the lift is called, and what the compiler
+		// proves is not also tested (#49).
 		"no resale percentage": {
-			func(w *wireMustering) { delete(w.Passages, "resalePercent") },
+			func(w *wireMustering) { w.Passages.ResalePercent = 0 },
 			"resale",
 		},
 	} {
@@ -287,6 +289,10 @@ func TestMalformedAging(t *testing.T) {
 	wire = valid(t)
 	wire.Bands = nil
 	refuses(t, "no bands at all", (&Rules{}).liftAging(wire), "no bands")
+
+	wire = valid(t)
+	wire.LastPrintedTerm = 0
+	refuses(t, "a last printed term before the last band", (&Rules{}).liftAging(wire), "last printed term")
 
 	wire = valid(t)
 	wire.Crisis.Saving = "eight"

@@ -15,6 +15,29 @@ import (
 // Intelligence row, whose "no effect before age 66" ends where age 66 - the
 // term 12 column - begins. Education and Social Standing carry "unaffected
 // by aging" across the whole width.
+// The last term the Aging Table's Term of Service header row prints.
+//
+// The second transcription of that one number (p. 9): the header runs 4
+// through 14, so 14 is the last term the table names. It is transcribed here
+// rather than derived from the bands because it cannot be - the last band
+// begins at term 12 and is open-ended, so nothing in the band list says where
+// the printed header stops.
+//
+// It earns its own test because it is E014's stamping condition: past it a
+// record declares that the reading of an open-ended last column governed it.
+// A wrong number here does not misplay a character - the effects are the same
+// either side - it misreports which readings a record rests on, and only this
+// would notice.
+func TestTheAgingTablesLastPrintedTerm(t *testing.T) {
+	t.Parallel()
+
+	const printed = 14
+
+	if got := load(t).Aging.LastPrintedTerm(); got != printed {
+		t.Errorf("last printed term %d, want %d - p. 9's header row runs 4 through 14", got, printed)
+	}
+}
+
 func TestAgingTable(t *testing.T) {
 	t.Parallel()
 
@@ -273,13 +296,17 @@ func TestMusterRollsAndPassages(t *testing.T) {
 		}
 	}
 
-	if r.Muster.MaxOnTable2 != 3 {
-		t.Errorf("max rolls on table 2 is %d, want 3", r.Muster.MaxOnTable2)
-	}
-
 	if r.Muster.Table1DMFromRank5or6 != 1 || r.Muster.Table2DMFromGambling != 1 {
 		t.Errorf("the two optional DMs are %d and %d, want 1 and 1",
 			r.Muster.Table1DMFromRank5or6, r.Muster.Table2DMFromGambling)
+	}
+
+	// The skill that earns the second of those, transcribed a second time
+	// (#47). It is data because it names which skill, and it has to be
+	// spelled as skills.json spells it after E012's normalization - a
+	// mismatch would not fail, it would silently stop the modifier applying.
+	if r.Muster.Table2ModifierFrom != "Gambling" {
+		t.Errorf("the table 2 modifier is earned by %q, want Gambling", r.Muster.Table2ModifierFrom)
 	}
 
 	for class, want := range map[traveller.PassageClass]traveller.Credits{

@@ -70,22 +70,25 @@ type wireMustering struct {
 	Table1   [][]string `json:"table1"`
 	Table2   [][]int64  `json:"table2"`
 	Rolls    struct {
-		PerTerm                  int `json:"perTerm"`
-		ExtraForRank1or2         int `json:"extraForRank1or2"`
-		ExtraForRank3Plus        int `json:"extraForRank3Plus"`
-		MinRankForOneExtraRoll   int `json:"minRankForOneExtraRoll"`
-		MinRankForTwoExtraRolls  int `json:"minRankForTwoExtraRolls"`
-		MinRankForTable1Modifier int `json:"minRankForTable1Modifier"`
-		MaxOnTable2              int `json:"maxOnTable2"`
-		Table1DMFromRank5or6     int `json:"table1ModifierFromRank5or6"`
-		Table2DMFromGambling     int `json:"table2ModifierFromGambling"`
+		Table1DMFromRank5or6 int    `json:"table1ModifierFromRank5or6"`
+		Table2DMFromGambling int    `json:"table2ModifierFromGambling"`
+		Table2ModifierFrom   string `json:"table2ModifierFrom"`
 	} `json:"rolls"`
-	Names    map[string]string `json:"names"`
-	Passages map[string]any    `json:"passages"`
+	Names map[string]string `json:"names"`
+
+	// Prices and the resale rate were one object keyed by passage class,
+	// which forced the field to any and the lift to assert its way back to a
+	// number (#49). Separating them lets the type carry what the lift used
+	// to check: a price that is not a number now fails on the way in.
+	Passages struct {
+		Prices        map[string]int64 `json:"prices"`
+		ResalePercent int              `json:"resalePercent"`
+	} `json:"passages"`
 }
 
 type wireAging struct {
-	Bands []struct {
+	LastPrintedTerm int `json:"lastPrintedTerm"`
+	Bands           []struct {
 		FromTerm int `json:"fromTerm"`
 		Effects  []struct {
 			Characteristic string `json:"characteristic"`
@@ -514,15 +517,9 @@ func (r *Rules) liftMustering(wire wireMustering) error {
 	}
 
 	r.Muster = Muster{
-		PerTerm:                  wire.Rolls.PerTerm,
-		ExtraForRank1or2:         wire.Rolls.ExtraForRank1or2,
-		ExtraForRank3Plus:        wire.Rolls.ExtraForRank3Plus,
-		MinRankForOneExtraRoll:   wire.Rolls.MinRankForOneExtraRoll,
-		MinRankForTwoExtraRolls:  wire.Rolls.MinRankForTwoExtraRolls,
-		MinRankForTable1Modifier: wire.Rolls.MinRankForTable1Modifier,
-		MaxOnTable2:              wire.Rolls.MaxOnTable2,
-		Table1DMFromRank5or6:     wire.Rolls.Table1DMFromRank5or6,
-		Table2DMFromGambling:     wire.Rolls.Table2DMFromGambling,
+		Table1DMFromRank5or6: wire.Rolls.Table1DMFromRank5or6,
+		Table2DMFromGambling: wire.Rolls.Table2DMFromGambling,
+		Table2ModifierFrom:   traveller.SkillName(wire.Rolls.Table2ModifierFrom),
 	}
 
 	return r.liftPassages(wire)
@@ -577,25 +574,19 @@ func (r *Rules) liftCash(wire wireMustering) error {
 // liftPassages lifts the purchase prices of pp. 21-22 and the resale rate.
 func (r *Rules) liftPassages(wire wireMustering) error {
 	for _, class := range traveller.PassageClasses {
-		price, ok := wire.Passages[class.String()]
+		price, ok := wire.Passages.Prices[class.String()]
 		if !ok {
 			return fmt.Errorf("%w: passages: no price for %v", ErrMalformed, class)
 		}
 
-		amount, ok := price.(float64)
-		if !ok {
-			return fmt.Errorf("%w: passages, %v: %v is not a price", ErrMalformed, class, price)
-		}
-
-		r.passages[class] = traveller.Credits(amount)
+		r.passages[class] = traveller.Credits(price)
 	}
 
-	resale, ok := wire.Passages["resalePercent"].(float64)
-	if !ok {
+	if wire.Passages.ResalePercent <= 0 {
 		return fmt.Errorf("%w: passages: no resale percentage", ErrMalformed)
 	}
 
-	r.Muster.ResalePercent = int(resale)
+	r.Muster.ResalePercent = wire.Passages.ResalePercent
 
 	return nil
 }
@@ -629,6 +620,16 @@ func (r *Rules) liftAging(wire wireAging) error {
 	if len(r.Aging.bands) == 0 {
 		return fmt.Errorf("%w: aging: no bands", ErrMalformed)
 	}
+
+	// The last term the table's header row prints. It has to reach the last
+	// band, or the band would begin at a term the table never names.
+	last := traveller.Term(wire.LastPrintedTerm)
+	if last < r.Aging.bands[len(r.Aging.bands)-1].fromTerm {
+		return fmt.Errorf("%w: aging: the last printed term is %d, before the last band begins",
+			ErrMalformed, wire.LastPrintedTerm)
+	}
+
+	r.Aging.lastPrintedTerm = last
 
 	saving, err := traveller.ParseTarget(wire.Crisis.Saving)
 	if err != nil {

@@ -284,37 +284,54 @@ func (r Retirement) Pay(terms int) traveller.Credits {
 
 // Muster is what p. 9's notes fix about mustering out.
 type Muster struct {
-	PerTerm                  int
-	ExtraForRank1or2         int
-	ExtraForRank3Plus        int
-	MinRankForOneExtraRoll   int
-	MinRankForTwoExtraRolls  int
-	MinRankForTable1Modifier int
-	MaxOnTable2              int
-	Table1DMFromRank5or6     int
-	Table2DMFromGambling     int
-	ResalePercent            int
+	Table1DMFromRank5or6 int
+	Table2DMFromGambling int
+
+	// Table2ModifierFrom is the skill that earns the Table 2 DM (p. 9).
+	//
+	// The name lives beside the modifier it earns rather than as a literal
+	// in the engine (#47). It has to match what skills.json produces after
+	// E012's normalization, and the engine comparing against a Go string
+	// meant that adding a normalization for it would silently stop the
+	// modifier applying, with only an accident of roster composition to
+	// notice.
+	Table2ModifierFrom traveller.SkillName
+
+	ResalePercent int
 }
+
+// The benefit roll counts and the rank thresholds that earn them (p. 9).
+//
+// Each is a bare procedural bound - it indexes no printed table - so it is a
+// constant beside the code that applies it rather than a row of
+// mustering.json (#43, and CLAUDE.md's Authority point 6). They used to be
+// data, and the comment inside Rolls used to argue that they should be: "the
+// page's numbers, so they are data with a cite rather than constants written
+// here". Being printed is not the test. Indexing a printed table is.
+const (
+	rollsPerTerm            = 1
+	extraRollsForRank1or2   = 1
+	extraRollsForRank3Plus  = 2
+	minRankForOneExtraRoll  = 1
+	minRankForTwoExtraRolls = 3
+)
 
 // Rolls is how many benefit rolls a character has earned.
 //
-// P. 9 states it in
-// one sentence and reaches every rank: "Characters are allowed one roll per
-// term of service; rank 1 or 2 is allowed one extra roll, rank 3 or higher
-// is allowed two extra rolls." P. 7 says the same at more length, and adds
-// that a character of rank 5 or 6 "receives 2 extra rolls, and may add 1 to
-// his die roll when consulting Table 1" - which is why the test above it
-// expects seven rolls for Jamison at five terms and rank 5.
+// P. 9 states it in one sentence and reaches every rank: "Characters are
+// allowed one roll per term of service; rank 1 or 2 is allowed one extra
+// roll, rank 3 or higher is allowed two extra rolls." P. 7 says the same at
+// more length, and adds that a character of rank 5 or 6 "receives 2 extra
+// rolls, and may add 1 to his die roll when consulting Table 1" - which is
+// why the test expects seven rolls for Jamison at five terms and rank 5.
 func (m Muster) Rolls(terms int, rank traveller.Rank) int {
-	rolls := terms * m.PerTerm
+	rolls := terms * rollsPerTerm
 
-	// The two rank thresholds are the page's numbers, so they are data with
-	// a cite rather than constants written here.
 	switch {
-	case int(rank) >= m.MinRankForTwoExtraRolls:
-		rolls += m.ExtraForRank3Plus
-	case int(rank) >= m.MinRankForOneExtraRoll:
-		rolls += m.ExtraForRank1or2
+	case int(rank) >= minRankForTwoExtraRolls:
+		rolls += extraRollsForRank3Plus
+	case int(rank) >= minRankForOneExtraRoll:
+		rolls += extraRollsForRank1or2
 	}
 
 	return rolls
@@ -330,8 +347,9 @@ type AgingEffect struct {
 
 // Aging is the Aging Table (p. 9) and the medical crisis of pp. 7-8.
 type Aging struct {
-	bands  []agingBand
-	Crisis Crisis
+	bands           []agingBand
+	lastPrintedTerm traveller.Term
+	Crisis          Crisis
 }
 
 type agingBand struct {
@@ -365,6 +383,20 @@ func (a Aging) At(term traveller.Term) []AgingEffect {
 
 	return effects
 }
+
+// LastPrintedTerm is the last term the table's own header row names (p. 9).
+//
+// Past it a term is read off the last band's column anyway, which is E014:
+// the Age row's 74+ is the only cell in either header carrying a plus, so
+// the column it labels is open-ended and the term row's 14 is simply the
+// term that first arrives there.
+//
+// The number lives in the data because it indexes the printed table's header
+// row, and because it is E014's stamping condition (#43). Held as a Go
+// constant beside the code, changing the bands would move the table without
+// moving the term at which a record declares the reading governed it, and
+// nothing would say so.
+func (a Aging) LastPrintedTerm() traveller.Term { return a.lastPrintedTerm }
 
 // FirstTerm is the earliest term at which any aging effect applies (p. 7,
 // "when a character reaches the age of 34 ... or at the end of the 4th term
