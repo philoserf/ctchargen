@@ -7,6 +7,14 @@ import (
 )
 
 // serve runs terms until one of them ends the service.
+//
+// The loop has no bound, and needs none under dice: the reenlistment throw of
+// p. 6 fails eventually and the survival throw of p. 5 ends things sooner
+// than that, so a career terminates with probability 1. That is a contract on
+// the Roller, not a property of this function - a roller that answers every
+// 2D throw with 12 never fails a reenlistment and this never returns, which is
+// why the scripted career that walks past the Aging Table's last column hands
+// one a count of twelves rather than an endless supply (#54).
 func (r *run) serve() error {
 	for term := 1; ; term++ {
 		done, err := r.term(traveller.Term(term))
@@ -21,8 +29,12 @@ func (r *run) serve() error {
 }
 
 // term runs one term of service in the exposition's order (E002): survival,
-// skills, reenlistment, and then the aging round at the end of the term
-// (E006). It reports whether the service ended.
+// commission, promotion, skills, reenlistment, and then the aging round at
+// the end of the term (E006). It reports whether the service ended.
+//
+// The two rank steps were missing from this list, which generate.go's own
+// account of the order has right (#59). A doc that names four of six steps
+// reads as a claim that there are four.
 func (r *run) term(term traveller.Term) (bool, error) {
 	r.log.step(fmt.Sprintf("term %d", term), "pp. 5-7")
 

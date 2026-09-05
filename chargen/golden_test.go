@@ -267,12 +267,18 @@ func TestGoldens(t *testing.T) {
 	}
 }
 
-// The regeneration round-trip: every golden reproduced from its own recorded
-// seed and inputs, byte for byte.
+// Every golden generates the same bytes twice in one process, from its own
+// recorded seed and inputs.
 //
-// This is what stands in for the replay subcommand the PRD rules out. It
-// runs against records this repository controls rather than shipping a
-// verifier for records it did not write.
+// That is same-process determinism, and it is less than this comment used to
+// claim (#60). "Reproduced from its own recorded seed" is carried by
+// TestGoldens, which compares against the file on disk - written by an
+// earlier process, in an earlier build. The pair is adequate; the claim was
+// on the wrong half of it.
+//
+// Together they stand in for the replay subcommand the PRD rules out, running
+// against records this repository controls rather than shipping a verifier
+// for records it did not write.
 func TestGoldensRegenerate(t *testing.T) {
 	t.Parallel()
 

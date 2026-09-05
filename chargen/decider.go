@@ -22,10 +22,11 @@ import "github.com/philoserf/ctchargen/traveller"
 // A method is called only when more than one answer is legal. A question
 // with one answer is not a choice, and asking it would put an entry in the
 // generation record that no reader could have decided differently.
-// set: twelve methods is twelve places the procedure asks, and a count is
-// the wrong measure of that.
 //
-//nolint:interfacebloat // one method per choice point is what closes the
+// One method per choice point is what closes the set: twelve methods is
+// twelve places the procedure asks, and a count is the wrong measure of that.
+//
+//nolint:interfacebloat // one method per choice point closes the set
 type Decider interface {
 	// Service chooses which service to attempt enlistment in (pp. 5, 10).
 	// Not called when --service names one: the flag forces the attempt,
