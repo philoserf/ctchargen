@@ -137,7 +137,10 @@ func TestADrawnSeedIsRecorded(t *testing.T) {
 			t.Fatalf("drawing a seed: %v", err)
 		}
 
-		if in.Seed >= maxDrawnSeed {
+		// Strictly above, not at: the bound is inclusive, and this said
+		// otherwise because it was written against the call rather than
+		// against the sentence the call was supposed to keep (#56).
+		if in.Seed > maxDrawnSeed {
 			t.Errorf("drew %d, which is above the bound a JSON reader parses exactly", in.Seed)
 		}
 
@@ -164,5 +167,34 @@ func TestAGivenSeedIsKept(t *testing.T) {
 
 	if in.Seed != given {
 		t.Errorf("seed %d, want the %d that was given", in.Seed, given)
+	}
+}
+
+// A drawn seed can be the top of its own range.
+//
+// rand.Uint64N's argument is exclusive, so passing maxDrawnSeed left the
+// documented top unreachable (#56) - and the test that guarded the bound
+// asserted the code's behaviour rather than the comment's promise, so nothing
+// said so. Drawing until 2^53-1 comes up is not a test anyone can run, which
+// is why the source is a parameter.
+func TestADrawnSeedReachesTheTopOfItsRange(t *testing.T) {
+	t.Parallel()
+
+	// The largest value an exclusive bound of n can yield.
+	top := func(n uint64) uint64 { return n - 1 }
+
+	if got := drawSeed(top); got != maxDrawnSeed {
+		t.Errorf("the highest drawable seed is %d, and the bound says %d", got, maxDrawnSeed)
+	}
+
+	// And the reason for the bound, which is what it is for: every integer
+	// up to it is exactly representable as a float64, and past it they are
+	// not, so a reader parsing JSON numbers as doubles rounds silently.
+	if uint64(float64(maxDrawnSeed)) != maxDrawnSeed {
+		t.Error("the bound itself does not survive a float64, so it is the wrong bound")
+	}
+
+	if uint64(float64(maxDrawnSeed+2)) == maxDrawnSeed+2 {
+		t.Error("two above the bound survives a float64, so the bound is lower than it need be")
 	}
 }

@@ -344,3 +344,53 @@ func TestMalformedShips(t *testing.T) {
 	wire.Ships = wire.Ships[:1]
 	refuses(t, "a ship with no hull at all", (&Rules{}).liftShips(wire), "no hull for")
 }
+
+// A data file broken two ways names the same one every time.
+//
+// P. 10 makes ranks, commissions and promotions one fact, so a column that
+// prints one without the others is refused. Both columns can be wrong at
+// once, and the check ranged over a two-entry map to find them - so the same
+// file reported commission on one run and promotion on the next, and a reader
+// could not tell whether his fix had worked (#53).
+//
+// Repeated because once proves nothing: Go's map order is deliberately
+// unstable, and a single pass through an unordered range agrees with an
+// ordered one about half the time.
+func TestABrokenServiceNamesTheSameColumnEveryRun(t *testing.T) {
+	t.Parallel()
+
+	const runs = 50
+
+	first := ""
+
+	for range runs {
+		wire := mustRead[wireServices](t, "services.json")
+
+		// Scouts print no ranks, so a commission and a promotion in that
+		// column are both wrong at once.
+		const scouts = 3
+
+		wire.Commission[scouts] = wire.Commission[0]
+		wire.Promotion[scouts] = wire.Promotion[0]
+
+		err := (&Rules{}).liftPriorService(wire)
+		if err == nil {
+			t.Fatal("a service printing a commission and a promotion without ranks was lifted")
+		}
+
+		if first == "" {
+			first = err.Error()
+
+			continue
+		}
+
+		if err.Error() != first {
+			t.Fatalf("the same broken file reported two different problems:\n  %s\n  %s",
+				first, err.Error())
+		}
+	}
+
+	if !strings.Contains(first, "commission") {
+		t.Errorf("the refusal names %q; the page prints commission before promotion", first)
+	}
+}
