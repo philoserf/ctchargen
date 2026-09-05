@@ -2,24 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/philoserf/ctchargen/docs/character.schema.json",
   "title": "Classic Traveller character record",
+
   "description": "What ctchargen writes, as this build writes it. A description of the output, kept honest by CI - not a promise to records already written. Across builds nothing is promised: changing the procedure, the dice-stream consumption order, or an event's wording changes the output for a given seed, and that is an ordinary change. What makes that affordable is that a record is regenerable from its seed and its inputs, and nothing in it is hand-written.\n\nTwo of the optional benefit fields cannot appear together in any character this tool can generate. Book 1 p. 9 prints Travellers' Aid only in the Navy and Marines columns of Mustering Out Table 1, and the two starships only in the Scout and Merchant columns, and a character serves one service. So no valid record carries both travellersAid and ships. That is a fact about the rules rather than a gap in the fixtures, which is why character.complete.json shows the ships and not the membership.",
+
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "record",
-    "name",
-    "upp",
-    "characteristics",
-    "age",
-    "terms",
-    "enlistment",
-    "skills",
-    "benefits",
-    "inputs",
-    "errata",
-    "ruleset",
-    "events"
+    "record", "name", "upp", "characteristics", "age", "terms",
+    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
   ],
+
   "properties": {
     "record": {
       "type": "integer",
@@ -38,53 +30,25 @@
     "characteristics": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "Strength",
-        "Dexterity",
-        "Endurance",
-        "Intelligence",
-        "Education",
-        "Social Standing"
-      ],
+      "required": ["Strength", "Dexterity", "Endurance", "Intelligence", "Education", "Social Standing"],
       "description": "The six of p. 4, numeric. A value may reach 0 only through aging (E010); everything else floors at 1, and nothing exceeds 15.",
       "properties": {
-        "Strength": {
-          "$ref": "#/$defs/characteristic"
-        },
-        "Dexterity": {
-          "$ref": "#/$defs/characteristic"
-        },
-        "Endurance": {
-          "$ref": "#/$defs/characteristic"
-        },
-        "Intelligence": {
-          "$ref": "#/$defs/characteristic"
-        },
-        "Education": {
-          "$ref": "#/$defs/characteristic"
-        },
-        "Social Standing": {
-          "$ref": "#/$defs/characteristic"
-        }
+        "Strength": { "$ref": "#/$defs/characteristic" },
+        "Dexterity": { "$ref": "#/$defs/characteristic" },
+        "Endurance": { "$ref": "#/$defs/characteristic" },
+        "Intelligence": { "$ref": "#/$defs/characteristic" },
+        "Education": { "$ref": "#/$defs/characteristic" },
+        "Social Standing": { "$ref": "#/$defs/characteristic" }
       }
     },
     "age": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "years"
-      ],
+      "required": ["years"],
       "description": "Whole years, plus the months only a medical crisis recovery adds (pp. 7-8). Books 1-3 have no calendar and no birthdate rules, so the record carries an age and a count of terms, not a date.",
       "properties": {
-        "years": {
-          "type": "integer",
-          "minimum": 18
-        },
-        "months": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 11
-        }
+        "years": { "type": "integer", "minimum": 18 },
+        "months": { "type": "integer", "minimum": 1, "maximum": 11 }
       }
     },
     "terms": {
@@ -95,26 +59,16 @@
     "enlistment": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "how"
-      ],
+      "required": ["how"],
       "properties": {
         "how": {
-          "enum": [
-            "enlisted",
-            "drafted",
-            "declined the draft"
-          ],
+          "enum": ["enlisted", "drafted", "declined the draft"],
           "description": "P. 5. Declining is a complete record: an eighteen-year-old civilian (E001)."
         },
-        "service": {
-          "$ref": "#/$defs/service"
-        }
+        "service": { "$ref": "#/$defs/service" }
       }
     },
-    "service": {
-      "$ref": "#/$defs/service"
-    },
+    "service": { "$ref": "#/$defs/service" },
     "rank": {
       "type": "integer",
       "minimum": 1,
@@ -131,41 +85,22 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "name",
-          "level"
-        ],
+        "required": ["name", "level"],
         "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "level": {
-            "type": "integer",
-            "minimum": 1
-          }
+          "name": { "type": "string", "minLength": 1 },
+          "level": { "type": "integer", "minimum": 1 }
         }
       }
     },
     "benefits": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "cash"
-      ],
+      "required": ["cash"],
       "properties": {
-        "cash": {
-          "$ref": "#/$defs/credits"
-        },
+        "cash": { "$ref": "#/$defs/credits" },
         "passages": {
           "type": "array",
-          "items": {
-            "enum": [
-              "High Passage",
-              "Middle Passage",
-              "Low Passage"
-            ]
-          }
+          "items": { "enum": ["High Passage", "Middle Passage", "Low Passage"] }
         },
         "travellersAid": {
           "const": true,
@@ -173,10 +108,7 @@
         },
         "weapons": {
           "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
+          "items": { "type": "string", "minLength": 1 },
           "description": "Weapons received as benefits, which is narrower than the weapons held: expertise may be taken only in one received as a benefit (p. 22)."
         },
         "ships": {
@@ -185,31 +117,15 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "kind",
-              "tons",
-              "years",
-              "paymentYears"
-            ],
+            "required": ["kind", "tons", "years", "paymentYears"],
             "properties": {
-              "kind": {
-                "enum": [
-                  "Scout ship, Type S",
-                  "Free Trader, Type A"
-                ]
-              },
+              "kind": { "enum": ["Scout ship, Type S", "Free Trader, Type A"] },
               "tons": {
                 "type": "integer",
-                "enum": [
-                  100,
-                  200
-                ],
+                "enum": [100, 200],
                 "description": "The hull each is built on: Book 2 p. 18 for the Type S, p. 19 for the Type A."
               },
-              "years": {
-                "type": "integer",
-                "minimum": 0
-              },
+              "years": { "type": "integer", "minimum": 0 },
               "paymentYears": {
                 "type": "integer",
                 "minimum": 0,
@@ -226,10 +142,7 @@
         }
       },
       "not": {
-        "required": [
-          "travellersAid",
-          "ships"
-        ],
+        "required": ["travellersAid", "ships"],
         "description": "P. 9 prints Travellers' Aid only in the Navy and Marines columns of Mustering Out Table 1 and the two starships only in the Scout and Merchant columns, and a character serves one service. No record this tool can generate carries both."
       }
     },
@@ -240,23 +153,16 @@
     "departure": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "how"
-      ],
+      "required": ["how"],
       "description": "How the service ended. Absent for a civilian, who never joined one.",
       "properties": {
         "how": {
           "enum": [
-            "discharged",
-            "forced out",
-            "retired",
-            "killed by the survival throw",
-            "killed by a medical crisis"
+            "discharged", "forced out", "retired",
+            "killed by the survival throw", "killed by a medical crisis"
           ]
         },
-        "fatal": {
-          "const": true
-        },
+        "fatal": { "const": true },
         "characteristic": {
           "$ref": "#/$defs/characteristicName",
           "description": "The characteristic that reached zero, on a death by medical crisis (pp. 7-8, E008)."
@@ -266,40 +172,21 @@
     "title": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "eligible",
-        "rank",
-        "assumed"
-      ],
+      "required": ["eligible", "rank", "assumed"],
       "description": "Assessed once, at the end of generation, against the final Social Standing, for every character including the dead - who are assessed but not asked (E011).",
       "properties": {
-        "eligible": {
-          "const": true
-        },
+        "eligible": { "const": true },
         "rank": {
-          "enum": [
-            "knight/dame",
-            "baron/baroness",
-            "marquis/marchioness",
-            "count/countess",
-            "duke/duchess"
-          ],
+          "enum": ["knight/dame", "baron/baroness", "marquis/marchioness", "count/countess", "duke/duchess"],
           "description": "Book 3 p. 22, for Social Standing 11 through 15."
         },
-        "assumed": {
-          "type": "boolean"
-        }
+        "assumed": { "type": "boolean" }
       }
     },
     "inputs": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seed",
-        "career",
-        "skills",
-        "muster"
-      ],
+      "required": ["seed", "career", "skills", "muster"],
       "description": "Everything the generation was given, so that a record says what made it.",
       "properties": {
         "seed": {
@@ -307,43 +194,20 @@
           "minimum": 0,
           "description": "The one recorded seed, filling both words of the PCG state. A seed the tool draws for itself is bounded to 2^53-1, above which a reader parsing JSON numbers as doubles would round it silently; an explicit --seed is the operator's own number and is written as given."
         },
-        "name": {
-          "type": "string"
-        },
+        "name": { "type": "string" },
         "service": {
           "$ref": "#/$defs/service",
           "description": "Present when --service forced the enlistment attempt. It forces the attempt only: the throw is still made, and a failed throw still goes to the draft."
         },
-        "career": {
-          "enum": [
-            "serve",
-            "retire",
-            "oneterm"
-          ]
-        },
-        "skills": {
-          "enum": [
-            "advanced",
-            "service",
-            "personal"
-          ]
-        },
-        "muster": {
-          "enum": [
-            "cash",
-            "goods",
-            "spartan"
-          ]
-        }
+        "career": { "enum": ["serve", "retire", "oneterm"] },
+        "skills": { "enum": ["advanced", "service", "personal"] },
+        "muster": { "enum": ["cash", "goods", "spartan"] }
       }
     },
     "errata": {
       "type": "array",
       "description": "Every recorded reading of docs/ERRATA.md that governed this record, in id order. A reading applied without appearing here is the one defect no gate catches.",
-      "items": {
-        "type": "string",
-        "pattern": "^E[0-9]{3}$"
-      }
+      "items": { "type": "string", "pattern": "^E[0-9]{3}$" }
     },
     "ruleset": {
       "const": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
@@ -358,212 +222,96 @@
       "description": "The generation record: every step entered, throw made, choice answered and consequence, with monotonic sequence numbers. Walk it against Book 1 to audit any character.",
       "items": {
         "oneOf": [
-          {
-            "$ref": "#/$defs/stepEvent"
-          },
-          {
-            "$ref": "#/$defs/throwEvent"
-          },
-          {
-            "$ref": "#/$defs/choiceEvent"
-          },
-          {
-            "$ref": "#/$defs/outcomeEvent"
-          }
+          { "$ref": "#/$defs/stepEvent" },
+          { "$ref": "#/$defs/throwEvent" },
+          { "$ref": "#/$defs/choiceEvent" },
+          { "$ref": "#/$defs/outcomeEvent" }
         ]
       }
     }
   },
+
   "$defs": {
-    "characteristic": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 15
-    },
+    "characteristic": { "type": "integer", "minimum": 0, "maximum": 15 },
     "characteristicName": {
-      "enum": [
-        "Strength",
-        "Dexterity",
-        "Endurance",
-        "Intelligence",
-        "Education",
-        "Social Standing"
-      ]
+      "enum": ["Strength", "Dexterity", "Endurance", "Intelligence", "Education", "Social Standing"]
     },
     "service": {
-      "enum": [
-        "Navy",
-        "Marines",
-        "Army",
-        "Scouts",
-        "Merchants",
-        "Other"
-      ],
+      "enum": ["Navy", "Marines", "Army", "Scouts", "Merchants", "Other"],
       "description": "The six of the Prior Service Table (p. 10), spelled as p. 5 lists them (E012)."
     },
-    "credits": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "sequence": {
-      "type": "integer",
-      "minimum": 1
-    },
+    "credits": { "type": "integer", "minimum": 0 },
+    "sequence": { "type": "integer", "minimum": 1 },
+
     "stepEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seq",
-        "kind",
-        "step"
-      ],
+      "required": ["seq", "kind", "step"],
       "properties": {
-        "seq": {
-          "$ref": "#/$defs/sequence"
-        },
-        "kind": {
-          "const": "step"
-        },
-        "step": {
-          "type": "string",
-          "minLength": 1
-        },
-        "pages": {
-          "type": "string"
-        }
+        "seq": { "$ref": "#/$defs/sequence" },
+        "kind": { "const": "step" },
+        "step": { "type": "string", "minLength": 1 },
+        "pages": { "type": "string" }
       }
     },
     "throwEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seq",
-        "kind",
-        "step",
-        "dice",
-        "total",
-        "succeeded"
-      ],
+      "required": ["seq", "kind", "step", "dice", "total", "succeeded"],
       "properties": {
-        "seq": {
-          "$ref": "#/$defs/sequence"
-        },
-        "kind": {
-          "const": "throw"
-        },
-        "step": {
-          "type": "string",
-          "minLength": 1
-        },
+        "seq": { "$ref": "#/$defs/sequence" },
+        "kind": { "const": "throw" },
+        "step": { "type": "string", "minLength": 1 },
         "dice": {
           "type": "array",
           "minItems": 1,
           "maxItems": 2,
-          "items": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 6
-          },
+          "items": { "type": "integer", "minimum": 1, "maximum": 6 },
           "description": "The dice as rolled, first die then second. The record logs the dice and not only their total, because that is what an auditor walks against the page."
         },
-        "dm": {
-          "type": "integer"
-        },
+        "dm": { "type": "integer" },
         "target": {
           "type": "string",
           "pattern": "^[0-9]+[+-]?$",
           "description": "The throw's target in the book's own notation (pp. 2-3). Absent on a one-die roll, which has no target to meet."
         },
-        "total": {
-          "type": "integer"
-        },
-        "succeeded": {
-          "type": "boolean"
-        }
+        "total": { "type": "integer" },
+        "succeeded": { "type": "boolean" }
       }
     },
     "choiceEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seq",
-        "kind",
-        "point",
-        "by",
-        "alternatives",
-        "chosen"
-      ],
+      "required": ["seq", "kind", "point", "by", "alternatives", "chosen"],
       "properties": {
-        "seq": {
-          "$ref": "#/$defs/sequence"
-        },
-        "kind": {
-          "const": "choice"
-        },
+        "seq": { "$ref": "#/$defs/sequence" },
+        "kind": { "const": "choice" },
         "point": {
           "enum": [
-            "Service",
-            "SubmitToDraft",
-            "AttemptCommission",
-            "AttemptPromotion",
-            "SkillTable",
-            "Weapon",
-            "ReenlistIntent",
-            "MusterTable",
-            "MusterTable1DM",
-            "MusterTable2DM",
-            "MusterWeapon",
-            "AssumeTitle"
+            "Service", "SubmitToDraft", "AttemptCommission", "AttemptPromotion",
+            "SkillTable", "Weapon", "ReenlistIntent", "MusterTable",
+            "MusterTable1DM", "MusterTable2DM", "MusterWeapon", "AssumeTitle"
           ],
           "description": "One per method of the Decider interface, which is what closes the set. docs/POLICY.md carries one row per method."
         },
-        "by": {
-          "enum": [
-            "player",
-            "policy"
-          ]
-        },
-        "alternatives": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "chosen": {
-          "type": "string"
-        }
+        "by": { "enum": ["player", "policy"] },
+        "alternatives": { "type": "array", "items": { "type": "string" } },
+        "chosen": { "type": "string" }
       }
     },
     "outcomeEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "seq",
-        "kind",
-        "description"
-      ],
+      "required": ["seq", "kind", "description"],
       "properties": {
-        "seq": {
-          "$ref": "#/$defs/sequence"
-        },
-        "kind": {
-          "const": "outcome"
-        },
+        "seq": { "$ref": "#/$defs/sequence" },
+        "kind": { "const": "outcome" },
         "because": {
           "$ref": "#/$defs/sequence",
           "description": "The throw or choice that caused this. Absent where the consequence follows from the procedure itself."
         },
-        "description": {
-          "type": "string",
-          "minLength": 1
-        },
-        "errata": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^E[0-9]{3}$"
-          }
-        }
+        "description": { "type": "string", "minLength": 1 },
+        "errata": { "type": "array", "items": { "type": "string", "pattern": "^E[0-9]{3}$" } }
       }
     }
   }
