@@ -205,6 +205,19 @@ func (d *describeWeaponBenefit) TakeExpertise(weapon traveller.WeaponName) error
 // the offered set and the answer, because it records both. Checking here
 // rather than at each application site leaves one definition of answering
 // outside the offer, which two cannot disagree with.
+//
+// It compares rendered names rather than values, and every method above has
+// the typed offered set and the typed answer in hand before rendering. That
+// is deliberate: MusterWeapon answers with a sum, and comparing a sum against
+// a list of them needs a fold, so one path here would have to be strings
+// whatever the other eleven did.
+//
+// What it costs is an assumption. The check is sound exactly as long as
+// String() is injective on every alphabet the engine offers - two values that
+// spelled the same would let a decider answer with one and have the other
+// recorded, and nothing would notice. That was true when this was written and
+// stated nowhere (#48). It is stated here now, and held by
+// traveller.TestNoTwoValuesOfAnAlphabetShareASpelling.
 func (l logging) record(point traveller.ChoicePoint, from []string, chosen string) error {
 	if !slices.Contains(from, chosen) {
 		return fmt.Errorf("%w: %v offered %v, and was answered %q",
