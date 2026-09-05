@@ -45,9 +45,10 @@ stale every time one closes.
 **The record freezes at `v1.0.0`, and is free to move before it (#62).** Until
 that tag, a record written by one build is not promised to be readable by the
 next; from it, the shape is a public contract and a build that changes it says
-so in the record itself. Nothing in the record names its shape yet — `build`
-names the writer and `ruleset` names the source text — so the promise has
-something to attach to only once a version field exists.
+so in the record itself. `record` is the field it says it in: a required
+integer set in `project()` beside every other field, so it is present on every
+record, and counting the shape and nothing else — `build` names the writer and
+`ruleset` names the source text, and neither says what the file looks like.
 
 **Windows binaries ship, and no document mentions Windows.**
 `release.yml` builds `windows/amd64` and `windows/arm64` alongside the other

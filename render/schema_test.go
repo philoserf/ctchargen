@@ -104,3 +104,38 @@ func TestTheDocumentedExamplesMatchTheSchema(t *testing.T) {
 		validate(t, schema, filepath.Join(docsDir, name))
 	}
 }
+
+// A record that does not say what shape it is does not validate.
+//
+// That is the whole of #76: v1.0.0 means a frozen and supported record (#74),
+// and a promise needs something to promise about. `build` names the writer
+// and is absent from anything generated in-process; `ruleset` names the source
+// text. Neither says what the file looks like, so the schema requires a field
+// that does - and this is what would notice if it stopped being written.
+func TestARecordWithoutItsShapeDoesNotValidate(t *testing.T) {
+	t.Parallel()
+
+	schema := compileSchema(t)
+
+	text, err := os.ReadFile(filepath.Join(docsDir, "character.minimal.json"))
+	if err != nil {
+		t.Fatalf("reading the minimal example: %v", err)
+	}
+
+	var body map[string]any
+
+	err = json.Unmarshal(text, &body)
+	if err != nil {
+		t.Fatalf("the minimal example is not JSON: %v", err)
+	}
+
+	if _, named := body["record"]; !named {
+		t.Fatal("the minimal example does not name its shape, so removing it proves nothing")
+	}
+
+	delete(body, "record")
+
+	if schema.Validate(body) == nil {
+		t.Error("a record with no shape validated; nothing holds the promise to anything")
+	}
+}

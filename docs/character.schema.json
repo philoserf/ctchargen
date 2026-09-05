@@ -8,11 +8,16 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "name", "upp", "characteristics", "age", "terms",
+    "record", "name", "upp", "characteristics", "age", "terms",
     "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
   ],
 
   "properties": {
+    "record": {
+      "type": "integer",
+      "const": 1,
+      "description": "The shape of this record, not the build that wrote it and not the ruleset it reads. It counts the shape alone; a build that changes no field leaves it alone. The record is free to move until v1.0.0 and frozen from it, and this is what the freeze attaches to."
+    },
     "name": {
       "type": "string",
       "description": "Blank unless --name supplied one. Book 1 pp. 4-5 give naming as advice, not a table, so nothing generates one."
