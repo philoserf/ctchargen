@@ -64,14 +64,14 @@ func (d *departureCodec) Retired() error {
 }
 
 func (d *departureCodec) KilledBySurvivalThrow() error {
-	d.out = departureRecord{How: "killed by the survival throw", Fatal: true}
+	d.out = departureRecord{How: "killed by the survival throw"}
 
 	return nil
 }
 
 func (d *departureCodec) KilledByMedicalCrisis(characteristic traveller.Characteristic) error {
 	d.out = departureRecord{
-		How: "killed by a medical crisis", Fatal: true, Characteristic: characteristic.String(),
+		How: "killed by a medical crisis", Characteristic: characteristic.String(),
 	}
 
 	return nil
@@ -81,6 +81,11 @@ func foldDeparture(from traveller.Departure) departureRecord {
 	var codec departureCodec
 
 	_ = from.Fold(&codec)
+
+	// Which departures are deaths is traveller.Fatal's to say, not this
+	// codec's. It was stated here and again in the command, and a changed
+	// case would have moved one and not the other (#100).
+	codec.out.Fatal = traveller.Fatal(from)
 
 	return codec.out
 }

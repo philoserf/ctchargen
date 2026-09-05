@@ -270,16 +270,24 @@ type Retirement struct {
 }
 
 // Pay is the annual pension for a number of terms served, in a service that
-// pays one. P. 21: "Service beyond 8 terms adds CR 2000 per additional
-// term."
-func (r Retirement) Pay(terms int) traveller.Credits {
+// pays one, and whether the table prints one at all. P. 21: "Service beyond 8
+// terms adds CR 2000 per additional term."
+//
+// The second return is the point. The table begins at five terms, so Pay(4)
+// read a missing key and returned zero - a real-looking answer for a question
+// the page does not answer - and the only thing standing between that and a
+// record was a guard in the caller (#52). A precondition belongs to the
+// function that has it.
+func (r Retirement) Pay(terms int) (traveller.Credits, bool) {
 	if terms > r.lastTabled {
 		beyond := traveller.Credits(terms - r.lastTabled)
 
-		return r.ByTerms[r.lastTabled] + beyond*r.PerAdditionalTerm
+		return r.ByTerms[r.lastTabled] + beyond*r.PerAdditionalTerm, true
 	}
 
-	return r.ByTerms[terms]
+	pay, tabled := r.ByTerms[terms]
+
+	return pay, tabled
 }
 
 // Muster is what p. 9's notes fix about mustering out.
@@ -398,14 +406,3 @@ func (a Aging) At(term traveller.Term) []AgingEffect {
 // moving the term at which a record declares the reading governed it, and
 // nothing would say so.
 func (a Aging) LastPrintedTerm() traveller.Term { return a.lastPrintedTerm }
-
-// FirstTerm is the earliest term at which any aging effect applies (p. 7,
-// "when a character reaches the age of 34 ... or at the end of the 4th term
-// of service").
-func (a Aging) FirstTerm() traveller.Term {
-	if len(a.bands) == 0 {
-		return 0
-	}
-
-	return a.bands[0].fromTerm
-}

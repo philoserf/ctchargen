@@ -185,45 +185,6 @@ func (t tally) report(asking io.Writer) error {
 // reaching it means something is wrong rather than unlucky.
 const survivorAttempts = 100
 
-// fatalDeparture folds a departure down to whether it killed him.
-//
-// It folds rather than type-switching because that is what the sum is sealed
-// for: a third way to die adds a method to DepartureCases and this file stops
-// compiling, where a type switch with a default would quietly go on calling
-// the new death survival and --survivors would write a corpse.
-type fatalDeparture struct{ fatal bool }
-
-func (*fatalDeparture) Discharged() error { return nil }
-func (*fatalDeparture) ForcedOut() error  { return nil }
-func (*fatalDeparture) Retired() error    { return nil }
-
-func (f *fatalDeparture) KilledBySurvivalThrow() error {
-	f.fatal = true
-
-	return nil
-}
-
-func (f *fatalDeparture) KilledByMedicalCrisis(traveller.Characteristic) error {
-	f.fatal = true
-
-	return nil
-}
-
-// died reports a character killed during generation. A civilian has no
-// departure at all, and did not die of it.
-func died(character *chargen.Character) bool {
-	if character.Departure == nil {
-		return false
-	}
-
-	var fatal fatalDeparture
-
-	// The cases above return nothing but nil, so there is no error to carry.
-	_ = character.Departure.Fold(&fatal)
-
-	return fatal.fatal
-}
-
 // eachMember walks the batch, handing each member that is to be written to
 // take, and reports what it did.
 //
@@ -254,7 +215,7 @@ func eachMember(base chargen.Inputs, policy chargen.Policy, count int, survivors
 			return done, err
 		}
 
-		if died(character) {
+		if traveller.Fatal(character.Departure) {
 			if survivors {
 				done.passed++
 

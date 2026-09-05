@@ -258,8 +258,8 @@ func TestOnlyTheTwoDeathsCountAsDying(t *testing.T) {
 		"medical":    {traveller.KilledByMedicalCrisis{Characteristic: traveller.Endurance}, true},
 		"no service": {nil, false},
 	} {
-		if got := died(&chargen.Character{Departure: tc.departure}); got != tc.fatal {
-			t.Errorf("%s: died is %v, want %v", name, got, tc.fatal)
+		if got := traveller.Fatal(tc.departure); got != tc.fatal {
+			t.Errorf("%s: fatal is %v, want %v", name, got, tc.fatal)
 		}
 	}
 }
