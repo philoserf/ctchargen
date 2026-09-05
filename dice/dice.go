@@ -70,9 +70,10 @@ func (s *Stream) Among(n int) int {
 // them; both are returned because the generation record logs the dice, not
 // only their total.
 //
-// seed means: first die, then second.
+// The results are named because the order is what a seed means: first die,
+// then second. Unlabelled, two ints say nothing about which is which.
 //
-//nolint:nonamedreturns // the names carry the order, and the order is what a
+//nolint:nonamedreturns // the names carry the order
 func (s *Stream) TwoDice() (first, second int) {
 	first = s.Die()
 	second = s.Die()

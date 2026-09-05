@@ -16,12 +16,13 @@ const commandList = "new|batch|render|version"
 
 // The usage line of each subcommand: what it takes that is not a flag.
 //
+// Each is the shape alone: errUsage prints the word "usage" ahead of an
+// error, and writeHelp prints "usage: ctchargen " ahead of the help.
+//
 // None of them enumerates its flags. `new` has eleven, and an enumeration
 // typed beside a flag set is a line that goes stale the first time a flag is
 // added; the list writeFlags prints from the set itself is what carries the
 // detail, and it cannot go stale.
-// Each is the shape alone: errUsage prints the word "usage" ahead of an
-// error, and writeHelp prints "usage: ctchargen " ahead of the help.
 const (
 	newUsage     = "new [flags]"
 	batchUsage   = "batch --auto --count N [flags]"

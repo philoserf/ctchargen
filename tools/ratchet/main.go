@@ -149,10 +149,12 @@ func parseProfile(r io.Reader) (map[string]int, error) {
 // parseLine reads one profile line, which has the shape
 // "import/path/file.go:12.34,14.5 2 1" — location, statement count,
 // execution count.
+//
+// The results are named because four unlabelled ones - a path, two counts and
 // an error - say nothing about which is which; the names are the
 // documentation.
 //
-//nolint:nonamedreturns // four unlabelled results - a path, two counts and
+//nolint:nonamedreturns // the names are the documentation
 func parseLine(text string) (pkg, location string, statements, count int, err error) {
 	rest, countField, ok := strings.CutLast(text, " ")
 	if !ok {

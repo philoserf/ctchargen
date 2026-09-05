@@ -16,14 +16,22 @@ import (
 // written. Nothing here is held by the compiler; what holds it is the
 // round-trip test in cmd/ctchargen, which takes the line this file prints and
 // runs it, so a flag misspelled here is a flag the tool rejects there.
+//
+// Named Option and not Flag on purpose. cmd/ctchargen/usage.go declares
+// seedOption, careerOption, skillsOption and musterOption too, bare - "career", not
+// "--career" - because that is what a flag.FlagSet is keyed by, while these
+// are words going onto a command line. Both are right for their own package
+// and they used to read identically, so a constant moved between the two, or
+// checked against the other, differed by two characters and compiled either
+// way (#83).
 const (
-	autoFlag    = "--auto"
-	seedFlag    = "--seed"
-	serviceFlag = "--service"
-	nameFlag    = "--name"
-	careerFlag  = "--career"
-	skillsFlag  = "--skills"
-	musterFlag  = "--muster"
+	autoOption    = "--auto"
+	seedOption    = "--seed"
+	serviceOption = "--service"
+	nameOption    = "--name"
+	careerOption  = "--career"
+	skillsOption  = "--skills"
+	musterOption  = "--muster"
 
 	sheetRendering   = "--sheet"
 	historyRendering = "--history"
@@ -67,7 +75,8 @@ func regenerateWith(r record, rendering string) string {
 
 	return fmt.Sprintf(
 		"%s, on %s — the same seed on a different build is a different character.",
-		line, r.Build)
+		line, r.Build,
+	)
 }
 
 // command is the argument list that reproduces this character.
@@ -80,23 +89,23 @@ func command(r record, rendering string) []string {
 	// The seed is the one value that cannot need quoting: it is a uint64
 	// written in base ten, so it is digits or nothing.
 	args := []string{
-		"ctchargen", "new", autoFlag, seedFlag, strconv.FormatUint(r.Inputs.Seed, 10),
+		"ctchargen", "new", autoOption, seedOption, strconv.FormatUint(r.Inputs.Seed, 10),
 	}
 
 	// The service asked for, which is what reproduces the run - not the
 	// service the character ended up in, which the draft may have decided.
 	if r.Inputs.Service != "" {
-		args = append(args, serviceFlag, shellQuote(strings.ToLower(r.Inputs.Service)))
+		args = append(args, serviceOption, shellQuote(strings.ToLower(r.Inputs.Service)))
 	}
 
 	if r.Inputs.Name != "" {
-		args = append(args, nameFlag, shellQuote(r.Inputs.Name))
+		args = append(args, nameOption, shellQuote(r.Inputs.Name))
 	}
 
 	return append(args,
-		careerFlag, shellQuote(r.Inputs.Career),
-		skillsFlag, shellQuote(r.Inputs.Skills),
-		musterFlag, shellQuote(r.Inputs.Muster),
+		careerOption, shellQuote(r.Inputs.Career),
+		skillsOption, shellQuote(r.Inputs.Skills),
+		musterOption, shellQuote(r.Inputs.Muster),
 		rendering)
 }
 
