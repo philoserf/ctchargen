@@ -81,37 +81,38 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 
 ## Aging
 
-| Rule                                                          | Page          | Implementation           | Test                                         |
-| ------------------------------------------------------------- | ------------- | ------------------------ | -------------------------------------------- |
-| A round at the end of term 4 and every term after             | 1:7, 9 (E006) | `chargen.run.agingRound` | golden `other-serve`                         |
-| Read off the table's term row, not its age row                | 1:9 (E006)    | `rules.Aging.At`         | `rules.TestAgingTable`                       |
-| Saving throws in the table's row order                        | 1:9 (E007)    | `chargen.run.agingRound` | golden transcripts                           |
-| The last column is terminal                                   | 1:9 (E014)    | `rules.Aging.At`         | `chargen.TestACareerPastTheTablesLastColumn` |
-| Education and Social Standing are unaffected by aging         | 1:9           | `rules` lift             | `rules.TestAgingTable`                       |
-| Intelligence is unaffected before age 66                      | 1:9           | `rules` lift             | `rules.TestAgingTable`                       |
-| A characteristic at zero is a medical crisis, resolved inline | 1:7–8 (E007)  | `chargen.run.crisis`     | golden `other-crisis-survived`               |
-| Saving throw 8+, with no modifier during generation           | 1:7 (E009)    | `chargen.run.crisis`     | `rules.TestMedicalCrisis`                    |
-| Survival recovers to 1 and adds 1D months                     | 1:7–8         | `chargen.run.crisis`     | golden `other-crisis-survived`               |
-| A failed crisis throw is death                                | 1:7–8 (E008)  | `chargen.run.crisis`     | golden `other-crisis-died`                   |
+| Rule                                                            | Page          | Implementation                | Test                                         |
+| --------------------------------------------------------------- | ------------- | ----------------------------- | -------------------------------------------- |
+| A round at the end of term 4 and every term after               | 1:7, 9 (E006) | `chargen.run.agingRound`      | golden `other-serve`                         |
+| Read off the table's term row, not its age row                  | 1:9 (E006)    | `rules.Aging.At`              | `rules.TestAgingTable`                       |
+| Saving throws in the table's row order                          | 1:9 (E007)    | `chargen.run.agingRound`      | golden transcripts                           |
+| The last column is terminal                                     | 1:9 (E014)    | `rules.Aging.At`              | `chargen.TestACareerPastTheTablesLastColumn` |
+| The table's last printed term, which decides where E014 governs | 1:9 (E014)    | `rules.Aging.LastPrintedTerm` | `rules.TestTheAgingTablesLastPrintedTerm`    |
+| Education and Social Standing are unaffected by aging           | 1:9           | `rules` lift                  | `rules.TestAgingTable`                       |
+| Intelligence is unaffected before age 66                        | 1:9           | `rules` lift                  | `rules.TestAgingTable`                       |
+| A characteristic at zero is a medical crisis, resolved inline   | 1:7–8 (E007)  | `chargen.run.crisis`          | golden `other-crisis-survived`               |
+| Saving throw 8+, with no modifier during generation             | 1:7 (E009)    | `chargen.run.crisis`          | `rules.TestMedicalCrisis`                    |
+| Survival recovers to 1 and adds 1D months                       | 1:7–8         | `chargen.run.crisis`          | golden `other-crisis-survived`               |
+| A failed crisis throw is death                                  | 1:7–8 (E008)  | `chargen.run.crisis`          | golden `other-crisis-died`                   |
 
 ## Mustering out
 
-| Rule                                                                | Page       | Implementation                       | Test                                             |
-| ------------------------------------------------------------------- | ---------- | ------------------------------------ | ------------------------------------------------ |
-| One roll per term, plus rank extras                                 | 1:7, 9     | `rules.Muster.Rolls`                 | `rules.TestMusterRollsAndPassages`               |
-| The table is designated before the die                              | 1:9        | `chargen.run.chooseMusterTable`      | golden transcripts                               |
-| At most three rolls on Table 2                                      | 1:9        | `chargen.run.chooseMusterTable`      | `rules.TestMusterRollsAndPassages`               |
-| The +1 at rank 5 or 6 on Table 1                                    | 1:9        | `chargen.run.musterModifier`         | golden `merchants-table1-modifier`               |
-| The +1 on Table 1 may be declined                                   | 1:9        | `chargen.run.musterModifier`         | golden `navy-spartan-declines`                   |
-| The +1 with gambling on Table 2                                     | 1:9        | `chargen.run.musterModifier`         | golden transcripts                               |
-| The seven kinds of Table 1 row                                      | 1:9, 21–23 | `chargen.applyBenefit`               | `traveller.TestBenefitRowFolds`                  |
-| The dash rows deliver nothing                                       | 1:9        | `rules` lift                         | `rules.TestTheDashCellsAreNothing`               |
-| Travellers' Aid only once; duplicates wasted                        | 1:22       | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds`                  |
-| A repeat weapon may be taken as expertise, or as a different weapon | 1:22       | `chargen.takeWeapon`                 | goldens `scouts-expertise`, `scouts-diversified` |
-| Free Trader: 40 years of payments, 10 off per repeat                | 1:22–23    | `chargen.run.receiveShipAgain`       | golden `merchants-captain`                       |
-| Scout ship: duplicates lost                                         | 1:23       | `chargen.run.receiveShipAgain`       | golden `scouts-second-ship`                      |
-| The ships the two benefits name: Type S, Type A                     | 2:18–19    | `rules.Rules.Hull`                   | `rules.TestShipHulls`                            |
-| Retirement pay from term 5, not for Scouts or Other                 | 1:7, 21    | `chargen.run.pension`                | `rules.TestRetirementPay`; golden `navy-captain` |
+| Rule                                                                | Page       | Implementation                       | Test                                                   |
+| ------------------------------------------------------------------- | ---------- | ------------------------------------ | ------------------------------------------------------ |
+| One roll per term, plus rank extras                                 | 1:7, 9     | `rules.Muster.Rolls`                 | `rules.TestMusterRollsAndPassages`                     |
+| The table is designated before the die                              | 1:9        | `chargen.run.chooseMusterTable`      | golden transcripts                                     |
+| At most three rolls on Table 2                                      | 1:9        | `chargen.run.chooseMusterTable`      | `chargen.TestAtMostThreeRollsGoOnTableTwo`             |
+| The +1 at rank 5 or 6 on Table 1                                    | 1:9        | `chargen.run.musterModifier`         | golden `merchants-table1-modifier`                     |
+| The +1 on Table 1 may be declined                                   | 1:9        | `chargen.run.musterModifier`         | golden `navy-spartan-declines`                         |
+| The +1 with gambling on Table 2                                     | 1:9        | `chargen.run.musterModifier`         | `rules.TestMusterRollsAndPassages`; golden transcripts |
+| The seven kinds of Table 1 row                                      | 1:9, 21–23 | `chargen.applyBenefit`               | `traveller.TestBenefitRowFolds`                        |
+| The dash rows deliver nothing                                       | 1:9        | `rules` lift                         | `rules.TestTheDashCellsAreNothing`                     |
+| Travellers' Aid only once; duplicates wasted                        | 1:22       | `chargen.applyBenefit.TravellersAid` | `traveller.TestBenefitRowFolds`                        |
+| A repeat weapon may be taken as expertise, or as a different weapon | 1:22       | `chargen.takeWeapon`                 | goldens `scouts-expertise`, `scouts-diversified`       |
+| Free Trader: 40 years of payments, 10 off per repeat                | 1:22–23    | `chargen.run.receiveShipAgain`       | golden `merchants-captain`                             |
+| Scout ship: duplicates lost                                         | 1:23       | `chargen.run.receiveShipAgain`       | golden `scouts-second-ship`                            |
+| The ships the two benefits name: Type S, Type A                     | 2:18–19    | `rules.Rules.Hull`                   | `rules.TestShipHulls`                                  |
+| Retirement pay from term 5, not for Scouts or Other                 | 1:7, 21    | `chargen.run.pension`                | `rules.TestRetirementPay`; golden `navy-captain`       |
 
 ## Titles
 

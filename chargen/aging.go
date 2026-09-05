@@ -31,7 +31,7 @@ func (r *run) agingRound(term traveller.Term) error {
 		seq := r.log.throw("aging, "+effect.Characteristic.String(), throw)
 
 		if throw.succeeded {
-			r.log.outcomef(seq, agingErrata(term), "%v holds", effect.Characteristic)
+			r.log.outcomef(seq, r.agingErrata(term), "%v holds", effect.Characteristic)
 
 			continue
 		}
@@ -52,12 +52,10 @@ func (r *run) agingRound(term traveller.Term) error {
 // agingErrata names the readings every aging round rests on: where the round
 // sits in the term, and the order its throws are made in. Past the table's
 // last printed term, E014 joins them.
-func agingErrata(term traveller.Term) []traveller.Erratum {
+func (r *run) agingErrata(term traveller.Term) []traveller.Erratum {
 	errata := []traveller.Erratum{traveller.E006, traveller.E007}
 
-	const lastPrintedTerm = 14
-
-	if term > lastPrintedTerm {
+	if term > r.tables.Aging.LastPrintedTerm() {
 		errata = append(errata, traveller.E014)
 	}
 
@@ -74,7 +72,7 @@ func (r *run) age(
 
 	after := r.char.Profile[characteristic]
 
-	errata := agingErrata(term)
+	errata := r.agingErrata(term)
 	if before-reduction < traveller.MinCharacteristic {
 		// Below 1 is where the two readings of p. 4's floor diverge: the
 		// ordinary floor would have stopped here and no crisis would

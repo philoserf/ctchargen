@@ -7,6 +7,16 @@ import (
 	"github.com/philoserf/ctchargen/traveller"
 )
 
+// The two bounds the mustering procedure applies (p. 9). Neither indexes a
+// printed table - one caps how many rolls may go on Table 2, the other is the
+// rank at which the Table 1 modifier becomes available - so both are
+// constants here beside the code that applies them rather than rows of
+// mustering.json (#43, and CLAUDE.md's Authority point 6).
+const (
+	maxRollsOnTableTwo       = 3
+	minRankForTable1Modifier = 5
+)
+
 // musterOut spends the benefit rolls the service earned (pp. 7, 9).
 func (r *run) musterOut() error {
 	rolls := r.tables.Muster.Rolls(r.char.Terms, r.char.Rank)
@@ -41,7 +51,7 @@ func (r *run) musterOut() error {
 // three rolls on table 2 are allowed per character; all remaining rolls must
 // be on table 1."
 func (r *run) chooseMusterTable(onTableTwo int) (traveller.MusterTable, error) {
-	if onTableTwo >= r.tables.Muster.MaxOnTable2 {
+	if onTableTwo >= maxRollsOnTableTwo {
 		return traveller.TableOne, nil
 	}
 
@@ -91,10 +101,10 @@ func (r *run) benefit(table traveller.MusterTable) error {
 // earned it (p. 9).
 func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 	if table == traveller.TableOne {
-		// The rank is p. 9's number - "Characters with rank 5 or 6 may add
-		// +1 to their rolls on this table" - so it is data with a cite, not
-		// a constant written here.
-		if int(r.char.Rank) < r.tables.Muster.MinRankForTable1Modifier {
+		// P. 9: "Characters with rank 5 or 6 may add +1 to their rolls on
+		// this table." The rank bounds the procedure and indexes no printed
+		// table, so it is the constant declared at the top of this file.
+		if int(r.char.Rank) < minRankForTable1Modifier {
 			return 0, nil
 		}
 
@@ -110,7 +120,7 @@ func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 		return 0, nil
 	}
 
-	if !r.char.has("Gambling") {
+	if !r.char.has(r.tables.Muster.Table2ModifierFrom) {
 		return 0, nil
 	}
 

@@ -2,6 +2,9 @@
   "_cite": "Book 1 p. 9 (Aging Table); p. 7 (when a round is run)",
   "_note": "The table's header rows are Term of Service 4 through 14 and Age 34 through 74+. Its three column groups are read off the Intelligence row, whose 'no effect before age 66' ends where age 66 - term 12 - begins. Education and Social Standing are unaffected throughout. The last band is terminal per E014: the Age row's 74+ is the only cell in either header carrying a plus, so the column it labels is open-ended, and the term row's 14 is simply the term that first reaches it.",
 
+  "_lastPrintedTermCite": "Book 1 p. 9, the Term of Service header row; E014 reads the column it labels as terminal.",
+  "lastPrintedTerm": 14,
+
   "bands": [
     {
       "fromTerm": 4,

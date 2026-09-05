@@ -25,16 +25,11 @@
   ],
 
   "rolls": {
-    "_cite": "Book 1 pp. 7, 9",
-    "perTerm": 1,
-    "extraForRank1or2": 1,
-    "extraForRank3Plus": 2,
-    "minRankForOneExtraRoll": 1,
-    "minRankForTwoExtraRolls": 3,
-    "minRankForTable1Modifier": 5,
-    "maxOnTable2": 3,
+    "_cite": "Book 1 p. 9",
+    "_note": "The two optional DMs the page prints, and the skill that earns the second. The roll counts and rank thresholds that used to sit here are bare procedural bounds indexing no printed table, so they are constants beside the code that applies them (#43).",
     "table1ModifierFromRank5or6": 1,
-    "table2ModifierFromGambling": 1
+    "table2ModifierFromGambling": 1,
+    "table2ModifierFrom": "Gambling"
   },
 
   "names": {
@@ -49,9 +44,11 @@
 
   "passages": {
     "_cite": "Book 1 pp. 21-22",
-    "High Passage": 10000,
-    "Middle Passage": 8000,
-    "Low Passage": 1000,
+    "prices": {
+      "High Passage": 10000,
+      "Middle Passage": 8000,
+      "Low Passage": 1000
+    },
     "resalePercent": 90
   }
 }
