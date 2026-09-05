@@ -21,8 +21,6 @@ type Character struct {
 	// Enlistment is how the character entered a service, or that he
 	// declined the draft and never did (p. 5).
 	Enlistment traveller.Enlistment
-	Service    traveller.ServiceName
-	Served     bool
 	Rank       traveller.Rank
 	RankTitle  string
 
@@ -112,6 +110,50 @@ type Inputs struct {
 	Career Career
 	Skills Skills
 	Muster Muster
+}
+
+// serviceCodec folds an enlistment into the service it entered.
+type serviceCodec struct {
+	service traveller.ServiceName
+	served  bool
+}
+
+func (s *serviceCodec) Enlisted(service traveller.ServiceName) error {
+	s.service, s.served = service, true
+
+	return nil
+}
+
+func (s *serviceCodec) Drafted(service traveller.ServiceName) error {
+	s.service, s.served = service, true
+
+	return nil
+}
+
+// DeclinedTheDraft leaves both at their zero values, and the false is what
+// the caller must read: the zero ServiceName is Navy.
+func (s *serviceCodec) DeclinedTheDraft() error { return nil }
+
+// ServedIn is the service the character entered, and whether he entered one.
+//
+// It replaces a Service field and a Served flag that used to sit beside the
+// Enlistment (#42). Three fields held one fact and nothing made them agree -
+// only run.join wrote the two, so a DeclinedTheDraft left Service at its
+// zero value, which is Navy, and only the flag beside it kept a civilian
+// from reading as a sailor. The sum already says all of it.
+func (c *Character) ServedIn() (traveller.ServiceName, bool) {
+	if c.Enlistment == nil {
+		var none traveller.ServiceName
+
+		return none, false
+	}
+
+	var codec serviceCodec
+
+	// A fold over a codec cannot fail: every case only assigns.
+	_ = c.Enlistment.Fold(&codec)
+
+	return codec.service, codec.served
 }
 
 // addSkill records a skill, raising its level if it is already held. P. 12:

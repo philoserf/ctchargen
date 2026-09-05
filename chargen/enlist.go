@@ -98,8 +98,6 @@ func (r *run) chooseService() (traveller.ServiceName, error) {
 // join enters the service and takes what it grants on entering.
 func (r *run) join(how traveller.Enlistment, name traveller.ServiceName) error {
 	r.char.Enlistment = how
-	r.char.Service = name
-	r.char.Served = true
 	r.service = r.tables.Service(name)
 
 	return r.grantsOnEntering()
@@ -109,7 +107,7 @@ func (r *run) join(how traveller.Enlistment, name traveller.ServiceName) error {
 // virtue of the service itself (p. 23). E005 reads "as soon as he becomes
 // eligible" as once, on entering, rather than once per term.
 func (r *run) grantsOnEntering() error {
-	granted := r.tables.GrantsOnEntering(r.char.Service)
+	granted := r.tables.GrantsOnEntering(r.serviceName())
 	if len(granted) == 0 {
 		return nil
 	}

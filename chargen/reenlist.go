@@ -43,7 +43,7 @@ func (r *run) reenlist(term traveller.Term) (traveller.Intent, bool, error) {
 	}
 
 	if !attempt.succeeded {
-		r.depart(seq, term, "reenlistment denied")
+		r.depart(seq, term, traveller.ForcedOut{}, "reenlistment denied")
 
 		return traveller.Discharge, false, nil
 	}
@@ -96,12 +96,24 @@ func (r *run) settle(seq int, term traveller.Term, intent traveller.Intent) {
 		return
 	}
 
-	r.depart(seq, term, intent.String())
+	// Discharged and not Retired: offeredIntents never offers Discharge at
+	// or past the retiring term, and depart makes a departure at or past it
+	// a retirement regardless.
+	r.depart(seq, term, traveller.Discharged{}, intent.String())
 }
 
 // depart ends the service. P. 21 decides which departure it is by the term
-// count rather than by how it came about.
-func (r *run) depart(seq int, term traveller.Term, why string) {
+// count rather than by how it came about, so a departure at or past the
+// retiring term is a retirement whatever brought it on.
+//
+// earlyDeparture is what it is below that term, and it is passed in rather
+// than inferred from why (#45). It used to be chosen by comparing why against
+// the literal "reenlistment denied" - and why is also the sentence the log
+// prints, so editing the wording changed the domain outcome. The goldens
+// carried that invariant; the type carries it now.
+func (r *run) depart(
+	seq int, term traveller.Term, earlyDeparture traveller.Departure, why string,
+) {
 	if term >= firstRetiringTerm {
 		r.char.Departure = traveller.Retired{}
 		r.log.outcomef(seq, nil, "left the service after term %d and is retired: %s", term, why)
@@ -109,11 +121,7 @@ func (r *run) depart(seq int, term traveller.Term, why string) {
 		return
 	}
 
-	if why == "reenlistment denied" {
-		r.char.Departure = traveller.ForcedOut{}
-	} else {
-		r.char.Departure = traveller.Discharged{}
-	}
+	r.char.Departure = earlyDeparture
 
 	r.log.outcomef(seq, nil, "left the service after term %d: %s", term, why)
 }

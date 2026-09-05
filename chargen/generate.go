@@ -91,6 +91,17 @@ func Generate(in Inputs, decider Decider, options ...Option) (*Character, error)
 	return run.char, nil
 }
 
+// serviceName is the service this run is generating in.
+//
+// Every caller is past enlistment, so the "did he serve at all" half of
+// ServedIn is not in question here; a civilian run returns before any of
+// them. The name comes from the Enlistment rather than a field beside it.
+func (r *run) serviceName() traveller.ServiceName {
+	name, _ := r.char.ServedIn()
+
+	return name
+}
+
 // run is one generation in progress.
 type run struct {
 	tables *rules.Rules
@@ -114,7 +125,8 @@ func (r *run) generate() error {
 		return err
 	}
 
-	if !r.char.Served {
+	_, served := r.char.ServedIn()
+	if !served {
 		return r.assessTitle()
 	}
 
