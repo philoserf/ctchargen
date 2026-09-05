@@ -7,8 +7,8 @@ import "fmt"
 // walking the log — and narrative.
 //
 // It is a sum for the same reason the others are: each kind carries only its
-// own fields, and a renderer that grows a fifth kind cannot forget to handle
-// it.
+// own fields, and a renderer that grows a further kind cannot forget to
+// handle it.
 type Event interface {
 	Fold(cases EventCases) error
 	Sequence() int

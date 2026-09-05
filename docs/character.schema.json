@@ -224,7 +224,7 @@
         "oneOf": [
           { "$ref": "#/$defs/stepEvent" },
           { "$ref": "#/$defs/throwEvent" },
-        { "$ref": "#/$defs/rollEvent" },
+          { "$ref": "#/$defs/rollEvent" },
           { "$ref": "#/$defs/choiceEvent" },
           { "$ref": "#/$defs/outcomeEvent" }
         ]

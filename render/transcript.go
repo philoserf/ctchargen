@@ -33,7 +33,7 @@ func TranscriptFrom(text []byte) (string, error) {
 	return transcriptOf(projected)
 }
 
-// eventJSON is every event kind at once. On the wire the four are a
+// eventJSON is every event kind at once. On the wire they are a
 // discriminated union, and on the way back in the discriminator is all a
 // reader has to go on.
 type eventJSON struct {

@@ -107,7 +107,7 @@ func (r record) threw(step string, want outcome) bool {
 	return false
 }
 
-// firstTotal is the total of the first throw of a step, and whether there was
+// firstTotal is the total of the first roll of a step, and whether there was
 // one. E011 needs the Social Standing as p. 4 rolled it, before any aging
 // moved it.
 func (r record) firstTotal(step string) (int, bool) {

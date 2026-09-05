@@ -10,9 +10,9 @@ import (
 // EventLine renders one event for a reader watching a generation happen
 // rather than reading it afterwards.
 //
-// Throws and outcomes go through the same writeEvent the transcript does:
-// the wire shape and the domain shape both converge on eventJSON before
-// anything is written, so those lines cannot come to differ.
+// Throws, rolls and outcomes go through the same writeEvent the transcript
+// does: the wire shape and the domain shape both converge on eventJSON
+// before anything is written, so those lines cannot come to differ.
 //
 // Steps and choices are written here instead, and deliberately do differ.
 // A step's heading is unnumbered in the transcript, and a choice used to
@@ -25,8 +25,8 @@ import (
 //
 // It returns no error, as foldDeparture does not: the codec's cases fill
 // struct fields and marshal shapes that cannot fail to marshal, and
-// traveller.Event is sealed, so no fifth case can arrive from outside to fail
-// either. An error return here would be a branch no test could reach.
+// traveller.Event is sealed, so no further case can arrive from outside to
+// fail either. An error return here would be a branch no test could reach.
 func EventLine(event traveller.Event) string {
 	var lined eventCodec
 

@@ -85,7 +85,7 @@ func foldDeparture(from traveller.Departure) departureRecord {
 	return codec.out
 }
 
-// The four kinds an event's discriminator can be, on the wire.
+// The kinds an event's discriminator can be, on the wire.
 const (
 	kindStep    = "step"
 	kindThrow   = "throw"
