@@ -51,7 +51,16 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		"no input to read": {[]string{cmdNew}, "the input ended"},
 		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, wantUsage},
 		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
-		"no such strategy": {[]string{cmdNew, flagAuto, flagCareer, "dawdle"}, wantNoRow},
+		// All three, because each is now parsed by its own function at the
+		// boundary rather than by one loop over a map. A test of one used
+		// to reach the branch the other two take; it no longer does, and a
+		// strategy flag nobody refuses is a word that reaches a record.
+		"no such career": {[]string{cmdNew, flagAuto, flagCareer, "dawdle"}, wantNoRow},
+		"no such skills": {[]string{cmdNew, flagAuto, flagSkills, "osmosis"}, wantNoRow},
+		"no such muster": {[]string{cmdNew, flagAuto, flagMuster, "gold"}, wantNoRow},
+		"no such batch muster": {
+			[]string{cmdBatch, flagAuto, flagCount, "1", flagMuster, "gold"}, wantNoRow,
+		},
 		// The strategies are recorded whichever mode runs, and the schema
 		// restricts them to POLICY.md's rows, so an unknown one is refused
 		// without --auto too rather than being written into a record.
@@ -123,7 +132,7 @@ func TestADrawnSeedIsRecorded(t *testing.T) {
 		t.Helper()
 
 		in, err := inputsFrom(0, "", other,
-			chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, false)
+			chargen.CareerServe.String(), chargen.SkillsAdvanced.String(), chargen.MusterCash.String(), false)
 		if err != nil {
 			t.Fatalf("drawing a seed: %v", err)
 		}
@@ -148,7 +157,7 @@ func TestAGivenSeedIsKept(t *testing.T) {
 	const given = 7
 
 	in, err := inputsFrom(given, "", other,
-		chargen.CareerServe, chargen.SkillsAdvanced, chargen.MusterCash, true)
+		chargen.CareerServe.String(), chargen.SkillsAdvanced.String(), chargen.MusterCash.String(), true)
 	if err != nil {
 		t.Fatalf("taking the seed: %v", err)
 	}

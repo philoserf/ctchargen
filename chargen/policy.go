@@ -17,35 +17,126 @@ import (
 // puts in the offered set, never by the strategy reaching into the
 // character.
 type Policy struct {
-	Career string
-	Skills string
-	Muster string
+	Career Career
+	Skills Skills
+	Muster Muster
 }
 
-// The named strategies of docs/POLICY.md.
+// Career is the --auto career strategy: continue, retire, or take one term.
+//
+// It is a type and not a string because it names a closed set. The engine
+// used to carry a whole apparatus - a selfChecking interface, a validate()
+// call and a Policy.Validate method - whose only job was to notice a value
+// outside one of these three sets, and a runtime check for an impossible
+// value is a sign the type is wrong (#41). The zero value is the default, so
+// Policy{} is DefaultPolicy().
+type Career int
+
+// Skills is the --auto skills strategy: which table to take a skill from.
+// A closed set, for the reason Career is.
+type Skills int
+
+// Muster is the --auto mustering out strategy: which table, and what to do
+// with a repeated weapon. A closed set, for the reason Career is.
+type Muster int
+
+// The career strategies of docs/POLICY.md, in the order that document lists
+// them - the first is the default.
 const (
-	CareerServe   = "serve"
-	CareerRetire  = "retire"
-	CareerOneTerm = "oneterm"
-
-	SkillsAdvanced = "advanced"
-	SkillsService  = "service"
-	SkillsPersonal = "personal"
-
-	MusterCash    = "cash"
-	MusterGoods   = "goods"
-	MusterSpartan = "spartan"
+	CareerServe Career = iota
+	CareerRetire
+	CareerOneTerm
 )
 
-// Strategies is every selectable strategy, by flag, in the order POLICY.md
-// lists them - the first of each is the default.
+// The skills strategies of docs/POLICY.md, in its order.
+const (
+	SkillsAdvanced Skills = iota
+	SkillsService
+	SkillsPersonal
+)
+
+// The mustering out strategies of docs/POLICY.md, in its order.
+const (
+	MusterCash Muster = iota
+	MusterGoods
+	MusterSpartan
+)
+
+// The three alphabets, for parsing a flag and for listing the choices. They
+// are unexported: nothing outside needs to iterate a strategy set, and the
+// two things that do need one - the parser and the help - are below.
 //
-//nolint:gochecknoglobals // an immutable table, and Go has no const map.
-var Strategies = map[string][]string{
-	"career": {CareerServe, CareerRetire, CareerOneTerm},
-	"skills": {SkillsAdvanced, SkillsService, SkillsPersonal},
-	"muster": {MusterCash, MusterGoods, MusterSpartan},
+//nolint:gochecknoglobals // three immutable tables, and Go has no const slice.
+var (
+	careerStrategies = []Career{CareerServe, CareerRetire, CareerOneTerm}
+	skillsStrategies = []Skills{SkillsAdvanced, SkillsService, SkillsPersonal}
+	musterStrategies = []Muster{MusterCash, MusterGoods, MusterSpartan}
+)
+
+func (c Career) String() string {
+	switch c {
+	case CareerServe:
+		return "serve"
+	case CareerRetire:
+		return "retire"
+	case CareerOneTerm:
+		return "oneterm"
+	}
+
+	return fmt.Sprintf("Career(%d)", int(c))
 }
+
+func (s Skills) String() string {
+	switch s {
+	case SkillsAdvanced:
+		return "advanced"
+	case SkillsService:
+		return "service"
+	case SkillsPersonal:
+		return "personal"
+	}
+
+	return fmt.Sprintf("Skills(%d)", int(s))
+}
+
+func (m Muster) String() string {
+	switch m {
+	case MusterCash:
+		return "cash"
+	case MusterGoods:
+		return "goods"
+	case MusterSpartan:
+		return "spartan"
+	}
+
+	return fmt.Sprintf("Muster(%d)", int(m))
+}
+
+// ParseCareer turns a flag's word into a career strategy.
+//
+// This and its two siblings are where a string becomes a domain value: at the
+// boundary, once, rather than being carried inward and re-checked wherever it
+// is used.
+func ParseCareer(word string) (Career, error) { return parsed(word, "career", careerStrategies) }
+
+// ParseSkills turns a flag's word into a skills strategy.
+func ParseSkills(word string) (Skills, error) { return parsed(word, "skills", skillsStrategies) }
+
+// ParseMuster turns a flag's word into a mustering out strategy.
+func ParseMuster(word string) (Muster, error) { return parsed(word, "muster", musterStrategies) }
+
+// CareerChoices is the values --career takes, as a reader is shown them.
+//
+// This and its two siblings are read by the help, and the rejection below
+// composes its own list from the same alphabet - so the two cannot come to
+// disagree about the order, the separator, or which set they read.
+func CareerChoices() string { return choices(careerStrategies) }
+
+// SkillsChoices is the values --skills takes, as a reader is shown them.
+func SkillsChoices() string { return choices(skillsStrategies) }
+
+// MusterChoices is the values --muster takes, as a reader is shown them.
+func MusterChoices() string { return choices(musterStrategies) }
 
 // DefaultPolicy is what a bare --auto run applies. A record names its
 // strategies either way, so no record is silent about the policy that made
@@ -54,36 +145,44 @@ func DefaultPolicy() Policy {
 	return Policy{Career: CareerServe, Skills: SkillsAdvanced, Muster: MusterCash}
 }
 
-// StrategyList is the values a strategy flag takes, as a reader is shown
-// them.
+// parsed finds the one strategy of an alphabet that a word spells.
 //
-// It is one function because there are two places that show them - this
-// package's rejection and the command's help - and two joins of the same
-// table can come to disagree about the separator, the order, or which table
-// they read.
-func StrategyList(flag string) string { return strings.Join(Strategies[flag], ", ") }
-
-// Validate reports a strategy name that no row of POLICY.md carries.
-//
-// The message names the values, not the document. POLICY.md is a repository
-// file, and the reader most likely to be told his strategy is wrong is the
-// one who typed `go install` and has never seen this tree.
-func (p Policy) Validate() error {
-	for flag, chosen := range map[string]string{
-		"career": p.Career, "skills": p.Skills, "muster": p.Muster,
-	} {
-		if !slices.Contains(Strategies[flag], chosen) {
-			return fmt.Errorf("%w: --%s %q; want %s",
-				errNoSuchStrategy, flag, chosen, StrategyList(flag))
+// The rejection names the values and not the document. POLICY.md is a
+// repository file, and the reader most likely to be told his strategy is
+// wrong is the one who typed `go install` and has never seen this tree.
+func parsed[T fmt.Stringer](word, flag string, all []T) (T, error) {
+	for _, want := range all {
+		if word == want.String() {
+			return want, nil
 		}
 	}
 
-	return nil
+	var none T
+
+	return none, fmt.Errorf("%w: --%s %q; want %s",
+		errNoSuchStrategy, flag, word, choices(all))
+}
+
+// choices joins an alphabet the way a reader is shown it.
+func choices[T fmt.Stringer](all []T) string {
+	names := make([]string, 0, len(all))
+
+	for _, one := range all {
+		names = append(names, one.String())
+	}
+
+	return strings.Join(names, ", ")
 }
 
 // prefer picks the first of a ranked preference that is on offer, and falls
 // back to the first thing offered - which is book order, because that is the
 // order the engine builds an offered set in.
+//
+// The fallback used to be reachable with an empty ranked slice, when a map
+// literal keyed by an unrecognized strategy string yielded nil. The switches
+// below are exhaustive over closed types, so a ranked slice is now always
+// populated and the fallback means only what it says: nothing preferred was
+// offered.
 func prefer[T comparable](offered, ranked []T) T {
 	for _, want := range ranked {
 		if slices.Contains(offered, want) {
@@ -144,11 +243,16 @@ func (p Policy) AssumeTitle(traveller.Title) (bool, error) { return true, nil }
 
 // ReenlistIntent ranks the three by career strategy.
 func (p Policy) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error) {
-	ranked := map[string][]traveller.Intent{
-		CareerServe:   {traveller.Continue, traveller.Retire, traveller.Discharge},
-		CareerRetire:  {traveller.Retire, traveller.Continue, traveller.Discharge},
-		CareerOneTerm: {traveller.Discharge, traveller.Retire, traveller.Continue},
-	}[p.Career]
+	var ranked []traveller.Intent
+
+	switch p.Career {
+	case CareerServe:
+		ranked = []traveller.Intent{traveller.Continue, traveller.Retire, traveller.Discharge}
+	case CareerRetire:
+		ranked = []traveller.Intent{traveller.Retire, traveller.Continue, traveller.Discharge}
+	case CareerOneTerm:
+		ranked = []traveller.Intent{traveller.Discharge, traveller.Retire, traveller.Continue}
+	}
 
 	return prefer(from, ranked), nil
 }
@@ -157,20 +261,25 @@ func (p Policy) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error
 // because it is the one ranking that makes the Education 8+ gate visible in
 // a default run: it takes the fourth table the instant it opens.
 func (p Policy) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
-	ranked := map[string][]traveller.SkillTable{
-		SkillsAdvanced: {
+	var ranked []traveller.SkillTable
+
+	switch p.Skills {
+	case SkillsAdvanced:
+		ranked = []traveller.SkillTable{
 			traveller.AdvancedEducationEight, traveller.AdvancedEducation,
 			traveller.ServiceSkills, traveller.PersonalDevelopment,
-		},
-		SkillsService: {
+		}
+	case SkillsService:
+		ranked = []traveller.SkillTable{
 			traveller.ServiceSkills, traveller.AdvancedEducationEight,
 			traveller.AdvancedEducation, traveller.PersonalDevelopment,
-		},
-		SkillsPersonal: {
+		}
+	case SkillsPersonal:
+		ranked = []traveller.SkillTable{
 			traveller.PersonalDevelopment, traveller.ServiceSkills,
 			traveller.AdvancedEducationEight, traveller.AdvancedEducation,
-		},
-	}[p.Skills]
+		}
+	}
 
 	return prefer(from, ranked), nil
 }

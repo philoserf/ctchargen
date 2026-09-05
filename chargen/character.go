@@ -109,9 +109,9 @@ type Inputs struct {
 	Service traveller.ServiceName
 	Forced  bool
 
-	Career string
-	Skills string
-	Muster string
+	Career Career
+	Skills Skills
+	Muster Muster
 }
 
 // addSkill records a skill, raising its level if it is already held. P. 12:

@@ -6,7 +6,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/philoserf/ctchargen/chargen"
 	"github.com/philoserf/ctchargen/traveller"
 )
 
@@ -41,9 +40,9 @@ const topLevelUsage = "usage: ctchargen <command> [flags]\n" +
 	"\n" +
 	"Run `ctchargen <command> --help` for that command's flags.\n"
 
-// The three strategy flags, named once. A flag's name on the command line is
-// also its key in chargen.Strategies, and that is not a coincidence to be
-// retyped in four places.
+// The three strategy flags, named once, because `new` and `batch` each
+// define all three and a name typed six times is a name that can be typed
+// wrong once.
 const (
 	careerFlag = "career"
 	skillsFlag = "skills"
@@ -168,14 +167,6 @@ func dashed(name string) string {
 func zeroDefault(value string) bool {
 	return value == "" || value == "0" || value == "false"
 }
-
-// strategyChoices is a strategy flag's own description, read from the table
-// the engine validates against rather than repeated here.
-//
-// A strategy added to POLICY.md and to chargen.Strategies is offered by the
-// help without anyone remembering to come back for it, and the help and the
-// rejection say the same words because they are the same function.
-func strategyChoices(name string) string { return chargen.StrategyList(name) }
 
 // serviceChoices is the --service flag's own description: the six of p. 10,
 // in the book's order, spelled the way they are typed.

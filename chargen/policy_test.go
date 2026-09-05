@@ -8,8 +8,8 @@ import (
 	"github.com/philoserf/ctchargen/traveller"
 )
 
-// Strategy names POLICY.md does not carry, used wherever a test needs one
-// that cannot exist.
+// Words POLICY.md does not carry. They are strings and not strategies,
+// which is the point of #41: past the parser there is no way to write one.
 const (
 	noSuchCareer = "dawdle"
 	noSuchSkills = "osmosis"
@@ -23,7 +23,7 @@ func TestCareerStrategies(t *testing.T) {
 	t.Parallel()
 
 	for name, tc := range map[string]struct {
-		career  string
+		career  chargen.Career
 		offered []traveller.Intent
 		want    traveller.Intent
 		draft   bool
@@ -73,7 +73,7 @@ func TestSkillsStrategies(t *testing.T) {
 	withoutTheGate := all[:len(all)-1]
 
 	for name, tc := range map[string]struct {
-		strategy string
+		strategy chargen.Skills
 		offered  []traveller.SkillTable
 		want     traveller.SkillTable
 	}{
@@ -105,7 +105,7 @@ func TestMusterStrategies(t *testing.T) {
 	both := traveller.MusterTables[:]
 
 	for name, tc := range map[string]struct {
-		strategy string
+		strategy chargen.Muster
 		want     traveller.MusterTable
 		takesDMs bool
 	}{
@@ -211,22 +211,77 @@ func TestServicePicksTheLikeliestEnlistment(t *testing.T) {
 	}
 }
 
-func TestValidateRefusesAStrategyNoRowCarries(t *testing.T) {
+// A word no row of POLICY.md carries never becomes a strategy.
+//
+// This is the whole of what Policy.Validate and the engine's validate() used
+// to do, moved to the one place a string is supposed to become a domain
+// value. Past the parser the type carries it, which is why nothing downstream
+// checks any more (#41).
+func TestAWordNoRowCarriesIsNotAStrategy(t *testing.T) {
 	t.Parallel()
 
-	err := chargen.DefaultPolicy().Validate()
-	if err != nil {
-		t.Errorf("the default policy is invalid: %v", err)
+	_, career := chargen.ParseCareer(noSuchCareer)
+	_, skills := chargen.ParseSkills(noSuchSkills)
+	_, muster := chargen.ParseMuster(noSuchMuster)
+
+	for name, err := range map[string]error{
+		"career": career, "skills": skills, "muster": muster,
+	} {
+		if err == nil {
+			t.Errorf("%s: a word no row carries was accepted", name)
+		}
+	}
+}
+
+// Every strategy POLICY.md does carry parses, and parses back to its own
+// spelling. The round trip is what holds the parser to String: the record
+// writes the one and the flag reads the other, and a disagreement would make
+// a printed regenerate line fail to reproduce its own character.
+func TestEveryStrategyParsesBackToItsSpelling(t *testing.T) {
+	t.Parallel()
+
+	for _, want := range []chargen.Career{
+		chargen.CareerServe, chargen.CareerRetire, chargen.CareerOneTerm,
+	} {
+		got, err := chargen.ParseCareer(want.String())
+		if err != nil || got != want {
+			t.Errorf("career %q parsed to %v (%v)", want, got, err)
+		}
 	}
 
-	for _, invalid := range []chargen.Policy{
-		{Career: noSuchCareer, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterCash},
-		{Career: chargen.CareerServe, Skills: noSuchSkills, Muster: chargen.MusterCash},
-		{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: noSuchMuster},
+	for _, want := range []chargen.Skills{
+		chargen.SkillsAdvanced, chargen.SkillsService, chargen.SkillsPersonal,
 	} {
-		err := invalid.Validate()
-		if err == nil {
-			t.Errorf("%+v was accepted", invalid)
+		got, err := chargen.ParseSkills(want.String())
+		if err != nil || got != want {
+			t.Errorf("skills %q parsed to %v (%v)", want, got, err)
+		}
+	}
+
+	for _, want := range []chargen.Muster{
+		chargen.MusterCash, chargen.MusterGoods, chargen.MusterSpartan,
+	} {
+		got, err := chargen.ParseMuster(want.String())
+		if err != nil || got != want {
+			t.Errorf("muster %q parsed to %v (%v)", want, got, err)
+		}
+	}
+}
+
+// A value outside the alphabet says so rather than passing for another. It
+// cannot arrive from a flag - that is what the parser is for - but Go has no
+// closed integer type, so chargen.Career(99) is writable and must not read
+// back as "serve".
+func TestAStrategyOutsideItsAlphabetNamesItself(t *testing.T) {
+	t.Parallel()
+
+	for got, want := range map[string]string{
+		chargen.Career(99).String(): "Career(99)",
+		chargen.Skills(99).String(): "Skills(99)",
+		chargen.Muster(99).String(): "Muster(99)",
+	} {
+		if got != want {
+			t.Errorf("got %q, want %q", got, want)
 		}
 	}
 }
@@ -240,16 +295,14 @@ func TestValidateRefusesAStrategyNoRowCarries(t *testing.T) {
 func TestTheRejectionNamesTheValuesAndNoDocument(t *testing.T) {
 	t.Parallel()
 
-	invalid := chargen.Policy{
-		Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: noSuchMuster,
-	}
-
-	err := invalid.Validate()
+	_, err := chargen.ParseMuster(noSuchMuster)
 	if err == nil {
-		t.Fatalf("%+v was accepted", invalid)
+		t.Fatalf("%q was accepted", noSuchMuster)
 	}
 
-	for _, want := range []string{chargen.MusterCash, chargen.MusterGoods, chargen.MusterSpartan} {
+	for _, want := range []string{
+		chargen.MusterCash.String(), chargen.MusterGoods.String(), chargen.MusterSpartan.String(),
+	} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("the rejection %q does not offer %q", err, want)
 		}

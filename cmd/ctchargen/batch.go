@@ -29,12 +29,12 @@ func batch(args []string, out io.Writer) error {
 		service = flags.String("service", "",
 			"attempt every enlistment in this service: "+serviceChoices())
 		name   = flags.String("name", "", "the name to give every character")
-		career = flags.String(careerFlag, chargen.CareerServe,
-			"the career strategy: "+strategyChoices(careerFlag))
-		skills = flags.String(skillsFlag, chargen.SkillsAdvanced,
-			"the skills strategy: "+strategyChoices(skillsFlag))
-		muster = flags.String(musterFlag, chargen.MusterCash,
-			"the mustering out strategy: "+strategyChoices(musterFlag))
+		career = flags.String(careerFlag, chargen.CareerServe.String(),
+			"the career `strategy`: "+chargen.CareerChoices())
+		skills = flags.String(skillsFlag, chargen.SkillsAdvanced.String(),
+			"the skills `strategy`: "+chargen.SkillsChoices())
+		muster = flags.String(musterFlag, chargen.MusterCash.String(),
+			"the mustering out `strategy`: "+chargen.MusterChoices())
 		output = flags.String("o", "",
 			"a .jsonl file, or a directory to write one file per character; absent, JSONL to standard output")
 		force = flags.Bool("force", false, "replace output files that already exist")
@@ -69,12 +69,7 @@ func batch(args []string, out io.Writer) error {
 		return err
 	}
 
-	policy := chargen.Policy{Career: *career, Skills: *skills, Muster: *muster}
-
-	invalid := policy.Validate()
-	if invalid != nil {
-		return fmt.Errorf("%w: %w", errUsage, invalid)
-	}
+	policy := chargen.Policy{Career: base.Career, Skills: base.Skills, Muster: base.Muster}
 
 	if namesDirectory(*output) {
 		return intoDirectory(base, policy, *count, *output, *force)

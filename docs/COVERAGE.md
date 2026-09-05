@@ -152,7 +152,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Answers left over belong to another run, and are refused | Determinism | `cmd/ctchargen.leftover` | `ctchargen.TestAnswersLeftOverBelongToAnotherRun` |
 | A replay and --auto cannot both answer the questions | CLI sketch | `cmd/ctchargen.newCharacter` | `ctchargen.TestAnswersAndAutoCannotBothBeGiven` |
 | An answer outside the offered set is refused, not applied | FR9 | `chargen.logging.record` | `chargen.TestAnAnswerOutsideTheOfferIsRefused` |
-| A decider built out of strategies that do not exist is refused | FR9 | `chargen.validate` | `chargen.TestADeciderBuiltOutOfNothingIsRefused` |
+| A strategy no row of POLICY.md carries never becomes one | FR9 | `chargen.parsed` | `chargen.TestAWordNoRowCarriesIsNotAStrategy` |
 | An unreadable answer is asked again, never guessed at | FR9 | `cmd/ctchargen.choose` | `ctchargen.TestInteractiveReAsksWhatItCannotRead` |
 | The input ending is an error, not a default | FR9 | `cmd/ctchargen.errNoAnswer` | `ctchargen.TestInteractiveRefusesToInventAnAnswer` |
 | A player nobody can be shown anything is not asked | FR9 | `cmd/ctchargen.player.sayf` | `ctchargen.TestInteractiveStopsWhenItCannotBeRead` |
