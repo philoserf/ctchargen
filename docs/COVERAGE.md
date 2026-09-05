@@ -132,6 +132,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Every reading that governed a record is named on it                           | Authority        | `chargen.log.stamped`                      | `chargen.TestEveryReadingIsReachable`                      |
 | One seed reproduces one character                                             | Determinism      | `dice.Stream`                              | `chargen.TestGoldensRegenerate`                            |
 | The record matches the schema that describes it                               | JSON conventions | `docs/character.schema.json`               | `render.TestEveryGoldenMatchesTheSchema`                   |
+| A record names the shape it is, so the v1 freeze has something to attach to   | JSON conventions | `render.recordShape`                       | `render.TestARecordWithoutItsShapeDoesNotValidate`         |
 | What the command writes matches the schema, build stamp and all               | JSON conventions | `cmd/ctchargen.run`                        | `ctchargen.TestWhatTheCommandWritesMatchesTheSchema`       |
 | Every batch member matches the schema                                         | JSON conventions | `cmd/ctchargen.batch`                      | `ctchargen.TestEveryBatchMemberMatchesTheSchema`           |
 | The two documented examples are generated, not written                        | Documents        | `chargen.documentedExample`                | `chargen.TestGoldens`                                      |

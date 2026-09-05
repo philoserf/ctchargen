@@ -47,7 +47,22 @@ func JSON(character *chargen.Character) ([]byte, error) {
 	return append(text, '\n'), nil
 }
 
+// recordShape is the number the record carries to say which shape it is.
+//
+// It counts the shape and nothing else: `build` names the writer and is
+// absent from anything generated in-process, and `ruleset` names the source
+// text. Neither says what the file looks like, and #74 settled that v1.0.0
+// means a frozen and supported record - a promise needs something to promise
+// about (#76, #62).
+//
+// It does not move when the tool's version does. A build that changes no
+// field leaves this alone, and nothing reads it yet, because there is only
+// one shape to tell apart. The record is free to move until v1.0.0 and frozen
+// from it; this is what the freeze will attach to.
+const recordShape = 1
+
 type record struct {
+	Record          int               `json:"record"`
 	Name            string            `json:"name"`
 	UPP             string            `json:"upp"`
 	Characteristics map[string]int    `json:"characteristics"`
@@ -123,6 +138,7 @@ type inputsRecord struct {
 
 func project(character *chargen.Character) (record, error) {
 	out := record{
+		Record:          recordShape,
 		Name:            character.Name,
 		UPP:             character.Profile.UPP(),
 		Characteristics: map[string]int{},
