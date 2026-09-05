@@ -34,9 +34,9 @@ Regenerate with `ctchargen new --auto --seed 7 --service other --career serve --
  22. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
  23. Advanced Education Table: rolled 4
  24. Gambling-1 (from 23) [E002]
- 25. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 26. Advanced Education Table: rolled 2
- 27. Mechanical-1 (from 26) [E002]
+ 25. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 26. Service Skills Table: rolled 2
+ 27. Gambling-2 (from 26) [E002]
  28. reenlistment: rolled 6+6 = 12 against 5+, made
  29. a 12 exactly: the service requires another term (from 28)
 
@@ -47,9 +47,9 @@ Regenerate with `ctchargen new --auto --seed 7 --service other --career serve --
 
 ## skills and training (pp. 6, 11)
 
- 34. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 35. Advanced Education Table: rolled 3
- 36. Electronic-1 (from 35) [E002]
+ 34. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 35. Personal Development Table: rolled 3
+ 36. Endurance +1, 4 to 5 (from 35) [E002]
  37. reenlistment: rolled 2+5 = 7 against 5+, made
  38. ReenlistIntent: policy chose continue from continue, discharge
  39. reenlisted for term 3 (from 37)
@@ -75,34 +75,60 @@ Regenerate with `ctchargen new --auto --seed 7 --service other --career serve --
 
 ## skills and training (pp. 6, 11)
 
- 54. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 55. Advanced Education Table: rolled 5
- 56. Brawling-1 (from 55) [E002]
- 57. reenlistment: rolled 1+3 = 4 against 5+, missed
- 58. left the service after term 4: reenlistment denied (from 57)
+ 54. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 55. Service Skills Table: rolled 5
+ 56. Weapon: policy chose Automatic Pistol from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun
+ 57. Gun Combat: Automatic Pistol-1 (from 55) [E002]
+ 58. reenlistment: rolled 3+4 = 7 against 5+, made
+ 59. ReenlistIntent: policy chose continue from continue, discharge
+ 60. reenlisted for term 5 (from 58)
 
 ## aging, end of term 4 (pp. 7-9)
 
- 60. aging, Strength: rolled 4+5 = 9 against 8+, made
- 61. Strength holds (from 60) [E006 E007]
- 62. aging, Dexterity: rolled 6+4 = 10 against 7+, made
- 63. Dexterity holds (from 62) [E006 E007]
- 64. aging, Endurance: rolled 2+5 = 7 against 8+, missed
- 65. Endurance -1, 4 to 3 (from 64) [E006 E007]
+ 62. aging, Strength: rolled 5+6 = 11 against 8+, made
+ 63. Strength holds (from 62) [E006 E007]
+ 64. aging, Dexterity: rolled 4+2 = 6 against 7+, missed
+ 65. Dexterity -1, 6 to 5 (from 64) [E006 E007]
+ 66. aging, Endurance: rolled 5+2 = 7 against 8+, missed
+ 67. Endurance -1, 5 to 4 (from 66) [E006 E007]
 
-## mustering out, 4 rolls (pp. 7, 9, 21-23)
+## term 5 (pp. 5-7)
 
- 67. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
- 68. MusterTable2DM: policy chose yes from yes, no
- 69. Table 2, Cash Allowances: rolled 2 +1 = 3
- 70. CR 10000, bringing the total to CR 10000 (from 69)
- 71. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
- 72. MusterTable2DM: policy chose yes from yes, no
- 73. Table 2, Cash Allowances: rolled 4 +1 = 5
- 74. CR 10000, bringing the total to CR 20000 (from 73)
- 75. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
- 76. MusterTable2DM: policy chose yes from yes, no
- 77. Table 2, Cash Allowances: rolled 1 +1 = 2
- 78. CR 5000, bringing the total to CR 25000 (from 77)
- 79. Table 1, Material Benefits: rolled 6
- 80. nothing: the table prints a dash for this service (from 79)
+ 69. survival: rolled 4+1 = 5 against 5+, made
+ 70. survived term 5 (from 69)
+
+## skills and training (pp. 6, 11)
+
+ 72. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 73. Personal Development Table: rolled 6
+ 74. Social Standing -1, 7 to 6 (from 73) [E002]
+ 75. reenlistment: rolled 1+2 = 3 against 5+, missed
+ 76. left the service after term 5 and is retired: reenlistment denied (from 75)
+
+## aging, end of term 5 (pp. 7-9)
+
+ 78. aging, Strength: rolled 5+1 = 6 against 8+, missed
+ 79. Strength -1, 7 to 6 (from 78) [E006 E007]
+ 80. aging, Dexterity: rolled 4+1 = 5 against 7+, missed
+ 81. Dexterity -1, 5 to 4 (from 80) [E006 E007]
+ 82. aging, Endurance: rolled 3+6 = 9 against 8+, made
+ 83. Endurance holds (from 82) [E006 E007]
+
+## mustering out, 5 rolls (pp. 7, 9, 21-23)
+
+ 85. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+ 86. MusterTable2DM: policy chose yes from yes, no
+ 87. Table 2, Cash Allowances: rolled 4 +1 = 5
+ 88. CR 10000, bringing the total to CR 10000 (from 87)
+ 89. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+ 90. MusterTable2DM: policy chose yes from yes, no
+ 91. Table 2, Cash Allowances: rolled 4 +1 = 5
+ 92. CR 10000, bringing the total to CR 20000 (from 91)
+ 93. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+ 94. MusterTable2DM: policy chose yes from yes, no
+ 95. Table 2, Cash Allowances: rolled 3 +1 = 4
+ 96. CR 10000, bringing the total to CR 30000 (from 95)
+ 97. Table 1, Material Benefits: rolled 6
+ 98. nothing: the table prints a dash for this service (from 97)
+ 99. Table 1, Material Benefits: rolled 6
+100. nothing: the table prints a dash for this service (from 99)

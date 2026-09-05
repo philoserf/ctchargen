@@ -1,15 +1,16 @@
 # (unnamed)
 
-UPP 765BCD, age 46, Navy Captain, 7 terms, marquis/marchioness, retired
+UPP 766BDE, age 46, Navy Captain, 7 terms, count/countess, retired
 
 ## Skills
 
-- Administration-2
-- Computer-1
-- Engineer-3
-- Medical-4
+- Engineer-1
+- Forward Observer-1
+- Jack of all Trades-1
 - Navigation-2
 - Pilot-1
+- Ship's Boat-2
+- Vacc Suit-2
 
 ## Possessions
 

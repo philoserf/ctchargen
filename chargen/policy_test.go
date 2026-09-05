@@ -92,7 +92,9 @@ func TestSkillsStrategies(t *testing.T) {
 	} {
 		policy := chargen.Policy{Career: chargen.CareerServe, Skills: tc.strategy, Muster: chargen.MusterCash}
 
-		got, err := policy.SkillTable(tc.offered)
+		// No counts: an untrained character, where the ranking decides
+		// alone and the answer is what it was before counts existed.
+		got, err := policy.SkillTable(tc.offered, nil)
 		if err != nil || got != tc.want {
 			t.Errorf("%s: designated %v (%v), want %v", name, got, err, tc.want)
 		}

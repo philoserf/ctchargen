@@ -1,6 +1,10 @@
 # (unnamed)
 
-UPP 64599B, age 22, Other (service chosen by the policy), 1 term, knight/dame, discharged
+UPP 64499B, age 22, Other (service chosen by the policy), 1 term, knight/dame, discharged
+
+## Skills
+
+- Brawling-1
 
 ## Possessions
 

@@ -1,15 +1,16 @@
 # (unnamed)
 
-UPP 855EAC, age 46, Scouts, 7 terms, baron/baroness, retired
+UPP 865EBC, age 46, Scouts, 7 terms, baron/baroness, retired
 
 ## Skills
 
-- Computer-1
 - Dagger-1
-- Engineer-1
-- Jack of all Trades-3
-- Navigation-2
-- Pilot-2
+- Electronic-2
+- Jack of all Trades-1
+- Mechanical-1
+- Medical-1
+- Navigation-1
+- Pilot-1
 
 ## Possessions
 

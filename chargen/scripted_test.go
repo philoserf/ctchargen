@@ -143,14 +143,16 @@ type answeringOutsideTheOffer struct {
 	expertise bool
 }
 
-func (a answeringOutsideTheOffer) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
+func (a answeringOutsideTheOffer) SkillTable(
+	from []traveller.SkillTable, taken []int,
+) (traveller.SkillTable, error) {
 	if a.table {
 		// P. 11 opens this table only at Education 8, and the character
 		// generated below stands at 7, so it is not among `from`.
 		return traveller.AdvancedEducationEight, nil
 	}
 
-	return a.Decider.SkillTable(from) //nolint:wrapcheck // the policy's own error, unchanged
+	return a.Decider.SkillTable(from, taken) //nolint:wrapcheck // the policy's own error, unchanged
 }
 
 func (a answeringOutsideTheOffer) MusterWeapon(

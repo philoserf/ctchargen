@@ -49,7 +49,7 @@
     "E005"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -267,12 +267,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Service Skills Table"
+      "chosen": "Advanced Education Table"
     },
     {
       "seq": 28,
       "kind": "roll",
-      "step": "Service Skills Table",
+      "step": "Advanced Education Table",
       "dice": [
         1
       ],

@@ -1,231 +1,242 @@
 # Generation record: (unnamed)
 
-Regenerate with `ctchargen new --auto --seed 145 --service merchants --career serve --skills advanced --muster cash --history`.
+Regenerate with `ctchargen new --auto --seed 316 --service merchants --career serve --skills advanced --muster cash --history`.
 
 
 ## characteristics (p. 4)
 
   2. Strength: rolled 6+2
   3. Strength 8 (from 2)
-  4. Dexterity: rolled 3+5
-  5. Dexterity 8 (from 4)
-  6. Endurance: rolled 2+5
-  7. Endurance 7 (from 6)
-  8. Intelligence: rolled 2+5
-  9. Intelligence 7 (from 8)
- 10. Education: rolled 1+6
- 11. Education 7 (from 10)
- 12. Social Standing: rolled 4+5
- 13. Social Standing 9 (from 12)
- 14. UPP 887779 at age 18
+  4. Dexterity: rolled 3+1
+  5. Dexterity 4 (from 4)
+  6. Endurance: rolled 5+1
+  7. Endurance 6 (from 6)
+  8. Intelligence: rolled 3+6
+  9. Intelligence 9 (from 8)
+ 10. Education: rolled 6+3
+ 11. Education 9 (from 10)
+ 12. Social Standing: rolled 6+5
+ 13. Social Standing 11 (from 12)
+ 14. UPP 84699B at age 18
 
 ## enlistment (pp. 5, 10)
 
- 16. enlistment, Merchants: rolled 1+4 +3 = 8 against 7+, made
+ 16. enlistment, Merchants: rolled 3+4 +3 = 10 against 7+, made
  17. enlisted in the Merchants (from 16)
 
 ## term 1 (pp. 5-7)
 
- 19. survival: rolled 5+4 +2 = 11 against 5+, made
+ 19. survival: rolled 2+4 +2 = 8 against 5+, made
  20. survived term 1 (from 19)
  21. AttemptCommission: policy chose yes from yes, no
- 22. commission: rolled 3+4 +1 = 8 against 4+, made
+ 22. commission: rolled 5+6 +1 = 12 against 4+, made
  23. commissioned: 4th Officer (from 22)
  24. AttemptPromotion: policy chose yes from yes, no
- 25. promotion: rolled 4+6 = 10 against 10+, made
- 26. promoted: 3rd Officer (from 25)
+ 25. promotion: rolled 5+3 +1 = 9 against 10+, missed
+ 26. not promoted this term (from 25)
 
 ## skills and training (pp. 6, 11)
 
- 28. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 29. Advanced Education Table: rolled 3
- 30. Electronic-1 (from 29) [E002]
- 31. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 32. Advanced Education Table: rolled 1
- 33. Streetwise-1 (from 32) [E002]
- 34. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 35. Advanced Education Table: rolled 1
- 36. Streetwise-2 (from 35) [E002]
- 37. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 38. Advanced Education Table: rolled 6
- 39. Medical-1 (from 38) [E002]
- 40. reenlistment: rolled 1+6 = 7 against 4+, made
- 41. ReenlistIntent: policy chose continue from continue, discharge
- 42. reenlisted for term 2 (from 40)
+ 28. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 29. Advanced Education Table (education 8+): rolled 3
+ 30. Engineer-1 (from 29) [E002]
+ 31. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 32. Advanced Education Table: rolled 4
+ 33. Navigation-1 (from 32) [E002]
+ 34. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 35. Service Skills Table: rolled 2
+ 36. Vacc Suit-1 (from 35) [E002]
+ 37. reenlistment: rolled 2+3 = 5 against 4+, made
+ 38. ReenlistIntent: policy chose continue from continue, discharge
+ 39. reenlisted for term 2 (from 37)
 
 ## term 2 (pp. 5-7)
 
- 44. survival: rolled 3+1 +2 = 6 against 5+, made
- 45. survived term 2 (from 44)
- 46. AttemptPromotion: policy chose yes from yes, no
- 47. promotion: rolled 4+6 = 10 against 10+, made
- 48. promoted: 2nd Officer (from 47)
+ 41. survival: rolled 3+1 +2 = 6 against 5+, made
+ 42. survived term 2 (from 41)
+ 43. AttemptPromotion: policy chose yes from yes, no
+ 44. promotion: rolled 2+4 +1 = 7 against 10+, missed
+ 45. not promoted this term (from 44)
 
 ## skills and training (pp. 6, 11)
 
- 50. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 51. Advanced Education Table: rolled 4
- 52. Navigation-1 (from 51) [E002]
- 53. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 54. Advanced Education Table: rolled 6
- 55. Medical-2 (from 54) [E002]
- 56. reenlistment: rolled 1+6 = 7 against 4+, made
- 57. ReenlistIntent: policy chose continue from continue, discharge
- 58. reenlisted for term 3 (from 56)
+ 47. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 48. Personal Development Table: rolled 1
+ 49. Strength +1, 8 to 9 (from 48) [E002]
+ 50. reenlistment: rolled 3+2 = 5 against 4+, made
+ 51. ReenlistIntent: policy chose continue from continue, discharge
+ 52. reenlisted for term 3 (from 50)
 
 ## term 3 (pp. 5-7)
 
- 60. survival: rolled 4+2 +2 = 8 against 5+, made
- 61. survived term 3 (from 60)
- 62. AttemptPromotion: policy chose yes from yes, no
- 63. promotion: rolled 2+6 = 8 against 10+, missed
- 64. not promoted this term (from 63)
+ 54. survival: rolled 4+3 +2 = 9 against 5+, made
+ 55. survived term 3 (from 54)
+ 56. AttemptPromotion: policy chose yes from yes, no
+ 57. promotion: rolled 6+3 +1 = 10 against 10+, made
+ 58. promoted: 3rd Officer (from 57)
 
 ## skills and training (pp. 6, 11)
 
- 66. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 67. Advanced Education Table: rolled 3
- 68. Electronic-2 (from 67) [E002]
- 69. reenlistment: rolled 5+1 = 6 against 4+, made
- 70. ReenlistIntent: policy chose continue from continue, discharge
- 71. reenlisted for term 4 (from 69)
+ 60. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 61. Advanced Education Table (education 8+): rolled 2
+ 62. Navigation-2 (from 61) [E002]
+ 63. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 64. Advanced Education Table: rolled 2
+ 65. Mechanical-1 (from 64) [E002]
+ 66. reenlistment: rolled 1+4 = 5 against 4+, made
+ 67. ReenlistIntent: policy chose continue from continue, discharge
+ 68. reenlisted for term 4 (from 66)
 
 ## term 4 (pp. 5-7)
 
- 73. survival: rolled 2+6 +2 = 10 against 5+, made
- 74. survived term 4 (from 73)
- 75. AttemptPromotion: policy chose yes from yes, no
- 76. promotion: rolled 4+2 = 6 against 10+, missed
- 77. not promoted this term (from 76)
+ 70. survival: rolled 4+1 +2 = 7 against 5+, made
+ 71. survived term 4 (from 70)
+ 72. AttemptPromotion: policy chose yes from yes, no
+ 73. promotion: rolled 6+3 +1 = 10 against 10+, made
+ 74. promoted: 2nd Officer (from 73)
 
 ## skills and training (pp. 6, 11)
 
- 79. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 80. Advanced Education Table: rolled 4
- 81. Navigation-2 (from 80) [E002]
- 82. reenlistment: rolled 4+1 = 5 against 4+, made
- 83. ReenlistIntent: policy chose continue from continue, discharge
- 84. reenlisted for term 5 (from 82)
+ 76. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 77. Service Skills Table: rolled 4
+ 78. Weapon: policy chose Laser Carbine from Body Pistol, Automatic Pistol, Revolver, Carbine, Rifle, Laser Carbine, Laser Rifle, Automatic Rifle, Submachine Gun, Shotgun
+ 79. Gun Combat: Laser Carbine-1 (from 77) [E002]
+ 80. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 81. Personal Development Table: rolled 6
+ 82. Bribery-1 (from 81) [E002]
+ 83. reenlistment: rolled 4+2 = 6 against 4+, made
+ 84. ReenlistIntent: policy chose continue from continue, discharge
+ 85. reenlisted for term 5 (from 83)
 
 ## aging, end of term 4 (pp. 7-9)
 
- 86. aging, Strength: rolled 3+2 = 5 against 8+, missed
- 87. Strength -1, 8 to 7 (from 86) [E006 E007]
- 88. aging, Dexterity: rolled 3+6 = 9 against 7+, made
- 89. Dexterity holds (from 88) [E006 E007]
- 90. aging, Endurance: rolled 2+4 = 6 against 8+, missed
- 91. Endurance -1, 7 to 6 (from 90) [E006 E007]
+ 87. aging, Strength: rolled 1+6 = 7 against 8+, missed
+ 88. Strength -1, 9 to 8 (from 87) [E006 E007]
+ 89. aging, Dexterity: rolled 1+1 = 2 against 7+, missed
+ 90. Dexterity -1, 4 to 3 (from 89) [E006 E007]
+ 91. aging, Endurance: rolled 5+4 = 9 against 8+, made
+ 92. Endurance holds (from 91) [E006 E007]
 
 ## term 5 (pp. 5-7)
 
- 93. survival: rolled 1+2 +2 = 5 against 5+, made
- 94. survived term 5 (from 93)
- 95. AttemptPromotion: policy chose yes from yes, no
- 96. promotion: rolled 6+4 = 10 against 10+, made
- 97. promoted: 1st Officer (from 96)
- 98. Pilot-1 (from 96)
+ 94. survival: rolled 3+1 +2 = 6 against 5+, made
+ 95. survived term 5 (from 94)
+ 96. AttemptPromotion: policy chose yes from yes, no
+ 97. promotion: rolled 1+4 +1 = 6 against 10+, missed
+ 98. not promoted this term (from 97)
 
 ## skills and training (pp. 6, 11)
 
-100. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
-101. Advanced Education Table: rolled 1
-102. Streetwise-3 (from 101) [E002]
-103. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
-104. Advanced Education Table: rolled 4
-105. Navigation-3 (from 104) [E002]
-106. reenlistment: rolled 4+4 = 8 against 4+, made
-107. ReenlistIntent: policy chose continue from continue, retire
-108. reenlisted for term 6 (from 106)
+100. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+101. Advanced Education Table (education 8+): rolled 2
+102. Navigation-3 (from 101) [E002]
+103. reenlistment: rolled 6+1 = 7 against 4+, made
+104. ReenlistIntent: policy chose continue from continue, retire
+105. reenlisted for term 6 (from 103)
 
 ## aging, end of term 5 (pp. 7-9)
 
-110. aging, Strength: rolled 2+2 = 4 against 8+, missed
-111. Strength -1, 7 to 6 (from 110) [E006 E007]
-112. aging, Dexterity: rolled 1+4 = 5 against 7+, missed
-113. Dexterity -1, 8 to 7 (from 112) [E006 E007]
-114. aging, Endurance: rolled 1+4 = 5 against 8+, missed
-115. Endurance -1, 6 to 5 (from 114) [E006 E007]
+107. aging, Strength: rolled 5+1 = 6 against 8+, missed
+108. Strength -1, 8 to 7 (from 107) [E006 E007]
+109. aging, Dexterity: rolled 5+4 = 9 against 7+, made
+110. Dexterity holds (from 109) [E006 E007]
+111. aging, Endurance: rolled 6+4 = 10 against 8+, made
+112. Endurance holds (from 111) [E006 E007]
 
 ## term 6 (pp. 5-7)
 
-117. survival: rolled 3+3 +2 = 8 against 5+, made
-118. survived term 6 (from 117)
-119. AttemptPromotion: policy chose yes from yes, no
-120. promotion: rolled 4+6 = 10 against 10+, made
-121. promoted: Captain (from 120)
+114. survival: rolled 2+3 +2 = 7 against 5+, made
+115. survived term 6 (from 114)
+116. AttemptPromotion: policy chose yes from yes, no
+117. promotion: rolled 5+4 +1 = 10 against 10+, made
+118. promoted: 1st Officer (from 117)
+119. Pilot-1 (from 117)
 
 ## skills and training (pp. 6, 11)
 
-123. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
-124. Advanced Education Table: rolled 1
-125. Streetwise-4 (from 124) [E002]
-126. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
-127. Advanced Education Table: rolled 2
-128. Mechanical-1 (from 127) [E002]
-129. reenlistment: rolled 5+6 = 11 against 4+, made
-130. ReenlistIntent: policy chose continue from continue, retire
-131. reenlisted for term 7 (from 129)
+121. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+122. Advanced Education Table: rolled 2
+123. Mechanical-2 (from 122) [E002]
+124. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+125. Service Skills Table: rolled 3
+126. Weapon: policy chose Sword from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet
+127. Blade Combat: Sword-1 (from 125) [E002]
+128. reenlistment: rolled 6+1 = 7 against 4+, made
+129. ReenlistIntent: policy chose continue from continue, retire
+130. reenlisted for term 7 (from 128)
 
 ## aging, end of term 6 (pp. 7-9)
 
-133. aging, Strength: rolled 3+6 = 9 against 8+, made
-134. Strength holds (from 133) [E006 E007]
-135. aging, Dexterity: rolled 5+2 = 7 against 7+, made
-136. Dexterity holds (from 135) [E006 E007]
-137. aging, Endurance: rolled 4+6 = 10 against 8+, made
-138. Endurance holds (from 137) [E006 E007]
+132. aging, Strength: rolled 4+4 = 8 against 8+, made
+133. Strength holds (from 132) [E006 E007]
+134. aging, Dexterity: rolled 3+3 = 6 against 7+, missed
+135. Dexterity -1, 3 to 2 (from 134) [E006 E007]
+136. aging, Endurance: rolled 6+3 = 9 against 8+, made
+137. Endurance holds (from 136) [E006 E007]
 
 ## term 7 (pp. 5-7)
 
-140. survival: rolled 3+2 +2 = 7 against 5+, made
-141. survived term 7 (from 140)
-142. already Captain, the highest rank the Merchants print, so no promotion is thrown for in term 7 [E013]
+139. survival: rolled 4+2 +2 = 8 against 5+, made
+140. survived term 7 (from 139)
+141. AttemptPromotion: policy chose yes from yes, no
+142. promotion: rolled 5+5 +1 = 11 against 10+, made
+143. promoted: Captain (from 142)
 
 ## skills and training (pp. 6, 11)
 
-144. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
-145. Advanced Education Table: rolled 4
-146. Navigation-4 (from 145) [E002]
-147. reenlistment: rolled 6+1 = 7 against 4+, made
-148. left the service after term 7 and is retired: retire (from 147)
+145. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+146. Personal Development Table: rolled 4
+147. Strength +1, 7 to 8 (from 146) [E002]
+148. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+149. Advanced Education Table (education 8+): rolled 2
+150. Navigation-4 (from 149) [E002]
+151. reenlistment: rolled 1+5 = 6 against 4+, made
+152. left the service after term 7 and is retired: retire (from 151)
 
 ## aging, end of term 7 (pp. 7-9)
 
-150. aging, Strength: rolled 3+5 = 8 against 8+, made
-151. Strength holds (from 150) [E006 E007]
-152. aging, Dexterity: rolled 3+5 = 8 against 7+, made
-153. Dexterity holds (from 152) [E006 E007]
-154. aging, Endurance: rolled 3+1 = 4 against 8+, missed
-155. Endurance -1, 5 to 4 (from 154) [E006 E007]
+154. aging, Strength: rolled 4+5 = 9 against 8+, made
+155. Strength holds (from 154) [E006 E007]
+156. aging, Dexterity: rolled 6+1 = 7 against 7+, made
+157. Dexterity holds (from 156) [E006 E007]
+158. aging, Endurance: rolled 2+3 = 5 against 8+, missed
+159. Endurance -1, 6 to 5 (from 158) [E006 E007]
 
 ## mustering out, 9 rolls (pp. 7, 9, 21-23)
 
-157. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-158. Table 2, Cash Allowances: rolled 4
-159. CR 20000, bringing the total to CR 20000 (from 158)
-160. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-161. Table 2, Cash Allowances: rolled 6
-162. CR 40000, bringing the total to CR 60000 (from 161)
-163. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
-164. Table 2, Cash Allowances: rolled 2
-165. CR 5000, bringing the total to CR 65000 (from 164)
-166. MusterTable1DM: policy chose yes from yes, no
-167. Table 1, Material Benefits: rolled 5 +1 = 6
-168. a Low Passage (from 167)
-169. MusterTable1DM: policy chose yes from yes, no
-170. Table 1, Material Benefits: rolled 1 +1 = 2
-171. Intelligence +1, 7 to 8 (from 170)
-172. MusterTable1DM: policy chose yes from yes, no
-173. Table 1, Material Benefits: rolled 6 +1 = 7
-174. a Free Trader, Type A (from 173)
-175. MusterTable1DM: policy chose yes from yes, no
-176. Table 1, Material Benefits: rolled 6 +1 = 7
-177. the Free Trader again: 10 years old, with 30 years of payments left (from 176)
-178. MusterTable1DM: policy chose yes from yes, no
-179. Table 1, Material Benefits: rolled 4 +1 = 5
-180. MusterWeapon: policy chose Dagger from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet
-181. a Dagger (from 179)
-182. MusterTable1DM: policy chose yes from yes, no
-183. Table 1, Material Benefits: rolled 1 +1 = 2
-184. Intelligence +1, 8 to 9 (from 183)
-185. retirement pay of CR 8000 a year
+161. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+162. Table 2, Cash Allowances: rolled 2
+163. CR 5000, bringing the total to CR 5000 (from 162)
+164. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+165. Table 2, Cash Allowances: rolled 4
+166. CR 20000, bringing the total to CR 25000 (from 165)
+167. MusterTable: policy chose Table 2, Cash Allowances from Table 1, Material Benefits, Table 2, Cash Allowances
+168. Table 2, Cash Allowances: rolled 5
+169. CR 20000, bringing the total to CR 45000 (from 168)
+170. MusterTable1DM: policy chose yes from yes, no
+171. Table 1, Material Benefits: rolled 6 +1 = 7
+172. a Free Trader, Type A (from 171)
+173. MusterTable1DM: policy chose yes from yes, no
+174. Table 1, Material Benefits: rolled 4 +1 = 5
+175. MusterWeapon: policy chose Dagger from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet
+176. a Dagger (from 174)
+177. MusterTable1DM: policy chose yes from yes, no
+178. Table 1, Material Benefits: rolled 6 +1 = 7
+179. the Free Trader again: 10 years old, with 30 years of payments left (from 178)
+180. MusterTable1DM: policy chose yes from yes, no
+181. Table 1, Material Benefits: rolled 4 +1 = 5
+182. MusterWeapon: policy chose expertise in Dagger from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet, expertise in Dagger
+183. expertise instead: Dagger-1 (from 181)
+184. MusterTable1DM: policy chose yes from yes, no
+185. Table 1, Material Benefits: rolled 1 +1 = 2
+186. Intelligence +1, 9 to 10 (from 185)
+187. MusterTable1DM: policy chose yes from yes, no
+188. Table 1, Material Benefits: rolled 4 +1 = 5
+189. MusterWeapon: policy chose expertise in Dagger from Dagger, Blade, Foil, Cutlass, Sword, Broadsword, Spear, Halberd, Pike, Cudgel, Bayonet, expertise in Dagger
+190. expertise instead: Dagger-2 (from 188)
+191. retirement pay of CR 8000 a year
+
+## titles (p. 5; Book 3 p. 22)
+
+193. AssumeTitle: policy chose yes from yes, no
+194. social standing 11 confers knight/dame, and it is assumed [E011]

@@ -34,8 +34,8 @@ Regenerate with `ctchargen new --auto --seed 4 --service other --career serve --
  22. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
  23. Advanced Education Table (education 8+): rolled 2
  24. Forgery-1 (from 23) [E002]
- 25. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 26. Advanced Education Table (education 8+): rolled 3
+ 25. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 26. Advanced Education Table: rolled 3
  27. Electronic-1 (from 26) [E002]
  28. reenlistment: rolled 2+1 = 3 against 5+, missed
  29. left the service after term 1: reenlistment denied (from 28)

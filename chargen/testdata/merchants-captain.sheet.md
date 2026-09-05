@@ -1,20 +1,22 @@
 # (unnamed)
 
-UPP 674979, age 46, Merchants Captain, 7 terms, retired
+UPP 825A9B, age 46, Merchants Captain, 7 terms, knight/dame, retired
 
 ## Skills
 
-- Electronic-2
-- Mechanical-1
-- Medical-2
+- Bribery-1
+- Dagger-2
+- Engineer-1
+- Laser Carbine-1
+- Mechanical-2
 - Navigation-4
 - Pilot-1
-- Streetwise-4
+- Sword-1
+- Vacc Suit-1
 
 ## Possessions
 
-- CR 65000
-- Low Passage
+- CR 45000
 - Dagger
 - Free Trader, Type A, 200 tons, 10 years old, with 30 years of payments left
 - CR 8000 a year in retirement pay
@@ -26,4 +28,4 @@ UPP 674979, age 46, Merchants Captain, 7 terms, retired
 
 ---
 
-Regenerate with `ctchargen new --auto --seed 145 --service merchants --career serve --skills advanced --muster cash --sheet`.
+Regenerate with `ctchargen new --auto --seed 316 --service merchants --career serve --skills advanced --muster cash --sheet`.

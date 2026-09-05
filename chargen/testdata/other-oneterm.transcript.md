@@ -35,9 +35,9 @@ Regenerate with `ctchargen new --auto --seed 19 --career oneterm --skills person
  23. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
  24. Personal Development Table: rolled 6
  25. Social Standing -1, 12 to 11 (from 24) [E002]
- 26. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 27. Personal Development Table: rolled 3
- 28. Endurance +1, 4 to 5 (from 27) [E002]
+ 26. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 27. Service Skills Table: rolled 3
+ 28. Brawling-1 (from 27) [E002]
  29. reenlistment: rolled 4+6 = 10 against 5+, made
  30. ReenlistIntent: policy chose discharge from continue, discharge
  31. left the service after term 1: discharge (from 29)

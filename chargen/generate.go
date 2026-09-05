@@ -115,6 +115,11 @@ type run struct {
 	drafted  bool
 	dead     bool
 	eligible int
+
+	// trained counts the results taken off each skills table, which the
+	// decider is handed so it can see where the character is thin. It is
+	// not on the Character: it is a decision aid, not part of the record.
+	trained map[traveller.SkillTable]int
 }
 
 func (r *run) generate() error {

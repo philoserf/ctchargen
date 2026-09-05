@@ -1,13 +1,12 @@
 # (unnamed)
 
-UPP 506C43, age 46, Other, 7 terms, killed by a medical crisis
+UPP 205688, age 46, Other, 7 terms, killed by a medical crisis
 
 ## Skills
 
-- Brawling-5
-- Electronic-1
-- Gambling-1
-- Mechanical-1
+- Electronic-2
+- Gambling-2
+- Streetwise-2
 
 ## Service record
 
@@ -16,4 +15,4 @@ UPP 506C43, age 46, Other, 7 terms, killed by a medical crisis
 
 ---
 
-Regenerate with `ctchargen new --auto --seed 17 --service other --career serve --skills advanced --muster cash --sheet`.
+Regenerate with `ctchargen new --auto --seed 106 --service other --career serve --skills advanced --muster cash --sheet`.

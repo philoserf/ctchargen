@@ -1,15 +1,16 @@
 # (unnamed)
 
-UPP 8C9469, age 42, Merchants Captain, 6 terms, killed by the survival throw
+UPP ACA469, age 42, Merchants 1st Officer, 6 terms, killed by the survival throw
 
 ## Skills
 
 - Electronic-2
-- Gunnery-3
-- Mechanical-3
+- Gunnery-1
+- Halberd-1
+- Mechanical-1
 - Medical-1
-- Navigation-2
 - Pilot-1
+- Vacc Suit-1
 
 ## Service record
 

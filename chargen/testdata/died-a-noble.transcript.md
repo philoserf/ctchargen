@@ -37,9 +37,9 @@ Regenerate with `ctchargen new --auto --seed 39 --service navy --career serve --
  25. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
  26. Advanced Education Table: rolled 5
  27. Brawling-1 (from 26) [E002]
- 28. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 29. Advanced Education Table: rolled 2
- 30. Mechanical-1 (from 29) [E002]
+ 28. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 29. Service Skills Table: rolled 2
+ 30. Gambling-1 (from 29) [E002]
  31. reenlistment: rolled 1+6 = 7 against 5+, made
  32. ReenlistIntent: policy chose continue from continue, discharge
  33. reenlisted for term 2 (from 31)
@@ -51,8 +51,8 @@ Regenerate with `ctchargen new --auto --seed 39 --service navy --career serve --
 
 ## skills and training (pp. 6, 11)
 
- 38. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 39. Advanced Education Table: rolled 5
+ 38. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 39. Personal Development Table: rolled 5
  40. Brawling-2 (from 39) [E002]
  41. reenlistment: rolled 6+3 = 9 against 5+, made
  42. ReenlistIntent: policy chose continue from continue, discharge
@@ -79,9 +79,9 @@ Regenerate with `ctchargen new --auto --seed 39 --service navy --career serve --
 
 ## skills and training (pp. 6, 11)
 
- 58. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table
- 59. Advanced Education Table: rolled 6
- 60. Forgery-2 (from 59) [E002]
+ 58. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table
+ 59. Service Skills Table: rolled 6
+ 60. Bribery-1 (from 59) [E002]
  61. reenlistment: rolled 3+6 = 9 against 5+, made
  62. ReenlistIntent: policy chose continue from continue, discharge
  63. reenlisted for term 5 (from 61)

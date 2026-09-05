@@ -1,17 +1,19 @@
 # (unnamed)
 
-UPP 9346C5, age 34, Other, 4 terms, killed by the survival throw
+UPP 8346C5, age 38, Other, 5 terms, killed by the survival throw
 
 ## Skills
 
-- Computer-2
-- Electronic-1
-- Jack of all Trades-1
+- Brawling-1
+- Computer-1
+- Cutlass-1
+- Forgery-1
+- Medical-1
 
 ## Service record
 
 - Other, enlisted
-- killed by the survival throw in term 4
+- killed by the survival throw in term 5
 
 ---
 

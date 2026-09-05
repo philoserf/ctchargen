@@ -49,7 +49,12 @@ type Decider interface {
 	// thrown: "must specify the table being consulted prior to the die
 	// throw" (p. 11). The fourth table is offered only while Education
 	// stands at 8 or greater.
-	SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error)
+	//
+	// taken is parallel to from: how many results this character has
+	// already had off each offered table. It is engine-computed and never
+	// recorded, so a decider can weigh where he is under-trained without
+	// reaching into him, and rewording nothing can change a character.
+	SkillTable(from []traveller.SkillTable, taken []int) (traveller.SkillTable, error)
 
 	// Weapon names the specific weapon for a Blade Combat or Gun Combat
 	// result, immediately (pp. 11-13).

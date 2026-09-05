@@ -1,28 +1,25 @@
 # (unnamed)
 
-UPP 641777, age 42, Merchants 3rd Officer (drafted after the Navy refused him), 6 terms, retired
+UPP 754777, age 34, Merchants 3rd Officer (drafted after the Navy refused him), 4 terms, forced out
 
 ## Skills
 
+- Cudgel-1
 - Electronic-1
-- Gunnery-2
+- Jack of all Trades-1
 - Mechanical-2
-- Medical-2
-- Streetwise-2
+- Medical-1
 
 ## Possessions
 
-- CR 40000
+- CR 50000
 - Low Passage
 - Low Passage
-- Low Passage
-- Low Passage
-- CR 6000 a year in retirement pay
 
 ## Service record
 
 - Merchants, drafted
-- retired after term 6
+- forced out after term 4
 
 ---
 

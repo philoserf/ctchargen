@@ -37,9 +37,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
  25. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
  26. Advanced Education Table (education 8+): rolled 2
  27. Navigation-1 (from 26) [E002]
- 28. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 29. Advanced Education Table (education 8+): rolled 1
- 30. Medical-1 (from 29) [E002]
+ 28. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 29. Advanced Education Table: rolled 1
+ 30. Vacc Suit-1 (from 29) [E002]
  31. reenlistment: rolled 3+5 = 8 against 6+, made
  32. ReenlistIntent: policy chose continue from continue, discharge
  33. reenlisted for term 2 (from 31)
@@ -57,12 +57,12 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 
 ## skills and training (pp. 6, 11)
 
- 44. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 45. Advanced Education Table (education 8+): rolled 1
- 46. Medical-2 (from 45) [E002]
- 47. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 48. Advanced Education Table (education 8+): rolled 3
- 49. Engineer-1 (from 48) [E002]
+ 44. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 45. Service Skills Table: rolled 1
+ 46. Ship's Boat-1 (from 45) [E002]
+ 47. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 48. Personal Development Table: rolled 3
+ 49. Endurance +1, 8 to 9 (from 48) [E002]
  50. reenlistment: rolled 5+4 = 9 against 6+, made
  51. ReenlistIntent: policy chose continue from continue, discharge
  52. reenlisted for term 3 (from 50)
@@ -80,9 +80,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
  60. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
  61. Advanced Education Table (education 8+): rolled 2
  62. Navigation-2 (from 61) [E002]
- 63. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 64. Advanced Education Table (education 8+): rolled 6
- 65. Administration-1 (from 64) [E002]
+ 63. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 64. Advanced Education Table: rolled 6
+ 65. Jack of all Trades-1 (from 64) [E002]
  66. reenlistment: rolled 4+3 = 7 against 6+, made
  67. ReenlistIntent: policy chose continue from continue, discharge
  68. reenlisted for term 4 (from 66)
@@ -97,12 +97,12 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 
 ## skills and training (pp. 6, 11)
 
- 76. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 77. Advanced Education Table (education 8+): rolled 3
- 78. Engineer-2 (from 77) [E002]
- 79. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 80. Advanced Education Table (education 8+): rolled 4
- 81. Computer-1 (from 80) [E002]
+ 76. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 77. Service Skills Table: rolled 3
+ 78. Forward Observer-1 (from 77) [E002]
+ 79. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 80. Personal Development Table: rolled 4
+ 81. Social Standing +1, 12 to 13 (from 80) [E002]
  82. reenlistment: rolled 5+6 = 11 against 6+, made
  83. ReenlistIntent: policy chose continue from continue, discharge
  84. reenlisted for term 5 (from 82)
@@ -114,7 +114,7 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
  88. aging, Dexterity: rolled 4+6 = 10 against 7+, made
  89. Dexterity holds (from 88) [E006 E007]
  90. aging, Endurance: rolled 4+3 = 7 against 8+, missed
- 91. Endurance -1, 8 to 7 (from 90) [E006 E007]
+ 91. Endurance -1, 9 to 8 (from 90) [E006 E007]
 
 ## term 5 (pp. 5-7)
 
@@ -129,9 +129,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
  99. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
 100. Advanced Education Table (education 8+): rolled 5
 101. Pilot-1 (from 100) [E002]
-102. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
-103. Advanced Education Table (education 8+): rolled 1
-104. Medical-3 (from 103) [E002]
+102. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+103. Advanced Education Table: rolled 1
+104. Vacc Suit-2 (from 103) [E002]
 105. reenlistment: rolled 6+3 = 9 against 6+, made
 106. ReenlistIntent: policy chose continue from continue, retire
 107. reenlisted for term 6 (from 105)
@@ -155,9 +155,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 
 ## skills and training (pp. 6, 11)
 
-122. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
-123. Advanced Education Table (education 8+): rolled 1
-124. Medical-4 (from 123) [E002]
+122. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+123. Service Skills Table: rolled 1
+124. Ship's Boat-2 (from 123) [E002]
 125. reenlistment: rolled 4+2 = 6 against 6+, made
 126. ReenlistIntent: policy chose continue from continue, retire
 127. reenlisted for term 7 (from 125)
@@ -169,7 +169,7 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 131. aging, Dexterity: rolled 5+4 = 9 against 7+, made
 132. Dexterity holds (from 131) [E006 E007]
 133. aging, Endurance: rolled 4+1 = 5 against 8+, missed
-134. Endurance -1, 7 to 6 (from 133) [E006 E007]
+134. Endurance -1, 8 to 7 (from 133) [E006 E007]
 
 ## term 7 (pp. 5-7)
 
@@ -178,16 +178,16 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 138. AttemptPromotion: policy chose yes from yes, no
 139. promotion: rolled 6+5 +1 = 12 against 8+, made
 140. promoted: Captain (from 139)
-141. Social Standing +1, 12 to 13 (from 139)
+141. Social Standing +1, 13 to 14 (from 139)
 
 ## skills and training (pp. 6, 11)
 
-143. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
-144. Advanced Education Table (education 8+): rolled 6
-145. Administration-2 (from 144) [E002]
+143. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+144. Personal Development Table: rolled 6
+145. Education +1, 10 to 11 (from 144) [E002]
 146. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
 147. Advanced Education Table (education 8+): rolled 3
-148. Engineer-3 (from 147) [E002]
+148. Engineer-1 (from 147) [E002]
 149. reenlistment: rolled 2+2 = 4 against 6+, missed
 150. left the service after term 7 and is retired: reenlistment denied (from 149)
 
@@ -198,7 +198,7 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 154. aging, Dexterity: rolled 6+4 = 10 against 7+, made
 155. Dexterity holds (from 154) [E006 E007]
 156. aging, Endurance: rolled 4+2 = 6 against 8+, missed
-157. Endurance -1, 6 to 5 (from 156) [E006 E007]
+157. Endurance -1, 7 to 6 (from 156) [E006 E007]
 
 ## mustering out, 9 rolls (pp. 7, 9, 21-23)
 
@@ -214,7 +214,7 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 168. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 169. MusterTable1DM: policy chose no from yes, no
 170. Table 1, Material Benefits: rolled 3
-171. Education +2, 10 to 12 (from 170)
+171. Education +2, 11 to 13 (from 170)
 172. MusterTable: policy chose Table 1, Material Benefits from Table 1, Material Benefits, Table 2, Cash Allowances
 173. MusterTable1DM: policy chose no from yes, no
 174. Table 1, Material Benefits: rolled 2
@@ -246,4 +246,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 ## titles (p. 5; Book 3 p. 22)
 
 200. AssumeTitle: policy chose yes from yes, no
-201. social standing 13 confers marquis/marchioness, and it is assumed [E011]
+201. social standing 14 confers count/countess, and it is assumed [E011]

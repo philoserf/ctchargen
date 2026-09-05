@@ -38,9 +38,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
  24. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
  25. Advanced Education Table (education 8+): rolled 2
  26. Navigation-1 (from 25) [E002]
- 27. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 28. Advanced Education Table (education 8+): rolled 3
- 29. Engineer-1 (from 28) [E002]
+ 27. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 28. Advanced Education Table: rolled 3
+ 29. Electronic-1 (from 28) [E002]
  30. reenlistment: rolled 2+1 = 3 against 3+, made
  31. ReenlistIntent: policy chose continue from continue, discharge
  32. reenlisted for term 2 (from 30)
@@ -52,9 +52,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 
 ## skills and training (pp. 6, 11)
 
- 37. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 38. Advanced Education Table (education 8+): rolled 4
- 39. Computer-1 (from 38) [E002]
+ 37. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 38. Service Skills Table: rolled 4
+ 39. Mechanical-1 (from 38) [E002]
  40. reenlistment: rolled 6+6 = 12 against 3+, made
  41. a 12 exactly: the service requires another term (from 40)
 
@@ -65,9 +65,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 
 ## skills and training (pp. 6, 11)
 
- 46. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 47. Advanced Education Table (education 8+): rolled 2
- 48. Navigation-2 (from 47) [E002]
+ 46. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 47. Personal Development Table: rolled 2
+ 48. Dexterity +1, 6 to 7 (from 47) [E002]
  49. reenlistment: rolled 1+3 = 4 against 3+, made
  50. ReenlistIntent: policy chose continue from continue, discharge
  51. reenlisted for term 4 (from 49)
@@ -102,9 +102,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 
 ## skills and training (pp. 6, 11)
 
- 73. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 74. Advanced Education Table (education 8+): rolled 6
- 75. Jack of all Trades-2 (from 74) [E002]
+ 73. SkillTable: policy chose Advanced Education Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 74. Advanced Education Table: rolled 6
+ 75. Medical-1 (from 74) [E002]
  76. reenlistment: rolled 3+4 = 7 against 3+, made
  77. ReenlistIntent: policy chose continue from continue, retire
  78. reenlisted for term 6 (from 76)
@@ -125,9 +125,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 
 ## skills and training (pp. 6, 11)
 
- 90. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
- 91. Advanced Education Table (education 8+): rolled 5
- 92. Pilot-2 (from 91) [E002]
+ 90. SkillTable: policy chose Service Skills Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+ 91. Service Skills Table: rolled 5
+ 92. Electronic-2 (from 91) [E002]
  93. reenlistment: rolled 2+5 = 7 against 3+, made
  94. ReenlistIntent: policy chose continue from continue, retire
  95. reenlisted for term 7 (from 93)
@@ -148,9 +148,9 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 
 ## skills and training (pp. 6, 11)
 
-107. SkillTable: policy chose Advanced Education Table (education 8+) from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
-108. Advanced Education Table (education 8+): rolled 6
-109. Jack of all Trades-3 (from 108) [E002]
+107. SkillTable: policy chose Personal Development Table from Personal Development Table, Service Skills Table, Advanced Education Table, Advanced Education Table (education 8+)
+108. Personal Development Table: rolled 6
+109. Education +1, 10 to 11 (from 108) [E002]
 110. reenlistment: rolled 3+5 = 8 against 3+, made
 111. left the service after term 7 and is retired: retire (from 110)
 
@@ -159,7 +159,7 @@ Regenerate with `ctchargen new --auto --seed 4 --service scouts --career serve -
 113. aging, Strength: rolled 2+5 = 7 against 8+, missed
 114. Strength -1, 9 to 8 (from 113) [E006 E007]
 115. aging, Dexterity: rolled 1+2 = 3 against 7+, missed
-116. Dexterity -1, 6 to 5 (from 115) [E006 E007]
+116. Dexterity -1, 7 to 6 (from 115) [E006 E007]
 117. aging, Endurance: rolled 1+4 = 5 against 8+, missed
 118. Endurance -1, 6 to 5 (from 117) [E006 E007]
 

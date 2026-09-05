@@ -164,7 +164,7 @@ func (d *decisions) SubmitToDraft() (bool, error) {
 func (d *decisions) AttemptCommission() (bool, error) { return true, nil }
 func (d *decisions) AttemptPromotion() (bool, error)  { return true, nil }
 
-func (d *decisions) SkillTable([]traveller.SkillTable) (traveller.SkillTable, error) {
+func (d *decisions) SkillTable([]traveller.SkillTable, []int) (traveller.SkillTable, error) {
 	d.t.Helper()
 
 	if len(d.tables) == 0 {
