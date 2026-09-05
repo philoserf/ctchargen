@@ -243,6 +243,10 @@ func TestMalformedMustering(t *testing.T) {
 			func(w *wireMustering) { w.Table2[0][0] = 0 },
 			"not a cash allowance",
 		},
+		"no skill earning the table 2 modifier": {
+			func(w *wireMustering) { w.Rolls.Table2ModifierFrom = "" },
+			"earns the table 2 modifier",
+		},
 		"a passage with no price": {
 			func(w *wireMustering) { delete(w.Passages.Prices, "Low Passage") },
 			"no price for Low Passage",

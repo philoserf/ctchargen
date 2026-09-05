@@ -516,10 +516,21 @@ func (r *Rules) liftMustering(wire wireMustering) error {
 		return err
 	}
 
+	// The skill that earns the Table 2 DM goes through E012's normalization
+	// on the way in, exactly as a table cell does. The engine compares it
+	// against skills the character holds, and those were spelled by
+	// parseTableResult through the same map - a name lifted raw here would
+	// stop matching the moment a normalization for it was added, and the
+	// modifier would silently never apply.
+	earnedBy := r.Normalize(wire.Rolls.Table2ModifierFrom)
+	if earnedBy == "" {
+		return fmt.Errorf("%w: mustering out: no skill earns the table 2 modifier", ErrMalformed)
+	}
+
 	r.Muster = Muster{
 		Table1DMFromRank5or6: wire.Rolls.Table1DMFromRank5or6,
 		Table2DMFromGambling: wire.Rolls.Table2DMFromGambling,
-		Table2ModifierFrom:   traveller.SkillName(wire.Rolls.Table2ModifierFrom),
+		Table2ModifierFrom:   earnedBy,
 	}
 
 	return r.liftPassages(wire)

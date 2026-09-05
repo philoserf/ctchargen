@@ -101,9 +101,9 @@ func (r *run) benefit(table traveller.MusterTable) error {
 // earned it (p. 9).
 func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 	if table == traveller.TableOne {
-		// The rank is p. 9's number - "Characters with rank 5 or 6 may add
-		// +1 to their rolls on this table" - so it is data with a cite, not
-		// a constant written here.
+		// P. 9: "Characters with rank 5 or 6 may add +1 to their rolls on
+		// this table." The rank bounds the procedure and indexes no printed
+		// table, so it is the constant declared at the top of this file.
 		if int(r.char.Rank) < minRankForTable1Modifier {
 			return 0, nil
 		}

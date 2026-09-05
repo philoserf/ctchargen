@@ -11,10 +11,6 @@ import (
 // The rest of the second transcription: the tables that are not a grid of
 // six services.
 
-// The Aging Table (p. 9). Its three column groups are read off the
-// Intelligence row, whose "no effect before age 66" ends where age 66 - the
-// term 12 column - begins. Education and Social Standing carry "unaffected
-// by aging" across the whole width.
 // The last term the Aging Table's Term of Service header row prints.
 //
 // The second transcription of that one number (p. 9): the header runs 4
@@ -38,6 +34,10 @@ func TestTheAgingTablesLastPrintedTerm(t *testing.T) {
 	}
 }
 
+// The Aging Table (p. 9). Its three column groups are read off the
+// Intelligence row, whose "no effect before age 66" ends where age 66 - the
+// term 12 column - begins. Education and Social Standing carry "unaffected
+// by aging" across the whole width.
 func TestAgingTable(t *testing.T) {
 	t.Parallel()
 

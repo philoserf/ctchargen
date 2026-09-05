@@ -294,7 +294,8 @@ type Muster struct {
 	// E012's normalization, and the engine comparing against a Go string
 	// meant that adding a normalization for it would silently stop the
 	// modifier applying, with only an accident of roster composition to
-	// notice.
+	// notice. The lift applies that normalization to this name too, so the
+	// two sides cannot spell the skill differently.
 	Table2ModifierFrom traveller.SkillName
 
 	ResalePercent int
