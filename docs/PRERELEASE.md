@@ -469,3 +469,66 @@ were built on a laptop and uploaded by hand, which its notes say; these come
 from `release.yml`, checking out the tag itself. The workflow was rehearsed
 locally against the runner's own checkout shape and reproduced those six byte
 for byte — but a rehearsal is not a run, and this tag is its first.
+
+---
+
+# v1.0.0-beta.1 — 2026-09-05
+
+The first tag since alpha.3 to meet the shipping bar, and the first with an
+empty backlog. Every milestone is closed and no finding of any severity is
+open.
+
+## What changed since alpha.5
+
+Twenty-eight issues, in four groups.
+
+- **The engine's shape (#41–#43, #45, #47–#49, #61).** The three `--auto`
+  strategies became types and the apparatus that validated them was deleted;
+  `Character` stopped carrying a sum and two fields restating it; `depart` took
+  a `Departure` instead of deciding from the log's own prose; and every number
+  moved to the side of `CLAUDE.md`'s Authority point 6 that it belongs on.
+- **The record (#46, #50, #76, #96).** A roll with nothing to meet is its own
+  event kind rather than a throw that "succeeded" against nothing; one codec
+  produces both the written shape and the shape a reader gets back; and the
+  record names its own shape and the policy that answered it.
+- **`batch` (#33, #34, #44, #99).** It streams to standard output, says what it
+  did, and `--survivors` passes over the dead without rerolling anybody. The
+  auto policy stopped answering every character the same way: over thirty Army
+  characters it named twenty-one distinct weapons where it had named two, and
+  used all four skills tables where it had used one.
+- **The gates (#48, #77, #92).** Fifteen predicates written from `ERRATA.md`'s
+  prose now hold every record to the readings it claims, in both directions;
+  the assumption FR9's gate rests on is stated and tested; and E011 is stamped
+  where the reading governed rather than wherever a title was conferred.
+
+## The review that preceded it
+
+**No whole-tool pass.** alpha.3's three passes read the engine and the
+documents against the page, and the changes since have been to shape, to the
+record and to the command surface, all of which the gate covers.
+
+What ran instead was a review per PR, and what it kept finding is worth
+recording plainly: **a test, a comment or a coverage row asserting something
+other than what it actually held.** Ten instances across this stretch. Three
+were mutations that reported nothing because they had not compiled or had been
+scoped to the wrong package; two were tests that passed under the very code
+they were written to reject; three were `COVERAGE.md` rows naming a test or a
+function that did not hold the rule beside them; two were documents left
+describing a tree that had moved.
+
+None of them changed a character. All of them would have made a later reader
+trust something that was not being checked, which is the failure this
+repository's gates exist for and the one they are least able to catch
+themselves.
+
+## What ships open
+
+Nothing. That is the first time it has been true.
+
+## What this tag does not promise
+
+**The record is not frozen.** #74's bar for `v1.0.0` is two things — a referee
+can trust what the tool prints, and the record is frozen and supported — and
+only the first holds today. `record` is 1 and counts from `v1.0.0`;
+`additionalProperties` stays `false` until that tag and opens at it. A beta is
+what a tree looks like when the work is done and the promise is not yet made.

@@ -12,7 +12,7 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 A binary, needing no Go toolchain. This is the line for an Apple-silicon Mac:
 
 ```sh
-curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-alpha.5/ctchargen-v1.0.0-alpha.5-darwin-arm64
+curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-beta.1/ctchargen-v1.0.0-beta.1-darwin-arm64
 chmod +x ctchargen
 ```
 
@@ -27,7 +27,7 @@ binaries are also **unsigned**, so a recent macOS may refuse one regardless —
 if it does, the tool is not broken; install it with Go instead:
 
 ```sh
-go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.5
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.1
 ```
 
 Go excludes prereleases from `@latest`, so an alpha installs by name. That is
