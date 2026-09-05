@@ -341,7 +341,9 @@ func pathsReached(character *chargen.Character, reached map[string]bool) {
 	_, drafted := character.Enlistment.(traveller.Drafted)
 	_, dead := character.Departure.(traveller.KilledBySurvivalThrow)
 
-	mark(!character.Served, "civilian")
+	_, served := character.ServedIn()
+
+	mark(!served, "civilian")
 	mark(drafted, "draftee")
 	mark(dead, "death")
 	mark(character.Title.Eligible, "title")

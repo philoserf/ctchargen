@@ -152,8 +152,8 @@ func project(character *chargen.Character) (record, error) {
 		out.Characteristics[characteristic.String()] = character.Profile[characteristic]
 	}
 
-	if character.Served {
-		out.Service = character.Service.String()
+	if service, served := character.ServedIn(); served {
+		out.Service = service.String()
 	}
 
 	for _, skill := range character.Skills {

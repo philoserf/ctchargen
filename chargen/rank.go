@@ -60,7 +60,7 @@ func (r *run) promote(term traveller.Term) error {
 	if r.char.Rank >= r.service.MaxRank() {
 		r.log.outcomef(0, []traveller.Erratum{traveller.E013},
 			"already %s, the highest rank the %v print, so no promotion is thrown for in term %d",
-			r.rankTitle(), r.char.Service, term)
+			r.rankTitle(), r.serviceName(), term)
 
 		return nil
 	}
@@ -100,7 +100,7 @@ func (r *run) raise(seq int, to traveller.Rank, eligibility int, how string) err
 	// entry, which the page leaves unstated; a rank entry's moment is exact
 	// on p. 23 - "as soon as he becomes eligible" - and the worked example
 	// shows it, so this needed no reading.
-	for _, result := range r.tables.GrantsAtRank(r.char.Service, to) {
+	for _, result := range r.tables.GrantsAtRank(r.serviceName(), to) {
 		err := r.apply(result, seq, nil)
 		if err != nil {
 			return err

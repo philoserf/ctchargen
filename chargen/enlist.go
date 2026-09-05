@@ -27,7 +27,7 @@ func (r *run) enlist() error {
 	if throw.succeeded {
 		r.log.outcomef(seq, nil, "enlisted in the %v", name)
 
-		return r.join(traveller.Enlisted{Service: name}, name)
+		return r.join(traveller.Enlisted{Service: name})
 	}
 
 	r.log.outcomef(seq, nil, "the %v rejected him", name)
@@ -66,7 +66,7 @@ func (r *run) draft() error {
 
 	r.drafted = true
 
-	return r.join(traveller.Drafted{Service: name}, name)
+	return r.join(traveller.Drafted{Service: name})
 }
 
 // chooseService decides which service to attempt, unless a flag forced one.
@@ -96,11 +96,13 @@ func (r *run) chooseService() (traveller.ServiceName, error) {
 }
 
 // join enters the service and takes what it grants on entering.
-func (r *run) join(how traveller.Enlistment, name traveller.ServiceName) error {
+//
+// The service is read back off the enlistment rather than passed beside it:
+// a name parameter would be a second copy of the fact the sum already
+// carries, and nothing would hold the two equal.
+func (r *run) join(how traveller.Enlistment) error {
 	r.char.Enlistment = how
-	r.char.Service = name
-	r.char.Served = true
-	r.service = r.tables.Service(name)
+	r.service = r.tables.Service(r.serviceName())
 
 	return r.grantsOnEntering()
 }
@@ -109,7 +111,7 @@ func (r *run) join(how traveller.Enlistment, name traveller.ServiceName) error {
 // virtue of the service itself (p. 23). E005 reads "as soon as he becomes
 // eligible" as once, on entering, rather than once per term.
 func (r *run) grantsOnEntering() error {
-	granted := r.tables.GrantsOnEntering(r.char.Service)
+	granted := r.tables.GrantsOnEntering(r.serviceName())
 	if len(granted) == 0 {
 		return nil
 	}
