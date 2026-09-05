@@ -239,9 +239,13 @@ func eachMember(base chargen.Inputs, policy chargen.Policy, count int, survivors
 
 	for i := 0; done.written < count; i++ {
 		if survivors && i >= count*attempts {
+			// Not a usage error: the flags were well formed, and what
+			// failed was the search. The bound's own comment says
+			// reaching it means something is wrong rather than unlucky,
+			// and that is a run-time condition and not a misuse.
 			return done, fmt.Errorf(
 				"%w: --survivors drew %d seeds for %d living characters and found %d",
-				errUsage, i, count, done.written,
+				errSearch, i, count, done.written,
 			)
 		}
 

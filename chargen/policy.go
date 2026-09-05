@@ -35,8 +35,9 @@ type Policy struct {
 // Bumping it is a decision recorded in POLICY.md, and docsgate holds the two
 // to each other. Adding a row for a question that was never asked is not a
 // bump: no seed made a different character under the old table.
-// Version 2 draws the weapon rather than taking the first name (#34).
-const PolicyVersion = 2
+// Version 2 draws the weapon rather than taking the first name; version 3
+// designates the skills table he has trained on least (#34).
+const PolicyVersion = 3
 
 // Career is the --auto career strategy: continue, retire, or take one term.
 //
@@ -273,10 +274,25 @@ func (p Policy) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error
 	return prefer(from, ranked), nil
 }
 
-// SkillTable ranks the four by skills strategy. advanced is the default
-// because it is the one ranking that makes the Education 8+ gate visible in
-// a default run: it takes the fourth table the instant it opens.
-func (p Policy) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
+// SkillTable designates the table the character has trained on least,
+// breaking ties by the skills strategy.
+//
+// taken is parallel to from: how many results he has already had off each
+// offered table. It is engine-computed and never recorded, so this weighs
+// where he is thin without reaching into him (#34).
+//
+// Ranking alone designated Advanced Education every time it was offered and
+// Personal Development never - ninety times to none over thirty characters -
+// so a character generated under the default never raised a characteristic,
+// though p. 11's first table is how that is done.
+//
+// The strategy still decides, and still decides everything on a first
+// designation, when every count is zero. advanced remains the default because
+// it is the one ranking that reaches the Education 8+ gate the instant it
+// opens.
+func (p Policy) SkillTable(
+	from []traveller.SkillTable, taken []int,
+) (traveller.SkillTable, error) {
 	var ranked []traveller.SkillTable
 
 	switch p.Skills {
@@ -297,7 +313,30 @@ func (p Policy) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, e
 		}
 	}
 
-	return prefer(from, ranked), nil
+	return prefer(thinnest(from, taken), ranked), nil
+}
+
+// thinnest is the offered tables the character has had fewest results off.
+//
+// A caller with no counts - a test constructing a policy directly - gets the
+// whole offered set back, so the ranking decides alone and the answer is what
+// it was before the counts existed.
+func thinnest(from []traveller.SkillTable, taken []int) []traveller.SkillTable {
+	if len(taken) != len(from) {
+		return from
+	}
+
+	fewest := slices.Min(taken)
+
+	thin := make([]traveller.SkillTable, 0, len(from))
+
+	for i, table := range from {
+		if taken[i] == fewest {
+			thin = append(thin, table)
+		}
+	}
+
+	return thin
 }
 
 // Weapon draws among the names on the category's printed list.

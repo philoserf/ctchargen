@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
@@ -36,11 +37,14 @@ func TestRenderReadsARecordBack(t *testing.T) {
 
 	path := writeRecord(t)
 
+	// Read from the record rather than typed here. The UPP a seed makes is
+	// not a fact about rendering, and #34 moved it - a hand-typed one is a
+	// golden kept somewhere goldens are not regenerated.
 	for name, tc := range map[string]struct {
 		args     []string
 		mentions string
 	}{
-		wantSheet:      {[]string{cmdRender, path}, "UPP 674979"},
+		wantSheet:      {[]string{cmdRender, path}, "UPP " + uppIn(t, path)},
 		wantTranscript: {[]string{cmdRender, flagHistory, path}, "Generation record"},
 	} {
 		var out strings.Builder
@@ -168,4 +172,29 @@ func TestVersionReportsTheBuild(t *testing.T) {
 	if !strings.Contains(out.String(), "ctchargen") {
 		t.Errorf("version reported %q", out.String())
 	}
+}
+
+// uppIn is the UPP of a written record.
+func uppIn(t *testing.T, path string) string {
+	t.Helper()
+
+	text, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+
+	var record struct {
+		UPP string `json:"upp"`
+	}
+
+	err = json.Unmarshal(text, &record)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+
+	if record.UPP == "" {
+		t.Fatalf("%s carries no UPP", path)
+	}
+
+	return record.UPP
 }

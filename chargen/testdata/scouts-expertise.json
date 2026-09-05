@@ -1,10 +1,10 @@
 {
   "record": 1,
   "name": "",
-  "upp": "855EAC",
+  "upp": "865EBC",
   "characteristics": {
-    "Dexterity": 5,
-    "Education": 10,
+    "Dexterity": 6,
+    "Education": 11,
     "Endurance": 5,
     "Intelligence": 14,
     "Social Standing": 12,
@@ -21,28 +21,32 @@
   "service": "Scouts",
   "skills": [
     {
-      "name": "Computer",
-      "level": 1
-    },
-    {
       "name": "Dagger",
       "level": 1
     },
     {
-      "name": "Engineer",
-      "level": 1
+      "name": "Electronic",
+      "level": 2
     },
     {
       "name": "Jack of all Trades",
-      "level": 3
+      "level": 1
+    },
+    {
+      "name": "Mechanical",
+      "level": 1
+    },
+    {
+      "name": "Medical",
+      "level": 1
     },
     {
       "name": "Navigation",
-      "level": 2
+      "level": 1
     },
     {
       "name": "Pilot",
-      "level": 2
+      "level": 1
     }
   ],
   "benefits": {
@@ -86,7 +90,7 @@
     "E011"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -306,12 +310,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Advanced Education Table"
     },
     {
       "seq": 28,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Advanced Education Table",
       "dice": [
         3
       ],
@@ -321,7 +325,7 @@
       "seq": 29,
       "kind": "outcome",
       "because": 28,
-      "description": "Engineer-1",
+      "description": "Electronic-1",
       "errata": [
         "E002"
       ]
@@ -396,12 +400,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 38,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Service Skills Table",
       "dice": [
         4
       ],
@@ -411,7 +415,7 @@
       "seq": 39,
       "kind": "outcome",
       "because": 38,
-      "description": "Computer-1",
+      "description": "Mechanical-1",
       "errata": [
         "E002"
       ]
@@ -475,12 +479,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Personal Development Table"
     },
     {
       "seq": 47,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Personal Development Table",
       "dice": [
         2
       ],
@@ -490,7 +494,7 @@
       "seq": 48,
       "kind": "outcome",
       "because": 47,
-      "description": "Navigation-2",
+      "description": "Dexterity +1, 6 to 7",
       "errata": [
         "E002"
       ]
@@ -727,12 +731,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Advanced Education Table"
     },
     {
       "seq": 74,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Advanced Education Table",
       "dice": [
         6
       ],
@@ -742,7 +746,7 @@
       "seq": 75,
       "kind": "outcome",
       "because": 74,
-      "description": "Jack of all Trades-2",
+      "description": "Medical-1",
       "errata": [
         "E002"
       ]
@@ -889,12 +893,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 91,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Service Skills Table",
       "dice": [
         5
       ],
@@ -904,7 +908,7 @@
       "seq": 92,
       "kind": "outcome",
       "because": 91,
-      "description": "Pilot-2",
+      "description": "Electronic-2",
       "errata": [
         "E002"
       ]
@@ -1051,12 +1055,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Personal Development Table"
     },
     {
       "seq": 108,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Personal Development Table",
       "dice": [
         6
       ],
@@ -1066,7 +1070,7 @@
       "seq": 109,
       "kind": "outcome",
       "because": 108,
-      "description": "Jack of all Trades-3",
+      "description": "Education +1, 10 to 11",
       "errata": [
         "E002"
       ]
@@ -1133,7 +1137,7 @@
       "seq": 116,
       "kind": "outcome",
       "because": 115,
-      "description": "Dexterity -1, 6 to 5",
+      "description": "Dexterity -1, 7 to 6",
       "errata": [
         "E006",
         "E007"

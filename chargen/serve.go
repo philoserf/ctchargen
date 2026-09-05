@@ -134,10 +134,21 @@ func (r *run) trainSkills() error {
 func (r *run) trainOnce() error {
 	offered := r.offeredTables()
 
-	table, err := r.decide.SkillTable(offered)
+	taken := make([]int, len(offered))
+	for i, table := range offered {
+		taken[i] = r.trained[table]
+	}
+
+	table, err := r.decide.SkillTable(offered, taken)
 	if err != nil {
 		return fmt.Errorf("designating a skills table: %w", err)
 	}
+
+	if r.trained == nil {
+		r.trained = map[traveller.SkillTable]int{}
+	}
+
+	r.trained[table]++
 
 	face := r.roll.Die()
 

@@ -25,11 +25,15 @@
       "level": 2
     },
     {
-      "name": "Forgery",
-      "level": 2
+      "name": "Bribery",
+      "level": 1
     },
     {
-      "name": "Mechanical",
+      "name": "Forgery",
+      "level": 1
+    },
+    {
+      "name": "Gambling",
       "level": 1
     }
   ],
@@ -61,7 +65,7 @@
     "E011"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -295,12 +299,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 29,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Service Skills Table",
       "dice": [
         2
       ],
@@ -310,7 +314,7 @@
       "seq": 30,
       "kind": "outcome",
       "because": 29,
-      "description": "Mechanical-1",
+      "description": "Gambling-1",
       "errata": [
         "E002"
       ]
@@ -385,12 +389,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Personal Development Table"
     },
     {
       "seq": 39,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Personal Development Table",
       "dice": [
         5
       ],
@@ -565,12 +569,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 59,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Service Skills Table",
       "dice": [
         6
       ],
@@ -580,7 +584,7 @@
       "seq": 60,
       "kind": "outcome",
       "because": 59,
-      "description": "Forgery-2",
+      "description": "Bribery-1",
       "errata": [
         "E002"
       ]

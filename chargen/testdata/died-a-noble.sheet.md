@@ -5,8 +5,9 @@ UPP 335C6C, age 38, Other (drafted after the Navy refused him), 5 terms, killed 
 ## Skills
 
 - Brawling-2
-- Forgery-2
-- Mechanical-1
+- Bribery-1
+- Forgery-1
+- Gambling-1
 
 ## Service record
 

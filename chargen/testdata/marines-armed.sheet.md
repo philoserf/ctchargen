@@ -1,29 +1,33 @@
 # (unnamed)
 
-UPP 4B8879, age 34, Marines Force Cmdr, 4 terms, forced out
+UPP 3B8A89, age 46, Marines Force Cmdr, 7 terms, retired
 
 ## Skills
 
-- ATV-1
-- Cudgel-1
+- Bayonet-1
+- Brawling-1
 - Cutlass-1
-- Dagger-2
-- Electronic-2
-- Mechanical-1
+- Dagger-1
+- Mechanical-2
 - Revolver-1
 - Shotgun-1
+- Sword-1
 - Tactics-1
+- Vacc Suit-1
 
 ## Possessions
 
-- CR 45000
+- CR 37000
+- Low Passage
 - High Passage
+- Low Passage
 - Dagger
+- CR 8000 a year in retirement pay
 
 ## Service record
 
 - Marines, enlisted
-- forced out after term 4
+- retired after term 7
 
 ---
 

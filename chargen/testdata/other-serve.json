@@ -1,19 +1,19 @@
 {
   "record": 1,
   "name": "",
-  "upp": "763777",
+  "upp": "644776",
   "characteristics": {
-    "Dexterity": 6,
+    "Dexterity": 4,
     "Education": 7,
-    "Endurance": 3,
+    "Endurance": 4,
     "Intelligence": 7,
-    "Social Standing": 7,
-    "Strength": 7
+    "Social Standing": 6,
+    "Strength": 6
   },
   "age": {
-    "years": 34
+    "years": 38
   },
-  "terms": 4,
+  "terms": 5,
   "enlistment": {
     "how": "enlisted",
     "service": "Other"
@@ -21,20 +21,12 @@
   "service": "Other",
   "skills": [
     {
-      "name": "Brawling",
-      "level": 1
-    },
-    {
-      "name": "Electronic",
+      "name": "Automatic Pistol",
       "level": 1
     },
     {
       "name": "Gambling",
-      "level": 1
-    },
-    {
-      "name": "Mechanical",
-      "level": 1
+      "level": 2
     },
     {
       "name": "Streetwise",
@@ -42,10 +34,10 @@
     }
   ],
   "benefits": {
-    "cash": 25000
+    "cash": 30000
   },
   "departure": {
-    "how": "forced out"
+    "how": "retired"
   },
   "inputs": {
     "seed": 7,
@@ -60,7 +52,7 @@
     "E007"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -263,12 +255,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 26,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Service Skills Table",
       "dice": [
         2
       ],
@@ -278,7 +270,7 @@
       "seq": 27,
       "kind": "outcome",
       "because": 26,
-      "description": "Mechanical-1",
+      "description": "Gambling-2",
       "errata": [
         "E002"
       ]
@@ -341,12 +333,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Personal Development Table"
     },
     {
       "seq": 35,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Personal Development Table",
       "dice": [
         3
       ],
@@ -356,7 +348,7 @@
       "seq": 36,
       "kind": "outcome",
       "because": 35,
-      "description": "Electronic-1",
+      "description": "Endurance +1, 4 to 5",
       "errata": [
         "E002"
       ]
@@ -519,12 +511,12 @@
         "Service Skills Table",
         "Advanced Education Table"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 55,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Service Skills Table",
       "dice": [
         5
       ],
@@ -532,76 +524,84 @@
     },
     {
       "seq": 56,
+      "kind": "choice",
+      "point": "Weapon",
+      "by": "policy",
+      "alternatives": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "chosen": "Automatic Pistol"
+    },
+    {
+      "seq": 57,
       "kind": "outcome",
       "because": 55,
-      "description": "Brawling-1",
+      "description": "Gun Combat: Automatic Pistol-1",
       "errata": [
         "E002"
       ]
     },
     {
-      "seq": 57,
+      "seq": 58,
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        1,
-        3
+        3,
+        4
       ],
       "target": "5+",
-      "total": 4,
-      "succeeded": false
-    },
-    {
-      "seq": 58,
-      "kind": "outcome",
-      "because": 57,
-      "description": "left the service after term 4: reenlistment denied"
+      "total": 7,
+      "succeeded": true
     },
     {
       "seq": 59,
+      "kind": "choice",
+      "point": "ReenlistIntent",
+      "by": "policy",
+      "alternatives": [
+        "continue",
+        "discharge"
+      ],
+      "chosen": "continue"
+    },
+    {
+      "seq": 60,
+      "kind": "outcome",
+      "because": 58,
+      "description": "reenlisted for term 5"
+    },
+    {
+      "seq": 61,
       "kind": "step",
       "step": "aging, end of term 4",
       "pages": "pp. 7-9"
     },
     {
-      "seq": 60,
+      "seq": 62,
       "kind": "throw",
       "step": "aging, Strength",
       "dice": [
-        4,
-        5
+        5,
+        6
       ],
       "target": "8+",
-      "total": 9,
-      "succeeded": true
-    },
-    {
-      "seq": 61,
-      "kind": "outcome",
-      "because": 60,
-      "description": "Strength holds",
-      "errata": [
-        "E006",
-        "E007"
-      ]
-    },
-    {
-      "seq": 62,
-      "kind": "throw",
-      "step": "aging, Dexterity",
-      "dice": [
-        6,
-        4
-      ],
-      "target": "7+",
-      "total": 10,
+      "total": 11,
       "succeeded": true
     },
     {
       "seq": 63,
       "kind": "outcome",
       "because": 62,
-      "description": "Dexterity holds",
+      "description": "Strength holds",
       "errata": [
         "E006",
         "E007"
@@ -610,20 +610,20 @@
     {
       "seq": 64,
       "kind": "throw",
-      "step": "aging, Endurance",
+      "step": "aging, Dexterity",
       "dice": [
-        2,
-        5
+        4,
+        2
       ],
-      "target": "8+",
-      "total": 7,
+      "target": "7+",
+      "total": 6,
       "succeeded": false
     },
     {
       "seq": 65,
       "kind": "outcome",
       "because": 64,
-      "description": "Endurance -1, 4 to 3",
+      "description": "Dexterity -1, 6 to 5",
       "errata": [
         "E006",
         "E007"
@@ -631,50 +631,184 @@
     },
     {
       "seq": 66,
-      "kind": "step",
-      "step": "mustering out, 4 rolls",
-      "pages": "pp. 7, 9, 21-23"
+      "kind": "throw",
+      "step": "aging, Endurance",
+      "dice": [
+        5,
+        2
+      ],
+      "target": "8+",
+      "total": 7,
+      "succeeded": false
     },
     {
       "seq": 67,
-      "kind": "choice",
-      "point": "MusterTable",
-      "by": "policy",
-      "alternatives": [
-        "Table 1, Material Benefits",
-        "Table 2, Cash Allowances"
-      ],
-      "chosen": "Table 2, Cash Allowances"
+      "kind": "outcome",
+      "because": 66,
+      "description": "Endurance -1, 5 to 4",
+      "errata": [
+        "E006",
+        "E007"
+      ]
     },
     {
       "seq": 68,
-      "kind": "choice",
-      "point": "MusterTable2DM",
-      "by": "policy",
-      "alternatives": [
-        "yes",
-        "no"
-      ],
-      "chosen": "yes"
+      "kind": "step",
+      "step": "term 5",
+      "pages": "pp. 5-7"
     },
     {
       "seq": 69,
-      "kind": "roll",
-      "step": "Table 2, Cash Allowances",
+      "kind": "throw",
+      "step": "survival",
       "dice": [
-        2
+        4,
+        1
       ],
-      "dm": 1,
-      "total": 3
+      "target": "5+",
+      "total": 5,
+      "succeeded": true
     },
     {
       "seq": 70,
       "kind": "outcome",
       "because": 69,
-      "description": "CR 10000, bringing the total to CR 10000"
+      "description": "survived term 5"
     },
     {
       "seq": 71,
+      "kind": "step",
+      "step": "skills and training",
+      "pages": "pp. 6, 11"
+    },
+    {
+      "seq": 72,
+      "kind": "choice",
+      "point": "SkillTable",
+      "by": "policy",
+      "alternatives": [
+        "Personal Development Table",
+        "Service Skills Table",
+        "Advanced Education Table"
+      ],
+      "chosen": "Personal Development Table"
+    },
+    {
+      "seq": 73,
+      "kind": "roll",
+      "step": "Personal Development Table",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 74,
+      "kind": "outcome",
+      "because": 73,
+      "description": "Social Standing -1, 7 to 6",
+      "errata": [
+        "E002"
+      ]
+    },
+    {
+      "seq": 75,
+      "kind": "throw",
+      "step": "reenlistment",
+      "dice": [
+        1,
+        2
+      ],
+      "target": "5+",
+      "total": 3,
+      "succeeded": false
+    },
+    {
+      "seq": 76,
+      "kind": "outcome",
+      "because": 75,
+      "description": "left the service after term 5 and is retired: reenlistment denied"
+    },
+    {
+      "seq": 77,
+      "kind": "step",
+      "step": "aging, end of term 5",
+      "pages": "pp. 7-9"
+    },
+    {
+      "seq": 78,
+      "kind": "throw",
+      "step": "aging, Strength",
+      "dice": [
+        5,
+        1
+      ],
+      "target": "8+",
+      "total": 6,
+      "succeeded": false
+    },
+    {
+      "seq": 79,
+      "kind": "outcome",
+      "because": 78,
+      "description": "Strength -1, 7 to 6",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 80,
+      "kind": "throw",
+      "step": "aging, Dexterity",
+      "dice": [
+        4,
+        1
+      ],
+      "target": "7+",
+      "total": 5,
+      "succeeded": false
+    },
+    {
+      "seq": 81,
+      "kind": "outcome",
+      "because": 80,
+      "description": "Dexterity -1, 5 to 4",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 82,
+      "kind": "throw",
+      "step": "aging, Endurance",
+      "dice": [
+        3,
+        6
+      ],
+      "target": "8+",
+      "total": 9,
+      "succeeded": true
+    },
+    {
+      "seq": 83,
+      "kind": "outcome",
+      "because": 82,
+      "description": "Endurance holds",
+      "errata": [
+        "E006",
+        "E007"
+      ]
+    },
+    {
+      "seq": 84,
+      "kind": "step",
+      "step": "mustering out, 5 rolls",
+      "pages": "pp. 7, 9, 21-23"
+    },
+    {
+      "seq": 85,
       "kind": "choice",
       "point": "MusterTable",
       "by": "policy",
@@ -685,7 +819,7 @@
       "chosen": "Table 2, Cash Allowances"
     },
     {
-      "seq": 72,
+      "seq": 86,
       "kind": "choice",
       "point": "MusterTable2DM",
       "by": "policy",
@@ -696,7 +830,7 @@
       "chosen": "yes"
     },
     {
-      "seq": 73,
+      "seq": 87,
       "kind": "roll",
       "step": "Table 2, Cash Allowances",
       "dice": [
@@ -706,13 +840,13 @@
       "total": 5
     },
     {
-      "seq": 74,
+      "seq": 88,
       "kind": "outcome",
-      "because": 73,
-      "description": "CR 10000, bringing the total to CR 20000"
+      "because": 87,
+      "description": "CR 10000, bringing the total to CR 10000"
     },
     {
-      "seq": 75,
+      "seq": 89,
       "kind": "choice",
       "point": "MusterTable",
       "by": "policy",
@@ -723,7 +857,7 @@
       "chosen": "Table 2, Cash Allowances"
     },
     {
-      "seq": 76,
+      "seq": 90,
       "kind": "choice",
       "point": "MusterTable2DM",
       "by": "policy",
@@ -734,23 +868,61 @@
       "chosen": "yes"
     },
     {
-      "seq": 77,
+      "seq": 91,
       "kind": "roll",
       "step": "Table 2, Cash Allowances",
       "dice": [
-        1
+        4
       ],
       "dm": 1,
-      "total": 2
+      "total": 5
     },
     {
-      "seq": 78,
+      "seq": 92,
       "kind": "outcome",
-      "because": 77,
-      "description": "CR 5000, bringing the total to CR 25000"
+      "because": 91,
+      "description": "CR 10000, bringing the total to CR 20000"
     },
     {
-      "seq": 79,
+      "seq": 93,
+      "kind": "choice",
+      "point": "MusterTable",
+      "by": "policy",
+      "alternatives": [
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
+      ],
+      "chosen": "Table 2, Cash Allowances"
+    },
+    {
+      "seq": 94,
+      "kind": "choice",
+      "point": "MusterTable2DM",
+      "by": "policy",
+      "alternatives": [
+        "yes",
+        "no"
+      ],
+      "chosen": "yes"
+    },
+    {
+      "seq": 95,
+      "kind": "roll",
+      "step": "Table 2, Cash Allowances",
+      "dice": [
+        3
+      ],
+      "dm": 1,
+      "total": 4
+    },
+    {
+      "seq": 96,
+      "kind": "outcome",
+      "because": 95,
+      "description": "CR 10000, bringing the total to CR 30000"
+    },
+    {
+      "seq": 97,
       "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
@@ -759,9 +931,24 @@
       "total": 6
     },
     {
-      "seq": 80,
+      "seq": 98,
       "kind": "outcome",
-      "because": 79,
+      "because": 97,
+      "description": "nothing: the table prints a dash for this service"
+    },
+    {
+      "seq": 99,
+      "kind": "roll",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 100,
+      "kind": "outcome",
+      "because": 99,
       "description": "nothing: the table prints a dash for this service"
     }
   ]

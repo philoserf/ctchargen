@@ -1,23 +1,21 @@
 # (unnamed)
 
-UPP 763777, age 34, Other, 4 terms, forced out
+UPP 644776, age 38, Other, 5 terms, retired
 
 ## Skills
 
-- Brawling-1
-- Electronic-1
-- Gambling-1
-- Mechanical-1
+- Automatic Pistol-1
+- Gambling-2
 - Streetwise-1
 
 ## Possessions
 
-- CR 25000
+- CR 30000
 
 ## Service record
 
 - Other, enlisted
-- forced out after term 4
+- retired after term 5
 
 ---
 

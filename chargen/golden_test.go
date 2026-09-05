@@ -42,7 +42,7 @@ var fixtures = []fixture{
 	{"army-serve", 4, traveller.Army, true, chargen.DefaultPolicy()},
 	// Captain of the Merchants, which is the top of that column (E013), and
 	// the only column whose Table 1 awards a Free Trader.
-	{"merchants-captain", 145, traveller.Merchants, true, chargen.DefaultPolicy()},
+	{"merchants-captain", 316, traveller.Merchants, true, chargen.DefaultPolicy()},
 	// Rejected by the Navy, drafted into the Merchants, and commissioned
 	// there in a later term - p. 5 bars a draftee from a commission in his
 	// first term only: "they do become eligible during the second and
@@ -55,9 +55,9 @@ var fixtures = []fixture{
 	},
 	// A characteristic reduced to zero, and the crisis survived - the one
 	// path that puts months on an age (pp. 7-8).
-	{"other-crisis-survived", 56, traveller.Other, true, chargen.DefaultPolicy()},
+	{"other-crisis-survived", 18, traveller.Other, true, chargen.DefaultPolicy()},
 	// The same crisis, failed. E008 reads a failed saving throw as death.
-	{"other-crisis-died", 17, traveller.Other, true, chargen.DefaultPolicy()},
+	{"other-crisis-died", 106, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-death", 5, traveller.Other, true, chargen.DefaultPolicy()},
 	{"other-title", 4, traveller.Other, true, chargen.DefaultPolicy()},
 	// Killed by a survival throw holding a Social Standing of 12. E011
@@ -77,11 +77,17 @@ var fixtures = []fixture{
 		"scouts-died", 1, traveller.Scouts, true,
 		chargen.Policy{Career: chargen.CareerRetire, Skills: chargen.SkillsService, Muster: chargen.MusterSpartan},
 	},
+	// Every seed on this roster was chosen for a path, and #34's change to
+	// the skills table moved five of them off it: two medical crises, the
+	// months an age carries, a Free Trader, and a duplicate scout ship. The
+	// seeds below are re-chosen for the same paths rather than the paths
+	// being dropped - which is what golden_test's own path check is for,
+	// and it is what caught them.
 	// The scout ship rolled twice. P. 23: "Only one scout ship may be
 	// acquired by a character, and throws resulting in additional ships are
 	// lost."
 	{
-		"scouts-second-ship", 55, traveller.Scouts, true,
+		"scouts-second-ship", 5039, traveller.Scouts, true,
 		chargen.Policy{Career: chargen.CareerServe, Skills: chargen.SkillsAdvanced, Muster: chargen.MusterGoods},
 	},
 	// Rejected by the Navy, drafted into Other, and killed there.

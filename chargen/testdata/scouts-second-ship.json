@@ -1,14 +1,14 @@
 {
   "record": 1,
   "name": "",
-  "upp": "578A9B",
+  "upp": "7868A9",
   "characteristics": {
-    "Dexterity": 7,
-    "Education": 9,
-    "Endurance": 8,
-    "Intelligence": 10,
-    "Social Standing": 11,
-    "Strength": 5
+    "Dexterity": 8,
+    "Education": 10,
+    "Endurance": 6,
+    "Intelligence": 8,
+    "Social Standing": 9,
+    "Strength": 7
   },
   "age": {
     "years": 46
@@ -21,34 +21,50 @@
   "service": "Scouts",
   "skills": [
     {
-      "name": "Air/Raft",
-      "level": 2
-    },
-    {
       "name": "Body Pistol",
-      "level": 2
+      "level": 1
     },
     {
       "name": "Electronic",
       "level": 1
     },
     {
-      "name": "Gunnery",
-      "level": 2
+      "name": "Jack of all Trades",
+      "level": 1
     },
     {
-      "name": "Jack of all Trades",
-      "level": 3
+      "name": "Laser Carbine",
+      "level": 1
+    },
+    {
+      "name": "Mechanical",
+      "level": 1
+    },
+    {
+      "name": "Medical",
+      "level": 1
+    },
+    {
+      "name": "Navigation",
+      "level": 1
     },
     {
       "name": "Pilot",
+      "level": 1
+    },
+    {
+      "name": "Vacc Suit",
       "level": 1
     }
   ],
   "benefits": {
     "cash": 0,
+    "passages": [
+      "Low Passage"
+    ],
     "scoutShipsLost": 1,
     "weapons": [
+      "Dagger",
       "Body Pistol"
     ],
     "ships": [
@@ -63,13 +79,8 @@
   "departure": {
     "how": "retired"
   },
-  "title": {
-    "eligible": true,
-    "rank": "knight/dame",
-    "assumed": true
-  },
   "inputs": {
-    "seed": 55,
+    "seed": 5039,
     "service": "Scouts",
     "career": "serve",
     "skills": "advanced",
@@ -79,11 +90,10 @@
     "E002",
     "E005",
     "E006",
-    "E007",
-    "E011"
+    "E007"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -96,24 +106,24 @@
       "kind": "roll",
       "step": "Strength",
       "dice": [
-        4,
-        5
+        5,
+        3
       ],
-      "total": 9
+      "total": 8
     },
     {
       "seq": 3,
       "kind": "outcome",
       "because": 2,
-      "description": "Strength 9"
+      "description": "Strength 8"
     },
     {
       "seq": 4,
       "kind": "roll",
       "step": "Dexterity",
       "dice": [
-        6,
-        4
+        5,
+        5
       ],
       "total": 10
     },
@@ -128,16 +138,16 @@
       "kind": "roll",
       "step": "Endurance",
       "dice": [
-        6,
-        6
+        5,
+        4
       ],
-      "total": 12
+      "total": 9
     },
     {
       "seq": 7,
       "kind": "outcome",
       "because": 6,
-      "description": "Endurance 12"
+      "description": "Endurance 9"
     },
     {
       "seq": 8,
@@ -160,37 +170,37 @@
       "kind": "roll",
       "step": "Education",
       "dice": [
-        3,
+        4,
         4
       ],
-      "total": 7
+      "total": 8
     },
     {
       "seq": 11,
       "kind": "outcome",
       "because": 10,
-      "description": "Education 7"
+      "description": "Education 8"
     },
     {
       "seq": 12,
       "kind": "roll",
       "step": "Social Standing",
       "dice": [
-        6,
-        5
+        5,
+        4
       ],
-      "total": 11
+      "total": 9
     },
     {
       "seq": 13,
       "kind": "outcome",
       "because": 12,
-      "description": "Social Standing 11"
+      "description": "Social Standing 9"
     },
     {
       "seq": 14,
       "kind": "outcome",
-      "description": "UPP 9AC87B at age 18"
+      "description": "UPP 8A9889 at age 18"
     },
     {
       "seq": 15,
@@ -203,12 +213,12 @@
       "kind": "throw",
       "step": "enlistment, Scouts",
       "dice": [
-        6,
-        6
+        4,
+        4
       ],
       "dm": 3,
       "target": "7+",
-      "total": 15,
+      "total": 11,
       "succeeded": true
     },
     {
@@ -242,12 +252,12 @@
       "kind": "throw",
       "step": "survival",
       "dice": [
-        6,
-        4
+        2,
+        6
       ],
       "dm": 2,
       "target": "7+",
-      "total": 12,
+      "total": 10,
       "succeeded": true
     },
     {
@@ -270,24 +280,25 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Advanced Education Table (education 8+)"
     },
     {
       "seq": 25,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Advanced Education Table (education 8+)",
       "dice": [
-        5
+        1
       ],
-      "total": 5
+      "total": 1
     },
     {
       "seq": 26,
       "kind": "outcome",
       "because": 25,
-      "description": "Gunnery-1",
+      "description": "Medical-1",
       "errata": [
         "E002"
       ]
@@ -300,7 +311,8 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
       "chosen": "Advanced Education Table"
     },
@@ -309,15 +321,15 @@
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        1
+        2
       ],
-      "total": 1
+      "total": 2
     },
     {
       "seq": 29,
       "kind": "outcome",
       "because": 28,
-      "description": "Air/Raft-1",
+      "description": "Mechanical-1",
       "errata": [
         "E002"
       ]
@@ -327,105 +339,95 @@
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        1,
+        6,
         6
       ],
       "target": "3+",
-      "total": 7,
+      "total": 12,
       "succeeded": true
     },
     {
       "seq": 31,
-      "kind": "choice",
-      "point": "ReenlistIntent",
-      "by": "policy",
-      "alternatives": [
-        "continue",
-        "discharge"
-      ],
-      "chosen": "continue"
+      "kind": "outcome",
+      "because": 30,
+      "description": "a 12 exactly: the service requires another term"
     },
     {
       "seq": 32,
-      "kind": "outcome",
-      "because": 30,
-      "description": "reenlisted for term 2"
-    },
-    {
-      "seq": 33,
       "kind": "step",
       "step": "term 2",
       "pages": "pp. 5-7"
     },
     {
-      "seq": 34,
+      "seq": 33,
       "kind": "throw",
       "step": "survival",
       "dice": [
-        2,
-        4
+        3,
+        2
       ],
       "dm": 2,
       "target": "7+",
-      "total": 8,
+      "total": 7,
       "succeeded": true
     },
     {
-      "seq": 35,
+      "seq": 34,
       "kind": "outcome",
-      "because": 34,
+      "because": 33,
       "description": "survived term 2"
     },
     {
-      "seq": 36,
+      "seq": 35,
       "kind": "step",
       "step": "skills and training",
       "pages": "pp. 6, 11"
     },
     {
-      "seq": 37,
+      "seq": 36,
       "kind": "choice",
       "point": "SkillTable",
       "by": "policy",
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
+    },
+    {
+      "seq": 37,
+      "kind": "roll",
+      "step": "Service Skills Table",
+      "dice": [
+        6
+      ],
+      "total": 6
     },
     {
       "seq": 38,
-      "kind": "roll",
-      "step": "Advanced Education Table",
-      "dice": [
-        4
-      ],
-      "total": 4
-    },
-    {
-      "seq": 39,
       "kind": "outcome",
-      "because": 38,
+      "because": 37,
       "description": "Jack of all Trades-1",
       "errata": [
         "E002"
       ]
     },
     {
-      "seq": 40,
+      "seq": 39,
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        5,
-        3
+        6,
+        4
       ],
       "target": "3+",
-      "total": 8,
+      "total": 10,
       "succeeded": true
     },
     {
-      "seq": 41,
+      "seq": 40,
       "kind": "choice",
       "point": "ReenlistIntent",
       "by": "policy",
@@ -436,68 +438,88 @@
       "chosen": "continue"
     },
     {
-      "seq": 42,
+      "seq": 41,
       "kind": "outcome",
-      "because": 40,
+      "because": 39,
       "description": "reenlisted for term 3"
     },
     {
-      "seq": 43,
+      "seq": 42,
       "kind": "step",
       "step": "term 3",
       "pages": "pp. 5-7"
     },
     {
-      "seq": 44,
+      "seq": 43,
       "kind": "throw",
       "step": "survival",
       "dice": [
         2,
-        5
+        3
       ],
       "dm": 2,
       "target": "7+",
-      "total": 9,
+      "total": 7,
       "succeeded": true
     },
     {
-      "seq": 45,
+      "seq": 44,
       "kind": "outcome",
-      "because": 44,
+      "because": 43,
       "description": "survived term 3"
     },
     {
-      "seq": 46,
+      "seq": 45,
       "kind": "step",
       "step": "skills and training",
       "pages": "pp. 6, 11"
     },
     {
-      "seq": 47,
+      "seq": 46,
       "kind": "choice",
       "point": "SkillTable",
       "by": "policy",
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Personal Development Table"
     },
     {
-      "seq": 48,
+      "seq": 47,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Personal Development Table",
       "dice": [
         4
       ],
       "total": 4
     },
     {
+      "seq": 48,
+      "kind": "choice",
+      "point": "Weapon",
+      "by": "policy",
+      "alternatives": [
+        "Body Pistol",
+        "Automatic Pistol",
+        "Revolver",
+        "Carbine",
+        "Rifle",
+        "Laser Carbine",
+        "Laser Rifle",
+        "Automatic Rifle",
+        "Submachine Gun",
+        "Shotgun"
+      ],
+      "chosen": "Laser Carbine"
+    },
+    {
       "seq": 49,
       "kind": "outcome",
-      "because": 48,
-      "description": "Jack of all Trades-2",
+      "because": 47,
+      "description": "Gun Combat: Laser Carbine-1",
       "errata": [
         "E002"
       ]
@@ -508,10 +530,10 @@
       "step": "reenlistment",
       "dice": [
         4,
-        3
+        6
       ],
       "target": "3+",
-      "total": 7,
+      "total": 10,
       "succeeded": true
     },
     {
@@ -542,12 +564,12 @@
       "kind": "throw",
       "step": "survival",
       "dice": [
-        2,
-        3
+        4,
+        4
       ],
       "dm": 2,
       "target": "7+",
-      "total": 7,
+      "total": 10,
       "succeeded": true
     },
     {
@@ -570,24 +592,25 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Advanced Education Table (education 8+)"
     },
     {
       "seq": 58,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Advanced Education Table (education 8+)",
       "dice": [
-        4
+        2
       ],
-      "total": 4
+      "total": 2
     },
     {
       "seq": 59,
       "kind": "outcome",
       "because": 58,
-      "description": "Jack of all Trades-3",
+      "description": "Navigation-1",
       "errata": [
         "E002"
       ]
@@ -597,11 +620,11 @@
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        1,
-        6
+        4,
+        4
       ],
       "target": "3+",
-      "total": 7,
+      "total": 8,
       "succeeded": true
     },
     {
@@ -632,8 +655,8 @@
       "kind": "throw",
       "step": "aging, Strength",
       "dice": [
-        2,
-        5
+        4,
+        3
       ],
       "target": "8+",
       "total": 7,
@@ -643,7 +666,7 @@
       "seq": 65,
       "kind": "outcome",
       "because": 64,
-      "description": "Strength -1, 9 to 8",
+      "description": "Strength -1, 8 to 7",
       "errata": [
         "E006",
         "E007"
@@ -654,11 +677,11 @@
       "kind": "throw",
       "step": "aging, Dexterity",
       "dice": [
-        2,
-        6
+        5,
+        2
       ],
       "target": "7+",
-      "total": 8,
+      "total": 7,
       "succeeded": true
     },
     {
@@ -676,18 +699,18 @@
       "kind": "throw",
       "step": "aging, Endurance",
       "dice": [
-        2,
-        4
+        5,
+        2
       ],
       "target": "8+",
-      "total": 6,
+      "total": 7,
       "succeeded": false
     },
     {
       "seq": 69,
       "kind": "outcome",
       "because": 68,
-      "description": "Endurance -1, 12 to 11",
+      "description": "Endurance -1, 9 to 8",
       "errata": [
         "E006",
         "E007"
@@ -704,12 +727,11 @@
       "kind": "throw",
       "step": "survival",
       "dice": [
-        4,
-        6
+        5,
+        2
       ],
-      "dm": 2,
       "target": "7+",
-      "total": 12,
+      "total": 7,
       "succeeded": true
     },
     {
@@ -732,7 +754,8 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
       "chosen": "Advanced Education Table"
     },
@@ -741,15 +764,15 @@
       "kind": "roll",
       "step": "Advanced Education Table",
       "dice": [
-        1
+        3
       ],
-      "total": 1
+      "total": 3
     },
     {
       "seq": 76,
       "kind": "outcome",
       "because": 75,
-      "description": "Air/Raft-2",
+      "description": "Electronic-1",
       "errata": [
         "E002"
       ]
@@ -759,11 +782,11 @@
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        5,
+        6,
         2
       ],
       "target": "3+",
-      "total": 7,
+      "total": 8,
       "succeeded": true
     },
     {
@@ -794,18 +817,18 @@
       "kind": "throw",
       "step": "aging, Strength",
       "dice": [
-        4,
-        3
+        2,
+        1
       ],
       "target": "8+",
-      "total": 7,
+      "total": 3,
       "succeeded": false
     },
     {
       "seq": 82,
       "kind": "outcome",
       "because": 81,
-      "description": "Strength -1, 8 to 7",
+      "description": "Strength -1, 7 to 6",
       "errata": [
         "E006",
         "E007"
@@ -816,11 +839,11 @@
       "kind": "throw",
       "step": "aging, Dexterity",
       "dice": [
-        5,
-        1
+        1,
+        2
       ],
       "target": "7+",
-      "total": 6,
+      "total": 3,
       "succeeded": false
     },
     {
@@ -838,18 +861,18 @@
       "kind": "throw",
       "step": "aging, Endurance",
       "dice": [
-        1,
-        6
+        4,
+        1
       ],
       "target": "8+",
-      "total": 7,
+      "total": 5,
       "succeeded": false
     },
     {
       "seq": 86,
       "kind": "outcome",
       "because": 85,
-      "description": "Endurance -1, 11 to 10",
+      "description": "Endurance -1, 8 to 7",
       "errata": [
         "E006",
         "E007"
@@ -867,11 +890,10 @@
       "step": "survival",
       "dice": [
         6,
-        6
+        3
       ],
-      "dm": 2,
       "target": "7+",
-      "total": 14,
+      "total": 9,
       "succeeded": true
     },
     {
@@ -894,24 +916,25 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Service Skills Table"
     },
     {
       "seq": 92,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Service Skills Table",
       "dice": [
-        5
+        2
       ],
-      "total": 5
+      "total": 2
     },
     {
       "seq": 93,
       "kind": "outcome",
       "because": 92,
-      "description": "Gunnery-2",
+      "description": "Vacc Suit-1",
       "errata": [
         "E002"
       ]
@@ -921,11 +944,11 @@
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        6,
+        5,
         4
       ],
       "target": "3+",
-      "total": 10,
+      "total": 9,
       "succeeded": true
     },
     {
@@ -956,18 +979,18 @@
       "kind": "throw",
       "step": "aging, Strength",
       "dice": [
-        2,
-        1
+        5,
+        4
       ],
       "target": "8+",
-      "total": 3,
-      "succeeded": false
+      "total": 9,
+      "succeeded": true
     },
     {
       "seq": 99,
       "kind": "outcome",
       "because": 98,
-      "description": "Strength -1, 7 to 6",
+      "description": "Strength holds",
       "errata": [
         "E006",
         "E007"
@@ -978,11 +1001,11 @@
       "kind": "throw",
       "step": "aging, Dexterity",
       "dice": [
-        5,
+        4,
         1
       ],
       "target": "7+",
-      "total": 6,
+      "total": 5,
       "succeeded": false
     },
     {
@@ -1000,18 +1023,18 @@
       "kind": "throw",
       "step": "aging, Endurance",
       "dice": [
-        3,
+        4,
         2
       ],
       "target": "8+",
-      "total": 5,
+      "total": 6,
       "succeeded": false
     },
     {
       "seq": 103,
       "kind": "outcome",
       "because": 102,
-      "description": "Endurance -1, 10 to 9",
+      "description": "Endurance -1, 7 to 6",
       "errata": [
         "E006",
         "E007"
@@ -1029,11 +1052,10 @@
       "step": "survival",
       "dice": [
         4,
-        1
+        5
       ],
-      "dm": 2,
       "target": "7+",
-      "total": 7,
+      "total": 9,
       "succeeded": true
     },
     {
@@ -1056,24 +1078,25 @@
       "alternatives": [
         "Personal Development Table",
         "Service Skills Table",
-        "Advanced Education Table"
+        "Advanced Education Table",
+        "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table"
+      "chosen": "Personal Development Table"
     },
     {
       "seq": 109,
       "kind": "roll",
-      "step": "Advanced Education Table",
+      "step": "Personal Development Table",
       "dice": [
-        3
+        1
       ],
-      "total": 3
+      "total": 1
     },
     {
       "seq": 110,
       "kind": "outcome",
       "because": 109,
-      "description": "Electronic-1",
+      "description": "Strength +1, 6 to 7",
       "errata": [
         "E002"
       ]
@@ -1083,11 +1106,11 @@
       "kind": "throw",
       "step": "reenlistment",
       "dice": [
-        2,
-        1
+        6,
+        2
       ],
       "target": "3+",
-      "total": 3,
+      "total": 8,
       "succeeded": true
     },
     {
@@ -1107,18 +1130,18 @@
       "kind": "throw",
       "step": "aging, Strength",
       "dice": [
-        2,
-        4
+        3,
+        6
       ],
       "target": "8+",
-      "total": 6,
-      "succeeded": false
+      "total": 9,
+      "succeeded": true
     },
     {
       "seq": 115,
       "kind": "outcome",
       "because": 114,
-      "description": "Strength -1, 6 to 5",
+      "description": "Strength holds",
       "errata": [
         "E006",
         "E007"
@@ -1129,18 +1152,18 @@
       "kind": "throw",
       "step": "aging, Dexterity",
       "dice": [
-        4,
-        1
+        5,
+        2
       ],
       "target": "7+",
-      "total": 5,
-      "succeeded": false
+      "total": 7,
+      "succeeded": true
     },
     {
       "seq": 117,
       "kind": "outcome",
       "because": 116,
-      "description": "Dexterity -1, 8 to 7",
+      "description": "Dexterity holds",
       "errata": [
         "E006",
         "E007"
@@ -1151,18 +1174,18 @@
       "kind": "throw",
       "step": "aging, Endurance",
       "dice": [
-        3,
-        3
+        5,
+        6
       ],
       "target": "8+",
-      "total": 6,
-      "succeeded": false
+      "total": 11,
+      "succeeded": true
     },
     {
       "seq": 119,
       "kind": "outcome",
       "because": 118,
-      "description": "Endurance -1, 9 to 8",
+      "description": "Endurance holds",
       "errata": [
         "E006",
         "E007"
@@ -1190,18 +1213,38 @@
       "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
-        3
+        4
       ],
-      "total": 3
+      "total": 4
     },
     {
       "seq": 123,
-      "kind": "outcome",
-      "because": 122,
-      "description": "Education +2, 7 to 9"
+      "kind": "choice",
+      "point": "MusterWeapon",
+      "by": "policy",
+      "alternatives": [
+        "Dagger",
+        "Blade",
+        "Foil",
+        "Cutlass",
+        "Sword",
+        "Broadsword",
+        "Spear",
+        "Halberd",
+        "Pike",
+        "Cudgel",
+        "Bayonet"
+      ],
+      "chosen": "Dagger"
     },
     {
       "seq": 124,
+      "kind": "outcome",
+      "because": 122,
+      "description": "a Dagger"
+    },
+    {
+      "seq": 125,
       "kind": "choice",
       "point": "MusterTable",
       "by": "policy",
@@ -1212,7 +1255,59 @@
       "chosen": "Table 1, Material Benefits"
     },
     {
-      "seq": 125,
+      "seq": 126,
+      "kind": "roll",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        6
+      ],
+      "total": 6
+    },
+    {
+      "seq": 127,
+      "kind": "outcome",
+      "because": 126,
+      "description": "a Scout ship, Type S"
+    },
+    {
+      "seq": 128,
+      "kind": "choice",
+      "point": "MusterTable",
+      "by": "policy",
+      "alternatives": [
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
+      ],
+      "chosen": "Table 1, Material Benefits"
+    },
+    {
+      "seq": 129,
+      "kind": "roll",
+      "step": "Table 1, Material Benefits",
+      "dice": [
+        3
+      ],
+      "total": 3
+    },
+    {
+      "seq": 130,
+      "kind": "outcome",
+      "because": 129,
+      "description": "Education +2, 8 to 10"
+    },
+    {
+      "seq": 131,
+      "kind": "choice",
+      "point": "MusterTable",
+      "by": "policy",
+      "alternatives": [
+        "Table 1, Material Benefits",
+        "Table 2, Cash Allowances"
+      ],
+      "chosen": "Table 1, Material Benefits"
+    },
+    {
+      "seq": 132,
       "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
@@ -1221,7 +1316,7 @@
       "total": 5
     },
     {
-      "seq": 126,
+      "seq": 133,
       "kind": "choice",
       "point": "MusterWeapon",
       "by": "policy",
@@ -1240,82 +1335,10 @@
       "chosen": "Body Pistol"
     },
     {
-      "seq": 127,
-      "kind": "outcome",
-      "because": 125,
-      "description": "a Body Pistol"
-    },
-    {
-      "seq": 128,
-      "kind": "choice",
-      "point": "MusterTable",
-      "by": "policy",
-      "alternatives": [
-        "Table 1, Material Benefits",
-        "Table 2, Cash Allowances"
-      ],
-      "chosen": "Table 1, Material Benefits"
-    },
-    {
-      "seq": 129,
-      "kind": "roll",
-      "step": "Table 1, Material Benefits",
-      "dice": [
-        5
-      ],
-      "total": 5
-    },
-    {
-      "seq": 130,
-      "kind": "choice",
-      "point": "MusterWeapon",
-      "by": "policy",
-      "alternatives": [
-        "Body Pistol",
-        "Automatic Pistol",
-        "Revolver",
-        "Carbine",
-        "Rifle",
-        "Laser Carbine",
-        "Laser Rifle",
-        "Automatic Rifle",
-        "Submachine Gun",
-        "Shotgun",
-        "expertise in Body Pistol"
-      ],
-      "chosen": "expertise in Body Pistol"
-    },
-    {
-      "seq": 131,
-      "kind": "outcome",
-      "because": 129,
-      "description": "expertise instead: Body Pistol-1"
-    },
-    {
-      "seq": 132,
-      "kind": "choice",
-      "point": "MusterTable",
-      "by": "policy",
-      "alternatives": [
-        "Table 1, Material Benefits",
-        "Table 2, Cash Allowances"
-      ],
-      "chosen": "Table 1, Material Benefits"
-    },
-    {
-      "seq": 133,
-      "kind": "roll",
-      "step": "Table 1, Material Benefits",
-      "dice": [
-        6
-      ],
-      "total": 6
-    },
-    {
       "seq": 134,
       "kind": "outcome",
-      "because": 133,
-      "description": "a Scout ship, Type S"
+      "because": 132,
+      "description": "a Body Pistol"
     },
     {
       "seq": 135,
@@ -1333,15 +1356,15 @@
       "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
-        6
+        1
       ],
-      "total": 6
+      "total": 1
     },
     {
       "seq": 137,
       "kind": "outcome",
       "because": 136,
-      "description": "a second scout ship, which is lost"
+      "description": "a Low Passage"
     },
     {
       "seq": 138,
@@ -1359,15 +1382,15 @@
       "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
-        2
+        6
       ],
-      "total": 2
+      "total": 6
     },
     {
       "seq": 140,
       "kind": "outcome",
       "because": 139,
-      "description": "Intelligence +2, 8 to 10"
+      "description": "a second scout ship, which is lost"
     },
     {
       "seq": 141,
@@ -1413,32 +1436,7 @@
       "seq": 144,
       "kind": "outcome",
       "because": 142,
-      "description": "expertise instead: Body Pistol-2"
-    },
-    {
-      "seq": 145,
-      "kind": "step",
-      "step": "titles",
-      "pages": "p. 5; Book 3 p. 22"
-    },
-    {
-      "seq": 146,
-      "kind": "choice",
-      "point": "AssumeTitle",
-      "by": "policy",
-      "alternatives": [
-        "yes",
-        "no"
-      ],
-      "chosen": "yes"
-    },
-    {
-      "seq": 147,
-      "kind": "outcome",
-      "description": "social standing 11 confers knight/dame, and it is assumed",
-      "errata": [
-        "E011"
-      ]
+      "description": "expertise instead: Body Pistol-1"
     }
   ]
 }

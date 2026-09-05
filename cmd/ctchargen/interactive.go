@@ -102,7 +102,7 @@ func (p *player) AttemptPromotion() (bool, error) {
 	return p.confirm("Attempt a promotion this term? (p. 6)")
 }
 
-func (p *player) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
+func (p *player) SkillTable(from []traveller.SkillTable, _ []int) (traveller.SkillTable, error) {
 	return pick(p, "Which skills table? It is designated before the die (p. 11)",
 		from, skillTableMenu)
 }

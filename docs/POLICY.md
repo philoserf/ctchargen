@@ -2,7 +2,7 @@
 
 2026-09-02. Milestone 0. Companion to `PRD.md`.
 
-**Version 2.** Every record `--auto` writes carries it, in the `policy` field.
+**Version 3.** Every record `--auto` writes carries it, in the `policy` field.
 
 Changing what any row below answers is a version bump, because it changes
 every character `--auto` has ever made from a given seed — and a referee
@@ -215,7 +215,7 @@ title the value confers.
 
 ## Skills rows — `--skills`
 
-### `SkillTable(from []SkillTable) (SkillTable, error)`
+### `SkillTable(from []SkillTable, taken []int) (SkillTable, error)`
 
 **Asked once per skill eligibility**, before the die is rolled (p. 11:
 "must specify the table being consulted prior to the die throw").
@@ -230,6 +230,22 @@ designation.
 | `advanced` (default) | Advanced Education (8+) > Advanced Education > Service Skills > Personal Development |
 | `service`            | Service Skills > Advanced Education (8+) > Advanced Education > Personal Development |
 | `personal`           | Personal Development > Service Skills > Advanced Education (8+) > Advanced Education |
+
+**The ranking decides among the tables he has trained on least.** `taken` says
+how many results the character has already had off each offered table; the
+answer is the highest-ranked table among those with the smallest count.
+
+Version 2 followed the ranking alone, so `advanced` designated Advanced
+Education every time it was offered and Personal Development never — ninety
+times to none over thirty characters (#34) — and a character generated under
+the default never raised a characteristic at all, though p. 11's first table
+is how that is done.
+
+Where the weapon draw of `Weapon` admits that the page gives no basis, this
+one does not need to: the page gives a basis, in that a character trains where
+he is thin, and the strategy still says which way he leans. A first
+designation, when every count is zero, is exactly what it was in version 2 —
+which is why the rows above still read as they did.
 
 `advanced` is the default because it is the one ranking that makes the
 Education 8+ gate visible in a default run: it takes the fourth table the

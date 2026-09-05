@@ -403,3 +403,67 @@ func seedsWritten(t *testing.T, jsonl string) []uint64 {
 
 	return seeds
 }
+
+// A record names the policy that answered it, and only then.
+//
+// The field exists so a referee holding two records from one seed can tell
+// why they differ. On a record he walked by hand the policy answered nothing,
+// and naming a decision table that decided none of it is a claim the record
+// cannot support - the same reason a civilian carries no service and no
+// departure.
+func TestOnlyARecordThePolicyAnsweredNamesOne(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		args  []string
+		in    io.Reader
+		wants bool
+	}{
+		"the policy answered": {
+			[]string{cmdNew, flagAuto, flagSeed, "7", flagService, other}, nil, true,
+		},
+		"the player answered": {
+			[]string{cmdNew, flagSeed, "7", flagService, other}, answers("1", 300), false,
+		},
+	} {
+		var out strings.Builder
+
+		err := run(tc.args, tc.in, &out, io.Discard)
+		if err != nil {
+			t.Errorf("%s: %v", name, err)
+
+			continue
+		}
+
+		var record struct {
+			Policy int `json:"policy"`
+			Events []struct {
+				Kind string `json:"kind"`
+				By   string `json:"by"`
+			} `json:"events"`
+		}
+
+		err = json.Unmarshal([]byte(out.String()), &record)
+		if err != nil {
+			t.Errorf("%s: %v", name, err)
+
+			continue
+		}
+
+		byPolicy := false
+
+		for _, event := range record.Events {
+			if event.Kind == "choice" && event.By == "policy" {
+				byPolicy = true
+			}
+		}
+
+		if byPolicy != tc.wants {
+			t.Errorf("%s: choices by the policy = %v, want %v", name, byPolicy, tc.wants)
+		}
+
+		if named := record.Policy != 0; named != tc.wants {
+			t.Errorf("%s: names a policy = %v, want %v", name, named, tc.wants)
+		}
+	}
+}

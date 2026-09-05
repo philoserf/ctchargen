@@ -52,7 +52,7 @@
     "E011"
   ],
   "ruleset": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
-  "policy": 2,
+  "policy": 3,
   "events": [
     {
       "seq": 1,
@@ -258,12 +258,12 @@
         "Advanced Education Table",
         "Advanced Education Table (education 8+)"
       ],
-      "chosen": "Advanced Education Table (education 8+)"
+      "chosen": "Advanced Education Table"
     },
     {
       "seq": 26,
       "kind": "roll",
-      "step": "Advanced Education Table (education 8+)",
+      "step": "Advanced Education Table",
       "dice": [
         3
       ],

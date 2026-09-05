@@ -87,8 +87,10 @@ func (l logging) AttemptPromotion() (bool, error) {
 	return chosen, l.record(traveller.ChoiceAttemptPromotion, offered, yesNo(chosen))
 }
 
-func (l logging) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, error) {
-	chosen, err := l.to.SkillTable(from)
+func (l logging) SkillTable(
+	from []traveller.SkillTable, taken []int,
+) (traveller.SkillTable, error) {
+	chosen, err := l.to.SkillTable(from, taken)
 	if err != nil {
 		return chosen, err
 	}

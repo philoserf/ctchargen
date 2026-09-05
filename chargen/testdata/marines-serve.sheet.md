@@ -1,28 +1,23 @@
 # (unnamed)
 
-UPP 765CBE, age 46, Marines Colonel, 7 terms, count/countess, retired
+UPP A69ABC, age 30, Marines Captain, 3 terms, baron/baroness, forced out
 
 ## Skills
 
-- Administration-2
-- Computer-1
+- ATV-2
 - Cutlass-1
-- Leader-1
-- Medical-4
+- Laser Rifle-1
 - Revolver-1
-- Tactics-5
+- Tactics-2
 
 ## Possessions
 
-- CR 35000
-- High Passage
-- Travellers' Aid Society membership
-- CR 8000 a year in retirement pay
+- CR 70000
 
 ## Service record
 
 - Marines, enlisted
-- retired after term 7
+- forced out after term 3
 
 ---
 

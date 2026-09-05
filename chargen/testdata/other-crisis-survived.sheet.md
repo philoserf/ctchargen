@@ -1,18 +1,18 @@
 # (unnamed)
 
-UPP 212B33, age 46 years 2 months, Other, 7 terms, retired
+UPP 196799, age 46 years 1 months, Other, 7 terms, retired
 
 ## Skills
 
+- Automatic Rifle-1
 - Brawling-2
-- Forgery-2
-- Gambling-2
-- Mechanical-2
+- Electronic-2
+- Forgery-1
+- Mechanical-1
 
 ## Possessions
 
-- CR 25000
-- Low Passage
+- CR 16000
 
 ## Service record
 
@@ -21,4 +21,4 @@ UPP 212B33, age 46 years 2 months, Other, 7 terms, retired
 
 ---
 
-Regenerate with `ctchargen new --auto --seed 56 --service other --career serve --skills advanced --muster cash --sheet`.
+Regenerate with `ctchargen new --auto --seed 18 --service other --career serve --skills advanced --muster cash --sheet`.
