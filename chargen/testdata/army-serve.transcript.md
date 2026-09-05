@@ -244,4 +244,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service army --career serve --s
 ## titles (p. 5; Book 3 p. 22)
 
 196. AssumeTitle: policy chose yes from yes, no
-197. social standing 13 confers marquis/marchioness, and it is assumed [E011]
+197. social standing 13 confers marquis/marchioness, and it is assumed

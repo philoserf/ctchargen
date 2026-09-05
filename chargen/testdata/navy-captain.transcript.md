@@ -234,4 +234,4 @@ Regenerate with `ctchargen new --auto --seed 4 --service navy --career serve --s
 ## titles (p. 5; Book 3 p. 22)
 
 188. AssumeTitle: policy chose yes from yes, no
-189. social standing 15 confers duke/duchess, and it is assumed [E011]
+189. social standing 15 confers duke/duchess, and it is assumed

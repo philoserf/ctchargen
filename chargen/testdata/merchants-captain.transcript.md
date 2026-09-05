@@ -239,4 +239,4 @@ Regenerate with `ctchargen new --auto --seed 316 --service merchants --career se
 ## titles (p. 5; Book 3 p. 22)
 
 193. AssumeTitle: policy chose yes from yes, no
-194. social standing 11 confers knight/dame, and it is assumed [E011]
+194. social standing 11 confers knight/dame, and it is assumed

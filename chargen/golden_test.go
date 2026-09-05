@@ -124,6 +124,14 @@ var fixtures = []fixture{
 	// twelve were exercised and that one was not - so the answer to it was
 	// covered by nothing, before or after it changed.
 	{"marines-armed", 309, traveller.Marines, true, chargen.DefaultPolicy()},
+	// E011's first consequence, both ways round. A mustering out or a rank
+	// alteration can confer a title the character did not hold at 18, and
+	// Other's personal development table can take one away - and those two
+	// are the only records the reading governs that did not end in death
+	// (#92). Until they were added the roster reached neither, and E011 was
+	// stamped on nine records the document says it must not be.
+	{"marines-ennobled", 495, traveller.Marines, true, chargen.DefaultPolicy()},
+	{"other-lost-the-title", 130, traveller.Other, true, chargen.DefaultPolicy()},
 }
 
 func (f fixture) inputs() chargen.Inputs {
