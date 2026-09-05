@@ -91,6 +91,27 @@ ctchargen batch --count 100 --auto --seed 145 | jq -r '[.upp, .service, .terms] 
 
 `batch` requires `--auto`, because it has nobody to ask.
 
+**A batch says what it did**, on standard error so it cannot corrupt the JSONL:
+
+```sh
+$ ctchargen batch --count 100 --auto --seed 1000 --service scouts > roster.jsonl
+100 written, 74 died
+```
+
+That is the rules working — the default `serve` strategy re-enlists until the
+service throws him out, so the survival throw eventually gets most of them.
+When what you want is twenty scouts for the starport rather than a hundred
+outcomes, **`--survivors`** passes over the dead and goes on to the next seed:
+
+```sh
+$ ctchargen batch --count 20 --auto --seed 1000 --service scouts --survivors > roster.jsonl
+20 written, 56 passed over for dying
+```
+
+It does not reroll anybody. Each character written is still exactly the
+character his own seed makes, so `new --seed <that>` brings him back — the
+seeds are simply no longer consecutive.
+
 **A session that stops before the end offers the way back in.** A half-built
 character is not a record, so it cannot be written out — but the seed and the
 answers already given are enough to walk back to the question you stopped on,

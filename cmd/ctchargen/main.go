@@ -36,7 +36,7 @@ func run(args []string, in io.Reader, out, asking io.Writer) error {
 	case "new":
 		return newCharacter(args[1:], in, out, asking)
 	case "batch":
-		return batch(args[1:], out)
+		return batch(args[1:], out, asking)
 	case "render":
 		return renderRecord(args[1:], out)
 	case "version":

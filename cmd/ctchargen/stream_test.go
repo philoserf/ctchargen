@@ -132,12 +132,15 @@ func TestABatchReportsAWriteThatFailedPartway(t *testing.T) {
 		cmdBatch, flagCount, "5", flagAuto, flagSeed, "7", flagService, other,
 	}, nil, &out, io.Discard)
 
+	// The member is named by seed and not by position: under --survivors the
+	// two differ, and the seed is the one that brings the character back.
+	// Members here run from --seed 7, so the third is seed 9.
 	switch {
 	case err == nil:
 		t.Fatal("a batch hit a failing write and reported success")
 	case !errors.Is(err, errClosedPipe):
 		t.Errorf("error %q does not carry the write failure", err)
-	case !strings.Contains(err.Error(), "member 2"):
+	case !strings.Contains(err.Error(), "seed 9"):
 		t.Errorf("error %q does not name the member it stopped on", err)
 	}
 
