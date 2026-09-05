@@ -341,18 +341,23 @@ func buffered(base chargen.Inputs, policy chargen.Policy,
 
 // intoDirectory writes one file per character, named for its own seed.
 //
-// The whole batch is generated and rendered before any of it is written, so
-// the collision check covers the paths the run actually produces and an
-// encoding that fails does so before the first file is opened. A batch that stopped
-// halfway would leave a directory holding some of the run and no record of
-// which files were new, and the obvious retry - --force - would then replace
-// the very file the refusal was protecting.
+// One record is held at a time. #98 buffered the whole run to check the paths
+// it would actually write, because --survivors breaks the arithmetic the check
+// used to rest on - and buffered unconditionally, so a directory batch held
+// about 650 MB at --count 50000 (#99). That is the property #44 had just
+// removed from standard output.
 //
-// It used to check the paths before generating, because members were seeds
-// base through base+count-1 and every path was known in advance. Under
-// --survivors they are not: which seeds are written depends on which
-// characters live (#33). Checking what was actually made keeps the guarantee
-// and stops it resting on an arithmetic that no longer holds.
+// The collision check is what needed the paths, not the writing, so only the
+// check pays. Without --survivors the paths are still base through
+// base+count-1 and no character need exist to know them: plannedPaths takes no
+// policy and no roller, so it cannot generate, and that is the whole of why
+// the common case is free again. With the flag, survivingPaths walks once
+// keeping seeds - eight bytes each, not thirteen kilobytes - and the write
+// walks again, which generation being deterministic makes the same characters.
+//
+// A batch that fails partway leaves what it had written. That was true before
+// #98 too: the guarantee here is that a run never silently replaces a file, not
+// that a directory is written atomically.
 func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 	count int, dir string, force, survivors bool,
 ) (tally, error) {
@@ -361,72 +366,90 @@ func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 		return tally{}, fmt.Errorf("creating %s: %w", dir, err)
 	}
 
-	var roster []memberFile
+	if !force {
+		err = noMemberExists(plannedOrSurviving(base, policy, count, survivors, dir))
+		if err != nil {
+			return tally{}, err
+		}
+	}
 
-	done, err := eachMember(base, policy, count, survivors, survivorAttempts,
+	return eachMember(base, policy, count, survivors, survivorAttempts,
 		func(character *chargen.Character) error {
-			encoded, renderErr := render.JSON(character)
-			if renderErr != nil {
-				return fmt.Errorf("seed %d: %w", character.Inputs.Seed, renderErr)
+			encoded, err := render.JSON(character)
+			if err != nil {
+				return fmt.Errorf("seed %d: %w", character.Inputs.Seed, err)
 			}
 
-			roster = append(roster, memberFile{
-				path:    memberPath(dir, character.Inputs.Seed),
-				encoded: string(encoded),
-			})
+			where, err := openDestination(nil, memberPath(dir, character.Inputs.Seed), force)
+			if err != nil {
+				return err
+			}
+
+			return where.write(string(encoded))
+		})
+}
+
+// plannedOrSurviving is the paths the run will write, by whichever route the
+// flags allow.
+func plannedOrSurviving(base chargen.Inputs, policy chargen.Policy,
+	count int, survivors bool, dir string,
+) []string {
+	if survivors {
+		return survivingPaths(base, policy, count, dir)
+	}
+
+	return plannedPaths(base.Seed, count, dir)
+}
+
+// plannedPaths is where members 0 through count-1 will be written.
+//
+// It takes a seed, a count and a directory, and no policy and no roller, so
+// it cannot generate a character even by accident. That signature is the
+// guarantee: without --survivors, checking for collisions costs nothing but
+// arithmetic (#99).
+func plannedPaths(base uint64, count int, dir string) []string {
+	paths := make([]string, 0, count)
+	for i := range count {
+		paths = append(paths, memberPath(dir, memberSeed(base, i)))
+	}
+
+	return paths
+}
+
+// survivingPaths is where the members that live will be written.
+//
+// Under --survivors which seeds are written depends on which characters
+// survive, so this walks once to find out. It keeps the paths and lets each
+// character go, because holding the run is what #99 is about; the write walks
+// again, and generation being deterministic it makes the same characters.
+func survivingPaths(base chargen.Inputs, policy chargen.Policy, count int, dir string) []string {
+	var paths []string
+
+	// An error here is not reported: the walk that writes makes the same
+	// calls in the same order and will meet the same one, where it can say
+	// what was written before it.
+	_, _ = eachMember(base, policy, count, true, survivorAttempts,
+		func(character *chargen.Character) error {
+			paths = append(paths, memberPath(dir, character.Inputs.Seed))
 
 			return nil
 		})
-	if err != nil {
-		return done, err
-	}
 
-	if !force {
-		err = noMemberExists(roster)
-		if err != nil {
-			return done, err
-		}
-	}
-
-	for _, file := range roster {
-		where, err := openDestination(nil, file.path, force)
-		if err != nil {
-			return done, err
-		}
-
-		err = where.write(file.encoded)
-		if err != nil {
-			return done, err
-		}
-	}
-
-	return done, nil
-}
-
-// memberFile is one member's file, named and rendered before anything is
-// opened.
-//
-// The roster is held as text rather than as characters, so a run releases
-// each character as it goes rather than keeping the whole batch alive, and an
-// encoding that fails does so before the first file is opened rather than
-// halfway through the directory.
-type memberFile struct {
-	path    string
-	encoded string
+	return paths
 }
 
 // noMemberExists refuses the batch if any member's file is already there.
 //
-// It takes the roster rather than a base and a count: under --survivors the
-// members written are not the seeds base through base+count-1, and a check
-// derived from that arithmetic would both look at files the run will never
-// write and miss the ones it will.
-func noMemberExists(roster []memberFile) error {
-	for _, file := range roster {
-		_, err := os.Stat(file.path)
+// It takes the paths the run will write, and how those are arrived at differs
+// by flag: without --survivors they are arithmetic, and with it they are the
+// seeds a walk found living. A check derived from the arithmetic alone would
+// look at files the run will never write and miss the ones it will.
+func noMemberExists(paths []string) error {
+	for _, path := range paths {
+		_, err := os.Stat(path)
 		if err == nil {
 			return fmt.Errorf("%w: %s %w; pass --force to replace it",
-				errUsage, file.path, errWouldOverwrite)
+				errUsage, path, errWouldOverwrite)
 		}
 	}
 
