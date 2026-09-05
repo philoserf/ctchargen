@@ -14,7 +14,20 @@ type Roller interface {
 	// TwoDice returns the two dice of a 2D throw, first die then second.
 	// P. 10: "All rolls except draft are two-die throws."
 	TwoDice() (int, int)
+
+	// Among returns an index into a set of n alternatives, for a choice the
+	// book hands to a player without naming any basis to choose on (#34).
+	// It is not a throw: no page prints one there.
+	Among(n int) int
 }
+
+// Vary is the narrow view of a Roller that a decider is given: it may draw
+// among the alternatives it was offered, and nothing else.
+//
+// A decider handed the whole Roller could throw dice the procedure never
+// makes, which would move a seed's meaning from somewhere no page governs.
+// This is the only variation a decider may take.
+type Vary interface{ Among(n int) int }
 
 // Throw is one 2D throw against a target, with its modifier.
 type throw struct {

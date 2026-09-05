@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/philoserf/ctchargen/chargen"
 	"github.com/philoserf/ctchargen/render"
 	"github.com/philoserf/ctchargen/traveller"
 )
@@ -124,7 +125,7 @@ func skillTableMenu(table traveller.SkillTable) string {
 }
 
 func (p *player) Weapon(
-	category traveller.WeaponCategory, from []traveller.WeaponName,
+	category traveller.WeaponCategory, from []traveller.WeaponName, _ chargen.Vary,
 ) (traveller.WeaponName, error) {
 	question := fmt.Sprintf("%v: name the weapon, immediately (pp. 11-13)", category)
 
@@ -284,7 +285,8 @@ func (p *player) next(options int) (int, bool, error) {
 	if chosen < 1 || chosen > options {
 		return 0, false, fmt.Errorf(
 			"%w: answer %d of --%s is %d, and this question offers 1 to %d",
-			errUsage, len(p.given)+1, answersFlag, chosen, options)
+			errUsage, len(p.given)+1, answersFlag, chosen, options,
+		)
 	}
 
 	p.given = append(p.given, chosen)
@@ -352,7 +354,8 @@ func (p *player) resumeLine() string {
 	if len(p.given) == 0 {
 		return fmt.Sprintf(
 			"Nothing was answered. The same command with --seed %d walks the same character again.",
-			p.seed)
+			p.seed,
+		)
 	}
 
 	answered := make([]string, 0, len(p.given))
@@ -362,7 +365,8 @@ func (p *player) resumeLine() string {
 
 	return fmt.Sprintf(
 		"Re-run the same command with --seed %d --answers %s to pick up at this question.",
-		p.seed, strings.Join(answered, ","))
+		p.seed, strings.Join(answered, ","),
+	)
 }
 
 // confirm asks a question the procedure puts as yes or no.

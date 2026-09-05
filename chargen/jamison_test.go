@@ -101,6 +101,15 @@ type script struct {
 	dice   []int
 }
 
+// Among is never called: the worked example drives its own decider, which
+// names each weapon the book names rather than choosing one. If this ever
+// fires, the replay has stopped following p. 25 and started guessing.
+func (s *script) Among(int) int {
+	s.t.Fatalf("the worked example drew among alternatives; p. 25 names them")
+
+	return 0
+}
+
 func (s *script) Die() int {
 	s.t.Helper()
 
@@ -170,7 +179,7 @@ func (d *decisions) SkillTable([]traveller.SkillTable) (traveller.SkillTable, er
 }
 
 func (d *decisions) Weapon(
-	traveller.WeaponCategory, []traveller.WeaponName,
+	traveller.WeaponCategory, []traveller.WeaponName, chargen.Vary,
 ) (traveller.WeaponName, error) {
 	d.t.Helper()
 

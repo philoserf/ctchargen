@@ -493,3 +493,40 @@ func serviceNamed(printed string) (traveller.ServiceName, bool) {
 
 	return none, false
 }
+
+// Every choice point the engine offers is reached by some golden record.
+//
+// POLICY.md has a row per Decider method and docsgate holds the two to each
+// other, so the document cannot describe a method that does not exist. Until
+// #34 nothing held either to the roster, and Weapon was the result: eleven of
+// the twelve points were exercised by a golden and that one was not, so what
+// POLICY.md said about it was covered by no character at all - before it
+// changed and after.
+//
+// A row nothing reaches is the same defect as a rule with no test, one level
+// up: the document, the code and the gate all agree, and none of them has
+// seen the answer.
+func TestEveryChoicePointIsReachedByARecord(t *testing.T) {
+	t.Parallel()
+
+	reached := map[string]bool{}
+
+	for _, rec := range readRecords(t) {
+		for _, e := range rec.Events {
+			if e.Kind == "choice" {
+				reached[e.Point] = true
+			}
+		}
+	}
+
+	if len(reached) == 0 {
+		t.Fatal("no record answers any choice point")
+	}
+
+	for _, point := range traveller.ChoicePoints {
+		if !reached[point.String()] {
+			t.Errorf("no golden record reaches %v, so what POLICY.md answers there is untested",
+				point)
+		}
+	}
+}

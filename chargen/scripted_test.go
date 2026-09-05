@@ -28,6 +28,16 @@ func (s *scripted) Die() int {
 	return 1
 }
 
+// Among takes the first alternative, which is what this roller's careers
+// were written against: it exists to walk a path no seed reaches (E003,
+// E014), and a drawn weapon would make that path depend on a draw as well as
+// on the twelves.
+func (s *scripted) Among(int) int {
+	s.drawn++
+
+	return 0
+}
+
 func (s *scripted) TwoDice() (int, int) {
 	s.drawn += 2
 
@@ -121,6 +131,7 @@ func TestVoluntaryServiceStopsAtSeven(t *testing.T) {
 type alwaysNine struct{}
 
 func (alwaysNine) Die() int            { return 1 }
+func (alwaysNine) Among(int) int       { return 0 }
 func (alwaysNine) TwoDice() (int, int) { return 4, 5 }
 
 // answeringOutsideTheOffer is a decider that reaches past what the procedure

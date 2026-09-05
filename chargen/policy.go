@@ -35,7 +35,8 @@ type Policy struct {
 // Bumping it is a decision recorded in POLICY.md, and docsgate holds the two
 // to each other. Adding a row for a question that was never asked is not a
 // bump: no seed made a different character under the old table.
-const PolicyVersion = 1
+// Version 2 draws the weapon rather than taking the first name (#34).
+const PolicyVersion = 2
 
 // Career is the --auto career strategy: continue, retire, or take one term.
 //
@@ -299,13 +300,27 @@ func (p Policy) SkillTable(from []traveller.SkillTable) (traveller.SkillTable, e
 	return prefer(from, ranked), nil
 }
 
-// Weapon takes the first name on the category's printed list - Dagger for
-// blades, Body Pistol for guns. Repeats take it again, which raises its
-// level (p. 12) and is the branch that produces a level above 1.
+// Weapon draws among the names on the category's printed list.
+//
+// It took the first every time, which is what made thirty auto-generated
+// characters carry twenty-two Body Pistols and seventeen Daggers and nothing
+// else, though every name on both lists was offered (#34). No strategy
+// reached it - the receiver was unused - so no flag could change it either.
+//
+// It draws rather than ranks because the book names no basis. Where p. 11
+// makes the player designate a table, or p. 21 decides a departure by the
+// term count, the page supplies something to decide on and the policy decides
+// on it. Here the page supplies a list in printed order, and printed order is
+// not a preference: taking the first is as invented as drawing, and drawing
+// admits it.
+//
+// Repeats can still take the same weapon again, which raises its level
+// (p. 12) and is the branch that produces a level above 1 - now by drawing
+// the same name twice rather than by always drawing it.
 func (p Policy) Weapon(
-	_ traveller.WeaponCategory, from []traveller.WeaponName,
+	_ traveller.WeaponCategory, from []traveller.WeaponName, vary Vary,
 ) (traveller.WeaponName, error) {
-	return from[0], nil
+	return from[vary.Among(len(from))], nil
 }
 
 // MusterTable is ranked by muster strategy. cash reaches the three-roll cap, which is the only way the
