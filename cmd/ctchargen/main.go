@@ -75,6 +75,13 @@ func run(args []string, in io.Reader, out, asking io.Writer) error {
 func version(args []string, out io.Writer) error {
 	if len(args) > 0 {
 		if isHelpFlag(args[0]) {
+			// A word after the help flag, which version alone would
+			// otherwise discard: it tests args[0] and nothing else (#84).
+			if len(args) > 1 {
+				return fmt.Errorf("%w: %s; help takes no arguments, and was given %q",
+					errUsage, versionUsage, args[1])
+			}
+
 			return writeVersionUsage(out)
 		}
 
