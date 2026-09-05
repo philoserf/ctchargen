@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -114,6 +115,36 @@ func TestErrataMatchTheDocument(t *testing.T) {
 	inDoc := found(t, erratumHeading, read(t, "ERRATA.md"), "erratum headings")
 
 	compare(t, inCode, inDoc, "the Erratum enum", "ERRATA.md")
+}
+
+// policyVersion matches POLICY.md's own way of stating it: "**Version 3.**"
+// on a line of its own near the top.
+var policyVersion = regexp.MustCompile(`(?m)^\*\*Version (\d+)\.\*\*`)
+
+// POLICY.md's version is the one every record carries.
+//
+// The document decides what a bump means and the code writes the number, so
+// the two can disagree - and a record would then name a policy that is not
+// the one that answered it, which is worse than carrying no number at all.
+// This milestone has found a document and a constant disagreeing four times;
+// this is the one place it would be unfalsifiable from the record alone.
+func TestThePolicyVersionMatchesTheDocument(t *testing.T) {
+	t.Parallel()
+
+	found := policyVersion.FindStringSubmatch(read(t, "POLICY.md"))
+	if found == nil {
+		t.Fatal("POLICY.md states no version; every record carries one")
+	}
+
+	stated, err := strconv.Atoi(found[1])
+	if err != nil {
+		t.Fatalf("POLICY.md's version %q is not a number: %v", found[1], err)
+	}
+
+	if stated != chargen.PolicyVersion {
+		t.Errorf("POLICY.md is version %d and the records say %d",
+			stated, chargen.PolicyVersion)
+	}
 }
 
 // deciderMethods is every method of the Decider interface, by name.

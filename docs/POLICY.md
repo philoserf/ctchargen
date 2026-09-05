@@ -2,6 +2,18 @@
 
 2026-09-02. Milestone 0. Companion to `PRD.md`.
 
+**Version 1.** Every record `--auto` writes carries it, in the `policy` field.
+
+Changing what any row below answers is a version bump, because it changes
+every character `--auto` has ever made from a given seed — and a referee
+holding two records from the same seed can otherwise see only that they
+differ, not why. `build` names the writer and moves for reasons that have
+nothing to do with the answers; this moves only when an answer does.
+
+Adding a row for a choice point that did not exist is not a bump: no seed
+produced a different character under the old table, because the question was
+never asked. `docsgate` holds the number here to the constant in the code.
+
 `--auto` answers every question the procedure asks. This document is the
 whole of what it answers, one row per `Decider` method. The gate holds the
 two to each other in both directions: every row here names a method that

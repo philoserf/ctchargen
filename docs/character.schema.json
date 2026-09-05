@@ -9,7 +9,8 @@
   "additionalProperties": false,
   "required": [
     "record", "name", "upp", "characteristics", "age", "terms",
-    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
+    "enlistment", "skills", "benefits", "inputs", "errata", "ruleset",
+    "policy", "events"
   ],
 
   "properties": {
@@ -212,6 +213,11 @@
     "ruleset": {
       "const": "Classic Traveller, Books 1-3 (FFE reprint of the 1977 text)",
       "description": "The text this record was generated under. Every page cite in its log is to these three books and nothing else."
+    },
+    "policy": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The version of docs/POLICY.md this build's --auto applies. It moves only when an answer in that table changes, which is what a referee reads to tell why two records from one seed differ; ruleset names the rules and build names the writer, and neither moves for that reason."
     },
     "build": {
       "type": "string",
