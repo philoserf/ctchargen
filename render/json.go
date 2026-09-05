@@ -55,10 +55,19 @@ func JSON(character *chargen.Character) ([]byte, error) {
 // means a frozen and supported record - a promise needs something to promise
 // about (#76, #62).
 //
-// It does not move when the tool's version does. A build that changes no
-// field leaves this alone, and nothing reads it yet, because there is only
-// one shape to tell apart. The record is free to move until v1.0.0 and frozen
-// from it; this is what the freeze will attach to.
+// It is 1 until v1.0.0, and counts from there. That is not the same as
+// counting every change: the record is free to move before the freeze (#62),
+// so #95 changed the event shape and left this alone, and two shapes that
+// both say 1 are the price of that freedom rather than a defect in it.
+//
+// The comment here used to say a build that changed no field left this alone,
+// which read as a promise to move when one did, and the code has never kept
+// it. #96 settled which of the two was wrong: the number is right and the
+// sentence was not.
+//
+// From v1.0.0 the shape is a public contract and a build that changes it says
+// so here. Nothing reads it yet, because until then there is only one value
+// to read.
 const recordShape = 1
 
 type record struct {

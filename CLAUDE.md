@@ -50,6 +50,12 @@ integer set in `project()` beside every other field, so it is present on every
 record, and counting the shape and nothing else — `build` names the writer and
 `ruleset` names the source text, and neither says what the file looks like.
 
+**`record` is 1 until `v1.0.0` and counts from there (#96).** Not from every
+change: the record moves freely before the freeze, so a build that changes the
+shape before it leaves the number alone, and two pre-release shapes that both
+say 1 are what that freedom costs. Do not bump it to mark a pre-v1 change —
+that is the reading #96 declined.
+
 **Windows binaries ship, and no document mentions Windows.**
 `release.yml` builds `windows/amd64` and `windows/arm64` alongside the other
 four and attaches them like the rest. Nothing else names the platform — not
