@@ -92,14 +92,15 @@ func TestABatchToAFileIsStillWrittenAtOnce(t *testing.T) {
 	}
 }
 
-// closesAfter writes a few records and then fails, as a reader who stopped
-// reading does.
-type closesAfter struct {
+// failsAfter writes a few records and then fails, as a filling disk does.
+// errClosedPipe is reused only as a sentinel to match on; nothing here is a
+// pipe.
+type failsAfter struct {
 	left   int
 	writes int
 }
 
-func (c *closesAfter) Write(text []byte) (int, error) {
+func (c *failsAfter) Write(text []byte) (int, error) {
 	if c.left == 0 {
 		return 0, errClosedPipe
 	}
@@ -111,16 +112,21 @@ func (c *closesAfter) Write(text []byte) (int, error) {
 	return len(text), nil
 }
 
-// A stream that stops being read stops the batch, and says which member.
+// A write that fails partway stops the batch, and says which member.
 //
 // This branch exists only because the run streams: a buffered run writes once
-// and either succeeds or does not. Streaming means a reader can go away
-// partway through - `| head -1` is the ordinary case - and the run has to
-// report where it stopped rather than carrying on into a closed pipe.
-func TestABatchReportsAStreamThatStoppedBeingRead(t *testing.T) {
+// and either succeeds or does not. Streaming means a write can fail with
+// records already gone, and the run has to report where it stopped rather
+// than carrying on.
+//
+// A closed pipe is not this case, whatever it looks like. `batch --auto |
+// head -1` dies by SIGPIPE before Write ever returns an error, which is what
+// a tool in a pipeline should do; what reaches here is a failure the runtime
+// hands back, such as a redirected file that has run out of room.
+func TestABatchReportsAWriteThatFailedPartway(t *testing.T) {
 	t.Parallel()
 
-	out := closesAfter{left: 2}
+	out := failsAfter{left: 2}
 
 	err := run([]string{
 		cmdBatch, flagCount, "5", flagAuto, flagSeed, "7", flagService, other,
@@ -128,7 +134,7 @@ func TestABatchReportsAStreamThatStoppedBeingRead(t *testing.T) {
 
 	switch {
 	case err == nil:
-		t.Fatal("a batch wrote into a closed pipe and reported success")
+		t.Fatal("a batch hit a failing write and reported success")
 	case !errors.Is(err, errClosedPipe):
 		t.Errorf("error %q does not carry the write failure", err)
 	case !strings.Contains(err.Error(), "member 2"):
@@ -136,6 +142,6 @@ func TestABatchReportsAStreamThatStoppedBeingRead(t *testing.T) {
 	}
 
 	if out.writes != 2 {
-		t.Errorf("%d members reached the reader before it closed, want 2", out.writes)
+		t.Errorf("%d members were written before the failure, want 2", out.writes)
 	}
 }

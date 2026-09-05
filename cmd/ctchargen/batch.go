@@ -127,14 +127,21 @@ func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
 		return streamed(out, base, policy, count)
 	}
 
-	return buffered(out, base, policy, count, path, force)
+	return buffered(base, policy, count, path, force)
 }
 
 // streamed writes each member as it is made.
 //
 // A run that fails partway has already written what came before it, which is
-// what streaming means and is the trade #64 accepted. The error still names
-// the member, so a reader knows where the file stops.
+// what streaming means and is the trade #64 accepted. The error names the
+// member, so a failed write says where the output stops.
+//
+// A closed pipe is not that case. `batch --auto | head -1` never reaches the
+// branch below: the Go runtime turns EPIPE on standard output into an
+// uncaught SIGPIPE, so the run dies by signal 13 with nothing on stderr,
+// which is what a tool in a pipeline should do. What the branch covers is a
+// write error the runtime does hand back - a redirected file that fills up,
+// a device that errors.
 func streamed(out io.Writer, base chargen.Inputs, policy chargen.Policy, count int) error {
 	for i := range count {
 		character, err := member(base, policy, i)
@@ -162,7 +169,7 @@ func streamed(out io.Writer, base chargen.Inputs, policy chargen.Policy, count i
 // It is the same loop: buffering is streaming to somewhere that cannot be
 // half-read. What differs is only where it streams to and when the file is
 // opened, which is the whole of the distinction #64 drew.
-func buffered(out io.Writer, base chargen.Inputs, policy chargen.Policy,
+func buffered(base chargen.Inputs, policy chargen.Policy,
 	count int, path string, force bool,
 ) error {
 	var lines strings.Builder
@@ -172,7 +179,9 @@ func buffered(out io.Writer, base chargen.Inputs, policy chargen.Policy,
 		return err
 	}
 
-	where, err := openDestination(out, path, force)
+	// nil is the stream, and this path never uses it: intoStream sends only a
+	// named path here, so openDestination always opens a file.
+	where, err := openDestination(nil, path, force)
 	if err != nil {
 		return err
 	}
