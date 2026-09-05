@@ -25,16 +25,15 @@ everything around it was still alpha. **That report is now answered in full.**
 Every command describes its own flags, the sheet names whose service it is and
 prints the seed, a session that stops offers the way back in, the line the tool
 tells you to paste is quoted, and a release carries binaries a referee can
-download without a Go toolchain. `v1.0.0-alpha.5` is the current release.
+download without a Go toolchain. `v1.0.0-beta.1` is the current release.
 `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the rebuild at `41a213a` and
 install a different tool; their notes say so.
 
-**With no report outstanding, what is queued is the prerelease code audit**
-(#27) — structural findings about the shape of the code, none of which changes
-a character the tool generates. A referee's finding still outranks all of it,
-and arriving is all it has to do to: the audit is work this repo chose for
-itself, a report is work the tool earned. Either way the page and the clean
-room govern how it gets answered.
+**The prerelease code audit (#27) is answered too, and the backlog is empty.**
+Its six principle violations, its medium and low findings, and the five open
+questions it raised are all closed; so is every milestone. What governs the
+work now is what a referee reports, and nothing is queued behind it. The page
+and the clean room govern how a report gets answered.
 
 **What `v1.0.0` means, decided in #74.** Two things, and both must hold: a
 referee can trust what the tool prints at the table, **and** the record is
@@ -49,6 +48,14 @@ so in the record itself. `record` is the field it says it in: a required
 integer set in `project()` beside every other field, so it is present on every
 record, and counting the shape and nothing else — `build` names the writer and
 `ruleset` names the source text, and neither says what the file looks like.
+
+**`additionalProperties` opens at `v1.0.0`, and not before.** The schema
+refuses a field it does not know, which is right while nothing is promised and
+wrong once something is: from the freeze a reader should load a record from a
+later build and render what it understands, which is what `render` already does
+for an unknown event kind — it prints `(unknown event kind %q)` rather than
+failing, and the schema contradicts that behaviour today. The decision was
+taken in #76 and lived only in that issue's body until it was written here.
 
 **`record` is 1 until `v1.0.0` and counts from there (#96).** Not from every
 change: the record moves freely before the freeze, so a build that changes the
@@ -70,8 +77,10 @@ for want of a document naming them.
 **The paragraphs above the `v1.0.0` ones** are the thing here that goes
 stale on its own — what is delivered, and which release is current. Correct
 them when the work moves rather than letting the file describe a tree that no
-longer exists. The three rules below them do not go stale: they state a bar, a promise and a
-scope, and all hold until a decision changes them.
+longer exists. The rules below them do not go stale: each states a bar,
+a promise or a scope, and holds until a decision changes it. They are not
+counted here, because a count is one more thing to get wrong — this file has
+already had to correct one from two to three.
 
 ## Authority — read this before implementing any rule
 
