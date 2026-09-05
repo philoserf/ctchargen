@@ -31,6 +31,13 @@ const (
 	termStep        = "term "
 )
 
+// The two kinds dice arrive as. A throw meets a target and a roll does not,
+// and reading a step as the wrong one finds nothing and says nothing (#50).
+const (
+	aThrow = "throw"
+	aRoll  = "roll"
+)
+
 // A reading, and the condition ERRATA.md states for it.
 //
 // The predicate is written from the document's prose, quoted above it, and
@@ -110,6 +117,79 @@ func TestEveryReadingIsStampedWhereItsConditionHolds(t *testing.T) {
 
 	stillParked(t, readings, disagreements)
 	unreached(t, readings, stampedSomewhere)
+}
+
+// Every step name the conditions read finds events in the roster.
+//
+// A predicate keyed on a step that matches nothing does not fail - it answers
+// "no" about every record, quietly, and the gate stays green while a reading
+// goes unchecked. That is the failure this whole file exists to catch, and it
+// happened here: splitting the event kinds (#50) made "Social Standing" a
+// roll rather than a throw, E011's predicate started reading nothing, and
+// nothing said so, because the count it is measured by did not move.
+//
+// The pairing is asserted too, since a step is read as one kind or the other
+// and reading it as the wrong one is exactly how the above went unnoticed.
+func TestEveryStepTheConditionsReadIsFound(t *testing.T) {
+	t.Parallel()
+
+	records := readRecords(t)
+
+	for step, kind := range map[string]string{
+		enlistmentThrow: aThrow,
+		survivalThrow:   aThrow,
+		reenlistThrow:   aThrow,
+		promotionThrow:  aThrow,
+		agingThrow:      aThrow,
+		crisisThrow:     aThrow,
+		socialThrow:     aRoll,
+	} {
+		found := false
+
+		for _, rec := range records {
+			if len(rec.dice(step, kind)) > 0 {
+				found = true
+
+				break
+			}
+		}
+
+		if !found {
+			t.Errorf("no record has a %q %s; a condition reading it answers no about everything",
+				step, kind)
+		}
+	}
+
+	// firstTotal is what E011 reads the rolled Social Standing with, and the
+	// step-and-kind check above cannot see which kind it asks for. Asking
+	// for the wrong one returns (0, false) about every record, silently,
+	// which is exactly how the split shipped green.
+	for _, rec := range records {
+		if len(rec.rolls(socialThrow)) == 0 {
+			continue
+		}
+
+		rolled, found := rec.firstTotal(socialThrow)
+		if !found || rolled < 2 || rolled > 12 {
+			t.Errorf("%s: firstTotal read %d (found %v) for a Social Standing roll",
+				rec.name, rolled, found)
+		}
+	}
+
+	// The term step is read by E003 and E013 and is not a throw of any kind.
+	opened := false
+
+	for _, rec := range records {
+		for _, e := range rec.Events {
+			if e.Kind == "step" && e.term > 0 {
+				opened = true
+			}
+		}
+	}
+
+	if !opened {
+		t.Error("no record opens a term; E003 and E013 both read the term an event fell in")
+	}
 }
 
 // Every entry of ERRATA.md has exactly one condition, and every condition

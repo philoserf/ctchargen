@@ -2,8 +2,6 @@ package chargen_test
 
 import (
 	"testing"
-
-	"github.com/philoserf/ctchargen/traveller"
 )
 
 // tableTwoStep is the step the engine logs a Table 2 throw under.
@@ -31,8 +29,10 @@ func TestAtMostThreeRollsGoOnTableTwo(t *testing.T) {
 		onTableTwo := 0
 
 		for _, event := range character.Events {
-			throw, isThrow := event.(traveller.ThrowEvent)
-			if isThrow && throw.Step == tableTwoStep {
+			// A mustering out roll meets no target, so it is a RollEvent
+			// since #50 and not a throw.
+			step, rolled := stepOf(event)
+			if rolled && step == tableTwoStep {
 				onTableTwo++
 			}
 		}

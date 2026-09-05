@@ -54,14 +54,13 @@
     },
     {
       "seq": 2,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Strength",
       "dice": [
         1,
         5
       ],
-      "total": 6,
-      "succeeded": true
+      "total": 6
     },
     {
       "seq": 3,
@@ -71,14 +70,13 @@
     },
     {
       "seq": 4,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Dexterity",
       "dice": [
         3,
         1
       ],
-      "total": 4,
-      "succeeded": true
+      "total": 4
     },
     {
       "seq": 5,
@@ -88,14 +86,13 @@
     },
     {
       "seq": 6,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Endurance",
       "dice": [
         3,
         1
       ],
-      "total": 4,
-      "succeeded": true
+      "total": 4
     },
     {
       "seq": 7,
@@ -105,14 +102,13 @@
     },
     {
       "seq": 8,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Intelligence",
       "dice": [
         4,
         5
       ],
-      "total": 9,
-      "succeeded": true
+      "total": 9
     },
     {
       "seq": 9,
@@ -122,14 +118,13 @@
     },
     {
       "seq": 10,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Education",
       "dice": [
         6,
         3
       ],
-      "total": 9,
-      "succeeded": true
+      "total": 9
     },
     {
       "seq": 11,
@@ -139,14 +134,13 @@
     },
     {
       "seq": 12,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Social Standing",
       "dice": [
         6,
         6
       ],
-      "total": 12,
-      "succeeded": true
+      "total": 12
     },
     {
       "seq": 13,
@@ -244,13 +238,12 @@
     },
     {
       "seq": 24,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Personal Development Table",
       "dice": [
         6
       ],
-      "total": 6,
-      "succeeded": true
+      "total": 6
     },
     {
       "seq": 25,
@@ -276,13 +269,12 @@
     },
     {
       "seq": 27,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Personal Development Table",
       "dice": [
         3
       ],
-      "total": 3,
-      "succeeded": true
+      "total": 3
     },
     {
       "seq": 28,
@@ -341,13 +333,12 @@
     },
     {
       "seq": 34,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Table 1, Material Benefits",
       "dice": [
         1
       ],
-      "total": 1,
-      "succeeded": true
+      "total": 1
     },
     {
       "seq": 35,

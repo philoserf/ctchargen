@@ -398,13 +398,18 @@ func TestTheWorkedExamplesDepartures(t *testing.T) {
 
 	seenSkillsThisTerm := false
 
+	// Both kinds, because the two halves of this comparison are now
+	// different events: a skills table is rolled against nothing and is a
+	// RollEvent, while reenlistment is thrown against a target (#50). A walk
+	// over throws alone sees the reenlistment and not the skills, and
+	// concludes the order is wrong.
 	for _, event := range jamison.Events {
-		throw, isThrow := event.(traveller.ThrowEvent)
-		if !isThrow {
+		step, rolled := stepOf(event)
+		if !rolled {
 			continue
 		}
 
-		switch throw.Step {
+		switch step {
 		case "Personal Development Table", "Service Skills Table",
 			"Advanced Education Table", "Advanced Education Table (education 8+)":
 			seenSkillsThisTerm = true
@@ -441,5 +446,22 @@ func TestTheWorkedExamplesDepartures(t *testing.T) {
 	if agingBeforeMuster != 2 {
 		t.Errorf("found %d aging rounds at term ends, want 2: the page batches them, E006 does not",
 			agingBeforeMuster)
+	}
+}
+
+// stepOf is the step of any event that put dice on the table, whether it had
+// a target to meet or not.
+//
+// The two are separate cases since #50, and a test that walks one kind sees
+// half the dice - which is what the first run of that change reported here
+// and in the Table 2 cap.
+func stepOf(event traveller.Event) (string, bool) {
+	switch e := event.(type) {
+	case traveller.ThrowEvent:
+		return e.Step, true
+	case traveller.RollEvent:
+		return e.Step, true
+	default:
+		return "", false
 	}
 }

@@ -79,9 +79,7 @@ func (l *log) die(step string, face int) int {
 func (l *log) dieWithModifier(step string, face, modifier int) int {
 	seq := l.next()
 
-	l.add(traveller.ThrowEvent{
-		Seq: seq, Step: step, Dice: []int{face}, DM: modifier, Succeeded: true,
-	})
+	l.add(traveller.RollEvent{Seq: seq, Step: step, Dice: []int{face}, DM: modifier})
 
 	return seq
 }
@@ -92,9 +90,7 @@ func (l *log) dieWithModifier(step string, face, modifier int) int {
 func (l *log) dice(step string, faces ...int) int {
 	seq := l.next()
 
-	l.add(traveller.ThrowEvent{
-		Seq: seq, Step: step, Dice: faces, Succeeded: true,
-	})
+	l.add(traveller.RollEvent{Seq: seq, Step: step, Dice: faces})
 
 	return seq
 }

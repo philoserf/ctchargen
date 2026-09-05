@@ -48,14 +48,13 @@
     },
     {
       "seq": 2,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Strength",
       "dice": [
         2,
         6
       ],
-      "total": 8,
-      "succeeded": true
+      "total": 8
     },
     {
       "seq": 3,
@@ -65,14 +64,13 @@
     },
     {
       "seq": 4,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Dexterity",
       "dice": [
         4,
         3
       ],
-      "total": 7,
-      "succeeded": true
+      "total": 7
     },
     {
       "seq": 5,
@@ -82,14 +80,13 @@
     },
     {
       "seq": 6,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Endurance",
       "dice": [
         1,
         6
       ],
-      "total": 7,
-      "succeeded": true
+      "total": 7
     },
     {
       "seq": 7,
@@ -99,14 +96,13 @@
     },
     {
       "seq": 8,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Intelligence",
       "dice": [
         3,
         4
       ],
-      "total": 7,
-      "succeeded": true
+      "total": 7
     },
     {
       "seq": 9,
@@ -116,14 +112,13 @@
     },
     {
       "seq": 10,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Education",
       "dice": [
         4,
         6
       ],
-      "total": 10,
-      "succeeded": true
+      "total": 10
     },
     {
       "seq": 11,
@@ -133,14 +128,13 @@
     },
     {
       "seq": 12,
-      "kind": "throw",
+      "kind": "roll",
       "step": "Social Standing",
       "dice": [
         4,
         4
       ],
-      "total": 8,
-      "succeeded": true
+      "total": 8
     },
     {
       "seq": 13,
@@ -191,13 +185,12 @@
     },
     {
       "seq": 19,
-      "kind": "throw",
+      "kind": "roll",
       "step": "draft",
       "dice": [
         6
       ],
-      "total": 6,
-      "succeeded": true
+      "total": 6
     },
     {
       "seq": 20,

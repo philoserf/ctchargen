@@ -224,6 +224,7 @@
         "oneOf": [
           { "$ref": "#/$defs/stepEvent" },
           { "$ref": "#/$defs/throwEvent" },
+        { "$ref": "#/$defs/rollEvent" },
           { "$ref": "#/$defs/choiceEvent" },
           { "$ref": "#/$defs/outcomeEvent" }
         ]
@@ -257,7 +258,7 @@
     "throwEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["seq", "kind", "step", "dice", "total", "succeeded"],
+      "required": ["seq", "kind", "step", "dice", "target", "total", "succeeded"],
       "properties": {
         "seq": { "$ref": "#/$defs/sequence" },
         "kind": { "const": "throw" },
@@ -273,10 +274,30 @@
         "target": {
           "type": "string",
           "pattern": "^[0-9]+[+-]?$",
-          "description": "The throw's target in the book's own notation (pp. 2-3). Absent on a one-die roll, which has no target to meet."
+          "description": "The throw's target in the book's own notation (pp. 2-3). Required: a throw is the case that has something to meet, and a roll with nothing to meet is a rollEvent."
         },
         "total": { "type": "integer" },
         "succeeded": { "type": "boolean" }
+      }
+    },
+    "rollEvent": {
+      "type": "object",
+      "description": "One roll with nothing to meet: the draft die, a skills table, a mustering out table, the months of recovery. It keeps the modifier, because the row the page is read at is the face plus the DM, and it carries no target and no outcome because there is nothing to succeed at.",
+      "additionalProperties": false,
+      "required": ["seq", "kind", "step", "dice", "total"],
+      "properties": {
+        "seq": { "$ref": "#/$defs/sequence" },
+        "kind": { "const": "roll" },
+        "step": { "type": "string", "minLength": 1 },
+        "dice": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "type": "integer", "minimum": 1, "maximum": 6 },
+          "description": "The dice as rolled. The record logs the dice and not only their total, because that is what an auditor walks against the page."
+        },
+        "dm": { "type": "integer" },
+        "total": { "type": "integer" }
       }
     },
     "choiceEvent": {

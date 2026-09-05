@@ -74,10 +74,21 @@ func (o outcome) matches(succeeded bool) bool {
 // enlistment throw names its service, the aging saving throws name their
 // characteristic.
 func (r record) throws(step string) []event {
+	return r.dice(step, aThrow)
+}
+
+// rolls is every roll of the named step. A roll meets no target, so it has
+// no outcome to read - which is why it is a separate case since #50, and why
+// asking for one where a throw is meant would silently find nothing.
+func (r record) rolls(step string) []event {
+	return r.dice(step, aRoll)
+}
+
+func (r record) dice(step, kind string) []event {
 	var found []event
 
 	for _, e := range r.Events {
-		if e.Kind == "throw" && strings.HasPrefix(e.Step, step) {
+		if e.Kind == kind && strings.HasPrefix(e.Step, step) {
 			found = append(found, e)
 		}
 	}
@@ -100,7 +111,7 @@ func (r record) threw(step string, want outcome) bool {
 // one. E011 needs the Social Standing as p. 4 rolled it, before any aging
 // moved it.
 func (r record) firstTotal(step string) (int, bool) {
-	found := r.throws(step)
+	found := r.rolls(step)
 	if len(found) == 0 {
 		return 0, false
 	}
