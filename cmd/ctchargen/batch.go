@@ -87,16 +87,17 @@ func batch(args []string, out, asking io.Writer) error {
 func write(out, asking io.Writer, base chargen.Inputs, policy chargen.Policy,
 	count int, path string, force, survivors bool,
 ) error {
-	made := intoStream
+	var (
+		done tally
+		err  error
+	)
+
 	if namesDirectory(path) {
-		made = func(_ io.Writer, base chargen.Inputs, policy chargen.Policy,
-			count int, dir string, force, survivors bool,
-		) (tally, error) {
-			return intoDirectory(base, policy, count, dir, force, survivors)
-		}
+		done, err = intoDirectory(base, policy, count, path, force, survivors)
+	} else {
+		done, err = intoStream(out, base, policy, count, path, force, survivors)
 	}
 
-	done, err := made(out, base, policy, count, path, force, survivors)
 	if err != nil {
 		return err
 	}
@@ -119,6 +120,11 @@ func memberSeed(base uint64, i int) uint64 { return base + uint64(i) } //nolint:
 
 // member generates one member of the batch, carrying its own derived seed -
 // not the base - so that its record regenerates it.
+//
+// A failure names the seed and not the position i, for the reason writingTo
+// does: under --survivors the two differ, i is an index into seeds drawn
+// rather than into records written, and the seed is the one a referee can
+// hand back to `new`.
 func member(base chargen.Inputs, policy chargen.Policy, i int) (*chargen.Character, error) {
 	inputs := base
 
@@ -126,7 +132,7 @@ func member(base chargen.Inputs, policy chargen.Policy, i int) (*chargen.Charact
 
 	character, err := chargen.Generate(inputs, policy)
 	if err != nil {
-		return nil, fmt.Errorf("member %d: %w", i, err)
+		return nil, fmt.Errorf("seed %d: %w", inputs.Seed, err)
 	}
 
 	stamp(character)
@@ -179,15 +185,43 @@ func (t tally) report(asking io.Writer) error {
 // reaching it means something is wrong rather than unlucky.
 const survivorAttempts = 100
 
-// died reports a character killed during generation. Both fatal departures
-// are cases of the sum.
+// fatalDeparture folds a departure down to whether it killed him.
+//
+// It folds rather than type-switching because that is what the sum is sealed
+// for: a third way to die adds a method to DepartureCases and this file stops
+// compiling, where a type switch with a default would quietly go on calling
+// the new death survival and --survivors would write a corpse.
+type fatalDeparture struct{ fatal bool }
+
+func (*fatalDeparture) Discharged() error { return nil }
+func (*fatalDeparture) ForcedOut() error  { return nil }
+func (*fatalDeparture) Retired() error    { return nil }
+
+func (f *fatalDeparture) KilledBySurvivalThrow() error {
+	f.fatal = true
+
+	return nil
+}
+
+func (f *fatalDeparture) KilledByMedicalCrisis(traveller.Characteristic) error {
+	f.fatal = true
+
+	return nil
+}
+
+// died reports a character killed during generation. A civilian has no
+// departure at all, and did not die of it.
 func died(character *chargen.Character) bool {
-	switch character.Departure.(type) {
-	case traveller.KilledBySurvivalThrow, traveller.KilledByMedicalCrisis:
-		return true
-	default:
+	if character.Departure == nil {
 		return false
 	}
+
+	var fatal fatalDeparture
+
+	// The cases above return nothing but nil, so there is no error to carry.
+	_ = character.Departure.Fold(&fatal)
+
+	return fatal.fatal
 }
 
 // eachMember walks the batch, handing each member that is to be written to
@@ -303,8 +337,9 @@ func buffered(base chargen.Inputs, policy chargen.Policy,
 
 // intoDirectory writes one file per character, named for its own seed.
 //
-// The whole batch is generated before any of it is written, so the collision
-// check covers the paths the run actually produces. A batch that stopped
+// The whole batch is generated and rendered before any of it is written, so
+// the collision check covers the paths the run actually produces and an
+// encoding that fails does so before the first file is opened. A batch that stopped
 // halfway would leave a directory holding some of the run and no record of
 // which files were new, and the obvious retry - --force - would then replace
 // the very file the refusal was protecting.
@@ -322,11 +357,19 @@ func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 		return tally{}, fmt.Errorf("creating %s: %w", dir, err)
 	}
 
-	var roster []*chargen.Character
+	var roster []memberFile
 
 	done, err := eachMember(base, policy, count, survivors, survivorAttempts,
 		func(character *chargen.Character) error {
-			roster = append(roster, character)
+			encoded, renderErr := render.JSON(character)
+			if renderErr != nil {
+				return fmt.Errorf("seed %d: %w", character.Inputs.Seed, renderErr)
+			}
+
+			roster = append(roster, memberFile{
+				path:    memberPath(dir, character.Inputs.Seed),
+				encoded: string(encoded),
+			})
 
 			return nil
 		})
@@ -335,24 +378,19 @@ func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 	}
 
 	if !force {
-		err = noMemberExists(roster, dir)
+		err = noMemberExists(roster)
 		if err != nil {
 			return done, err
 		}
 	}
 
-	for _, character := range roster {
-		encoded, err := render.JSON(character)
-		if err != nil {
-			return done, fmt.Errorf("seed %d: %w", character.Inputs.Seed, err)
-		}
-
-		where, err := openDestination(nil, memberPath(dir, character.Inputs.Seed), force)
+	for _, file := range roster {
+		where, err := openDestination(nil, file.path, force)
 		if err != nil {
 			return done, err
 		}
 
-		err = where.write(string(encoded))
+		err = where.write(file.encoded)
 		if err != nil {
 			return done, err
 		}
@@ -361,19 +399,30 @@ func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 	return done, nil
 }
 
+// memberFile is one member's file, named and rendered before anything is
+// opened.
+//
+// The roster is held as text rather than as characters, so a run releases
+// each character as it goes rather than keeping the whole batch alive, and an
+// encoding that fails does so before the first file is opened rather than
+// halfway through the directory.
+type memberFile struct {
+	path    string
+	encoded string
+}
+
 // noMemberExists refuses the batch if any member's file is already there.
 //
 // It takes the roster rather than a base and a count: under --survivors the
 // members written are not the seeds base through base+count-1, and a check
-// derived from that arithmetic would look at files the run will never write.
-func noMemberExists(roster []*chargen.Character, dir string) error {
-	for _, character := range roster {
-		path := memberPath(dir, character.Inputs.Seed)
-
-		_, err := os.Stat(path)
+// derived from that arithmetic would both look at files the run will never
+// write and miss the ones it will.
+func noMemberExists(roster []memberFile) error {
+	for _, file := range roster {
+		_, err := os.Stat(file.path)
 		if err == nil {
 			return fmt.Errorf("%w: %s %w; pass --force to replace it",
-				errUsage, path, errWouldOverwrite)
+				errUsage, file.path, errWouldOverwrite)
 		}
 	}
 

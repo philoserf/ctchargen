@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -21,23 +24,39 @@ const (
 
 // A batch says what it did, on the channel that is not the data.
 //
-// The run the report opened with wrote 74 corpses out of 100 and printed
-// nothing at all (#33). The count goes to the operator's channel and never to
-// standard output, where it would be a line of JSONL that is not JSON.
+// The run the report opened with wrote its corpses and printed nothing at all
+// (#33). The count goes to the operator's channel and never to standard
+// output, where it would be a line of JSONL that is not JSON.
+//
+// What it should say is read off the records themselves rather than typed in.
+// A literal here would be a golden maintained by hand, which the dice-stream
+// order is free to invalidate at any time; counting the roster instead also
+// holds this file's reading of which departures are fatal to the one the
+// record carries, so the two transcriptions of that rule are checked against
+// each other rather than only against themselves.
 func TestABatchSaysHowManyDied(t *testing.T) {
 	t.Parallel()
+
+	const wanted = 100
 
 	var out, asking strings.Builder
 
 	err := run([]string{
-		cmdBatch, flagCount, "100", flagAuto, flagSeed, "1000", flagService, scouts,
+		cmdBatch, flagCount, strconv.Itoa(wanted), flagAuto, flagSeed, "1000", flagService, scouts,
 	}, nil, &out, &asking)
 	if err != nil {
 		t.Fatalf("generating: %v", err)
 	}
 
-	if got := strings.TrimSpace(asking.String()); got != "100 written, 74 died" {
-		t.Errorf("the closing line is %q", got)
+	written := livingCount(t, out.String())
+	if written.members != wanted || written.dead == 0 {
+		t.Fatalf("%d written, %d of them dead; the run this reads is not the one it means",
+			written.members, written.dead)
+	}
+
+	want := fmt.Sprintf("%d written, %d died", written.members, written.dead)
+	if got := strings.TrimSpace(asking.String()); got != want {
+		t.Errorf("the closing line is %q, want %q", got, want)
 	}
 
 	if strings.Contains(out.String(), "written") {
@@ -94,29 +113,20 @@ func TestASurvivorRegeneratesFromItsOwnSeed(t *testing.T) {
 	}
 
 	lines := strings.Split(strings.TrimSpace(batched.String()), "\n")
-	if len(lines) < 2 {
-		t.Fatalf("%d members written", len(lines))
+
+	seeds := seedsWritten(t, batched.String())
+	if len(seeds) != len(lines) || len(seeds) < 2 {
+		t.Fatalf("%d members written", len(seeds))
 	}
 
-	for _, line := range lines {
-		var member struct {
-			Inputs struct {
-				Seed uint64 `json:"seed"`
-			} `json:"inputs"`
-		}
-
-		err = json.Unmarshal([]byte(line), &member)
-		if err != nil {
-			t.Fatalf("reading a member: %v", err)
-		}
-
+	for i, line := range lines {
 		var alone strings.Builder
 
 		err = run([]string{
-			cmdNew, flagAuto, flagSeed, strconv.FormatUint(member.Inputs.Seed, 10), flagService, scouts,
+			cmdNew, flagAuto, flagSeed, strconv.FormatUint(seeds[i], 10), flagService, scouts,
 		}, nil, &alone, io.Discard)
 		if err != nil {
-			t.Fatalf("regenerating seed %d: %v", member.Inputs.Seed, err)
+			t.Fatalf("regenerating seed %d: %v", seeds[i], err)
 		}
 
 		// Compared as records and not as text: batch writes JSONL and `new`
@@ -124,7 +134,7 @@ func TestASurvivorRegeneratesFromItsOwnSeed(t *testing.T) {
 		// The first version of this compared the strings and failed, which
 		// was the test being wrong about what it meant, not the tool.
 		if !sameRecord(t, line, alone.String()) {
-			t.Errorf("seed %d does not regenerate the member the batch wrote", member.Inputs.Seed)
+			t.Errorf("seed %d does not regenerate the member the batch wrote", seeds[i])
 		}
 	}
 }
@@ -156,12 +166,12 @@ func TestSurvivorsGivesUpRatherThanDrawingForever(t *testing.T) {
 	}
 }
 
-type roster struct{ members, dead int }
+type census struct{ members, dead int }
 
-func livingCount(t *testing.T, jsonl string) roster {
+func livingCount(t *testing.T, jsonl string) census {
 	t.Helper()
 
-	var found roster
+	var found census
 
 	for line := range strings.SplitSeq(strings.TrimSpace(jsonl), "\n") {
 		var member struct {
@@ -225,4 +235,171 @@ func TestABatchReportsASummaryThatCouldNotBeWritten(t *testing.T) {
 	if !errors.Is(err, errClosedPipe) {
 		t.Errorf("error %q does not carry the write failure", err)
 	}
+}
+
+// Which departures count as death, stated once and checked.
+//
+// --survivors rests entirely on this classification, and until now nothing
+// asserted it directly: the flag was checked by counting fatal records in a
+// roster, which passes just as well if a case is misread in a way the seeds
+// happen not to reach. Fold makes a new case a compile error here; this makes
+// a wrong answer for an existing one a test failure.
+func TestOnlyTheTwoDeathsCountAsDying(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		departure traveller.Departure
+		fatal     bool
+	}{
+		"discharged": {traveller.Discharged{}, false},
+		"forced out": {traveller.ForcedOut{}, false},
+		"retired":    {traveller.Retired{}, false},
+		"survival":   {traveller.KilledBySurvivalThrow{}, true},
+		"medical":    {traveller.KilledByMedicalCrisis{Characteristic: traveller.Endurance}, true},
+		"no service": {nil, false},
+	} {
+		if got := died(&chargen.Character{Departure: tc.departure}); got != tc.fatal {
+			t.Errorf("%s: died is %v, want %v", name, got, tc.fatal)
+		}
+	}
+}
+
+// A refused batch under --survivors keys on the seeds it will actually write.
+//
+// The check used to be arithmetic - the seeds base through base+count-1 - and
+// under --survivors that set is neither what the run writes nor a superset of
+// it. Both halves of the difference matter, so both are here: a file named
+// for a seed the run writes must refuse the batch, and a file named for a
+// seed the run only drew and passed over must not. The old arithmetic gets
+// the first right for the wrong reason - O_EXCL catches it halfway through
+// the directory, which is the very thing the check exists to prevent - and
+// the second wrong outright, so a one-sided test would not have caught it.
+func TestARefusedSurvivorBatchKeysOnTheSeedsItWrites(t *testing.T) {
+	t.Parallel()
+
+	const (
+		base   = uint64(1000)
+		wanted = 5
+	)
+
+	live, passedOver := survivorRun(t, base, wanted)
+
+	for name, tc := range map[string]struct {
+		plant   uint64
+		refuses bool
+		left    int
+	}{
+		"a seed it writes":      {live[len(live)-1], true, 1},
+		"a seed it passes over": {passedOver, false, len(live) + 1},
+	} {
+		dir := t.TempDir()
+		planted := memberPath(dir, tc.plant)
+
+		err := os.WriteFile(planted, []byte("{}\n"), 0o600)
+		if err != nil {
+			t.Fatalf("%s: planting the collision: %v", name, err)
+		}
+
+		var out strings.Builder
+
+		err = run([]string{
+			cmdBatch, flagCount, strconv.Itoa(wanted), flagAuto,
+			flagSeed, strconv.FormatUint(base, 10), flagService, scouts,
+			flagSurvivors, flagOutput, dir,
+		}, nil, &out, io.Discard)
+
+		switch {
+		case tc.refuses && err == nil:
+			t.Errorf("%s: the batch replaced a member that was already there", name)
+		case !tc.refuses && err != nil:
+			t.Errorf("%s: the batch was refused over a seed it never writes: %v", name, err)
+		}
+
+		found, err := filepath.Glob(filepath.Join(dir, "*.json"))
+		if err != nil {
+			t.Fatalf("%s: looking for the members: %v", name, err)
+		}
+
+		if len(found) != tc.left {
+			t.Errorf("%s: the run left %d files behind, want %d", name, len(found), tc.left)
+		}
+
+		// The planted file is never the run's to replace, either way.
+		kept, err := os.ReadFile(planted)
+		if err != nil {
+			t.Fatalf("%s: reading the planted file: %v", name, err)
+		}
+
+		if string(kept) != "{}\n" {
+			t.Errorf("%s: the planted file was written over", name)
+		}
+	}
+}
+
+// survivorRun reports what one --survivors batch writes: the seeds it wrote,
+// and one it drew and passed over.
+//
+// Both are read off a run rather than typed in, because which seeds live is
+// the dice-stream order's to change and a literal here would be a golden kept
+// by hand.
+func survivorRun(t *testing.T, base uint64, count int) ([]uint64, uint64) {
+	t.Helper()
+
+	var out strings.Builder
+
+	err := run([]string{
+		cmdBatch, flagCount, strconv.Itoa(count), flagAuto,
+		flagSeed, strconv.FormatUint(base, 10), flagService, scouts, flagSurvivors,
+	}, nil, &out, io.Discard)
+	if err != nil {
+		t.Fatalf("learning which seeds live: %v", err)
+	}
+
+	live := seedsWritten(t, out.String())
+	if len(live) < 2 {
+		t.Fatalf("%d members written", len(live))
+	}
+
+	written := make(map[uint64]bool, len(live))
+	for _, seed := range live {
+		written[seed] = true
+	}
+
+	// Every seed from the base up to the last member written was drawn, so
+	// those not written are the ones passed over. The scan starts at the base
+	// and not at the first member, because a seed below the first member is
+	// exactly the one the old arithmetic would have looked at.
+	for seed := base; seed <= live[len(live)-1]; seed++ {
+		if !written[seed] {
+			return live, seed
+		}
+	}
+
+	t.Fatal("this batch passed nobody over, so there is nothing here to check")
+
+	return nil, 0
+}
+
+// seedsWritten reads the seed off every member of a JSONL batch.
+func seedsWritten(t *testing.T, jsonl string) []uint64 {
+	t.Helper()
+
+	seeds := []uint64{}
+
+	for line := range strings.SplitSeq(strings.TrimSpace(jsonl), "\n") {
+		var member struct {
+			Inputs struct {
+				Seed uint64 `json:"seed"`
+			} `json:"inputs"`
+		}
+
+		err := json.Unmarshal([]byte(line), &member)
+		if err != nil {
+			t.Fatalf("reading a member: %v", err)
+		}
+
+		seeds = append(seeds, member.Inputs.Seed)
+	}
+
+	return seeds
 }

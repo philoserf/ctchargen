@@ -27,7 +27,7 @@ var (
 	}
 	batchFlags = []string{
 		flagCount, flagSeed, flagAuto, flagService, flagName, flagCareer,
-		flagSkills, flagMuster, flagOutput, flagForce,
+		flagSkills, flagMuster, flagOutput, flagForce, flagSurvivors,
 	}
 	renderFlags = []string{flagHistory, flagOutput, flagForce}
 )
