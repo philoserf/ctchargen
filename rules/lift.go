@@ -319,9 +319,20 @@ func liftServiceColumn(wire wireServices, i int, name traveller.ServiceName) (Se
 	// commissions, and promotions are non-existent in the scout and other
 	// services." A column that prints one without the others is malformed.
 	hasRanks := len(service.Ranks) > 0
-	for label, cell := range map[string]*wireThrow{
-		"commission": wire.Commission[i], "promotion": wire.Promotion[i],
+
+	// A slice and not a map: with both columns malformed, a range over a map
+	// names an arbitrary one of them, so the same broken data file reports a
+	// different problem run to run and a reader cannot tell whether he fixed
+	// anything (#53). The order is the page's.
+	for _, printed := range []struct {
+		label string
+		cell  *wireThrow
+	}{
+		{"commission", wire.Commission[i]},
+		{"promotion", wire.Promotion[i]},
 	} {
+		label, cell := printed.label, printed.cell
+
 		if (cell != nil) != hasRanks {
 			return Service{}, fmt.Errorf(
 				"%w: %v prints %s but %s ranks: p. 10 makes ranks, commissions and promotions one fact",

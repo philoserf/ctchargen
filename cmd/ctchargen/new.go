@@ -158,6 +158,21 @@ func withStrategies(in chargen.Inputs, career, skills, muster string) (chargen.I
 	return in, nil
 }
 
+// drawSeed draws a seed the tool chose for itself, anywhere in the documented
+// range including its top.
+//
+// rand.Uint64N's argument is exclusive, so passing maxDrawnSeed yielded
+// [0, 2^53-2] where the bound above says 2^53-1 inclusive (#56). Exactly one
+// seed of nine quadrillion was unreachable, which nobody would ever notice -
+// but the comment is the promise, and the test that guarded it asserted the
+// code's bound rather than the comment's.
+//
+// random is a parameter so the top of the range can be reached deliberately:
+// drawing until it comes up is not a test anyone can run.
+func drawSeed(random func(uint64) uint64) uint64 {
+	return random(maxDrawnSeed + 1)
+}
+
 func inputsFrom(seed uint64, name, service, career, skills, muster string, seedGiven bool) (
 	chargen.Inputs, error,
 ) {
@@ -167,7 +182,7 @@ func inputsFrom(seed uint64, name, service, career, skills, muster string, seedG
 	}
 
 	if !seedGiven {
-		in.Seed = rand.Uint64N(maxDrawnSeed)
+		in.Seed = drawSeed(rand.Uint64N)
 	}
 
 	if service == "" {
