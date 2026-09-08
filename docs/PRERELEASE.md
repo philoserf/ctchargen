@@ -532,3 +532,84 @@ can trust what the tool prints, and the record is frozen and supported — and
 only the first holds today. `record` is 1 and counts from `v1.0.0`;
 `additionalProperties` stays `false` until that tag and opens at it. A beta is
 what a tree looks like when the work is done and the promise is not yet made.
+
+---
+
+# v1.0.0-beta.2 — 2026-09-08
+
+The second beta, and the shape `v1.0.0` will freeze. Two issues: one to the
+record's schema, one to the gate that measures the tests. Neither changes a
+character.
+
+## What changed since beta.1
+
+- **The schema keeps the promise `v1.0.0` makes about the record (#113).**
+  Three decisions recorded in `CLAUDE.md` took effect at the tag and none was
+  implemented. `additionalProperties` is open at the root object and closed at
+  the fourteen objects inside it, so a later build may add a top-level section
+  and a reader holding this schema will load the record and render what it
+  understands — which `render` already did for an unknown event kind while the
+  schema contradicted it — and a key added inside an event is still refused.
+  `record` is a `minimum` rather than a fixed number, in the same change,
+  because opening the root alone delivered nothing: a record saying `2` failed
+  the schema before its new field was ever reached. What that relaxation cost
+  is covered by a test that this build writes `1`, which the `const` had been
+  doing as a side effect rather than on purpose.
+- **The ratchet became the two lines that were doing the work (#112).** 534
+  lines of Go — 299 in the tool, 235 in the tests it needed to earn its own
+  place in the profile it measured — are five lines of `awk` and a `diff`. The
+  guarantee is unchanged, and the file header stops lying: it said "A number
+  may fall; it may never rise" while `check` failed in both directions.
+
+## The review that preceded it
+
+**No whole-tool pass**, as at beta.1. alpha.3's three passes read the engine
+and the documents against the page, and nothing since has touched a rule.
+
+What ran was a review per PR, and one thing is worth recording because it
+happened twice in one afternoon. A mutation was reverted with
+`git checkout <file>`, which restores from the **index** — and the file's real
+change had not been staged, so the next mutation ran against the tree as it
+stood before any of the work. Both times the failure looked entirely plausible
+and said the wrong thing: the ratchet's new-package case named a package that
+had already been deleted, and the schema's `const` case reported the unknown-
+field error it existed to be isolated from. Both were re-run against a staged
+baseline, and only then did each name one thing.
+
+That is beta.1's finding in a new costume — a check asserting something other
+than what it appears to hold — and it is the one these gates are least able to
+catch themselves, because a mutation that reports a failure looks exactly like
+a mutation that worked.
+
+## Every new gate, broken on purpose
+
+| Mutation                                     | What the failure said                                                                  |
+| -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| root `additionalProperties` back to `false`  | `at '': additional properties 'portent' not allowed`                                   |
+| `record` back to `const: 1`                  | `at '/record': value must be 1`                                                        |
+| a step event's `additionalProperties` opened | "an unknown key inside an event validated; the record's own structures are not pinned" |
+| `recordShape` set to 2                       | "this build writes record shape 2; it writes 1 until v1.0.0"                           |
+
+Two mutations against one test, deliberately: the later-shape test carries two
+invariants, and reverting the root alone would have left the `minimum` half
+asserted by nobody.
+
+The ratchet's own four were run after the replacement — a count that rose, a
+count that fell, a package added, a package recorded that no longer exists.
+Each exits 1 and names the package with both numbers beside it.
+
+## What ships open
+
+Nothing, as at beta.1.
+
+## What this tag does not promise
+
+**The freeze is not made.** The record now has the shape `v1.0.0` will freeze,
+and a third party validating against `docs/character.schema.json` gets the
+answer the freeze intends rather than a refusal. That is not the same thing as
+the promise. #74's bar is two — a referee can trust what the tool prints, and
+the record is frozen and supported — and the second becomes true at the tag and
+not before it. A record written by this build is still not promised to be
+readable by the next.
+
+The shape is ready. The promise is what `v1.0.0` is for.
