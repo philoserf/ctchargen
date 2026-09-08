@@ -3,10 +3,10 @@
   "$id": "https://github.com/philoserf/ctchargen/docs/character.schema.json",
   "title": "Classic Traveller character record",
 
-  "description": "What ctchargen writes, as this build writes it. A description of the output, kept honest by CI - not a promise to records already written. Across builds nothing is promised: changing the procedure, the dice-stream consumption order, or an event's wording changes the output for a given seed, and that is an ordinary change. What makes that affordable is that a record is regenerable from its seed and its inputs, and nothing in it is hand-written.\n\nTwo of the optional benefit fields cannot appear together in any character this tool can generate. Book 1 p. 9 prints Travellers' Aid only in the Navy and Marines columns of Mustering Out Table 1, and the two starships only in the Scout and Merchant columns, and a character serves one service. So no valid record carries both travellersAid and ships. That is a fact about the rules rather than a gap in the fixtures, which is why character.complete.json shows the ships and not the membership.",
+  "description": "What ctchargen writes, as this build writes it. A description of the output, kept honest by CI - not a promise to records already written. Across builds nothing is promised: changing the procedure, the dice-stream consumption order, or an event's wording changes the output for a given seed, and that is an ordinary change. What makes that affordable is that a record is regenerable from its seed and its inputs, and nothing in it is hand-written.\n\nTwo of the optional benefit fields cannot appear together in any character this tool can generate. Book 1 p. 9 prints Travellers' Aid only in the Navy and Marines columns of Mustering Out Table 1, and the two starships only in the Scout and Merchant columns, and a character serves one service. So no valid record carries both travellersAid and ships. That is a fact about the rules rather than a gap in the fixtures, which is why character.complete.json shows the ships and not the membership.\n\nThe root object accepts a field it does not know; every object inside it does not. That is the narrower half of the v1.0.0 freeze, and it is deliberate (#76, #113). A later build may add a top-level section, and a reader holding this schema will load the record and render what it understands - which is what render already does for an event kind it does not know, printing (unknown event kind) rather than failing. A key added inside an existing object is still refused, because those are the structures a sheet is rendered from and pinning them is what keeps this schema worth validating against.",
 
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "required": [
     "record", "name", "upp", "characteristics", "age", "terms",
     "enlistment", "skills", "benefits", "inputs", "errata", "ruleset", "events"
@@ -15,8 +15,8 @@
   "properties": {
     "record": {
       "type": "integer",
-      "const": 1,
-      "description": "The shape of this record, not the build that wrote it and not the ruleset it reads. It is 1 until v1.0.0 and counts from there, not from every change: the record moves freely before the freeze, so a build that changes the shape before it leaves this alone and two pre-release shapes may both say 1. From v1.0.0 the shape is a public contract and a build that changes it says so here."
+      "minimum": 1,
+      "description": "The shape of this record, not the build that wrote it and not the ruleset it reads. It is 1 until v1.0.0 and counts from there, not from every change: the record moves freely before the freeze, so a build that changes the shape before it leaves this alone and two pre-release shapes may both say 1. From v1.0.0 the shape is a public contract and a build that changes it says so here. A minimum rather than a fixed number, so that a record from a later build validates against a reader's copy of this schema instead of being refused before its contents are looked at; what this build writes is held to 1 by a test of its own."
     },
     "name": {
       "type": "string",
