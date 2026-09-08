@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/philoserf/ctchargen/render"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
@@ -137,5 +139,129 @@ func TestARecordWithoutItsShapeDoesNotValidate(t *testing.T) {
 
 	if schema.Validate(body) == nil {
 		t.Error("a record with no shape validated; nothing holds the promise to anything")
+	}
+}
+
+// example reads one of the two documented examples back as a map, so a test
+// can change one thing about a record the engine actually wrote.
+func example(t *testing.T, name string) map[string]any {
+	t.Helper()
+
+	text, err := os.ReadFile(filepath.Join(docsDir, name))
+	if err != nil {
+		t.Fatalf("reading %s: %v", name, err)
+	}
+
+	var body map[string]any
+
+	err = json.Unmarshal(text, &body)
+	if err != nil {
+		t.Fatalf("%s is not JSON: %v", name, err)
+	}
+
+	return body
+}
+
+// A record from a later build - a shape number this schema has never seen, and
+// a top-level section it does not know - validates here, and renders.
+//
+// That is the promise v1.0.0 makes about the record (#62, #76, #113), and it
+// takes both halves of #113 to keep. `record` is a minimum rather than a fixed
+// number, and the root object accepts a field it does not know. Either alone
+// delivers nothing: a reader that refused the shape number would never reach
+// the field, and one that refused the field would not care what the number
+// said.
+//
+// The reading half was already true - decode ignores what it does not know,
+// and the transcript says so for an event kind it does not know - so the
+// schema was contradicting behaviour the tool already had. This holds the two
+// together.
+func TestALaterShapeWithAnUnknownFieldStillValidatesAndRenders(t *testing.T) {
+	t.Parallel()
+
+	schema := compileSchema(t)
+
+	body := example(t, "character.minimal.json")
+
+	if body["record"] == nil {
+		t.Fatal("the minimal example does not name its shape, so changing it proves nothing")
+	}
+
+	body["record"] = 2
+	body["portent"] = map[string]any{"omen": "a section a later build added"}
+
+	encoded, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("re-encoding the record: %v", err)
+	}
+
+	// Back through the decoder before validating, so every number is the
+	// float64 a record read off disk would carry.
+	var reparsed any
+
+	err = json.Unmarshal(encoded, &reparsed)
+	if err != nil {
+		t.Fatalf("the re-encoded record is not JSON: %v", err)
+	}
+
+	invalid := schema.Validate(reparsed)
+	if invalid != nil {
+		t.Errorf("a record from a later build does not validate, so the freeze promises nothing:\n%v", invalid)
+	}
+
+	sheet, err := render.SheetFrom(encoded)
+	if err != nil {
+		t.Fatalf("rendering a record from a later build: %v", err)
+	}
+
+	upp, _ := body["upp"].(string)
+	if !strings.Contains(sheet, upp) {
+		t.Errorf("the sheet for a record from a later build does not carry its UPP %q:\n%s", upp, sheet)
+	}
+}
+
+// A key this schema does not know, inside an event, still does not validate.
+//
+// #113 opened `additionalProperties` at the root object and at none of the
+// fourteen objects inside it. That is the narrower half of the promise, and it
+// is the point rather than an oversight: the structures inside a record are
+// what a sheet is rendered from, and pinning them is what keeps this schema
+// worth validating against. A later build may add a section; it may not
+// quietly change an event.
+func TestAnUnknownKeyInsideAnEventDoesNotValidate(t *testing.T) {
+	t.Parallel()
+
+	schema := compileSchema(t)
+
+	body := example(t, "character.complete.json")
+
+	events, ok := body["events"].([]any)
+	if !ok || len(events) == 0 {
+		t.Fatal("the complete example logs no events, so adding a key to one proves nothing")
+	}
+
+	// By kind and not by index. A golden regeneration can reorder the log,
+	// and a test that took the first event would then quietly start
+	// exercising a different one of the five event shapes than the mutation
+	// that was run against it.
+	var step map[string]any
+
+	for _, logged := range events {
+		event, isObject := logged.(map[string]any)
+		if isObject && event["kind"] == "step" {
+			step = event
+
+			break
+		}
+	}
+
+	if step == nil {
+		t.Fatal("the complete example logs no step event")
+	}
+
+	step["portent"] = "a key a later build added inside an event"
+
+	if schema.Validate(body) == nil {
+		t.Error("an unknown key inside an event validated; the record's own structures are not pinned")
 	}
 }

@@ -68,6 +68,13 @@ func JSON(character *chargen.Character) ([]byte, error) {
 // From v1.0.0 the shape is a public contract and a build that changes it says
 // so here. Nothing reads it yet, because until then there is only one value
 // to read.
+//
+// The schema says `minimum` rather than a fixed number (#113). That is a
+// statement about what a reader must accept, not about what this build writes:
+// a reader holding the v1.0.0 schema has to validate a record from a later
+// build rather than refuse it before looking at its contents. What holds this
+// build to 1 is ctchargen.TestThisBuildWritesShapeOne, which is the job the
+// schema's `const` used to be doing as a side effect.
 const recordShape = 1
 
 type record struct {

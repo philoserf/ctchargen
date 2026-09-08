@@ -142,3 +142,38 @@ func TestEveryBatchMemberMatchesTheSchema(t *testing.T) {
 		mustMatch(t, compiled, "batch member "+strconv.Itoa(i), line)
 	}
 }
+
+// This build writes shape 1.
+//
+// The schema said `"const": 1` until #113, and that one word was doing two
+// jobs: describing what a record may carry, and pinning what this build
+// writes. The freeze needs the first of those loose - a reader holding the
+// v1.0.0 schema must accept a shape number from a later build, or opening the
+// root object delivers nothing, because the record would be refused before its
+// unknown field was ever reached. So the schema says `"minimum": 1` now, and
+// the pinning that used to be a side effect of the const is this test.
+func TestThisBuildWritesShapeOne(t *testing.T) {
+	t.Parallel()
+
+	var out strings.Builder
+
+	err := run([]string{cmdNew, flagAuto, flagSeed, "4", flagService, navy}, nil, &out, io.Discard)
+	if err != nil {
+		t.Fatalf("generating: %v", err)
+	}
+
+	// Into a field of the right type rather than a map, whose numbers are
+	// float64 and would compare against an untyped 1 for the wrong reason.
+	var written struct {
+		Record int `json:"record"`
+	}
+
+	err = json.Unmarshal([]byte(out.String()), &written)
+	if err != nil {
+		t.Fatalf("what the command wrote is not JSON: %v", err)
+	}
+
+	if written.Record != 1 {
+		t.Errorf("this build writes record shape %d; it writes 1 until v1.0.0 (#96)", written.Record)
+	}
+}

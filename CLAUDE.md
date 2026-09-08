@@ -49,19 +49,32 @@ integer set in `project()` beside every other field, so it is present on every
 record, and counting the shape and nothing else — `build` names the writer and
 `ruleset` names the source text, and neither says what the file looks like.
 
-**`additionalProperties` opens at `v1.0.0`, and not before.** The schema
-refuses a field it does not know, which is right while nothing is promised and
-wrong once something is: from the freeze a reader should load a record from a
-later build and render what it understands, which is what `render` already does
-for an unknown event kind — it prints `(unknown event kind %q)` rather than
-failing, and the schema contradicts that behaviour today. The decision was
-taken in #76 and lived only in that issue's body until it was written here.
+**`additionalProperties` is open at the root, and closed at every object
+inside it (#113).** A later build may add a top-level section, and a reader
+holding this schema will load the record and render what it understands — which
+is what `render` already did for an unknown event kind, printing
+`(unknown event kind %q)` rather than failing, while the schema contradicted it.
+A key added inside an existing object is still refused: the fourteen nested
+objects are what a sheet is rendered from, and pinning them is what keeps the
+schema worth validating against. #76 decided that the schema should open and
+left the scope open; #113 settled it at the root and no further.
+
+**The schema opened in `v1.0.0-beta.2`, ahead of the tag, which is not the
+same as opening ahead of the freeze.** A file changes before a tag rather than
+at it, and a last beta is where the shape `v1.0.0` will freeze gets put in
+front of a referee first. What dates to `v1.0.0` is the **freeze** — the
+promise that a record written by one build reads in the next — and that is
+still unmade.
 
 **`record` is 1 until `v1.0.0` and counts from there (#96).** Not from every
 change: the record moves freely before the freeze, so a build that changes the
 shape before it leaves the number alone, and two pre-release shapes that both
 say 1 are what that freedom costs. Do not bump it to mark a pre-v1 change —
-that is the reading #96 declined.
+that is the reading #96 declined. The **schema** accepts any shape from 1
+upward, which is a different statement: a reader must be able to validate a
+record from a later build rather than refuse it before looking at its contents,
+so `minimum` is what the schema says and `TestThisBuildWritesShapeOne` is what
+holds this build to 1.
 
 **Windows binaries ship, and no document mentions Windows.**
 `release.yml` builds `windows/amd64` and `windows/arm64` alongside the other
