@@ -95,10 +95,10 @@ linters:
         # whole determinism contract. A cryptographic source would defeat
         # the tool rather than harden it.
         - G404
-        # Both callers use a path they were given - the ratchet from its own
-        # command line, the document gates from a constant joined to a file
-        # name. A command-line tool that refused to open the file named on
-        # its command line would have nothing left to do.
+        # Every caller uses a path it was given - render and the -o flag
+        # from the command line, the document gates from a constant joined
+        # to a file name. A command-line tool that refused to open the file
+        # named on its command line would have nothing left to do.
         - G304
         - G703
 
