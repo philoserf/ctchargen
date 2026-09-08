@@ -25,7 +25,7 @@ everything around it was still alpha. **That report is now answered in full.**
 Every command describes its own flags, the sheet names whose service it is and
 prints the seed, a session that stops offers the way back in, the line the tool
 tells you to paste is quoted, and a release carries binaries a referee can
-download without a Go toolchain. `v1.0.0-beta.1` is the current release.
+download without a Go toolchain. `v1.0.0-beta.2` is the current release.
 `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the rebuild at `41a213a` and
 install a different tool; their notes say so.
 
