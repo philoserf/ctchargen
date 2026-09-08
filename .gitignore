@@ -1,3 +1,4 @@
 # Build output and coverage artifacts. Everything else here is source.
 /ctchargen
 /coverage.out
+/coverage.counts.out
