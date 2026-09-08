@@ -572,8 +572,8 @@ happened twice in one afternoon. A mutation was reverted with
 change had not been staged, so the next mutation ran against the tree as it
 stood before any of the work. Both times the failure looked entirely plausible
 and said the wrong thing: the ratchet's new-package case named a package that
-had already been deleted, and the schema's `const` case reported the unknown-
-field error it existed to be isolated from. Both were re-run against a staged
+had already been deleted, and the schema's `const` case reported the field
+error it existed to be isolated from. Both were re-run against a staged
 baseline, and only then did each name one thing.
 
 That is beta.1's finding in a new costume — a check asserting something other
