@@ -220,10 +220,99 @@ heading is reachable by some path; every `POLICY.md` row names a `Decider`
 method and every method has a row; every `COVERAGE.md` row names a test that
 exists. Each gate is verified by breaking it.
 
+## The shape of the tree
+
+The packages, and the arrows point one way: `traveller` imports none of the
+others; `rules` and `chargen` import `traveller`; `render` imports the record.
+A domain type that needs to know about dice or JSON is in the wrong package.
+Each package carries its own contract in its doc comment, which is the current
+statement of it; what follows is only the map.
+
+**`traveller`** is the domain, and imports nothing else here. It holds the
+alphabets Book 1 prints, the values it works in, and the sums that say
+"exactly one of". The sums that are folds carry a cases interface — adding a
+case adds a method and every implementation stops compiling. The plain enums
+are held by the `exhaustive` linter instead, which is the gate and not the
+compiler, so dropping the linter drops the guarantee.
+
+**`rules`** holds every table of pp. 4–25 as `data/*.json`, embedded, and lifts
+it into `traveller` values once through `sync.OnceValues`. **The lift is the
+validation**: a cell naming no service, no characteristic, no benefit any row
+prints, or a target in a notation pp. 2–3 do not use fails there, so a table
+that will not lift is a build defect that surfaces immediately rather than a
+runtime condition some path might reach. Each table is transcribed twice —
+into `data/`, and into `transcription_test.go` and `tables_test.go` — from one
+visual reading. That is authority rule 3, and `rules` is where it lives.
+
+**`dice`** draws from a seeded PCG and never judges a throw against a target;
+that is `traveller.Target`. One seed reproduces one character, which is what
+`--seed`, `--answers`, `batch` and every golden rest on.
+
+**`chargen`** walks the procedure. `Generate(Inputs, Decider, ...Option)` is
+the entry point: it throws through a `Roller` and asks through a `Decider`, and
+it cannot tell auto mode from a person from a test. `Decider` has one method
+per choice point — that is what closes the set, and what `docs/POLICY.md`
+carries a row apiece for. `Policy` is the `--auto` implementation: total,
+deterministic, and a pure function of what it is handed. The run writes an
+event log as it goes, which is what `--history` prints and what an observer
+watches live.
+
+**`render`** projects the finished record — `JSON`, `JSONLine`, `Sheet`,
+`Transcript`, `EventLine` for a live watcher — and reads one back in
+`decode.go`. Where the domain shape and the wire shape disagree, the codec
+absorbs it and the domain type keeps its shape.
+
+**`internal/docsgate`** has no non-test code. It is the one package allowed to
+know about `traveller`, `chargen` and the documents at once, and it holds
+`ERRATA.md`, `POLICY.md` and `COVERAGE.md` to the code in both directions. It
+reads the checked-in goldens rather than generating records, so it reads what a
+referee would be handed.
+
+**`cmd/ctchargen`** is the subcommands and their flag sets. It splits the data
+channel from the asking channel: the record, the sheet and the transcript to
+stdout, every question, count and warning to stderr — so
+`ctchargen new --seed 7 | jq` pipes a record and not a conversation.
+
+## Commands
+
+`task` is the gate and the default. `task --list` carries the current set;
+narrower than a task, in a loop:
+
+```sh
+go test ./chargen                     # one package
+go test ./chargen -run TestGoldens    # one test
+go test ./chargen -regenerate         # rewrite the goldens
+go run ./cmd/ctchargen new --auto --seed 145 --sheet
+```
+
+- **A package that passes on its own can still move the gate.** `-race`,
+  `-coverpkg` and the ratchet run only under `task`, and `-coverpkg` is what
+  makes the profile count code exercised across package lines — render driven
+  by chargen's goldens, the engine by the command's. Run `task` before calling
+  a change done.
+- **`task fix` is not a safe blind operation here**, on a repository that
+  quotes a primary source. Two of its fixers have already rewritten this tree
+  incorrectly: `godot` appended a period after a closing quotation mark in
+  eleven doc comments, and `dupword` deleted a word from a verbatim quotation
+  of Book 1 p. 3. Both are configured off that behaviour now. Read the diff.
+- **`go test ./chargen -regenerate` rewrites more than `chargen/testdata/`.**
+  The same fixtures write `docs/character.minimal.json` and
+  `docs/character.complete.json`, so the schema's published examples cannot
+  drift from what the engine emits. `docs/character.schema.json` itself is not
+  regenerated — it is written by hand and validated against.
+
 ## Once there is code
 
-- **The gate is `task`** — formatting, `go vet`, golangci-lint, NilAway,
-  `go test -race`. CI runs exactly `task`.
+- **The gate is `task`** — `go mod tidy -diff`, `go vet`, golangci-lint
+  (which is where gofumpt runs, so there is one definition of formatted),
+  NilAway, `go test -race`, and the coverage ratchet. CI runs exactly `task`.
+- **A ratchet failure is usually not lost coverage.** `coverage.ratchet` holds
+  each package's count of uncovered statements, and a blank line splits a
+  coverage block — so a `wsl_v5` reflow or an extracted helper moves the counts
+  without changing what the tests reach. Read the named packages first: a
+  reflow or a refactor is answered by `task ratchet:update`; anything else
+  stopped being covered. It fails in both directions, because a number that has
+  fallen is a ratchet that has stopped holding.
 - **The toolchain is deliberately unpinned.** A red gate on untouched code is
   the signal working. Answer the finding; do not pin a tool to silence it.
 - **Dice-stream consumption order is load-bearing.** The die is `IntN(6) + 1`
@@ -240,15 +329,14 @@ exists. Each gate is verified by breaking it.
   predicate from the document's prose, never from the stamping code: a condition
   transcribed from the thing it checks is one reading written twice, which is
   the same trap rule 3 above exists for.
-- Package arrows point one way: `traveller` imports none of the others;
-  `rules` and `chargen` import `traveller`; `render` imports the record. A
-  domain type that needs to know about dice or JSON is in the wrong package.
 
 ## Working conventions
 
 - Markdown written here is reflowed by prettier immediately after the write
   (a user-level `PostToolUse` hook, not repo config). The reflow is expected;
   leave it alone rather than reverting it.
+- **`docs/character.schema.json` is hand-formatted.** Never run prettier over
+  it; the reflow hook is a markdown one and this file is outside it.
 - Commits and PRs only when asked. Branch off `main` first; the history is
   squash-merged PRs with sentence-case subjects that say what changed
   ("Correct two typed ranges, name the font trap, and add milestone 0").
