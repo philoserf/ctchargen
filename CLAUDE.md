@@ -212,6 +212,8 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/COVERAGE.md`           | Every implemented rule of pp. 4–25, mapped to its page cite, its implementation and its test. A rule with no row is not implemented; a row with no test is a defect.                           |
 | `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
 | `docs/PRERELEASE.md`         | One section per tag: what it ships with open and why, and the review that preceded it where there was one. A finding is recorded before it is fixed.                                           |
+| `THEORY.md`                  | Nothing binding. What the code believes, where those beliefs are enforced, and where they rest on nothing but care. A reader's account, not a contract.                                        |
+| `WALKTHROUGH.md`             | Nothing binding. A linear read of the code in execution order, generated. Where it disagrees with the tree, it is the document that is wrong.                                                   |
 | `CLAUDE.md`                  | This file.                                                                                                                                                                                     |
 
 The documents are held to the code in both directions once code exists: every
