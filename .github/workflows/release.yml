@@ -24,11 +24,11 @@ jobs:
       # from the checkout, and a dependency that load-bearing is written down
       # rather than inherited. Checked out at main instead, all six would
       # carry a pseudo-version.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           # Deliberately unpinned, as in ci.yml.
           go-version: stable

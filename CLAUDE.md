@@ -213,7 +213,7 @@ its list of places the book is silent, and the readings it reached there.
 | `docs/character.schema.json` | What this build writes, in draft 2020-12, with a generated minimal and complete example beside it. A description of the output kept honest by CI — never a promise to records already written. |
 | `docs/PRERELEASE.md`         | One section per tag: what it ships with open and why, and the review that preceded it where there was one. A finding is recorded before it is fixed.                                           |
 | `THEORY.md`                  | Nothing binding. What the code believes, where those beliefs are enforced, and where they rest on nothing but care. A reader's account, not a contract.                                        |
-| `WALKTHROUGH.md`             | Nothing binding. A linear read of the code in execution order, generated. Where it disagrees with the tree, it is the document that is wrong.                                                   |
+| `WALKTHROUGH.md`             | Nothing binding. A linear read of the code in execution order, generated. Where it disagrees with the tree, it is the document that is wrong.                                                  |
 | `CLAUDE.md`                  | This file.                                                                                                                                                                                     |
 
 The documents are held to the code in both directions once code exists: every
@@ -307,7 +307,8 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
 
 - **The gate is `task`** — `go mod tidy -diff`, `go vet`, golangci-lint
   (which is where gofumpt runs, so there is one definition of formatted),
-  NilAway, `go test -race`, and the coverage ratchet. CI runs exactly `task`.
+  NilAway, `go test -race`, the coverage ratchet, and prettier over the non-Go
+  files. CI runs exactly `task`.
 - **A ratchet failure is usually not lost coverage.** `coverage.ratchet` holds
   each package's count of uncovered statements, and a blank line splits a
   coverage block — so a `wsl_v5` reflow or an extracted helper moves the counts

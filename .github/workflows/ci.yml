@@ -13,13 +13,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           # Deliberately unpinned, as above.
           go-version: stable
@@ -35,7 +39,7 @@ jobs:
       # second invocation in CI with different arguments and a different
       # working directory -- the one thing the "CI runs exactly `task`" rule
       # exists to prevent.
-      - uses: golangci/golangci-lint-action@v8
+      - uses: golangci/golangci-lint-action@v9
         with:
           version: latest
           install-only: true
@@ -48,5 +52,9 @@ jobs:
         run: |
           go install github.com/go-task/task/v3/cmd/task@latest
           go install go.uber.org/nilaway/cmd/nilaway@latest
+
+      # prettier for `task docs`. Unpinned, like everything the gate runs.
+      - name: Install prettier
+        run: npm install --global prettier
 
       - run: task
