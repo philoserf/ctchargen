@@ -11,6 +11,24 @@ vars:
   PROFILE: coverage.out
   RATCHET: coverage.ratchet
   COUNTS: coverage.counts.out
+
+  # The module path, which every line of a well-formed profile begins with.
+  MODULE:
+    sh: go list -m
+
+  # A profile line whose path is not in this module is a torn write, not a
+  # package. -coverpkg makes every test binary append to one file, and in
+  # cschargen an interleaved write produced "gigithub.com/..." -- a
+  # duplicated "gi" in one line of 22,140.
+  #
+  # UNCOVERED derives a package by string surgery on that path and validates
+  # nothing, so a torn line invents a package and the gate fails on "a
+  # package appearing": a real check, on fabricated input, reported as
+  # something it is not. Checked separately so the message can say which.
+  MALFORMED: >-
+    awk -v module='{{.MODULE}}' 'NR > 1 && index($1, module "/") != 1 {
+    printf "  line %d: %s\n", NR, $1 > "/dev/stderr"; torn++ }
+    END { exit (torn > 0) }' {{.PROFILE}}
   # Uncovered statements per package, read out of the raw coverage profile.
   # A profile line is "import/path/file.go:span statements executions", and
   # the package is the directory the file sits in.
@@ -50,6 +68,7 @@ tasks:
       - task: nilaway
       - task: test
       - task: ratchet
+      - task: docs
 
   tidy:
     desc: go.mod and go.sum are current
@@ -118,6 +137,13 @@ tasks:
       # number that has fallen fails too, because a stale number is a
       # ratchet that has stopped holding.
       - |
+        {{.MALFORMED}} || {
+          echo "" >&2
+          echo "{{.PROFILE}} is torn: the lines above are not paths in {{.MODULE}}." >&2
+          echo "Re-run \`task test\` -- this is a write race, not a coverage change," >&2
+          echo "and \`task ratchet:update\` would record the damage." >&2
+          exit 1
+        }
         {{.UNCOVERED}} > {{.COUNTS}}
         grep -v '^#' {{.RATCHET}} | diff - {{.COUNTS}} || {
           echo "" >&2
@@ -133,12 +159,30 @@ tasks:
       # The header is stripped before the comparison, so it is prose for a
       # reader of the file rather than part of what is held.
       - |
+        {{.MALFORMED}} || {
+          echo "" >&2
+          echo "{{.PROFILE}} is torn: the lines above are not paths in {{.MODULE}}." >&2
+          echo "Refusing to write {{.RATCHET}} from it. Re-run \`task test\`." >&2
+          exit 1
+        }
         {
           echo "# Uncovered statements per package. The gate fails in both directions:"
           echo "# a number that rises is lost coverage, one that falls is coverage to lock in."
           echo "# Regenerate with: task ratchet:update"
           {{.UNCOVERED}}
         } > {{.RATCHET}}
+
+  docs:
+    desc: Markdown, JSON and YAML are formatted
+    # prettier is to every non-Go file what gofumpt is to the Go files. It
+    # runs in --check here because the gate reports rather than repairs;
+    # `task docs:fix` is the writer.
+    cmds:
+      - prettier --check .
+
+  docs:fix:
+    cmds:
+      - prettier --write .
 
   build:
     cmds:

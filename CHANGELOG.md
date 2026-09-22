@@ -1,0 +1,433 @@
+# Changelog
+
+## Unreleased
+
+Bullets as the work lands. The release pass rewrites this into whatever the
+release turns out to be.
+
+## v1.0.0-beta.2 — 2026-09-08
+
+The tracker is empty, and this is the shape `v1.0.0` will freeze. Nothing here
+changes a character.
+
+### Install
+
+A binary, needing no Go toolchain. This is the line for an Apple-silicon Mac:
+
+```sh
+curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-beta.2/ctchargen-v1.0.0-beta.2-darwin-arm64
+chmod +x ctchargen
+```
+
+Substitute `darwin-amd64`, `linux-amd64` or `linux-arm64` in the filename for
+another machine; `checksums.txt` is attached beside them. A **browser**
+download is quarantined and needs `xattr -d com.apple.quarantine ctchargen`
+first — `curl` is not. The binaries are **unsigned**, so a recent macOS may
+refuse one regardless; if it does, the tool is not broken and
+`go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.2` is the
+way in.
+
+### What a referee will notice
+
+Nothing at the table. Every character this build generates is the character
+beta.1 generated from the same seed. The two changes are to the record's
+published schema and to the repository's own coverage gate.
+
+That is what a last beta before a freeze looks like: the work is in what the
+record promises rather than in what it says.
+
+### What changed in the record
+
+**`docs/character.schema.json` now describes the record `v1.0.0` will freeze.**
+
+A record from a later build validates against it. The root object accepts a
+top-level section this schema has never seen, and `record` — the field naming
+the record's shape — accepts a number from the future rather than being pinned
+to `1`. Both halves were needed: a reader that refused the shape number would
+never have reached the new field it was meant to allow.
+
+That is the point of a frozen record. A third party holding the `v1.0.0` schema
+should be able to load a record written by a later build and render what it
+understands, which is what `ctchargen render` already does for an event kind it
+does not know — it prints `(unknown event kind …)` rather than failing.
+
+**The record's own structures are still pinned.** A key added inside an event,
+inside `enlistment`, inside a benefit, is refused exactly as before. Those are
+what a sheet is rendered from, and pinning them is what keeps the schema worth
+validating against. A later build may add a section; it may not quietly change
+an event.
+
+This build still writes `record: 1`, and there is now a test that says so.
+
+### What this tag does not promise
+
+**The freeze is not made.** `v1.0.0` means two things and only the first holds
+today: a referee can trust what the tool prints at the table, and the record is
+frozen and supported. A record written by this build is still not promised to
+be readable by the next until that tag.
+
+The shape is ready. The promise is what `v1.0.0` is for.
+
+### Notes
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation.
+
+`docs/PRERELEASE.md` carries the full account, including the review that
+preceded this tag and the four new gates broken on purpose.
+
+## v1.0.0-beta.1 — 2026-09-05
+
+The backlog is empty. Every milestone is closed, and this is the first tag to
+ship with no finding open at any severity.
+
+### Install
+
+A binary, needing no Go toolchain. This is the line for an Apple-silicon Mac:
+
+```sh
+curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-beta.1/ctchargen-v1.0.0-beta.1-darwin-arm64
+chmod +x ctchargen
+```
+
+Substitute `darwin-amd64`, `linux-amd64` or `linux-arm64` in the filename for
+another machine; `checksums.txt` is attached beside them. A **browser**
+download is quarantined and needs `xattr -d com.apple.quarantine ctchargen`
+first — `curl` is not. The binaries are **unsigned**, so a recent macOS may
+refuse one regardless; if it does, the tool is not broken and
+`go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.1` is the
+way in.
+
+### What a referee will notice
+
+- **Twenty NPCs stop reading as twenty copies.** The auto policy took the first
+  weapon on the printed list every time — Body Pistol and Dagger, and nothing
+  else, across thirty characters — and designated Advanced Education every time
+  it was offered. Over the same thirty it now names twenty-one distinct weapons
+  and uses all four skills tables. A character generated under the default no
+  longer goes his whole career without raising a characteristic.
+- **`batch` says what it did**, on standard error so it cannot corrupt the
+  JSONL: `100 written, 76 died`. That is the rules working — the default
+  strategy re-enlists until the survival throw gets him — but a directory of
+  corpses with no word about it was a trap.
+- **`--survivors`** passes over the dead and goes on to the next seed, so
+  "twenty scouts for the starport" is one command. It rerolls nobody: each
+  character written is still exactly what his own seed makes, and
+  `new --seed <that>` brings him back. The seeds are simply no longer
+  consecutive.
+- **`batch` streams.** `ctchargen batch --count 50000 --auto | jq` produces its
+  first record immediately rather than after the run.
+- **Two flags that were quietly ignored are refused**: `--sheet --history`
+  together, and a word typed after a help flag.
+
+### What changed in the record
+
+The record now names **its own shape** and **the policy that answered it**, so
+two records from one seed can be told apart by why they differ rather than only
+that they do. A roll with nothing to meet — the draft die, a skills table, a
+mustering out roll — is its own event kind rather than a throw recorded as
+having "succeeded" against nothing.
+
+`docs/character.schema.json` describes all of it, and every golden is validated
+against it.
+
+### What this tag does not promise
+
+**The record is not frozen.** `v1.0.0` means two things and only the first
+holds today: a referee can trust what the tool prints at the table, and the
+record is frozen and supported. A record written by this build is not promised
+to be readable by the next until that tag.
+
+### Notes
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation.
+
+`docs/PRERELEASE.md` carries the full account, including the review that
+preceded this tag and what it kept finding.
+
+## v1.0.0-alpha.5 — 2026-09-04
+
+The tag that closes the referee's alpha report. Every finding of
+[#26](https://github.com/philoserf/ctchargen/issues/26) is answered, and this
+is the first release whose binaries are attached by CI rather than by hand.
+
+### Install
+
+A binary, needing no Go toolchain:
+
+```sh
+curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-alpha.5/ctchargen-v1.0.0-alpha.5-darwin-arm64
+chmod +x ctchargen
+```
+
+Substitute `darwin-amd64`, `linux-amd64` or `linux-arm64` in the filename for
+another machine; `checksums.txt` is attached beside them. A **browser**
+download is quarantined and needs `xattr -d com.apple.quarantine ctchargen`
+first — `curl` is not, which is why the line above is one. The binaries are
+**unsigned**, so a recent macOS may refuse one regardless; if it does, the tool
+is not broken and `go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.5`
+is the way in.
+
+### What a referee will notice
+
+- **The sheet prints the seed**, so a character you liked can be generated
+  again — and the footer stops offering a command for a character the seed
+  cannot bring back.
+- **The headline says whose service it is.** Where you named one, it says the
+  policy did not choose it; where the draft placed him after a refused
+  enlistment, it names the service that refused him.
+- **A session that stops offers the way back in.** Ctrl-D or a closed pipe
+  halfway through generation now prints the seed and the answers you gave, and
+  `--answers 1,2,1` replays them to the question you stopped on. A half-built
+  character is still not a record — but a long session is no longer retyped.
+- **Interactive generation reads straight.** Event numbers no longer skip, the
+  two Advanced Education menu entries are told apart, and a non-numeric answer
+  is complained about by name instead of silently re-printing the menu.
+- **A one-term character no longer prints "1 terms".**
+- **Errata are off the sheet.** They stay in the record and in the transcript,
+  where an id can be looked up; on the sheet they were ids a reader could not
+  expand.
+- **The regenerate line quotes what it pastes.** A record is a file people
+  share, and its fields were reaching your shell unquoted.
+
+### What ships open, and why
+
+**This tag departs from the shipping bar** stated in
+[`docs/PRERELEASE.md`](https://github.com/philoserf/ctchargen/blob/v1.0.0-alpha.5/docs/PRERELEASE.md),
+as alpha.4 did and for the same reason: #41, #42 and #43 are still open. All
+three are structural findings from the prerelease code audit (#27) about the
+shape of the code, and none of them changes a character the tool generates.
+They are the next milestone's first work.
+
+Also open: `batch` and the record's shape (#33, #34, #44, #46, #50, #76), and
+housekeeping (#51–#60, #83, #84). #76 matters more than its number suggests —
+the record does not yet name its own shape, so the freeze promised at `v1.0.0`
+has nothing to attach to.
+
+That document's alpha.5 section carries the full account, including the review
+that preceded this tag: no whole-tool pass, but a review per PR, three of which
+in a row caught a regression introduced while fixing something else.
+
+### Notes
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation.
+
+alpha.4's binaries were built locally and uploaded after the fact; its notes
+say so. These come from `release.yml`, which checks out this tag itself.
+
+## v1.0.0-alpha.4 — 2026-09-04
+
+The tool describes itself now.
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.4
+```
+
+Go excludes prereleases from `@latest`, so an alpha installs by name. That is
+the intended friction.
+
+> **Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+> rebuild at `41a213a` and are builds of a **different implementation** — they
+> have a `replay` subcommand and flags this tool does not. Their notes are
+> accurate about the tag they head and describe nothing here. They are not an
+> upgrade path; this tag is a fresh install.
+
+### Every command lists its own flags
+
+This is the first finding of a Classic Traveller referee's alpha report (#26),
+and the one his verdict named first. Before this tag, `new --help` and
+`batch -h` printed `usage: flag: help requested` and exited 1, `--help` at top
+level read as a mistyped subcommand, and there was no flag list anywhere.
+
+```
+$ ctchargen --help
+usage: ctchargen <command> [flags]
+
+  new      generate one character, asking at every choice unless --auto
+  batch    generate many characters from one base seed, under --auto
+  render   write a record saved earlier as a sheet or as a transcript
+  version  write the build
+
+Run `ctchargen <command> --help` for that command's flags.
+```
+
+`ctchargen new --help` lists all eleven of its flags with their descriptions,
+**their values and their defaults** — which matters here, because the notes for
+`v1.0.0-alpha.2` documented three strategies that were later renamed, and a
+reader following that page had no way to find out from the tool.
+
+### A typo no longer becomes a session
+
+`ctchargen new extra-arg` used to ignore the word and start an interactive
+generation on a seed nobody chose. Every command refuses a word it was not
+expecting now.
+
+**This narrows accepted input in one place:** `ctchargen version junk` was
+accepted at exit 0 and is an error here. **That is not settled** — #70 is open
+precisely to decide whether it keeps the refusal, softens it to unknown flags
+only, or reverts. Shipping this tag is not a verdict on it.
+
+### The README says how to install it
+
+It never did. It opened with four `ctchargen …` lines and never said how
+`ctchargen` gets onto a path, and it documented about a third of the flags. It
+now carries an install section, all four commands, and recipes that use the
+flags it never mentioned — including `batch` with no `-o`, which writes NDJSON
+to standard output.
+
+An unknown strategy is also refused in words rather than by pointing at a
+repository file:
+
+```
+before: no such strategy: --muster "benefits"; POLICY.md carries [cash goods spartan]
+after:  no such strategy: --muster "benefits"; want cash, goods, spartan
+```
+
+### Still alpha, and what that means here
+
+[`docs/PRERELEASE.md`](https://github.com/philoserf/ctchargen/blob/v1.0.0-alpha.4/docs/PRERELEASE.md)
+carries the full list. In short: three high findings from the code audit (#41,
+#42, #43) are open, and this tag departs from that document's own shipping bar
+to say so. All three are structural — about the shape of the code — and none of
+them changes a character the tool generates. The rest of the referee's report
+is open too, the seed absent from the character sheet (#32) being the next one
+answered.
+
+The engine is the part that has earned trust: determinism holds, the book's own
+worked character (pp. 23–25) replays against it, and the 1977 death rule is
+implemented as printed. Everything around the engine is still alpha.
+
+### Binaries
+
+Attached after the fact, and **built locally rather than by CI** — the release
+workflow that produces them lands after this tag, so from the next release the
+assets come from a runner checking out the tag itself. Both routes stamp the
+same version; the difference is only in what a downloader is trusting, and it
+is recorded here rather than left to look identical.
+
+`checksums.txt` covers every binary beside it.
+
+## v1.0.0-alpha.3 — 2026-09-03
+
+Tagged without published release notes.
+
+## v1.0.0-alpha.2 — 2026-08-30
+
+> [!WARNING]
+> **Superseded — do not install this.** This release is a build of an
+> implementation **removed from this repository** at `41a213a` ("Fresh
+> start"). It has a `replay` subcommand and flags the current tool does not,
+> and it is not an upgrade path to anything below it.
+>
+> Install [**v1.0.0-alpha.4**](https://github.com/philoserf/ctchargen/releases/tag/v1.0.0-alpha.4)
+> instead. The notes below are unedited, and are kept as the record of what
+> this tag installs.
+
+---
+
+`--auto` can now be steered.
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.2
+```
+
+### Named strategies
+
+Three rows of the policy are selectable, and the defaults are unchanged — a record generated without these flags differs from an `alpha.1` record only in its version stamps.
+
+```sh
+ctchargen new --auto --skills rounded          # a term improving himself, a term learning
+                                               # the trade, a term specialising
+ctchargen batch --count 20 --auto --skills advanced --career 4
+```
+
+| Flag       | Values                                                    |
+| ---------- | --------------------------------------------------------- |
+| `--skills` | `service` (default) · `personal` · `advanced` · `rounded` |
+| `--muster` | `cash` (default) · `benefits`                             |
+| `--career` | `max` (default) · a term 1–7 to leave after               |
+
+**Why `--skills` matters.** The default always chose Service Skills, which meant a character never rolled on Personal Development — so never gained a characteristic in service — and never rolled on Advanced Education, putting Medical, Navigation, Computer, Leader and Administration out of reach outside the p. 23 rank grants. It compounded: the fourth table needs Education 8+, and Education rises only on Personal Development.
+
+Across 30 characters from one base seed:
+
+|                     | in-service characteristic gains | distinct skills                             |
+| ------------------- | ------------------------------- | ------------------------------------------- |
+| default             | 1                               | 13                                          |
+| `--skills rounded`  | **53**                          | 15                                          |
+| `--skills advanced` | 0                               | **18** (reaches the Education 8+ table 55×) |
+
+`--career` sets **intent, not outcome**: the reenlistment throw is still required each term (p. 6) and a 12 exactly still forces another term (pp. 6–7). `--muster benefits` never rolls for cash, so the character musters out with none.
+
+Every strategy is a pure function of the choice it is handed, so the policy stays **total** and **deterministic** — same inputs, same character. [`docs/POLICY.md`](docs/POLICY.md) describes each one, and a gate holds the strategies the CLI accepts to the ones that document describes, in both directions.
+
+### Breaking: record versions moved
+
+`schema_version` **2 → 3** and `policy_version` **3 → 4**.
+
+Which strategy generated a character is caller input, so it is recorded in the record's `inputs`; `policy_version` continues to name the document rather than the selection within it. The new fields are omitted when the defaults were used.
+
+**Records written by `v1.0.0-alpha.1` need `replay --ignore-provenance` against this build.** That is the whole reason this tag follows so quickly — leaving the only tag behind the change would have hidden the break.
+
+`engine_version` stays **0.6.0**: a strategy changes the character the way `--service` does, through input, not through the engine. No golden fixture moved.
+
+### Still alpha
+
+For the same reason as before: every defect found in review has come from reading a held page, not from running a test. `v1.0.0` waits on characters generated in anger against the book.
+
+## v1.0.0-alpha.1 — 2026-08-30
+
+> [!WARNING]
+> **Superseded — do not install this.** This release is a build of an
+> implementation **removed from this repository** at `41a213a` ("Fresh
+> start"). It has a `replay` subcommand and flags the current tool does not,
+> and it is not an upgrade path to anything below it.
+>
+> Install [**v1.0.0-alpha.4**](https://github.com/philoserf/ctchargen/releases/tag/v1.0.0-alpha.4)
+> instead. The notes below are unedited, and are kept as the record of what
+> this tag installs.
+
+---
+
+The full Classic Traveller prior-service procedure of **Book 1 pp. 4–25**, generated against the held © 1977 text: characteristics, enlistment and the draft, terms with survival, commissions, promotions and skills, aging and the medical crisis, mustering out with ships and titles. Death is an outcome, not an error — the dead get complete records too.
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-alpha.1
+```
+
+Go excludes prereleases from `@latest`, so the alpha installs by name. That is the intended friction.
+
+### What it does
+
+```sh
+ctchargen new --auto                        # one character, policy decides, JSON to stdout
+ctchargen new --seed 42 --service navy      # interactive: you answer each choice
+ctchargen batch --count 20 --auto -o npcs.jsonl
+ctchargen render character.json             # Markdown character sheet
+ctchargen render --history character.json   # the full generation transcript
+ctchargen replay character.json             # verify a record reproduces exactly
+```
+
+The JSON record is canonical; the Markdown is a render of it. Every record carries its seed, versions, inputs, and the complete event log, and `replay` re-runs the engine from the seed and recorded choices, exiting non-zero at the first divergence.
+
+### What is verified
+
+Every rule carries a printed-page cite, and every interpretation is recorded in [`docs/ERRATA.md`](docs/ERRATA.md) with its cite and **stamped on the records it governed** — E001 through E009, so a record says which readings shaped it.
+
+The rule data was checked cell by cell against the held pages: the Prior Service Table, the Table of Ranks, all 24 acquired-skills tables, both mustering-out tables, the Aging Table, the Rank and Service Skills box, the retirement pay table, both weapons lists, and Book 3's Nobility table.
+
+The book's own worked example reproduces. Jamison (p. 25): UPP 779C99, four merchant-ship receipts becoming a 30-year-old ship owing 10 years of payments, CR 4,000 retirement, two extra muster rolls at rank 5, aging saves at 34 and 38.
+
+[`docs/COVERAGE.md`](docs/COVERAGE.md) maps every rule to its cite, implementation, and test. [`docs/POLICY.md`](docs/POLICY.md) is the auto mode's decision table. [`docs/PRERELEASE_REVIEW.md`](docs/PRERELEASE_REVIEW.md) is the v1.0.0 bar and the evidence for each line of it.
+
+### Why alpha
+
+Because the remaining instrument is use. Every defect found in the last three review passes was found by **reading a held page**, not by running a test — a page cite that was wrong in ten places including every titled record's event log, and a rules interpretation that had been applied silently since the beginning. What the suite can prove, it now proves; the rest needs characters generated in anger.
+
+`v1.0.0` follows when use against the book turns up nothing the suite missed.
+
+### Versions
+
+`engine_version` 0.6.0, `schema_version` 2, `policy_version` 3. These track record behaviour rather than releases and are independent of this tag — `engine_version` changes when generation behaviour or any event's text changes, because `replay` compares whole events.

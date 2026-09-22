@@ -1,0 +1,21 @@
+# Golden fixtures move only by regeneration, never by hand -- and a
+# formatter is "by hand" in effect. They are compared byte for byte, so
+# reformatting one breaks the gate with a diff that looks like the dice
+# stream moved when it has not.
+**/testdata/
+
+# Transcribed from the page and read by the loader; leave the shape alone
+# so a diff here is a transcription change and nothing else.
+rules/data/
+
+# Records in the shape the engine emits, validated against the schema.
+docs/character.complete.json
+docs/character.minimal.json
+
+# Hand-formatted (CLAUDE.md, "Working conventions").
+docs/character.schema.json
+
+# Showboat manages this file's formatting, and every fenced block in it is
+# verified output. Prettier would reflow the blocks and break `showboat
+# verify`, which is the only thing that says the document still runs.
+WALKTHROUGH.md

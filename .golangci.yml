@@ -165,8 +165,8 @@ linters:
       # prefix every error in the engine with the name of the dispatcher
       # that forwarded it.
       ignore-interface-regexps:
-        - 'Cases$'
-        - 'Decider$'
+        - "Cases$"
+        - "Decider$"
 
     wsl_v5:
       # Every check, not the default subset.

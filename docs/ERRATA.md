@@ -24,22 +24,22 @@ keeps its heading and says it is withdrawn.
 
 ## Index
 
-| Id                                                                    | Reading                                           | Pages      |
-| --------------------------------------------------------------------- | ------------------------------------------------- | ---------- |
-| [E001](#e001--the-draft-is-may-not-must)                              | The draft is _may_, not _must_                    | 1:5        |
-| [E002](#e002--the-per-term-order-is-the-expositions-not-the-examples) | Per-term order is the exposition's                | 1:5–6, 24  |
-| [E003](#e003--a-12-on-the-reenlistment-throw-recurs-past-term-7)      | A 12 on reenlistment recurs past term 7           | 1:6–7, 21  |
-| [E004](#e004--the-age-of-a-character-who-dies-in-service)             | Age of a character who dies in service            | 1:5, 9     |
-| [E005](#e005--when-service-wide-rank-and-service-skills-are-granted)  | When service-wide rank/service skills are granted | 1:23       |
-| [E006](#e006--where-the-aging-round-sits-within-the-term)             | Where the aging round sits in the term            | 1:7, 9, 25 |
-| [E007](#e007--the-order-of-saving-throws-within-an-aging-round)       | Order of saving throws in an aging round          | 1:9        |
-| [E008](#e008--the-outcome-of-a-failed-medical-crisis-saving-throw)    | Outcome of a failed medical-crisis throw          | 1:7–8      |
-| [E009](#e009--the-medical-expertise-dm-during-solo-generation)        | Medical-expertise DM during generation            | 1:7        |
-| [E010](#e010--how-far-below-1-aging-may-carry-a-characteristic)       | How far below 1 aging may carry a characteristic  | 1:4, 7–9   |
-| [E011](#e011--when-title-eligibility-is-assessed)                     | When title eligibility is assessed                | 1:5; 3:22  |
-| [E012](#e012--printed-names-normalized-to-the-descriptions-headings)  | Printed names normalized to their headings        | 1:5, 9–23  |
-| [E013](#e013--no-promotion-throw-at-the-top-of-the-table-of-ranks)    | No promotion throw at the top of the ranks table  | 1:6, 10    |
-| [E014](#e014--the-aging-tables-last-column-is-terminal)               | The Aging Table's last column is terminal         | 1:7, 9     |
+| Id                                                                            | Reading                                           | Pages      |
+| ----------------------------------------------------------------------------- | ------------------------------------------------- | ---------- |
+| [E001](#e001--the-draft-is-may-not-must)                                      | The draft is _may_, not _must_                    | 1:5        |
+| [E002](#e002--the-per-term-order-is-the-expositions-not-the-examples)         | Per-term order is the exposition's                | 1:5–6, 24  |
+| [E003](#e003--a-12-on-the-reenlistment-throw-recurs-past-term-7)              | A 12 on reenlistment recurs past term 7           | 1:6–7, 21  |
+| [E004](#e004--the-age-of-a-character-who-dies-in-service)                     | Age of a character who dies in service            | 1:5, 9     |
+| [E005](#e005--when-service-wide-rank-and-service-skills-are-granted)          | When service-wide rank/service skills are granted | 1:23       |
+| [E006](#e006--where-the-aging-round-sits-within-the-term)                     | Where the aging round sits in the term            | 1:7, 9, 25 |
+| [E007](#e007--the-order-of-saving-throws-within-an-aging-round)               | Order of saving throws in an aging round          | 1:9        |
+| [E008](#e008--the-outcome-of-a-failed-medical-crisis-saving-throw)            | Outcome of a failed medical-crisis throw          | 1:7–8      |
+| [E009](#e009--the-medical-expertise-dm-during-solo-generation)                | Medical-expertise DM during generation            | 1:7        |
+| [E010](#e010--how-far-below-1-aging-may-carry-a-characteristic)               | How far below 1 aging may carry a characteristic  | 1:4, 7–9   |
+| [E011](#e011--when-title-eligibility-is-assessed)                             | When title eligibility is assessed                | 1:5; 3:22  |
+| [E012](#e012--printed-names-normalized-to-the-descriptions-headings)          | Printed names normalized to their headings        | 1:5, 9–23  |
+| [E013](#e013--no-promotion-throw-at-the-top-of-the-table-of-ranks)            | No promotion throw at the top of the ranks table  | 1:6, 10    |
+| [E014](#e014--the-aging-tables-last-column-is-terminal)                       | The Aging Table's last column is terminal         | 1:7, 9     |
 | [E015](#e015--a-printed-table-governs-over-the-worked-examples-stated-result) | A printed table governs over the example's result | 1:9, 25    |
 
 ---

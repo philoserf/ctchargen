@@ -173,8 +173,8 @@ task
 ```
 
 `go mod tidy -diff`, `go vet`, golangci-lint, NilAway, `go test -race`, and a
-coverage ratchet that holds each package's count of uncovered statements. CI
-runs exactly this.
+coverage ratchet that holds each package's count of uncovered statements, and
+prettier over the non-Go files. CI runs exactly this.
 
 The toolchain is unpinned on purpose, and golangci-lint runs with
 `default: all`, so a linter added upstream arrives switched on. Formatting is
