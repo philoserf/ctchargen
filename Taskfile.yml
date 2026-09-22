@@ -76,6 +76,7 @@ tasks:
       - go mod tidy -diff
 
   vet:
+    desc: go vet ./...
     cmds:
       - go vet ./...
 
@@ -104,6 +105,7 @@ tasks:
       - golangci-lint run ./... --fix
 
   nilaway:
+    desc: Flow-sensitive nil-dereference analysis with NilAway
     cmds:
       - nilaway ./...
 
@@ -181,10 +183,12 @@ tasks:
       - prettier --check .
 
   docs:fix:
+    desc: Format Markdown, JSON and YAML with prettier
     cmds:
       - prettier --write .
 
   build:
+    desc: Build every package
     cmds:
       - go build ./...
 
