@@ -1,5 +1,7 @@
 # ctchargen
 
+![Status: Beta](https://img.shields.io/badge/Status-Beta-yellow.svg)
+
 A Go CLI that generates rules-accurate Classic Traveller characters.
 
 Ruleset baseline: **Books 1–3 only** — the FFE reprints of the © 1977 text.
