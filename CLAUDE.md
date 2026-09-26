@@ -10,30 +10,13 @@ A Go CLI that generates rules-accurate Classic Traveller characters from
 Books 1–3 (© 1977 text, FFE reprints). The repo was emptied at `41a213a` and
 rebuilt from `docs/PRD.md`.
 
-**Current state: the v1 contract is delivered and the prerelease review is
-done.** All six services run, every table of pp. 4–25 is lifted and consulted,
-the book's own worked character replays against the engine,
-`docs/character.schema.json` describes the record with every golden validated
-against it, characters are written to files, generated in batches and read
-back, interactive mode walks the procedure a question at a time, and
-`docs/PRERELEASE.md`'s three passes closed with no finding open.
-
+**Current state: the v1 contract is delivered, and the prerelease review
+(`docs/PRERELEASE.md`) and the prerelease code audit (#27) are closed.**
 **What governs the work now is what Classic Traveller referees report about
-using the tool**, not a remaining milestone — there are none. Issue #26 is the
-first such report and named the gap plainly: the engine earned trust, and
-everything around it was still alpha. **That report is now answered in full.**
-Every command describes its own flags, the sheet names whose service it is and
-prints the seed, a session that stops offers the way back in, the line the tool
-tells you to paste is quoted, and a release carries binaries a referee can
-download without a Go toolchain. `v1.0.0-beta.2` is the current release.
+using the tool** (#26 was the first such report); the page and the clean room
+govern how a report gets answered. `v1.0.0-beta.2` is the current release.
 `v1.0.0-alpha.1` and `v1.0.0-alpha.2` predate the rebuild at `41a213a` and
 install a different tool; their notes say so.
-
-**The prerelease code audit (#27) is answered too, and the backlog is empty.**
-Its six principle violations, its medium and low findings, and the five open
-questions it raised are all closed; so is every milestone. What governs the
-work now is what a referee reports, and nothing is queued behind it. The page
-and the clean room govern how a report gets answered.
 
 **What `v1.0.0` means, decided in #74.** Two things, and both must hold: a
 referee can trust what the tool prints at the table, **and** the record is
@@ -88,9 +71,10 @@ here. So: do not add the README line, and do not delete the two matrix rows
 for want of a document naming them.
 
 **The paragraphs above the `v1.0.0` ones** are the thing here that goes
-stale on its own — what is delivered, and which release is current. Correct
-them when the work moves rather than letting the file describe a tree that no
-longer exists. The rules below them do not go stale: each states a bar,
+stale on its own — what is delivered, and which release is current. Bring
+them current in the release pass, with the rest of the release-set documents,
+rather than as the work moves: a mid-stream fix leaves the other documents
+disagreeing with this one. The rules below them do not go stale: each states a bar,
 a promise or a scope, and holds until a decision changes it. They are not
 counted here, because a count is one more thing to get wrong — this file has
 already had to correct one from two to three.
@@ -303,12 +287,10 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
   drift from what the engine emits. `docs/character.schema.json` itself is not
   regenerated — it is written by hand and validated against.
 
-## Once there is code
+## The gate and what it holds
 
-- **The gate is `task`** — `go mod tidy -diff`, `go vet`, golangci-lint
-  (which is where gofumpt runs, so there is one definition of formatted),
-  NilAway, `go test -race`, the coverage ratchet, and prettier over the non-Go
-  files. CI runs exactly `task`.
+- **The gate is `task`, and CI runs exactly `task`.** gofumpt runs inside
+  golangci-lint, so there is one definition of formatted.
 - **A ratchet failure is usually not lost coverage.** `coverage.ratchet` holds
   each package's count of uncovered statements, and a blank line splits a
   coverage block — so a `wsl_v5` reflow or an extracted helper moves the counts
