@@ -39,15 +39,7 @@ is what `render` already did for an unknown event kind, printing
 `(unknown event kind %q)` rather than failing, while the schema contradicted it.
 A key added inside an existing object is still refused: the fourteen nested
 objects are what a sheet is rendered from, and pinning them is what keeps the
-schema worth validating against. #76 decided that the schema should open and
-left the scope open; #113 settled it at the root and no further.
-
-**The schema opened in `v1.0.0-beta.2`, ahead of the tag, which is not the
-same as opening ahead of the freeze.** A file changes before a tag rather than
-at it, and a last beta is where the shape `v1.0.0` will freeze gets put in
-front of a referee first. What dates to `v1.0.0` is the **freeze** — the
-promise that a record written by one build reads in the next — and that is
-still unmade.
+schema worth validating against.
 
 **`record` is 1 until `v1.0.0` and counts from there (#96).** Not from every
 change: the record moves freely before the freeze, so a build that changes the
@@ -67,8 +59,8 @@ silence is the decision and not a gap in one: an artefact sitting on a
 releases page promises nothing, while a sentence saying either "supported" or
 "not supported" starts a conversation this repo has chosen not to have. A
 Windows defect is not a referee's finding in the sense that governs the work
-here. So: do not add the README line, and do not delete the two matrix rows
-for want of a document naming them.
+here. So: do not add the README line, and do not drop `windows` from the
+build loop for want of a document naming it.
 
 **The paragraphs above the `v1.0.0` ones** are the thing here that goes
 stale on its own — what is delivered, and which release is current. Bring
@@ -76,8 +68,7 @@ them current in the release pass, with the rest of the release-set documents,
 rather than as the work moves: a mid-stream fix leaves the other documents
 disagreeing with this one. The rules below them do not go stale: each states a bar,
 a promise or a scope, and holds until a decision changes it. They are not
-counted here, because a count is one more thing to get wrong — this file has
-already had to correct one from two to three.
+counted here, because a count is one more thing to get wrong.
 
 ## Authority — read this before implementing any rule
 
@@ -94,8 +85,7 @@ already had to correct one from two to three.
    seventh benefit he does not have.
 
    Read pages **visually** instead — the `Read` tool with a `pages` range on
-   the PDF. This is the sanctioned exception to preferring Bash for file
-   reads.
+   the PDF.
 
    **One page at a time when the page carries a table.** A range renders each
    page smaller, and the prerelease review lost a cell to it: in a six-page
@@ -290,7 +280,9 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
 ## The gate and what it holds
 
 - **The gate is `task`, and CI runs exactly `task`.** gofumpt runs inside
-  golangci-lint, so there is one definition of formatted.
+  golangci-lint, so there is one definition of formatted: format with
+  `golangci-lint fmt`, never a standalone `gofumpt`, whose version and rule
+  set need not match `.golangci.yml`.
 - **A ratchet failure is usually not lost coverage.** `coverage.ratchet` holds
   each package's count of uncovered statements, and a blank line splits a
   coverage block — so a `wsl_v5` reflow or an extracted helper moves the counts
