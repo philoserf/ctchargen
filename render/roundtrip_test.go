@@ -182,7 +182,8 @@ func TestAnEventThatWillNotReadIsRefused(t *testing.T) {
 	for name, unreadable := range map[string][]byte{
 		"a civilian": minimalRecord(`"events":[3]`),
 		"a serving character": minimalRecord(
-			`"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"events":[3]`),
+			`"service":"Navy","terms":2,"enlistment":{"how":"enlisted"},"events":[3]`,
+		),
 	} {
 		_, err := render.SheetFrom(unreadable)
 		if err == nil || !strings.Contains(err.Error(), "an event will not read") {
@@ -324,7 +325,8 @@ func TestOneTermIsSingular(t *testing.T) {
 	} {
 		sheet, err := render.SheetFrom(minimalRecord(fmt.Sprintf(
 			`"service":"Navy","terms":%d,"enlistment":{"how":"enlisted"},"inputs":{"seed":1,"service":"Navy"}`,
-			tc.terms)))
+			tc.terms,
+		)))
 		if err != nil {
 			t.Errorf("%s: %v", name, err)
 
@@ -384,7 +386,8 @@ func TestABacktickDoesNotBreakTheCodeSpan(t *testing.T) {
 	t.Parallel()
 
 	sheet, err := render.SheetFrom(minimalRecord(
-		"\"inputs\":{\"seed\":1,\"career\":\"serve`id`\",\"skills\":\"advanced\",\"muster\":\"cash\"}"))
+		"\"inputs\":{\"seed\":1,\"career\":\"serve`id`\",\"skills\":\"advanced\",\"muster\":\"cash\"}",
+	))
 	if err != nil {
 		t.Fatalf("rendering: %v", err)
 	}
@@ -446,7 +449,8 @@ func TestAValueTheShellWouldActOnIsNotWrittenBare(t *testing.T) {
 	} {
 		sheet, err := render.SheetFrom(minimalRecord(
 			`"inputs":{"seed":1,"career":"` + tc.career +
-				`","skills":"advanced","muster":"cash"}`))
+				`","skills":"advanced","muster":"cash"}`,
+		))
 		if err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
