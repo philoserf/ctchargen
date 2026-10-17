@@ -64,11 +64,6 @@ func (l *log) throw(step string, t throw) int {
 	return seq
 }
 
-// die records a one-die roll, which has no target to meet.
-func (l *log) die(step string, face int) int {
-	return l.dice(step, face)
-}
-
 // dieWithModifier records a one-die roll taken with a die modifier, so the
 // record carries the row that was consulted and not only the face thrown.
 //

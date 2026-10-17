@@ -61,7 +61,7 @@ func (r *run) draft() error {
 		return fmt.Errorf("the draft: %w", err)
 	}
 
-	seq := r.log.die("draft", face)
+	seq := r.log.dice("draft", face)
 	r.log.outcomef(seq, []traveller.Erratum{traveller.E001}, "drafted into the %v", name)
 
 	r.drafted = true

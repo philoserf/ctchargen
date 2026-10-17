@@ -169,7 +169,7 @@ func (r *run) trainOnce() error {
 		return fmt.Errorf("consulting %v: %w", table, err)
 	}
 
-	seq := r.log.die(table.String(), face)
+	seq := r.log.dice(table.String(), face)
 
 	return r.apply(result, seq, []traveller.Erratum{traveller.E002})
 }
