@@ -139,12 +139,12 @@ func read[T any](name string) (T, error) {
 
 	text, err := files.ReadFile("data/" + name)
 	if err != nil {
-		return wire, fmt.Errorf("%w: reading %s: %w", ErrMalformed, name, err)
+		return wire, fmt.Errorf("%w: reading %s: %w", errMalformed, name, err)
 	}
 
 	err = json.Unmarshal(text, &wire)
 	if err != nil {
-		return wire, fmt.Errorf("%w: %s: %w", ErrMalformed, name, err)
+		return wire, fmt.Errorf("%w: %s: %w", errMalformed, name, err)
 	}
 
 	return wire, nil
@@ -222,13 +222,13 @@ func eachService(header, row []string, what string, fn func(traveller.ServiceNam
 	}
 
 	if len(row) != len(header) {
-		return fmt.Errorf("%w: %s: %d cells, want %d", ErrMalformed, what, len(row), len(header))
+		return fmt.Errorf("%w: %s: %d cells, want %d", errMalformed, what, len(row), len(header))
 	}
 
 	for i, cell := range row {
 		err := fn(traveller.ServiceNames[i], cell)
 		if err != nil {
-			return fmt.Errorf("%w: %s, %v: %w", ErrMalformed, what, traveller.ServiceNames[i], err)
+			return fmt.Errorf("%w: %s, %v: %w", errMalformed, what, traveller.ServiceNames[i], err)
 		}
 	}
 
@@ -243,18 +243,18 @@ func eachService(header, row []string, what string, fn func(traveller.ServiceNam
 // refused before it is reached.
 func checkColumns(headings []string, what string) error {
 	if len(headings) != len(traveller.ServiceNames) {
-		return fmt.Errorf("%w: %s: %d columns, want %d", ErrMalformed, what,
+		return fmt.Errorf("%w: %s: %d columns, want %d", errMalformed, what,
 			len(headings), len(traveller.ServiceNames))
 	}
 
 	for i, name := range headings {
 		service, err := parseService(name)
 		if err != nil {
-			return fmt.Errorf("%w: %s column %d: %w", ErrMalformed, what, i+1, err)
+			return fmt.Errorf("%w: %s column %d: %w", errMalformed, what, i+1, err)
 		}
 
 		if service != traveller.ServiceNames[i] {
-			return fmt.Errorf("%w: %s column %d is %v, want %v", ErrMalformed, what,
+			return fmt.Errorf("%w: %s column %d is %v, want %v", errMalformed, what,
 				i+1, service, traveller.ServiceNames[i])
 		}
 	}
@@ -276,7 +276,7 @@ func (r *Rules) liftPriorService(wire wireServices) error {
 	}
 	for row, n := range rows {
 		if n != len(traveller.ServiceNames) {
-			return fmt.Errorf("%w: prior service table, %s: %d cells, want %d", ErrMalformed,
+			return fmt.Errorf("%w: prior service table, %s: %d cells, want %d", errMalformed,
 				row, n, len(traveller.ServiceNames))
 		}
 	}
@@ -307,12 +307,12 @@ func checkDraft(draft []int) error {
 	for i, face := range draft {
 		if face < 1 || face > Faces {
 			return fmt.Errorf("%w: prior service table, draft, %v: %d is not a die face",
-				ErrMalformed, traveller.ServiceNames[i], face)
+				errMalformed, traveller.ServiceNames[i], face)
 		}
 
 		if seen[face] {
 			return fmt.Errorf("%w: prior service table, draft: %d is printed twice",
-				ErrMalformed, face)
+				errMalformed, face)
 		}
 
 		seen[face] = true
@@ -364,7 +364,7 @@ func liftServiceColumn(wire wireServices, i int, name traveller.ServiceName) (Se
 		if (cell != nil) != hasRanks {
 			return Service{}, fmt.Errorf(
 				"%w: %v prints %s but %s ranks: p. 10 makes ranks, commissions and promotions one fact",
-				ErrMalformed, name, label, map[bool]string{true: "also", false: "no"}[hasRanks],
+				errMalformed, name, label, map[bool]string{true: "also", false: "no"}[hasRanks],
 			)
 		}
 	}
@@ -388,12 +388,12 @@ func liftServiceColumn(wire wireServices, i int, name traveller.ServiceName) (Se
 
 func liftThrow(wire *wireThrow, what string) (Throw, error) {
 	if wire == nil {
-		return Throw{}, fmt.Errorf("%w: %s: no throw printed", ErrMalformed, what)
+		return Throw{}, fmt.Errorf("%w: %s: no throw printed", errMalformed, what)
 	}
 
 	target, err := traveller.ParseTarget(wire.Target)
 	if err != nil {
-		return Throw{}, fmt.Errorf("%w: %s: %w", ErrMalformed, what, err)
+		return Throw{}, fmt.Errorf("%w: %s: %w", errMalformed, what, err)
 	}
 
 	throw := Throw{Target: target}
@@ -401,7 +401,7 @@ func liftThrow(wire *wireThrow, what string) (Throw, error) {
 	for _, dm := range wire.DMs {
 		lifted, err := parseDM(dm.DM, dm.If)
 		if err != nil {
-			return Throw{}, fmt.Errorf("%w: %s: %w", ErrMalformed, what, err)
+			return Throw{}, fmt.Errorf("%w: %s: %w", errMalformed, what, err)
 		}
 
 		throw.DMs = append(throw.DMs, lifted)
@@ -414,16 +414,16 @@ func (r *Rules) liftGrants(wire wireServices) error {
 	for _, g := range wire.RankAndServiceSkills {
 		service, err := parseService(g.Service)
 		if err != nil {
-			return fmt.Errorf("%w: rank and service skills: %w", ErrMalformed, err)
+			return fmt.Errorf("%w: rank and service skills: %w", errMalformed, err)
 		}
 
 		result, err := parseTableResult(g.Grant, r.normalize)
 		if err != nil {
-			return fmt.Errorf("%w: rank and service skills, %v: %w", ErrMalformed, service, err)
+			return fmt.Errorf("%w: rank and service skills, %v: %w", errMalformed, service, err)
 		}
 
 		if g.Rank < 0 || traveller.Rank(g.Rank) > r.services[service].MaxRank() {
-			return fmt.Errorf("%w: rank and service skills, %v: rank %d is past the service's table of ranks", ErrMalformed,
+			return fmt.Errorf("%w: rank and service skills, %v: rank %d is past the service's table of ranks", errMalformed,
 				service, g.Rank)
 		}
 
@@ -436,17 +436,17 @@ func (r *Rules) liftGrants(wire wireServices) error {
 func (r *Rules) liftRetirement(wire wireServices) error {
 	pay := wire.RetirementPay
 	if len(pay.ByTerms) == 0 {
-		return fmt.Errorf("%w: retirement pay: the table prints no rows", ErrMalformed)
+		return fmt.Errorf("%w: retirement pay: the table prints no rows", errMalformed)
 	}
 
 	r.Retirement.ByTerms = make(map[int]traveller.Credits, len(pay.ByTerms))
 	for _, row := range pay.ByTerms {
 		if row.Pay <= 0 {
-			return fmt.Errorf("%w: retirement pay at %d terms: %d is not a pension", ErrMalformed, row.Terms, row.Pay)
+			return fmt.Errorf("%w: retirement pay at %d terms: %d is not a pension", errMalformed, row.Terms, row.Pay)
 		}
 
 		if row.Terms <= r.Retirement.lastTabled {
-			return fmt.Errorf("%w: retirement pay: %d terms does not follow %d; the table's rows ascend", ErrMalformed,
+			return fmt.Errorf("%w: retirement pay: %d terms does not follow %d; the table's rows ascend", errMalformed,
 				row.Terms, r.Retirement.lastTabled)
 		}
 
@@ -455,20 +455,20 @@ func (r *Rules) liftRetirement(wire wireServices) error {
 	}
 
 	if pay.PerTermBeyondEight <= 0 {
-		return fmt.Errorf("%w: retirement pay: %d per additional term past the table", ErrMalformed,
+		return fmt.Errorf("%w: retirement pay: %d per additional term past the table", errMalformed,
 			pay.PerTermBeyondEight)
 	}
 
 	r.Retirement.PerAdditionalTerm = traveller.Credits(pay.PerTermBeyondEight)
 
 	if len(pay.PaidBy) == 0 {
-		return fmt.Errorf("%w: retirement pay: no service pays it", ErrMalformed)
+		return fmt.Errorf("%w: retirement pay: no service pays it", errMalformed)
 	}
 
 	for _, name := range pay.PaidBy {
 		service, err := parseService(name)
 		if err != nil {
-			return fmt.Errorf("%w: retirement pay: %w", ErrMalformed, err)
+			return fmt.Errorf("%w: retirement pay: %w", errMalformed, err)
 		}
 
 		r.services[service].PaysPension = true
@@ -480,17 +480,17 @@ func (r *Rules) liftRetirement(wire wireServices) error {
 func (r *Rules) liftSkills(wire wireSkills) error {
 	tables := withoutNotes(wire.Tables)
 	if len(tables) != len(traveller.SkillTables) {
-		return fmt.Errorf("%w: acquired skills: %d tables, want %d", ErrMalformed, len(tables), len(traveller.SkillTables))
+		return fmt.Errorf("%w: acquired skills: %d tables, want %d", errMalformed, len(tables), len(traveller.SkillTables))
 	}
 
 	for name, rows := range tables {
 		table, err := parseSkillTable(name)
 		if err != nil {
-			return fmt.Errorf("%w: acquired skills: %w", ErrMalformed, err)
+			return fmt.Errorf("%w: acquired skills: %w", errMalformed, err)
 		}
 
 		if len(rows) != Faces {
-			return fmt.Errorf("%w: acquired skills, %v: %d rows, want %d", ErrMalformed, table, len(rows), Faces)
+			return fmt.Errorf("%w: acquired skills, %v: %d rows, want %d", errMalformed, table, len(rows), Faces)
 		}
 
 		for die, row := range rows {
@@ -521,17 +521,17 @@ func (r *Rules) liftSkills(wire wireSkills) error {
 
 	table, err := parseSkillTable(wire.EducationGate.Table)
 	if err != nil {
-		return fmt.Errorf("%w: education gate: %w", ErrMalformed, err)
+		return fmt.Errorf("%w: education gate: %w", errMalformed, err)
 	}
 
 	characteristic, err := parseCharacteristic(wire.EducationGate.Characteristic)
 	if err != nil {
-		return fmt.Errorf("%w: education gate: %w", ErrMalformed, err)
+		return fmt.Errorf("%w: education gate: %w", errMalformed, err)
 	}
 
 	threshold, err := traveller.ParseTarget(wire.EducationGate.Threshold)
 	if err != nil {
-		return fmt.Errorf("%w: education gate: %w", ErrMalformed, err)
+		return fmt.Errorf("%w: education gate: %w", errMalformed, err)
 	}
 
 	r.Education = Gate{Table: table, Characteristic: characteristic, Threshold: threshold}
@@ -541,7 +541,7 @@ func (r *Rules) liftSkills(wire wireSkills) error {
 
 func (r *Rules) liftMustering(wire wireMustering) error {
 	if len(wire.Table1) != MusterRows || len(wire.Table2) != MusterRows {
-		return fmt.Errorf("%w: mustering out: %d and %d rows, want %d each", ErrMalformed,
+		return fmt.Errorf("%w: mustering out: %d and %d rows, want %d each", errMalformed,
 			len(wire.Table1), len(wire.Table2), MusterRows)
 	}
 
@@ -563,7 +563,7 @@ func (r *Rules) liftMustering(wire wireMustering) error {
 	// modifier would silently never apply.
 	earnedBy := r.Normalize(wire.Rolls.Table2ModifierFrom)
 	if earnedBy == "" {
-		return fmt.Errorf("%w: mustering out: no skill earns the table 2 modifier", ErrMalformed)
+		return fmt.Errorf("%w: mustering out: no skill earns the table 2 modifier", errMalformed)
 	}
 
 	r.Muster = Muster{
@@ -604,14 +604,14 @@ func (r *Rules) liftBenefits(wire wireMustering) error {
 func (r *Rules) liftCash(wire wireMustering) error {
 	for n, row := range wire.Table2 {
 		if len(row) != len(traveller.ServiceNames) {
-			return fmt.Errorf("%w: mustering out table 2, row %d: %d cells, want %d", ErrMalformed,
+			return fmt.Errorf("%w: mustering out table 2, row %d: %d cells, want %d", errMalformed,
 				n+1, len(row), len(traveller.ServiceNames))
 		}
 
 		for i, cash := range row {
 			if cash <= 0 {
 				return fmt.Errorf("%w: mustering out table 2, row %d, %v: %d is not a cash allowance",
-					ErrMalformed, n+1, traveller.ServiceNames[i], cash)
+					errMalformed, n+1, traveller.ServiceNames[i], cash)
 			}
 
 			r.services[i].Cash[n] = traveller.Credits(cash)
@@ -626,14 +626,14 @@ func (r *Rules) liftPassages(wire wireMustering) error {
 	for _, class := range traveller.PassageClasses {
 		price, ok := wire.Passages.Prices[class.String()]
 		if !ok {
-			return fmt.Errorf("%w: passages: no price for %v", ErrMalformed, class)
+			return fmt.Errorf("%w: passages: no price for %v", errMalformed, class)
 		}
 
 		r.passages[class] = traveller.Credits(price)
 	}
 
 	if wire.Passages.ResalePercent <= 0 {
-		return fmt.Errorf("%w: passages: no resale percentage", ErrMalformed)
+		return fmt.Errorf("%w: passages: no resale percentage", errMalformed)
 	}
 
 	r.Muster.ResalePercent = wire.Passages.ResalePercent
@@ -647,12 +647,12 @@ func (r *Rules) liftAging(wire wireAging) error {
 		for _, e := range band.Effects {
 			characteristic, err := parseCharacteristic(e.Characteristic)
 			if err != nil {
-				return fmt.Errorf("%w: aging band from term %d: %w", ErrMalformed, band.FromTerm, err)
+				return fmt.Errorf("%w: aging band from term %d: %w", errMalformed, band.FromTerm, err)
 			}
 
 			saving, err := traveller.ParseTarget(e.Saving)
 			if err != nil {
-				return fmt.Errorf("%w: aging band from term %d: %w", ErrMalformed, band.FromTerm, err)
+				return fmt.Errorf("%w: aging band from term %d: %w", errMalformed, band.FromTerm, err)
 			}
 
 			lifted.effects = append(lifted.effects, AgingEffect{
@@ -661,14 +661,14 @@ func (r *Rules) liftAging(wire wireAging) error {
 		}
 
 		if len(r.Aging.bands) > 0 && lifted.fromTerm <= r.Aging.bands[len(r.Aging.bands)-1].fromTerm {
-			return fmt.Errorf("%w: aging bands are out of order at term %d", ErrMalformed, band.FromTerm)
+			return fmt.Errorf("%w: aging bands are out of order at term %d", errMalformed, band.FromTerm)
 		}
 
 		r.Aging.bands = append(r.Aging.bands, lifted)
 	}
 
 	if len(r.Aging.bands) == 0 {
-		return fmt.Errorf("%w: aging: no bands", ErrMalformed)
+		return fmt.Errorf("%w: aging: no bands", errMalformed)
 	}
 
 	// The last term the table's header row prints. It has to reach the last
@@ -676,14 +676,14 @@ func (r *Rules) liftAging(wire wireAging) error {
 	last := traveller.Term(wire.LastPrintedTerm)
 	if last < r.Aging.bands[len(r.Aging.bands)-1].fromTerm {
 		return fmt.Errorf("%w: aging: the last printed term is %d, before the last band begins",
-			ErrMalformed, wire.LastPrintedTerm)
+			errMalformed, wire.LastPrintedTerm)
 	}
 
 	r.Aging.lastPrintedTerm = last
 
 	saving, err := traveller.ParseTarget(wire.Crisis.Saving)
 	if err != nil {
-		return fmt.Errorf("%w: medical crisis: %w", ErrMalformed, err)
+		return fmt.Errorf("%w: medical crisis: %w", errMalformed, err)
 	}
 
 	r.Aging.Crisis = Crisis{
@@ -697,13 +697,13 @@ func (r *Rules) liftWeapons(wire wireWeapons) error {
 	for _, category := range traveller.WeaponCategories {
 		printed, ok := wire.Lists[category.String()]
 		if !ok || len(printed) == 0 {
-			return fmt.Errorf("%w: weapons: no list for %v", ErrMalformed, category)
+			return fmt.Errorf("%w: weapons: no list for %v", errMalformed, category)
 		}
 
 		seen := make(map[string]bool, len(printed))
 		for _, name := range printed {
 			if seen[name] {
-				return fmt.Errorf("%w: weapons, %v: %q is listed twice", ErrMalformed, category, name)
+				return fmt.Errorf("%w: weapons, %v: %q is listed twice", errMalformed, category, name)
 			}
 
 			seen[name] = true
@@ -722,15 +722,15 @@ func (r *Rules) liftShips(wire wireShips) error {
 	for _, row := range wire.Ships {
 		kind, err := lookup(shipKinds, row.Kind, "ship")
 		if err != nil {
-			return fmt.Errorf("%w: ships: %w", ErrMalformed, err)
+			return fmt.Errorf("%w: ships: %w", errMalformed, err)
 		}
 
 		if row.HullTons <= 0 {
-			return fmt.Errorf("%w: ships, %v: %d is not a hull size", ErrMalformed, kind, row.HullTons)
+			return fmt.Errorf("%w: ships, %v: %d is not a hull size", errMalformed, kind, row.HullTons)
 		}
 
 		if seen[kind] {
-			return fmt.Errorf("%w: ships: %v is listed twice", ErrMalformed, kind)
+			return fmt.Errorf("%w: ships: %v is listed twice", errMalformed, kind)
 		}
 
 		r.hulls[kind] = row.HullTons
@@ -739,7 +739,7 @@ func (r *Rules) liftShips(wire wireShips) error {
 
 	for _, kind := range traveller.ShipKinds {
 		if !seen[kind] {
-			return fmt.Errorf("%w: ships: no hull for %v", ErrMalformed, kind)
+			return fmt.Errorf("%w: ships: no hull for %v", errMalformed, kind)
 		}
 	}
 
@@ -750,14 +750,14 @@ func (r *Rules) liftNobility(wire wireNobility) error {
 	for _, row := range wire.Titles {
 		title, err := parseTitle(row.Title)
 		if err != nil {
-			return fmt.Errorf("%w: nobility: %w", ErrMalformed, err)
+			return fmt.Errorf("%w: nobility: %w", errMalformed, err)
 		}
 
 		r.nobility = append(r.nobility, Nobility{SocialStanding: row.SocialStanding, Title: title})
 	}
 
 	if len(r.nobility) != len(traveller.Titles) {
-		return fmt.Errorf("%w: nobility: %d rows, want %d", ErrMalformed, len(r.nobility), len(traveller.Titles))
+		return fmt.Errorf("%w: nobility: %d rows, want %d", errMalformed, len(r.nobility), len(traveller.Titles))
 	}
 
 	return nil

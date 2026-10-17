@@ -140,7 +140,7 @@ func (s Service) Title(r traveller.Rank) (string, bool) {
 func (s Service) Row(n int) (traveller.BenefitRow, traveller.Credits, error) {
 	if n < 1 || n > MusterRows {
 		return nil, 0, fmt.Errorf("%w: mustering out roll %d: the tables print rows 1 through %d",
-			ErrNoSuchRow, n, MusterRows)
+			errNoSuchRow, n, MusterRows)
 	}
 
 	return s.Benefits[n-1], s.Cash[n-1], nil
@@ -149,7 +149,7 @@ func (s Service) Row(n int) (traveller.BenefitRow, traveller.Credits, error) {
 // Result is the Acquired Skills Table cell for a table and a die (p. 11).
 func (s Service) Result(table traveller.SkillTable, die int) (traveller.TableResult, error) {
 	if die < 1 || die > Faces {
-		return nil, fmt.Errorf("%w: skills table roll %d: the table prints rows 1 through %d", ErrNoSuchRow, die, Faces)
+		return nil, fmt.Errorf("%w: skills table roll %d: the table prints rows 1 through %d", errNoSuchRow, die, Faces)
 	}
 
 	return s.Skills[table][die-1], nil
@@ -167,7 +167,7 @@ func (r *Rules) Draft(n int) (traveller.ServiceName, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("%w: draft roll %d: no service prints that draft number", ErrNoSuchRow, n)
+	return 0, fmt.Errorf("%w: draft roll %d: no service prints that draft number", errNoSuchRow, n)
 }
 
 // Weapons is the printed list for a category (pp. 12-13), column-major.

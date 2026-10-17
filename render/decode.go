@@ -6,9 +6,9 @@ import (
 	"fmt"
 )
 
-// ErrNotARecord reports input the render subcommand cannot read as a
+// errNotARecord reports input the render subcommand cannot read as a
 // character record.
-var ErrNotARecord = errors.New("not a character record")
+var errNotARecord = errors.New("not a character record")
 
 // decode reads a record back from what JSON wrote.
 //
@@ -22,15 +22,15 @@ func decode(text []byte) (record, error) {
 
 	err := json.Unmarshal(text, &decoded)
 	if err != nil {
-		return record{}, fmt.Errorf("%w: %w", ErrNotARecord, err)
+		return record{}, fmt.Errorf("%w: %w", errNotARecord, err)
 	}
 
 	if decoded.UPP == "" {
-		return record{}, fmt.Errorf("%w: it carries no UPP", ErrNotARecord)
+		return record{}, fmt.Errorf("%w: it carries no UPP", errNotARecord)
 	}
 
 	if decoded.Ruleset == "" {
-		return record{}, fmt.Errorf("%w: it names no ruleset", ErrNotARecord)
+		return record{}, fmt.Errorf("%w: it names no ruleset", errNotARecord)
 	}
 
 	return decoded, nil
@@ -40,7 +40,7 @@ func decode(text []byte) (record, error) {
 func unmarshalEvent(raw json.RawMessage, into *eventJSON) error {
 	err := json.Unmarshal(raw, into)
 	if err != nil {
-		return fmt.Errorf("%w: an event will not read: %w", ErrNotARecord, err)
+		return fmt.Errorf("%w: an event will not read: %w", errNotARecord, err)
 	}
 
 	return nil
