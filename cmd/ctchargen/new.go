@@ -23,34 +23,78 @@ import (
 // own number and is written to the record as given.
 const maxDrawnSeed = 1<<53 - 1
 
+// characterFlags are the flags both generating subcommands take: what a
+// character is generated from, as opposed to what is done with it afterwards.
+//
+// Each command gives them its own descriptions, which legitimately differ;
+// the names, types and defaults are declared once, in declareCharacterFlags,
+// so the two cannot come to disagree about them. They are carried as one
+// value from there on, because five adjacent strings in a signature are five
+// strings that can be transposed, and a transposed strategy is one the record
+// then reports as the one the operator asked for (#132).
+type characterFlags struct {
+	set                                   *flag.FlagSet
+	seed                                  *uint64
+	name, service, career, skills, muster *string
+}
+
+// characterHelp is what one command says about each of its characterFlags.
+type characterHelp struct {
+	seed, service, name, career, skills, muster string
+}
+
+func declareCharacterFlags(set *flag.FlagSet, help characterHelp) characterFlags {
+	return characterFlags{
+		set:     set,
+		seed:    set.Uint64(seedFlag, 0, help.seed),
+		service: set.String("service", "", help.service+serviceChoices()),
+		name:    set.String("name", "", help.name),
+		career:  set.String(careerFlag, chargen.CareerServe.String(), help.career+chargen.CareerChoices()),
+		skills:  set.String(skillsFlag, chargen.SkillsAdvanced.String(), help.skills+chargen.SkillsChoices()),
+		muster:  set.String(musterFlag, chargen.MusterCash.String(), help.muster+chargen.MusterChoices()),
+	}
+}
+
+// newFlagSet is new's flag set, declared apart from running the command so a
+// test can walk the set it declares.
+type newFlagSet struct {
+	characterFlags
+
+	auto, sheet, history, force *bool
+	output, replay              *string
+}
+
+func declareNewFlags() newFlagSet {
+	set := flag.NewFlagSet("new", flag.ContinueOnError)
+	set.SetOutput(io.Discard)
+
+	return newFlagSet{
+		characterFlags: declareCharacterFlags(set, characterHelp{
+			seed:    "the seed to generate from; one is drawn if absent",
+			service: "attempt enlistment in this service: ",
+			name:    "the character's name",
+			career:  "the --auto career `strategy`: ",
+			skills:  "the --auto skills `strategy`: ",
+			muster:  "the --auto mustering out `strategy`: ",
+		}),
+		auto:    set.Bool("auto", false, "decide by the policy at every choice, rather than asking"),
+		sheet:   set.Bool("sheet", false, "write the character sheet rather than JSON"),
+		history: set.Bool("history", false, "write the generation record rather than JSON"),
+		output:  set.String("o", "", "write to this file rather than to standard output"),
+		force:   set.Bool("force", false, "replace the output file if it already exists"),
+		replay: set.String(answersFlag, "",
+			"answers to replay before asking, as 1,2,1; what a stopped session prints"),
+	}
+}
+
 func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
-	flags := flag.NewFlagSet("new", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
+	flags := declareNewFlags()
 
-	var (
-		seed    = flags.Uint64(seedFlag, 0, "the seed to generate from; one is drawn if absent")
-		auto    = flags.Bool("auto", false, "decide by the policy at every choice, rather than asking")
-		service = flags.String("service", "", "attempt enlistment in this service: "+serviceChoices())
-		name    = flags.String("name", "", "the character's name")
-		career  = flags.String(careerFlag, chargen.CareerServe.String(),
-			"the --auto career `strategy`: "+chargen.CareerChoices())
-		skills = flags.String(skillsFlag, chargen.SkillsAdvanced.String(),
-			"the --auto skills `strategy`: "+chargen.SkillsChoices())
-		muster = flags.String(musterFlag, chargen.MusterCash.String(),
-			"the --auto mustering out `strategy`: "+chargen.MusterChoices())
-		sheet   = flags.Bool("sheet", false, "write the character sheet rather than JSON")
-		history = flags.Bool("history", false, "write the generation record rather than JSON")
-		output  = flags.String("o", "", "write to this file rather than to standard output")
-		force   = flags.Bool("force", false, "replace the output file if it already exists")
-		replay  = flags.String(answersFlag, "",
-			"answers to replay before asking, as 1,2,1; what a stopped session prints")
-	)
-
-	err := flags.Parse(args)
+	err := flags.set.Parse(args)
 
 	switch {
 	case errors.Is(err, flag.ErrHelp):
-		return writeHelp(out, newUsage, flags)
+		return writeHelp(out, newUsage, flags.set)
 	case err != nil:
 		return fmt.Errorf("%w: %w; run `ctchargen new --help`", errUsage, err)
 	}
@@ -59,29 +103,29 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 	// a typo that became an interactive session on a seed nobody chose. The
 	// flag package stops at the first non-flag word, so `new foo --auto`
 	// left --auto unparsed as well: refusing the word catches both.
-	if flags.NArg() > 0 {
+	if flags.set.NArg() > 0 {
 		return fmt.Errorf("%w: %s; it takes no arguments, and was given %q",
-			errUsage, newUsage, flags.Arg(0))
+			errUsage, newUsage, flags.set.Arg(0))
 	}
 
-	inputs, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster,
-		isSet(flags, seedFlag))
+	inputs, policy, err := flags.inputs()
 	if err != nil {
 		return err
 	}
 
-	answers, err := answersFrom(*replay)
+	answers, err := answersFrom(*flags.replay)
 	if err != nil {
 		return err
 	}
 
-	err = flagsThatContradict(*auto, len(answers) > 0, *sheet, *history)
+	err = flagsThatContradict(*flags.auto, len(answers) > 0, *flags.sheet, *flags.history)
 	if err != nil {
 		return err
 	}
 
-	return writeCharacter(inputs, answers, newRendering{
-		auto: *auto, sheet: *sheet, history: *history, output: *output, force: *force,
+	return writeCharacter(inputs, policy, answers, newRendering{
+		auto: *flags.auto, sheet: *flags.sheet, history: *flags.history,
+		output: *flags.output, force: *flags.force,
 	}, in, out, asking)
 }
 
@@ -121,10 +165,10 @@ type newRendering struct {
 	output                      string
 }
 
-func writeCharacter(inputs chargen.Inputs, answers []int, how newRendering,
+func writeCharacter(inputs chargen.Inputs, policy chargen.Policy, answers []int, how newRendering,
 	in io.Reader, out, asking io.Writer,
 ) error {
-	character, err := generate(inputs, how.auto, answers, in, asking)
+	character, err := generate(inputs, policy, how.auto, answers, in, asking)
 	if err != nil {
 		return err
 	}
@@ -156,32 +200,6 @@ func isSet(flags *flag.FlagSet, name string) bool {
 	return found
 }
 
-// withStrategies turns the three strategy flags into domain values.
-//
-// This is the boundary the strategies are parsed at, and the only one: past
-// here a Career is a Career, and no part of the engine asks again whether it
-// is one of three. That is why chargen has no Validate any more (#41).
-func withStrategies(in chargen.Inputs, career, skills, muster string) (chargen.Inputs, error) {
-	var err error
-
-	in.Career, err = chargen.ParseCareer(career)
-	if err != nil {
-		return in, fmt.Errorf("%w: %w", errUsage, err)
-	}
-
-	in.Skills, err = chargen.ParseSkills(skills)
-	if err != nil {
-		return in, fmt.Errorf("%w: %w", errUsage, err)
-	}
-
-	in.Muster, err = chargen.ParseMuster(muster)
-	if err != nil {
-		return in, fmt.Errorf("%w: %w", errUsage, err)
-	}
-
-	return in, nil
-}
-
 // drawSeed draws a seed the tool chose for itself, anywhere in the documented
 // range including its top.
 //
@@ -197,31 +215,43 @@ func drawSeed(random func(uint64) uint64) uint64 {
 	return random(maxDrawnSeed + 1)
 }
 
-func inputsFrom(seed uint64, name, service, career, skills, muster string, seedGiven bool) (
-	chargen.Inputs, error,
-) {
-	in, err := withStrategies(chargen.Inputs{Seed: seed, Name: name}, career, skills, muster)
+// inputs is what the parsed flags say to generate, and the policy that
+// answers for it.
+//
+// This is the boundary the strategies are parsed at, and the only one: past
+// here a Career is a Career, and no part of the engine asks again whether it
+// is one of three. That is why chargen has no Validate any more (#41). The
+// inputs and the policy are both written from that one parse, so what a
+// record says it was given and what decided it cannot name different
+// strategies.
+func (f characterFlags) inputs() (chargen.Inputs, chargen.Policy, error) {
+	policy, err := chargen.ParsePolicy(*f.career, *f.skills, *f.muster)
 	if err != nil {
-		return in, err
+		return chargen.Inputs{}, policy, fmt.Errorf("%w: %w", errUsage, err)
 	}
 
-	if !seedGiven {
+	in := chargen.Inputs{
+		Seed: *f.seed, Name: *f.name,
+		Career: policy.Career, Skills: policy.Skills, Muster: policy.Muster,
+	}
+
+	if !isSet(f.set, seedFlag) {
 		in.Seed = drawSeed(rand.Uint64N)
 	}
 
-	if service == "" {
-		return in, nil
+	if *f.service == "" {
+		return in, policy, nil
 	}
 
 	for _, known := range traveller.ServiceNames {
-		if strings.EqualFold(known.String(), service) {
+		if strings.EqualFold(known.String(), *f.service) {
 			in.Service, in.Forced = known, true
 
-			return in, nil
+			return in, policy, nil
 		}
 	}
 
-	return in, fmt.Errorf("%w: no service is called %q", errUsage, service)
+	return in, policy, fmt.Errorf("%w: no service is called %q", errUsage, *f.service)
 }
 
 // answersFrom reads --answers, which is a list of the numbers a player typed.
@@ -252,22 +282,18 @@ func answersFrom(list string) ([]int, error) {
 
 // generate runs the procedure under the auto policy, or asks the player.
 //
-// The strategies come off the inputs rather than off the flags a second
-// time, so that what is checked and what is written into the record cannot
-// name different strategies. They are validated in both modes: an
-// interactive run records them too, and a record naming a strategy that is
-// not a POLICY.md row is one its own schema refuses.
+// The policy is the one characterFlags.inputs parsed beside the inputs, so
+// that what is checked and what is written into the record cannot name
+// different strategies. They are parsed in both modes: an interactive run
+// records them too, and a record naming a strategy that is not a POLICY.md
+// row is one its own schema refuses.
 //
 // Interactive mode watches the record as it is written, so the throws and
 // their consequences reach the player between his questions; --auto passes
 // no observer, because nobody is reading.
-func generate(inputs chargen.Inputs, auto bool, answers []int, in io.Reader, asking io.Writer) (
-	*chargen.Character, error,
-) {
-	policy := chargen.Policy{
-		Career: inputs.Career, Skills: inputs.Skills, Muster: inputs.Muster,
-	}
-
+func generate(inputs chargen.Inputs, policy chargen.Policy, auto bool, answers []int,
+	in io.Reader, asking io.Writer,
+) (*chargen.Character, error) {
 	if auto {
 		character, err := chargen.Generate(inputs, policy)
 		if err != nil {

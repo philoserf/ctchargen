@@ -16,6 +16,13 @@ const (
 	noSuchMuster = "gold"
 )
 
+// Words it does carry, for the two strategies a case is not about.
+const (
+	anyCareer = "serve"
+	anySkills = "advanced"
+	anyMuster = "cash"
+)
+
 // Every row of POLICY.md, checked against what the document says. The gate
 // in internal/docsgate holds the row set to the interface; this holds each
 // row's answer to what the row promises.
@@ -222,9 +229,9 @@ func TestServicePicksTheLikeliestEnlistment(t *testing.T) {
 func TestAWordNoRowCarriesIsNotAStrategy(t *testing.T) {
 	t.Parallel()
 
-	_, career := chargen.ParseCareer(noSuchCareer)
-	_, skills := chargen.ParseSkills(noSuchSkills)
-	_, muster := chargen.ParseMuster(noSuchMuster)
+	_, career := chargen.ParsePolicy(noSuchCareer, anySkills, anyMuster)
+	_, skills := chargen.ParsePolicy(anyCareer, noSuchSkills, anyMuster)
+	_, muster := chargen.ParsePolicy(anyCareer, anySkills, noSuchMuster)
 
 	for name, err := range map[string]error{
 		"career": career, "skills": skills, "muster": muster,
@@ -245,8 +252,8 @@ func TestEveryStrategyParsesBackToItsSpelling(t *testing.T) {
 	for _, want := range []chargen.Career{
 		chargen.CareerServe, chargen.CareerRetire, chargen.CareerOneTerm,
 	} {
-		got, err := chargen.ParseCareer(want.String())
-		if err != nil || got != want {
+		got, err := chargen.ParsePolicy(want.String(), anySkills, anyMuster)
+		if err != nil || got.Career != want {
 			t.Errorf("career %q parsed to %v (%v)", want, got, err)
 		}
 	}
@@ -254,8 +261,8 @@ func TestEveryStrategyParsesBackToItsSpelling(t *testing.T) {
 	for _, want := range []chargen.Skills{
 		chargen.SkillsAdvanced, chargen.SkillsService, chargen.SkillsPersonal,
 	} {
-		got, err := chargen.ParseSkills(want.String())
-		if err != nil || got != want {
+		got, err := chargen.ParsePolicy(anyCareer, want.String(), anyMuster)
+		if err != nil || got.Skills != want {
 			t.Errorf("skills %q parsed to %v (%v)", want, got, err)
 		}
 	}
@@ -263,8 +270,8 @@ func TestEveryStrategyParsesBackToItsSpelling(t *testing.T) {
 	for _, want := range []chargen.Muster{
 		chargen.MusterCash, chargen.MusterGoods, chargen.MusterSpartan,
 	} {
-		got, err := chargen.ParseMuster(want.String())
-		if err != nil || got != want {
+		got, err := chargen.ParsePolicy(anyCareer, anySkills, want.String())
+		if err != nil || got.Muster != want {
 			t.Errorf("muster %q parsed to %v (%v)", want, got, err)
 		}
 	}
@@ -297,7 +304,7 @@ func TestAStrategyOutsideItsAlphabetNamesItself(t *testing.T) {
 func TestTheRejectionNamesTheValuesAndNoDocument(t *testing.T) {
 	t.Parallel()
 
-	_, err := chargen.ParseMuster(noSuchMuster)
+	_, err := chargen.ParsePolicy(anyCareer, anySkills, noSuchMuster)
 	if err == nil {
 		t.Fatalf("%q was accepted", noSuchMuster)
 	}

@@ -25,61 +25,71 @@ import (
 // It always says what it did. A run that wrote seventy-four corpses and
 // printed nothing was the trap the report named.
 func batch(args []string, out, asking io.Writer) error {
-	flags := flag.NewFlagSet("batch", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
+	flags := declareBatchFlags()
 
-	var (
-		count   = flags.Int("count", 0, "how many characters to generate")
-		seed    = flags.Uint64(seedFlag, 0, "the base seed, drawn if absent; member i is generated from it plus i")
-		auto    = flags.Bool("auto", false, "required: a batch has nobody to ask")
-		service = flags.String("service", "",
-			"attempt every enlistment in this service: "+serviceChoices())
-		name   = flags.String("name", "", "the name to give every character")
-		career = flags.String(careerFlag, chargen.CareerServe.String(),
-			"the career `strategy`: "+chargen.CareerChoices())
-		skills = flags.String(skillsFlag, chargen.SkillsAdvanced.String(),
-			"the skills `strategy`: "+chargen.SkillsChoices())
-		muster = flags.String(musterFlag, chargen.MusterCash.String(),
-			"the mustering out `strategy`: "+chargen.MusterChoices())
-		output = flags.String("o", "",
-			"a .jsonl file, or a directory to write one file per character; absent, JSONL to standard output")
-		force     = flags.Bool("force", false, "replace output files that already exist")
-		survivors = flags.Bool("survivors", false,
-			"pass over characters who died, and go on until --count of them are living")
-	)
-
-	err := flags.Parse(args)
+	err := flags.set.Parse(args)
 
 	switch {
 	case errors.Is(err, flag.ErrHelp):
-		return writeHelp(out, batchUsage, flags)
+		return writeHelp(out, batchUsage, flags.set)
 	case err != nil:
 		return fmt.Errorf("%w: %w; run `ctchargen batch --help`", errUsage, err)
 	}
 
 	// batch takes no positional argument either, for the reason `new` does
 	// not: a word the parser stops at leaves the flags after it unparsed.
-	if flags.NArg() > 0 {
+	if flags.set.NArg() > 0 {
 		return fmt.Errorf("%w: %s; it takes no arguments, and was given %q",
-			errUsage, batchUsage, flags.Arg(0))
+			errUsage, batchUsage, flags.set.Arg(0))
 	}
 
-	if !*auto {
+	if !*flags.auto {
 		return fmt.Errorf("%w: batch requires --auto; there is nobody to ask", errUsage)
 	}
 
-	if *count < 1 {
+	if *flags.count < 1 {
 		return fmt.Errorf("%w: --count must be at least 1", errUsage)
 	}
 
-	base, err := inputsFrom(*seed, *name, *service, *career, *skills, *muster, isSet(flags, seedFlag))
+	base, policy, err := flags.inputs()
 	if err != nil {
 		return err
 	}
 
-	policy := chargen.Policy{Career: base.Career, Skills: base.Skills, Muster: base.Muster}
+	return write(out, asking, base, policy, *flags.count, *flags.output, *flags.force, *flags.survivors)
+}
 
-	return write(out, asking, base, policy, *count, *output, *force, *survivors)
+// batchFlagSet is batch's flag set, declared apart from running the command so
+// a test can walk the set it declares.
+type batchFlagSet struct {
+	characterFlags
+
+	count                  *int
+	auto, force, survivors *bool
+	output                 *string
+}
+
+func declareBatchFlags() batchFlagSet {
+	set := flag.NewFlagSet("batch", flag.ContinueOnError)
+	set.SetOutput(io.Discard)
+
+	return batchFlagSet{
+		characterFlags: declareCharacterFlags(set, characterHelp{
+			seed:    "the base seed, drawn if absent; member i is generated from it plus i",
+			service: "attempt every enlistment in this service: ",
+			name:    "the name to give every character",
+			career:  "the career `strategy`: ",
+			skills:  "the skills `strategy`: ",
+			muster:  "the mustering out `strategy`: ",
+		}),
+		count: set.Int("count", 0, "how many characters to generate"),
+		auto:  set.Bool("auto", false, "required: a batch has nobody to ask"),
+		output: set.String("o", "",
+			"a .jsonl file, or a directory to write one file per character; absent, JSONL to standard output"),
+		force: set.Bool("force", false, "replace output files that already exist"),
+		survivors: set.Bool("survivors", false,
+			"pass over characters who died, and go on until --count of them are living"),
+	}
 }
 
 // write sends the batch where it was asked for, and says what it did either

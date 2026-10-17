@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -113,12 +114,32 @@ func TestRunWritesEachRendering(t *testing.T) {
 	}
 }
 
+// parsedInputs is what new's flag set makes of a command line, without
+// generating anything.
+func parsedInputs(t *testing.T, args ...string) chargen.Inputs {
+	t.Helper()
+
+	flags := declareNewFlags()
+
+	err := flags.set.Parse(args)
+	if err != nil {
+		t.Fatalf("parsing %v: %v", args, err)
+	}
+
+	in, _, err := flags.inputs()
+	if err != nil {
+		t.Fatalf("the inputs of %v: %v", args, err)
+	}
+
+	return in
+}
+
 // A run with no --seed draws one, and draws a different one each time, which
 // is what makes an unseeded character reproducible afterwards. That the
 // record then carries the seed is held by TestRunWritesEachRendering, from a
 // seed the test names.
 //
-// It is asserted of inputsFrom rather than of a whole run on purpose. A
+// It is asserted of the parsed flags rather than of a whole run on purpose. A
 // character rolled from a drawn seed walks whichever mustering out rows it
 // lands on, so an unseeded generation reaches a different set of statements
 // every time - and the coverage profile is taken with -coverpkg=./..., under
@@ -131,11 +152,7 @@ func TestADrawnSeedIsRecorded(t *testing.T) {
 	drawn := func() uint64 {
 		t.Helper()
 
-		in, err := inputsFrom(0, "", other,
-			chargen.CareerServe.String(), chargen.SkillsAdvanced.String(), chargen.MusterCash.String(), false)
-		if err != nil {
-			t.Fatalf("drawing a seed: %v", err)
-		}
+		in := parsedInputs(t, flagService, other)
 
 		// Strictly above, not at: the bound is inclusive, and this said
 		// otherwise because it was written against the call rather than
@@ -159,11 +176,7 @@ func TestAGivenSeedIsKept(t *testing.T) {
 
 	const given = 7
 
-	in, err := inputsFrom(given, "", other,
-		chargen.CareerServe.String(), chargen.SkillsAdvanced.String(), chargen.MusterCash.String(), true)
-	if err != nil {
-		t.Fatalf("taking the seed: %v", err)
-	}
+	in := parsedInputs(t, flagSeed, strconv.Itoa(given), flagService, other)
 
 	if in.Seed != given {
 		t.Errorf("seed %d, want the %d that was given", in.Seed, given)

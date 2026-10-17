@@ -133,18 +133,35 @@ func (m Muster) String() string {
 	return fmt.Sprintf("Muster(%d)", int(m))
 }
 
-// ParseCareer turns a flag's word into a career strategy.
+// ParsePolicy turns the three strategy flags' words into the policy they name.
 //
-// This and its two siblings are where a string becomes a domain value: at the
-// boundary, once, rather than being carried inward and re-checked wherever it
-// is used.
-func ParseCareer(word string) (Career, error) { return parsed(word, "career", careerStrategies) }
+// This is where a strategy stops being a string: at the boundary, once,
+// rather than being carried inward and re-checked wherever it is used. The
+// command line is the one thing that parses strategies, and it parses all
+// three together every time (#135).
+func ParsePolicy(career, skills, muster string) (Policy, error) {
+	var (
+		policy Policy
+		err    error
+	)
 
-// ParseSkills turns a flag's word into a skills strategy.
-func ParseSkills(word string) (Skills, error) { return parsed(word, "skills", skillsStrategies) }
+	policy.Career, err = parsed(career, "career", careerStrategies)
+	if err != nil {
+		return Policy{}, err
+	}
 
-// ParseMuster turns a flag's word into a mustering out strategy.
-func ParseMuster(word string) (Muster, error) { return parsed(word, "muster", musterStrategies) }
+	policy.Skills, err = parsed(skills, "skills", skillsStrategies)
+	if err != nil {
+		return Policy{}, err
+	}
+
+	policy.Muster, err = parsed(muster, "muster", musterStrategies)
+	if err != nil {
+		return Policy{}, err
+	}
+
+	return policy, nil
+}
 
 // CareerChoices is the values --career takes, as a reader is shown them.
 //
