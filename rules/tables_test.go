@@ -29,7 +29,7 @@ func TestTheAgingTablesLastPrintedTerm(t *testing.T) {
 
 	const printed = 14
 
-	if got := load(t).Aging.LastPrintedTerm(); got != printed {
+	if got := load(t).Aging().LastPrintedTerm(); got != printed {
 		t.Errorf("last printed term %d, want %d - p. 9's header row runs 4 through 14", got, printed)
 	}
 }
@@ -69,7 +69,7 @@ func TestAgingTable(t *testing.T) {
 		},
 	} {
 		for _, term := range tc.terms {
-			effects := r.Aging.At(term)
+			effects := r.Aging().At(term)
 
 			got := make([]string, 0, len(effects))
 			for _, e := range effects {
@@ -84,14 +84,14 @@ func TestAgingTable(t *testing.T) {
 
 	// No round is run before the fourth term (p. 7).
 	for term := traveller.Term(1); term < 4; term++ {
-		if got := r.Aging.At(term); len(got) != 0 {
+		if got := r.Aging().At(term); len(got) != 0 {
 			t.Errorf("term %d: %v, want no aging", term, got)
 		}
 	}
 
 	// Education and Social Standing are unaffected at every band.
 	for term := traveller.Term(4); term <= 40; term++ {
-		for _, e := range r.Aging.At(term) {
+		for _, e := range r.Aging().At(term) {
 			if e.Characteristic == traveller.Education || e.Characteristic == traveller.SocialStanding {
 				t.Errorf("term %d reduces %v, which the table says is unaffected by aging", term, e.Characteristic)
 			}
@@ -105,7 +105,7 @@ func TestAgingTable(t *testing.T) {
 func TestMedicalCrisis(t *testing.T) {
 	t.Parallel()
 
-	crisis := load(t).Aging.Crisis
+	crisis := load(t).Aging().Crisis
 
 	if got := crisis.Saving.String(); got != "8+" {
 		t.Errorf("crisis saving throw is %s, want 8+", got)
@@ -181,6 +181,49 @@ func TestAWeaponListIsTheCallersOwn(t *testing.T) {
 	}
 }
 
+// Nothing else the ruleset hands out writes through to it either: a service's
+// ranks and its throws' DMs, and an aging band's effects, are each a slice,
+// and each comes back as the caller's own (#137).
+func TestNothingTheRulesHandOutIsShared(t *testing.T) {
+	t.Parallel()
+
+	navy := load(t).Service(traveller.Navy)
+	commission, _ := navy.Commission()
+	last := load(t).Aging().LastPrintedTerm()
+	effects := load(t).Aging().At(last)
+
+	if len(navy.Ranks) == 0 || len(navy.Enlistment.DMs) == 0 || len(commission.DMs) == 0 || len(effects) == 0 {
+		t.Fatal("the Navy prints no ranks or DMs, or the last band no effects, so this checks nothing")
+	}
+
+	rank, enlistDM, commissionDM, effect := navy.Ranks[0], navy.Enlistment.DMs[0], commission.DMs[0], effects[0]
+
+	navy.Ranks[0] = "Grand Admiral"
+	navy.Enlistment.DMs[0].Amount = 99
+	commission.DMs[0].Amount = 99
+	effects[0].Reduction = 99
+
+	again := load(t).Service(traveller.Navy)
+	againCommission, _ := again.Commission()
+	againEffects := load(t).Aging().At(last)
+
+	if len(again.Ranks) == 0 || again.Ranks[0] != rank {
+		t.Errorf("a write through a service's ranks reached the ruleset: %v", again.Ranks)
+	}
+
+	if len(again.Enlistment.DMs) == 0 || again.Enlistment.DMs[0] != enlistDM {
+		t.Errorf("a write through an enlistment DM reached the ruleset: %v", again.Enlistment.DMs)
+	}
+
+	if len(againCommission.DMs) == 0 || againCommission.DMs[0] != commissionDM {
+		t.Errorf("a write through a commission DM reached the ruleset: %v", againCommission.DMs)
+	}
+
+	if len(againEffects) == 0 || againEffects[0] != effect {
+		t.Errorf("a write through an aging effect reached the ruleset: %v", againEffects)
+	}
+}
+
 // The Rank and Service Skills box (p. 23). Rank 0 means the grant is by
 // virtue of the service itself, which E005 reads as granted once on
 // entering it.
@@ -247,7 +290,7 @@ func TestRetirementPay(t *testing.T) {
 		// "Service beyond 8 terms adds CR 2000 per additional term."
 		9: 12000, 10: 14000, 12: 18000,
 	} {
-		got, tabled := r.Retirement.Pay(terms)
+		got, tabled := r.Retirement().Pay(terms)
 		if !tabled || got != want {
 			t.Errorf("%d terms: %v (tabled %v), want %v", terms, got, tabled, want)
 		}
@@ -258,7 +301,7 @@ func TestRetirementPay(t *testing.T) {
 	// a missing key and returning a real-looking zero (#52). The guard used
 	// to live in the caller alone, where nothing held it.
 	for _, terms := range []int{0, 1, 4} {
-		if pay, tabled := r.Retirement.Pay(terms); tabled {
+		if pay, tabled := r.Retirement().Pay(terms); tabled {
 			t.Errorf("%d terms is priced at %v, and the table starts at five", terms, pay)
 		}
 	}
@@ -280,19 +323,19 @@ func TestEligibility(t *testing.T) {
 	r := load(t)
 
 	want := rules.Eligibility{InitialTerm: 2, PerSubsequentTerm: 1, OnCommission: 1, OnPromotion: 1}
-	if r.Eligibility != want {
-		t.Errorf("eligibility %+v, want %+v", r.Eligibility, want)
+	if r.Eligibility() != want {
+		t.Errorf("eligibility %+v, want %+v", r.Eligibility(), want)
 	}
 
-	if r.Education.Table != traveller.AdvancedEducationEight {
-		t.Errorf("the education gate opens %v", r.Education.Table)
+	if r.Education().Table != traveller.AdvancedEducationEight {
+		t.Errorf("the education gate opens %v", r.Education().Table)
 	}
 
 	for education, open := range map[int]bool{6: false, 7: false, 8: true, 9: true, 15: true} {
 		var p traveller.Profile
 
 		p[traveller.Education] = education
-		if got := r.Education.Open(p); got != open {
+		if got := r.Education().Open(p); got != open {
 			t.Errorf("education %d opens the fourth table: %v, want %v", education, got, open)
 		}
 	}
@@ -323,22 +366,22 @@ func TestMusterRollsAndPassages(t *testing.T) {
 		// rolls, "in addition to the 5 rolls (for 5 terms of service)".
 		{5, 5, 7},
 	} {
-		if got := r.Muster.Rolls(tc.terms, tc.rank); got != tc.want {
+		if got := r.Muster().Rolls(tc.terms, tc.rank); got != tc.want {
 			t.Errorf("%d terms at rank %d: %d rolls, want %d", tc.terms, tc.rank, got, tc.want)
 		}
 	}
 
-	if r.Muster.Table1DMFromRank5or6 != 1 || r.Muster.Table2DMFromGambling != 1 {
+	if r.Muster().Table1DMFromRank5or6 != 1 || r.Muster().Table2DMFromGambling != 1 {
 		t.Errorf("the two optional DMs are %d and %d, want 1 and 1",
-			r.Muster.Table1DMFromRank5or6, r.Muster.Table2DMFromGambling)
+			r.Muster().Table1DMFromRank5or6, r.Muster().Table2DMFromGambling)
 	}
 
 	// The skill that earns the second of those, transcribed a second time
 	// (#47). It is data because it names which skill, and it has to be
 	// spelled as skills.json spells it after E012's normalization - a
 	// mismatch would not fail, it would silently stop the modifier applying.
-	if r.Muster.Table2ModifierFrom != "Gambling" {
-		t.Errorf("the table 2 modifier is earned by %q, want Gambling", r.Muster.Table2ModifierFrom)
+	if r.Muster().Table2ModifierFrom != "Gambling" {
+		t.Errorf("the table 2 modifier is earned by %q, want Gambling", r.Muster().Table2ModifierFrom)
 	}
 
 	for class, want := range map[traveller.PassageClass]traveller.Credits{
@@ -349,8 +392,8 @@ func TestMusterRollsAndPassages(t *testing.T) {
 		}
 	}
 
-	if r.Muster.ResalePercent != 90 {
-		t.Errorf("passages resell at %d%%, want 90%%", r.Muster.ResalePercent)
+	if r.Muster().ResalePercent != 90 {
+		t.Errorf("passages resell at %d%%, want 90%%", r.Muster().ResalePercent)
 	}
 }
 

@@ -39,7 +39,7 @@ func (r *run) commission(term traveller.Term) error {
 		return nil
 	}
 
-	return r.raise(seq, 1, r.tables.Eligibility.OnCommission, "commissioned")
+	return r.raise(seq, 1, r.tables.Eligibility().OnCommission, "commissioned")
 }
 
 // promote attempts a promotion (p. 6): "In the same term of service that he
@@ -83,7 +83,7 @@ func (r *run) promote(term traveller.Term) error {
 		return nil
 	}
 
-	return r.raise(seq, r.char.Rank+1, r.tables.Eligibility.OnPromotion, "promoted")
+	return r.raise(seq, r.char.Rank+1, r.tables.Eligibility().OnPromotion, "promoted")
 }
 
 // raise confers a rank, the skill eligibility that comes with it (p. 6), and

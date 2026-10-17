@@ -138,7 +138,7 @@ func (r *run) pension() {
 	// reach restated - and a restated precondition is one that can come to
 	// disagree with the thing it restates (#52). Pay says whether p. 21
 	// prints a pension for a term at all.
-	pay, tabled := r.tables.Retirement.Pay(r.char.Terms)
+	pay, tabled := r.tables.Retirement().Pay(r.char.Terms)
 	if !tabled {
 		return
 	}

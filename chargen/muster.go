@@ -19,7 +19,7 @@ const (
 
 // musterOut spends the benefit rolls the service earned (pp. 7, 9).
 func (r *run) musterOut() error {
-	rolls := r.tables.Muster.Rolls(r.char.Terms, r.char.Rank)
+	rolls := r.tables.Muster().Rolls(r.char.Terms, r.char.Rank)
 	if rolls == 0 {
 		return nil
 	}
@@ -123,13 +123,13 @@ func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 		}
 
 		if take {
-			return r.tables.Muster.Table1DMFromRank5or6, nil
+			return r.tables.Muster().Table1DMFromRank5or6, nil
 		}
 
 		return 0, nil
 	}
 
-	if !r.char.has(r.tables.Muster.Table2ModifierFrom) {
+	if !r.char.has(r.tables.Muster().Table2ModifierFrom) {
 		return 0, nil
 	}
 
@@ -139,7 +139,7 @@ func (r *run) musterModifier(table traveller.MusterTable) (int, error) {
 	}
 
 	if take {
-		return r.tables.Muster.Table2DMFromGambling, nil
+		return r.tables.Muster().Table2DMFromGambling, nil
 	}
 
 	return 0, nil
