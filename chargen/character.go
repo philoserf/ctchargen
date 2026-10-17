@@ -137,11 +137,10 @@ func (s *serviceCodec) DeclinedTheDraft() error { return nil }
 
 // ServedIn is the service the character entered, and whether he entered one.
 //
-// It replaces a Service field and a Served flag that used to sit beside the
-// Enlistment (#42). Three fields held one fact and nothing made them agree -
-// only run.join wrote the two, so a DeclinedTheDraft left Service at its
-// zero value, which is Navy, and only the flag beside it kept a civilian
-// from reading as a sailor. The sum already says all of it.
+// It is read off the Enlistment rather than held beside it (#42). The sum
+// already says all of it, and a Service field kept separately would sit at
+// its zero value, which is Navy, for a civilian, with only one more field to
+// keep him from reading as a sailor.
 func (c *Character) ServedIn() (traveller.ServiceName, bool) {
 	if c.Enlistment == nil {
 		var none traveller.ServiceName

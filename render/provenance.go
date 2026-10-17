@@ -20,10 +20,10 @@ import (
 // Named Option and not Flag on purpose. cmd/ctchargen/usage.go declares
 // seedOption, careerOption, skillsOption and musterOption too, bare - "career", not
 // "--career" - because that is what a flag.FlagSet is keyed by, while these
-// are words going onto a command line. Both are right for their own package
-// and they used to read identically, so a constant moved between the two, or
-// checked against the other, differed by two characters and compiled either
-// way (#83).
+// are words going onto a command line. Both are right for their own package,
+// and the names differ so that a constant moved between the two, or checked
+// against the other, cannot differ by two characters and compile either way
+// (#83).
 const (
 	autoOption    = "--auto"
 	seedOption    = "--seed"
@@ -45,8 +45,8 @@ const (
 //
 // What it prints is the command rather than the seed, because running it is
 // what the reader wants to do with it. The strategies are named even where
-// they are the defaults: a default that moves under a reader is exactly how
-// a published page came to document flags that no longer work.
+// they are the defaults: a line that leans on a default stops reproducing its
+// character when the default moves.
 func provenance(r record, rendering string) (string, error) {
 	byPlayer, err := decidedByPlayer(r)
 	if err != nil {

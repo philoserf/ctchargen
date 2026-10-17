@@ -107,10 +107,9 @@ func (r *run) settle(seq int, term traveller.Term, intent traveller.Intent) {
 // retiring term is a retirement whatever brought it on.
 //
 // earlyDeparture is what it is below that term, and it is passed in rather
-// than inferred from why (#45). It used to be chosen by comparing why against
-// the literal "reenlistment denied" - and why is also the sentence the log
-// prints, so editing the wording changed the domain outcome. The goldens
-// carried that invariant; the type carries it now.
+// than inferred from why (#45): why is also the sentence the log prints, so
+// choosing by comparing it against a literal would let a change of wording
+// change the domain outcome. The type carries that invariant.
 func (r *run) depart(
 	seq int, term traveller.Term, earlyDeparture traveller.Departure, why string,
 ) {

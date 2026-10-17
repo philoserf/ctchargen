@@ -118,8 +118,8 @@ type throwJSON struct {
 }
 
 // rollJSON is a roll with nothing to meet. It carries no target and no
-// outcome, which is the whole of #50: every one of these used to be written
-// as a throw that had succeeded, against nothing.
+// outcome (#50): written as a throw, it would claim to have succeeded against
+// nothing.
 type rollJSON struct {
 	Seq   int    `json:"seq"`
 	Kind  string `json:"kind"`
@@ -149,12 +149,11 @@ type outcomeJSON struct {
 // eventCodec folds a domain event into the shape it is written in, and into
 // the flat shape a reader gets it back as.
 //
-// It produces both because there used to be two codecs producing one each,
-// and the second mapped the same domain fields a second time - Fold caught a
-// fifth kind, since both stopped compiling, but not a field: liveCodec could
-// have stopped carrying DM and only a transcript golden would have noticed
-// (#46). There is one mapping from the domain now, and flat is derived from
-// what is written rather than built beside it.
+// It produces both so that there is one mapping from the domain, and flat is
+// derived from what is written rather than built beside it (#46). Two codecs
+// would each map the same domain fields: Fold would catch a fifth kind, since
+// both would stop compiling, but not a field, and one could stop carrying DM
+// with only a transcript golden to notice.
 type eventCodec struct {
 	out  json.RawMessage
 	flat eventJSON
@@ -174,7 +173,7 @@ func (e *eventCodec) Throw(from traveller.ThrowEvent) error {
 		DM: from.DM, Total: from.Total(), Succeeded: from.Succeeded,
 	}
 
-	// Guarded, though every throw now has a target by construction: a zero
+	// Guarded, though every throw has a target by construction: a zero
 	// Target stringifies to "0", not to nothing, so writing it unguarded
 	// would put "target": "0" on a throw that has none and satisfy the
 	// schema's requirement with it. Omitted, the record fails its own schema,

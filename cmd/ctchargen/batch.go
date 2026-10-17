@@ -269,9 +269,9 @@ func eachMember(base chargen.Inputs, policy chargen.Policy, count int, survivors
 // intoStream writes the batch as JSONL, one record to the line.
 //
 // To standard output it streams, writing each record as it is generated.
-// JSONL exists to be piped, and `batch --count 50000 --auto | jq` used to
-// produce nothing until the run finished and to hold the whole run in memory
-// while it did (#44). The atomicity that justifies buffering is about not
+// JSONL exists to be piped, so `batch --count 50000 --auto | jq` sees the
+// first record at once and the run holds one record in memory rather than
+// all of them (#44). The atomicity that justifies buffering is about not
 // leaving a file half-written and not clobbering one on a retry, and there is
 // no file to clobber on standard output (#64).
 func intoStream(out io.Writer, base chargen.Inputs, policy chargen.Policy,
@@ -332,23 +332,19 @@ func buffered(base chargen.Inputs, policy chargen.Policy,
 
 // intoDirectory writes one file per character, named for its own seed.
 //
-// One record is held at a time. #98 buffered the whole run to check the paths
-// it would actually write, because --survivors breaks the arithmetic the check
-// used to rest on - and buffered unconditionally, so a directory batch held
-// about 650 MB at --count 50000 (#99). That is the property #44 had just
-// removed from standard output.
-//
-// The collision check is what needed the paths, not the writing, so only the
-// check pays. Without --survivors the paths are still base through
-// base+count-1 and no character need exist to know them: plannedPaths takes no
-// policy and no roller, so it cannot generate, and that is the whole of why
-// the common case is free again. With the flag, survivingPaths walks once
+// One record is held at a time (#99). The collision check needs every path
+// the batch will write before it writes any, and under --survivors those are
+// not simply base through base+count-1 (#98) - but it is the check that needs
+// the paths, not the writing, so only the check pays. Without --survivors the
+// paths are base through base+count-1 and no character need exist to know
+// them: plannedPaths takes no policy and no roller, so it cannot generate, and
+// the common case is free. With the flag, survivingPaths walks once
 // keeping seeds - eight bytes each, not thirteen kilobytes - and the write
 // walks again, which generation being deterministic makes the same characters.
 //
-// A batch that fails partway leaves what it had written. That was true before
-// #98 too: the guarantee here is that a run never silently replaces a file, not
-// that a directory is written atomically.
+// A batch that fails partway leaves what it has written. The guarantee here is
+// that a run never silently replaces a file, not that a directory is written
+// atomically.
 func intoDirectory(base chargen.Inputs, policy chargen.Policy,
 	count int, dir string, force, survivors bool,
 ) (tally, error) {

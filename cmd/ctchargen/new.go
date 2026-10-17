@@ -99,10 +99,10 @@ func newCharacter(args []string, in io.Reader, out, asking io.Writer) error {
 		return fmt.Errorf("%w: %w; run `ctchargen new --help`", errUsage, err)
 	}
 
-	// `new` takes no positional argument, and the one it used to ignore was
-	// a typo that became an interactive session on a seed nobody chose. The
-	// flag package stops at the first non-flag word, so `new foo --auto`
-	// left --auto unparsed as well: refusing the word catches both.
+	// `new` takes no positional argument, and a stray word is a typo that
+	// would otherwise become an interactive session on a seed nobody chose.
+	// The flag package stops at the first non-flag word, so `new foo --auto`
+	// leaves --auto unparsed as well: refusing the word catches both.
 	if flags.set.NArg() > 0 {
 		return fmt.Errorf("%w: %s; it takes no arguments, and was given %q",
 			errUsage, newUsage, flags.set.Arg(0))
