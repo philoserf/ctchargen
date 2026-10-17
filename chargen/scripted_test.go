@@ -77,7 +77,7 @@ func TestACareerPastTheTablesLastColumn(t *testing.T) {
 			character.Terms)
 	}
 
-	stamped := map[traveller.Erratum]bool{}
+	stamped := make(map[traveller.Erratum]bool)
 	for _, erratum := range character.Errata {
 		stamped[erratum] = true
 	}

@@ -157,7 +157,7 @@ func (r *run) trainOnce() error {
 	}
 
 	if r.trained == nil {
-		r.trained = map[traveller.SkillTable]int{}
+		r.trained = make(map[traveller.SkillTable]int)
 	}
 
 	r.trained[table]++

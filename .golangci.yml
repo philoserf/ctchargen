@@ -87,7 +87,7 @@ linters:
       default-signifies-exhaustive: false
       # Map literals keyed by an enum are checked too, which is how a table
       # keyed by service or characteristic is held complete.
-      check: [switch, map]
+      check: [switch, mapliteral]
 
     gosec:
       excludes:

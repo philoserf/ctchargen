@@ -314,7 +314,7 @@ func TestGoldensRegenerate(t *testing.T) {
 func TestEveryReadingIsReachable(t *testing.T) {
 	t.Parallel()
 
-	stamped := map[traveller.Erratum]bool{}
+	stamped := make(map[traveller.Erratum]bool)
 
 	for _, f := range fixtures {
 		for _, erratum := range f.generate(t).Errata {
