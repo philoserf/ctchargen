@@ -1,0 +1,6 @@
+# Read by ~/.claude/skills/release-gate and release-ship, sourced as shell.
+#
+# The version lives in one place a person edits: the README's `go install`
+# line. A release is a tag installed with `go install`; no binaries are built.
+VERSION_CMD="grep -oE 'cmd/ctchargen@v[0-9][^ ]*' README.md"
+VERSION_FILES="README.md:grep"
