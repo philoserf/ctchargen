@@ -317,3 +317,61 @@ func TestAFailedWriteIsReportedAndClosed(t *testing.T) {
 		t.Error("a failed write left the destination open")
 	}
 }
+
+// A batch that stops partway still says what it left behind, and says it
+// stopped.
+//
+// Here the third member's file is already a directory, and --force skips the
+// up-front check that would have refused the run before writing anything, so
+// two records are on disk when it fails. It printed the error and no tally,
+// and the tally is the only place the run says how many of what it wrote are
+// corpses (#118).
+func TestABatchThatStopsSaysWhatItWrote(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	err := os.Mkdir(filepath.Join(dir, "00000000000000000102.json"), 0o700)
+	if err != nil {
+		t.Fatalf("planting the directory: %v", err)
+	}
+
+	var asking strings.Builder
+
+	err = run([]string{
+		cmdBatch, flagCount, "5", flagAuto, flagSeed, "100", flagService, other,
+		flagForce, flagOutput, dir + string(filepath.Separator),
+	}, nil, io.Discard, &asking)
+	if err == nil {
+		t.Fatal("a batch wrote a record over a directory")
+	}
+
+	if !strings.HasPrefix(asking.String(), "2 written before the run stopped, ") {
+		t.Errorf("a batch that stopped after two records said %q", asking.String())
+	}
+}
+
+// When the tally of a stopped batch cannot be written either, both failures
+// are reported: the run's own, which is what stopped it, and the tally's.
+func TestAStoppedBatchThatCannotReportSaysBoth(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	err := os.Mkdir(filepath.Join(dir, "00000000000000000102.json"), 0o700)
+	if err != nil {
+		t.Fatalf("planting the directory: %v", err)
+	}
+
+	err = run([]string{
+		cmdBatch, flagCount, "5", flagAuto, flagSeed, "100", flagService, other,
+		flagForce, flagOutput, dir + string(filepath.Separator),
+	}, nil, io.Discard, refusingWriter{})
+	if err == nil {
+		t.Fatal("a batch wrote a record over a directory")
+	}
+
+	if !errors.Is(err, errRefused) || !strings.Contains(err.Error(), "is a directory") {
+		t.Errorf("a stopped batch that could not report said %v, want both failures", err)
+	}
+}

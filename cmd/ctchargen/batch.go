@@ -108,7 +108,18 @@ func write(out, asking io.Writer, base chargen.Inputs, policy chargen.Policy,
 		done, err = intoStream(out, base, policy, count, path, force, survivors)
 	}
 
+	// A run that stopped partway has left records on disk, and the tally is
+	// the only place it says how many and how many of them are corpses (#118).
+	// It is skipped where it would say nothing - no record written - and for
+	// a failed search, whose error already carries the counts.
 	if err != nil {
+		if done.written > 0 && !errors.Is(err, errSearch) {
+			reported := done.reportStopped(asking)
+			if reported != nil {
+				return errors.Join(err, reported)
+			}
+		}
+
 		return err
 	}
 
@@ -164,8 +175,17 @@ type tally struct {
 // not JSON. After #44 it also arrives after records the reader has already
 // seen, which is why it counts rather than warns.
 func (t tally) report(asking io.Writer) error {
-	line := fmt.Sprintf("%d written", t.written)
+	return t.reportAs(asking, fmt.Sprintf("%d written", t.written))
+}
 
+// reportStopped writes the closing line of a run that failed partway. It says
+// the run stopped, because the error printed after it does, and a line that
+// read like a finished batch would contradict the line beneath it.
+func (t tally) reportStopped(asking io.Writer) error {
+	return t.reportAs(asking, fmt.Sprintf("%d written before the run stopped", t.written))
+}
+
+func (t tally) reportAs(asking io.Writer, line string) error {
 	switch {
 	case t.passed > 0:
 		line += fmt.Sprintf(", %d passed over for dying", t.passed)
