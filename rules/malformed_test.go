@@ -76,6 +76,16 @@ func TestMalformedServices(t *testing.T) {
 			func(w *wireServices) { w.Commission[0] = nil },
 			"p. 10 makes ranks",
 		},
+		// Draft scans for the service printing the die, so a face printed
+		// twice leaves another face naming nobody (#134).
+		"a draft face printed twice": {
+			func(w *wireServices) { w.Draft[5] = w.Draft[4] },
+			"printed twice",
+		},
+		"a draft number that is not a die face": {
+			func(w *wireServices) { w.Draft[0] = 7 },
+			"not a die face",
+		},
 	} {
 		wire := mustRead[wireServices](t, "services.json")
 		tc.breaks(&wire)
