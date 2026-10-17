@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"io"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -20,10 +22,16 @@ const (
 
 // The three flag lists, in no order, because the help prints them sorted and
 // this is about which flags are there.
+//
+// Each is held both ways. TestHelpNamesEveryFlag notices a flag the printer
+// stopped writing; TestEveryDeclaredFlagIsListed notices a flag the set
+// gained without the list learning it, which is the direction the list
+// actually drifted - `new` gained --answers and this list stayed at eleven
+// (#133).
 var (
 	newFlags = []string{
 		flagSeed, flagAuto, flagService, flagName, flagCareer, flagSkills,
-		flagMuster, flagSheet, flagHistory, flagOutput, flagForce,
+		flagMuster, flagSheet, flagHistory, flagOutput, flagForce, flagAnswers,
 	}
 	batchFlags = []string{
 		flagCount, flagSeed, flagAuto, flagService, flagName, flagCareer,
@@ -74,6 +82,35 @@ func TestHelpNamesEveryFlag(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// Every flag a command declares is in that command's list above.
+//
+// This is the one place the test reads the flag set, and it reads it only to
+// hold the list to it: the list stays the statement of what ought to be
+// there, and this reports a flag that arrived without the list learning it.
+func TestEveryDeclaredFlagIsListed(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		set   *flag.FlagSet
+		flags []string
+	}{
+		cmdNew:    {declareNewFlags().set, newFlags},
+		cmdBatch:  {declareBatchFlags().set, batchFlags},
+		cmdRender: {declareRenderFlags().set, renderFlags},
+	} {
+		tc.set.VisitAll(func(declared *flag.Flag) {
+			spelled := "--" + declared.Name
+			if len(declared.Name) == shortFlag {
+				spelled = "-" + declared.Name
+			}
+
+			if !slices.Contains(tc.flags, spelled) {
+				t.Errorf("%s declares %s, and its list does not name it", name, spelled)
+			}
+		})
 	}
 }
 
