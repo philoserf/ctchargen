@@ -156,6 +156,10 @@ was.
 Death is an outcome and not an error: a character killed by a survival throw
 (Book 1 p. 5) gets a complete record like anyone else, and no flag rerolls him.
 
+**The exit status is 0 or 1.** 0 when the command did what it was asked —
+the dead character above included — and 1 when it did not, with the reason on
+standard error after `ctchargen:`.
+
 ## The documents
 
 | File                                                     | What it holds                                                                    |
