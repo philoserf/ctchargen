@@ -29,6 +29,15 @@ type Roller interface {
 // This is the only variation a decider may take.
 type Vary interface{ Among(n int) int }
 
+// varyOnly is the Vary a decider is handed: a Roller with everything but
+// Among taken off it, so the narrowing is the value's and not only the
+// parameter's. Passing the Roller itself as a Vary would leave its dynamic
+// type behind it, and one type assertion would hand a decider the dice back
+// (#136).
+type varyOnly struct{ roller Roller }
+
+func (v varyOnly) Among(n int) int { return v.roller.Among(n) }
+
 // Throw is one 2D throw against a target, with its modifier.
 type throw struct {
 	dice      [2]int
