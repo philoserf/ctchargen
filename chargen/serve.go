@@ -31,10 +31,6 @@ func (r *run) serve() error {
 // term runs one term of service in the exposition's order (E002): survival,
 // commission, promotion, skills, reenlistment, and then the aging round at
 // the end of the term (E006). It reports whether the service ended.
-//
-// The two rank steps were missing from this list, which generate.go's own
-// account of the order has right (#59). A doc that names four of six steps
-// reads as a claim that there are four.
 func (r *run) term(term traveller.Term) (bool, error) {
 	r.log.step(fmt.Sprintf("term %d", term), "pp. 5-7")
 

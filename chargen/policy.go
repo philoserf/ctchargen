@@ -340,8 +340,7 @@ func (p Policy) SkillTable(
 // thinnest is the offered tables the character has had fewest results off.
 //
 // A caller with no counts - a test constructing a policy directly - gets the
-// whole offered set back, so the ranking decides alone and the answer is what
-// it was before the counts existed.
+// whole offered set back, so the ranking decides alone.
 func thinnest(from []traveller.SkillTable, taken []int) []traveller.SkillTable {
 	if len(taken) != len(from) {
 		return from
@@ -362,10 +361,10 @@ func thinnest(from []traveller.SkillTable, taken []int) []traveller.SkillTable {
 
 // Weapon draws among the names on the category's printed list.
 //
-// It took the first every time, which is what made thirty auto-generated
-// characters carry twenty-two Body Pistols and seventeen Daggers and nothing
-// else, though every name on both lists was offered (#34). No strategy
-// reached it - the receiver was unused - so no flag could change it either.
+// Taking the first every time arms every auto-generated character from the
+// head of the list: thirty of them carried twenty-two Body Pistols and
+// seventeen Daggers and nothing else, though every name on both lists was
+// offered (#34).
 //
 // It draws rather than ranks because the book names no basis. Where p. 11
 // makes the player designate a table, or p. 21 decides a departure by the
