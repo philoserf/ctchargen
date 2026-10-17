@@ -120,9 +120,8 @@ is also E014's stamping condition, and holding it as a Go constant would let the
 bands move without the term at which a record declares the reading moving with
 them. The three-roll cap on Mustering Out Table 2 and the rank thresholds bound a
 procedure and index nothing, so they are constants in `chargen/muster.go` and
-`rules/rules.go` beside the code that applies them — and `rules.go` records that
-they used to be data and the argument for that was wrong: "Being printed is not the
-test. Indexing a printed table is."
+`rules/rules.go` beside the code that applies them. `rules.go` states the test
+in one line: "Being printed is not the test; indexing a printed table is."
 
 If you find yourself moving a number, this is the rule you are arguing with. A
 number on the wrong side of it is a finding, not a preference.
