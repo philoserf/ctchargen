@@ -171,7 +171,16 @@ func (r *Rules) Draft(n int) (traveller.ServiceName, error) {
 }
 
 // Weapons is the printed list for a category (pp. 12-13), column-major.
-func (r *Rules) Weapons(c traveller.WeaponCategory) []traveller.WeaponName { return r.weapons[c] }
+//
+// A copy: Load hands every caller in a process the same Rules, and the list
+// goes straight to a decider, so returning the ruleset's own slice would let
+// one decider's write change what every later character is offered (#137).
+func (r *Rules) Weapons(c traveller.WeaponCategory) []traveller.WeaponName {
+	list := make([]traveller.WeaponName, len(r.weapons[c]))
+	copy(list, r.weapons[c])
+
+	return list
+}
 
 // Hull is the ship's hull size in tons (Book 2 pp. 18-19): the Type S is
 // built on a type 100 hull, the Type A on a type 200.
