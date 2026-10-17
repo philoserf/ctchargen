@@ -439,19 +439,19 @@ func (r *Rules) liftRetirement(wire wireServices) error {
 		return fmt.Errorf("%w: retirement pay: the table prints no rows", errMalformed)
 	}
 
-	r.Retirement.ByTerms = make(map[int]traveller.Credits, len(pay.ByTerms))
+	r.retirement.byTerms = make(map[int]traveller.Credits, len(pay.ByTerms))
 	for _, row := range pay.ByTerms {
 		if row.Pay <= 0 {
 			return fmt.Errorf("%w: retirement pay at %d terms: %d is not a pension", errMalformed, row.Terms, row.Pay)
 		}
 
-		if row.Terms <= r.Retirement.lastTabled {
+		if row.Terms <= r.retirement.lastTabled {
 			return fmt.Errorf("%w: retirement pay: %d terms does not follow %d; the table's rows ascend", errMalformed,
-				row.Terms, r.Retirement.lastTabled)
+				row.Terms, r.retirement.lastTabled)
 		}
 
-		r.Retirement.ByTerms[row.Terms] = traveller.Credits(row.Pay)
-		r.Retirement.lastTabled = row.Terms
+		r.retirement.byTerms[row.Terms] = traveller.Credits(row.Pay)
+		r.retirement.lastTabled = row.Terms
 	}
 
 	if pay.PerTermBeyondEight <= 0 {
@@ -459,7 +459,7 @@ func (r *Rules) liftRetirement(wire wireServices) error {
 			pay.PerTermBeyondEight)
 	}
 
-	r.Retirement.PerAdditionalTerm = traveller.Credits(pay.PerTermBeyondEight)
+	r.retirement.PerAdditionalTerm = traveller.Credits(pay.PerTermBeyondEight)
 
 	if len(pay.PaidBy) == 0 {
 		return fmt.Errorf("%w: retirement pay: no service pays it", errMalformed)
@@ -512,7 +512,7 @@ func (r *Rules) liftSkills(wire wireSkills) error {
 		}
 	}
 
-	r.Eligibility = Eligibility{
+	r.eligibility = Eligibility{
 		InitialTerm:       wire.Eligibility.InitialTerm,
 		PerSubsequentTerm: wire.Eligibility.PerSubsequentTerm,
 		OnCommission:      wire.Eligibility.OnCommission,
@@ -534,7 +534,7 @@ func (r *Rules) liftSkills(wire wireSkills) error {
 		return fmt.Errorf("%w: education gate: %w", errMalformed, err)
 	}
 
-	r.Education = Gate{Table: table, Characteristic: characteristic, Threshold: threshold}
+	r.education = Gate{Table: table, Characteristic: characteristic, Threshold: threshold}
 
 	return nil
 }
@@ -566,7 +566,7 @@ func (r *Rules) liftMustering(wire wireMustering) error {
 		return fmt.Errorf("%w: mustering out: no skill earns the table 2 modifier", errMalformed)
 	}
 
-	r.Muster = Muster{
+	r.muster = Muster{
 		Table1DMFromRank5or6: wire.Rolls.Table1DMFromRank5or6,
 		Table2DMFromGambling: wire.Rolls.Table2DMFromGambling,
 		Table2ModifierFrom:   earnedBy,
@@ -636,7 +636,7 @@ func (r *Rules) liftPassages(wire wireMustering) error {
 		return fmt.Errorf("%w: passages: no resale percentage", errMalformed)
 	}
 
-	r.Muster.ResalePercent = wire.Passages.ResalePercent
+	r.muster.ResalePercent = wire.Passages.ResalePercent
 
 	return nil
 }
@@ -660,33 +660,33 @@ func (r *Rules) liftAging(wire wireAging) error {
 			})
 		}
 
-		if len(r.Aging.bands) > 0 && lifted.fromTerm <= r.Aging.bands[len(r.Aging.bands)-1].fromTerm {
+		if len(r.aging.bands) > 0 && lifted.fromTerm <= r.aging.bands[len(r.aging.bands)-1].fromTerm {
 			return fmt.Errorf("%w: aging bands are out of order at term %d", errMalformed, band.FromTerm)
 		}
 
-		r.Aging.bands = append(r.Aging.bands, lifted)
+		r.aging.bands = append(r.aging.bands, lifted)
 	}
 
-	if len(r.Aging.bands) == 0 {
+	if len(r.aging.bands) == 0 {
 		return fmt.Errorf("%w: aging: no bands", errMalformed)
 	}
 
 	// The last term the table's header row prints. It has to reach the last
 	// band, or the band would begin at a term the table never names.
 	last := traveller.Term(wire.LastPrintedTerm)
-	if last < r.Aging.bands[len(r.Aging.bands)-1].fromTerm {
+	if last < r.aging.bands[len(r.aging.bands)-1].fromTerm {
 		return fmt.Errorf("%w: aging: the last printed term is %d, before the last band begins",
 			errMalformed, wire.LastPrintedTerm)
 	}
 
-	r.Aging.lastPrintedTerm = last
+	r.aging.lastPrintedTerm = last
 
 	saving, err := traveller.ParseTarget(wire.Crisis.Saving)
 	if err != nil {
 		return fmt.Errorf("%w: medical crisis: %w", errMalformed, err)
 	}
 
-	r.Aging.Crisis = Crisis{
+	r.aging.Crisis = Crisis{
 		Saving: saving, RecoversTo: wire.Crisis.RecoversTo, MonthsDice: wire.Crisis.MonthsDice,
 	}
 

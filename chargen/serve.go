@@ -114,12 +114,12 @@ func (r *run) survive(term traveller.Term) bool {
 // Eligibility box (p. 6): two for the initial term, one per subsequent term.
 func (r *run) grantEligibility(term traveller.Term) {
 	if term == 1 {
-		r.eligible += r.tables.Eligibility.InitialTerm
+		r.eligible += r.tables.Eligibility().InitialTerm
 
 		return
 	}
 
-	r.eligible += r.tables.Eligibility.PerSubsequentTerm
+	r.eligible += r.tables.Eligibility().PerSubsequentTerm
 }
 
 // trainSkills spends every eligibility the character has accrued. P. 11:
@@ -180,7 +180,7 @@ func (r *run) offeredTables() []traveller.SkillTable {
 	offered := make([]traveller.SkillTable, 0, len(traveller.SkillTables))
 
 	for _, table := range traveller.SkillTables {
-		if table == r.tables.Education.Table && !r.tables.Education.Open(r.char.Profile) {
+		if table == r.tables.Education().Table && !r.tables.Education().Open(r.char.Profile) {
 			continue
 		}
 

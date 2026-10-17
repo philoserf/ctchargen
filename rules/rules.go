@@ -19,6 +19,7 @@ package rules
 import (
 	"embed"
 	"fmt"
+	"slices"
 	"sync"
 
 	"github.com/philoserf/ctchargen/traveller"
@@ -48,17 +49,36 @@ type Rules struct {
 	grants      []Grant
 	nobility    []Nobility
 	normalize   map[string]string
-	Aging       Aging
-	Muster      Muster
-	Eligibility Eligibility
-	Education   Gate
-	Retirement  Retirement
+	aging       Aging
+	muster      Muster
+	eligibility Eligibility
+	education   Gate
+	retirement  Retirement
 }
 
 // Load returns the lifted rules, loading and validating them once.
 func Load() (*Rules, error) { return loaded() }
 
 var loaded = sync.OnceValues(load)
+
+// Load hands every caller in a process the same Rules, so nothing below hands
+// out a way to write to it: the tables are reached through methods, and a
+// method that returns a slice returns a copy (#137).
+
+// Aging is the Aging Table (p. 9) and the medical crisis of pp. 7-8.
+func (r *Rules) Aging() Aging { return r.aging }
+
+// Muster is what p. 9's notes fix about mustering out.
+func (r *Rules) Muster() Muster { return r.muster }
+
+// Eligibility is the Basic Skill Eligibility box (p. 6).
+func (r *Rules) Eligibility() Eligibility { return r.eligibility }
+
+// Education is the gate on the fourth Acquired Skills table (p. 11).
+func (r *Rules) Education() Gate { return r.education }
+
+// Retirement is the Annual Retirement Pay table (p. 21).
+func (r *Rules) Retirement() Retirement { return r.retirement }
 
 // Service is one column of the Prior Service Table (p. 10), with everything
 // the neighbouring tables key to a service.
@@ -157,7 +177,26 @@ func (s Service) Result(table traveller.SkillTable, die int) (traveller.TableRes
 
 // Service is the column of the Prior Service Table for a service. Indexing
 // by the closed type is what removes the lookup that can miss.
-func (r *Rules) Service(name traveller.ServiceName) Service { return r.services[name] }
+func (r *Rules) Service(name traveller.ServiceName) Service { return r.services[name].clone() }
+
+// clone is a Service sharing no backing array with the one it was taken from:
+// the ranks and every throw's DMs are slices, and a Service is otherwise a
+// value.
+func (s Service) clone() Service {
+	s.Ranks = slices.Clone(s.Ranks)
+	s.Enlistment = s.Enlistment.clone()
+	s.Survival = s.Survival.clone()
+	s.commission = s.commission.clone()
+	s.promotion = s.promotion.clone()
+
+	return s
+}
+
+func (t Throw) clone() Throw {
+	t.DMs = slices.Clone(t.DMs)
+
+	return t
+}
 
 // Draft is the service a draft roll of n enters (p. 5).
 func (r *Rules) Draft(n int) (traveller.ServiceName, error) {
@@ -268,7 +307,7 @@ func (g Gate) Open(p traveller.Profile) bool { return g.Threshold.Satisfied(p[g.
 
 // Retirement is the Annual Retirement Pay table (p. 21).
 type Retirement struct {
-	ByTerms           map[int]traveller.Credits
+	byTerms           map[int]traveller.Credits
 	PerAdditionalTerm traveller.Credits
 
 	// lastTabled is the largest term the table prints a row for, taken from
@@ -291,10 +330,10 @@ func (r Retirement) Pay(terms int) (traveller.Credits, bool) {
 	if terms > r.lastTabled {
 		beyond := traveller.Credits(terms - r.lastTabled)
 
-		return r.ByTerms[r.lastTabled] + beyond*r.PerAdditionalTerm, true
+		return r.byTerms[r.lastTabled] + beyond*r.PerAdditionalTerm, true
 	}
 
-	pay, tabled := r.ByTerms[terms]
+	pay, tabled := r.byTerms[terms]
 
 	return pay, tabled
 }
@@ -399,7 +438,7 @@ func (a Aging) At(term traveller.Term) []AgingEffect {
 		}
 	}
 
-	return effects
+	return slices.Clone(effects)
 }
 
 // LastPrintedTerm is the last term the table's own header row names (p. 9).

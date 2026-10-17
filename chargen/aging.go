@@ -19,7 +19,7 @@ const crisisFloor = 0
 // next characteristic is thrown for - p. 7 says the recovery "is made
 // immediately".
 func (r *run) agingRound(term traveller.Term) error {
-	effects := r.tables.Aging.At(term)
+	effects := r.tables.Aging().At(term)
 	if len(effects) == 0 {
 		return nil
 	}
@@ -55,7 +55,7 @@ func (r *run) agingRound(term traveller.Term) error {
 func (r *run) agingErrata(term traveller.Term) []traveller.Erratum {
 	errata := []traveller.Erratum{traveller.E006, traveller.E007}
 
-	if term > r.tables.Aging.LastPrintedTerm() {
+	if term > r.tables.Aging().LastPrintedTerm() {
 		errata = append(errata, traveller.E014)
 	}
 
@@ -97,7 +97,7 @@ func (r *run) age(
 // DM to refer to (E009). A failed throw is death, which the page does not
 // state and E008 reads from "If the character survives".
 func (r *run) crisis(term traveller.Term, characteristic traveller.Characteristic) error {
-	crisis := r.tables.Aging.Crisis
+	crisis := r.tables.Aging().Crisis
 	errata := []traveller.Erratum{traveller.E008, traveller.E009}
 
 	// No step of its own: the crisis is resolved inside the aging round, and
