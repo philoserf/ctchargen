@@ -204,14 +204,13 @@ end: `rules.liftWeapons` refuses a weapon listed twice.
 This is the tightest reasoning in the repository. Understand it before you touch
 `logging.go`.
 
-One thing it does not check is the offer itself. Each method names `from` _after_
-the wrapped decider has returned, and the slice it names is the one the decider
-was handed. Every offered set is the decider's own — built fresh for the
-question, or copied out of the ruleset — so a decider that writes to it cannot
-reach a later character. But it can still rewrite this question's offer and
-answer with what it wrote, and `record` will find the answer in the offer and log
-both. The premise that a decider is a pure function of what it is handed is what
-holds that, and nothing enforces it; see the findings below.
+The order inside each method matters. It names `from` _before_ it asks, because
+the slice is the decider's to write to: every offered set is the decider's own —
+built fresh for the question, or copied out of the ruleset — so a write cannot
+reach a later character, and an offer named afterwards would let a decider
+rewrite this question's offer and answer with what it wrote. Named first, the
+forgery is not in what `record` checks, and is refused.
+`TestADeciderCannotForgeItsOwnOffer` holds it.
 
 ### 7. The documents are code, and each gate is verified by breaking it
 
@@ -397,10 +396,9 @@ true — see the freeze, below.
 **A new `--auto` strategy for an existing question.** Add the constant, the
 `String()` case, the entry in the unexported strategy slice (`careerStrategies`,
 `skillsStrategies`, `musterStrategies`), the `POLICY.md` row, the schema's
-`inputs` enum, and bump `PolicyVersion` if an existing answer moved. Here the
-schema has no chain behind it: nothing requires a golden to use every strategy,
-so a strategy no golden names can be added with the enum left behind and every
-test green. Every strategy today happens to appear in some golden.
+`inputs` enum, and bump `PolicyVersion` if an existing answer moved.
+`docsgate.TestTheSchemaNamesEveryStrategy` holds the schema's enum to the
+strategy slice in both directions, so the enum cannot be left behind.
 
 **A new mustering-out benefit or departure kind.** Add the case to the sum and
 follow the compiler across `chargen` and `render`.
@@ -431,8 +429,8 @@ interface, which breaks any implementation outside the module; a new case on a
 sum adds a method to its exported `…Cases` interface, which breaks any fold
 outside it. The compiler-error discipline of idea 1 is exactly what a caller in
 another module would experience as a break. The baseline in `docsgate` will
-report it as a line gone. What the freeze means for those two extension points is
-not written down anywhere I found — see the uncertainties.
+report it as a line gone. After the tag either one is a major version; the tree
+grows the same way, and the cost is the number.
 
 **Cross-build record compatibility, before `v1.0.0`.** Deliberately unpromised.
 `recordShape` is 1 and stays 1 until the tag; #96 explicitly declined the reading
@@ -449,12 +447,11 @@ premise is that a decider is a pure function of what it is handed. Every offered
 set is the decider's own: `chooseService`, `offeredTables` and
 `offeredIntents` build theirs per question, `chooseMusterTable` copies
 `traveller.MusterTables`, and `rules.Weapons` copies its list. So a write cannot
-reach a later character. It can still reach this one: `logging` reads the
-offer after the decider returns, so a decider that rewrites its slice and answers
-with what it wrote passes the single gate, and the record shows the forged offer
-as what was offered. `WeaponName` is a string, so at `Weapon` and `MusterWeapon`
-that is a weapon no page prints; `takeWeapon` deliberately does not re-check the
-answer, because the gate is meant to have.
+reach a later character. Nor can it pass for an offer in this one: each
+`logging` method names its offer before it asks, so an answer the decider wrote
+into its own slice is not in what `record` checks against, and is refused.
+`takeWeapon` does not re-check the answer because that gate already has;
+`chargen.TestADeciderCannotForgeItsOwnOffer` holds it at both weapon choices.
 
 ## Where a maintainer who did not understand the theory would cause damage
 
@@ -521,19 +518,15 @@ wrong, and the fix is a wording preference.
 describes the rules this build has, so `inputs.career`/`skills`/`muster`, the
 choice-point names and the event kinds are closed enums, and growing any of them
 after `v1.0.0` is a change to a frozen shape, said in the record's `record`
-number. That is a decision, not an oversight. What is _not_ settled is the
-narrower point under "A new `--auto` strategy" above: the strategy enums, unlike
-`point`, are held to the code only by whichever goldens happen to use each
-strategy.
+number. That is a decision, not an oversight.
 
-**What the Go API freeze means for `Decider` and the `…Cases` interfaces.**
-`CLAUDE.md` and the baseline test say the exported API freezes under ordinary Go
-rules. Under those rules, adding a method to an exported interface that callers
-may implement is a breaking change — and adding a method to `Decider` or to a
-sum's cases interface is how idea 1 says this tree grows. I cannot tell from the
-tree whether the freeze intends a new choice point or a new sum case to mean
-`v2`, or intends those interfaces to be read as implementable only inside the
-module. Nothing says which.
+**Settled: growing `Decider` or a sum's cases interface is a breaking change.**
+Ordinary Go rules govern the exported API, and under them a method added to an
+exported interface breaks every implementation outside the module, so after
+`v1.0.0` it is a major version. `Decider`'s doc comment and `traveller/doc.go`
+already say a new method breaks every implementation, and the API baseline
+reports it as a line gone. Idea 1's growth path is unchanged; what it costs
+after the tag is the version number.
 
 **The `Roller` termination contract is documented and unenforced**, and I take that
 as deliberate rather than as drift — the comment names the failure mode and the one
@@ -549,19 +542,3 @@ default strategy; I did not re-measure.
 objects" carry `additionalProperties: false`. The schema has fifteen
 `additionalProperties` sites: one `true` at the root and fourteen `false` inside.
 The count is right.
-
-## Index
-
-Where the code is in tension with the theory above. None is filed.
-
-| #   | Severity | Finding                                                                                               | Primary location                                                   |
-| --- | -------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 1   | medium   | The single gate names the offer after the decider returns, so a decider can forge its own offer       | `chargen/logging.go` — `record` and each method; `takeWeapon`      |
-| 2   | medium   | The Go API freeze makes the tree's routine extensions — a `Decider` method, a sum case — breaking     | `chargen/decider.go` — `Decider`; `traveller` — the `…Cases` types |
-| 3   | low      | The schema's strategy enums are held to the code only by the goldens that happen to use each strategy | `docs/character.schema.json` — `inputs`; `chargen/policy.go`       |
-
-**Total: 3 findings (0 critical, 0 high, 2 medium, 1 low)**
-
-Finding 2 is cheapest to settle before `v1.0.0`, because after the tag the
-answer is constrained by what was promised. Finding 1 is reachable only by a
-decider written to forge, which the tool's own three are not.

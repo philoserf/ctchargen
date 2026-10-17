@@ -15,10 +15,5 @@ docs/character.minimal.json
 # Hand-formatted (CLAUDE.md, "Working conventions").
 docs/character.schema.json
 
-# Showboat manages this file's formatting, and every fenced block in it is
-# verified output. Prettier would reflow the blocks and break `showboat
-# verify`, which is the only thing that says the document still runs.
-WALKTHROUGH.md
-
 # Ignored through the global core.excludesfile, which prettier does not read.
 .issues/
