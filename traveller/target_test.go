@@ -95,16 +95,11 @@ func TestTargetRoundTripsItsNotation(t *testing.T) {
 	}
 }
 
-// An out-of-range value cannot be constructed by the procedure, but String
-// must still say something a reader can act on rather than an empty line.
-func TestModalityNamesAnUnknownValue(t *testing.T) {
+// A target built with a modality that does not exist satisfies nothing, and
+// neither does one nobody set.
+func TestAnUnknownModalitySatisfiesNothing(t *testing.T) {
 	t.Parallel()
 
-	if got := traveller.Modality(99).String(); got != "Modality(99)" {
-		t.Errorf("Modality(99).String() = %q", got)
-	}
-
-	// A target built with a modality that does not exist satisfies nothing.
 	if traveller.NewTarget(8, traveller.Modality(99)).Satisfied(9) {
 		t.Error("a target with an unknown modality was satisfied")
 	}

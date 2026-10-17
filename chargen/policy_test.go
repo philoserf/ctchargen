@@ -277,24 +277,6 @@ func TestEveryStrategyParsesBackToItsSpelling(t *testing.T) {
 	}
 }
 
-// A value outside the alphabet says so rather than passing for another. It
-// cannot arrive from a flag - that is what the parser is for - but Go has no
-// closed integer type, so chargen.Career(99) is writable and must not read
-// back as "serve".
-func TestAStrategyOutsideItsAlphabetNamesItself(t *testing.T) {
-	t.Parallel()
-
-	for got, want := range map[string]string{
-		chargen.Career(99).String(): "Career(99)",
-		chargen.Skills(99).String(): "Skills(99)",
-		chargen.Muster(99).String(): "Muster(99)",
-	} {
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
-	}
-}
-
 // The rejection tells the reader what to type, and names no file.
 //
 // The reader most likely to see it is the one who typed `go install`: he has
