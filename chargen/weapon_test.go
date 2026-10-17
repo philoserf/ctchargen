@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/ctchargen/chargen"
@@ -128,5 +129,68 @@ func TestADeciderCannotReachTheRollerThroughVary(t *testing.T) {
 
 	if reached > 0 {
 		t.Errorf("%d of %d Weapon calls asserted the Vary back to a Roller", reached, asked)
+	}
+}
+
+// forging is the --auto policy, except that at both weapon choices it writes
+// a weapon of its own into the offer and answers with it.
+type forging struct {
+	chargen.Policy
+
+	asked *int
+}
+
+const forged traveller.WeaponName = "Lightsaber"
+
+func (f forging) Weapon(
+	_ traveller.WeaponCategory, from []traveller.WeaponName, _ chargen.Vary,
+) (traveller.WeaponName, error) {
+	return f.forge(from), nil
+}
+
+func (f forging) MusterWeapon(
+	_ traveller.WeaponCategory, from, _ []traveller.WeaponName,
+) (traveller.WeaponBenefit, error) {
+	return traveller.TakeWeapon{Weapon: f.forge(from)}, nil
+}
+
+func (f forging) forge(from []traveller.WeaponName) traveller.WeaponName {
+	*f.asked++
+
+	if len(from) > 0 {
+		from[0] = forged
+	}
+
+	return forged
+}
+
+// A decider that rewrites its own offer and answers with the rewrite is
+// refused, rather than logged as having been offered what it wrote.
+//
+// The offer is named before the decider is asked. Named afterwards, it read
+// the slice the decider had written to, and the gate passed a weapon no page
+// prints (#174).
+func TestADeciderCannotForgeItsOwnOffer(t *testing.T) {
+	t.Parallel()
+
+	asked := 0
+
+	for _, fixture := range fixtures {
+		before := asked
+
+		_, err := chargen.Generate(fixture.inputs(), forging{Policy: fixture.policy, asked: &asked})
+
+		switch {
+		case asked == before:
+			continue
+		case err == nil:
+			t.Errorf("%s: a forged weapon was accepted as offered", fixture.name)
+		case !strings.Contains(err.Error(), string(forged)):
+			t.Errorf("%s: refused, but not for the forgery: %v", fixture.name, err)
+		}
+	}
+
+	if asked == 0 {
+		t.Fatal("no fixture reaches a weapon choice, so this checks nothing")
 	}
 }

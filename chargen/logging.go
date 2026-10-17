@@ -50,14 +50,14 @@ func yesNo(b bool) string {
 var offered = []string{"yes", "no"}
 
 func (l logging) Service(from []traveller.EnlistmentOffer) (traveller.ServiceName, error) {
+	offer := names(from, func(o traveller.EnlistmentOffer) string { return o.Service.String() })
+
 	chosen, err := l.to.Service(from)
 	if err != nil {
 		return chosen, err
 	}
 
-	return chosen, l.record(traveller.ChoiceService,
-		names(from, func(o traveller.EnlistmentOffer) string { return o.Service.String() }),
-		chosen.String())
+	return chosen, l.record(traveller.ChoiceService, offer, chosen.String())
 }
 
 func (l logging) SubmitToDraft() (bool, error) {
@@ -90,43 +90,49 @@ func (l logging) AttemptPromotion() (bool, error) {
 func (l logging) SkillTable(
 	from []traveller.SkillTable, taken []int,
 ) (traveller.SkillTable, error) {
+	offer := names(from, traveller.SkillTable.String)
+
 	chosen, err := l.to.SkillTable(from, taken)
 	if err != nil {
 		return chosen, err
 	}
 
-	return chosen, l.record(traveller.ChoiceSkillTable,
-		names(from, traveller.SkillTable.String), chosen.String())
+	return chosen, l.record(traveller.ChoiceSkillTable, offer, chosen.String())
 }
 
 func (l logging) Weapon(
 	category traveller.WeaponCategory, from []traveller.WeaponName, vary Vary,
 ) (traveller.WeaponName, error) {
+	offer := names(from, func(w traveller.WeaponName) string { return string(w) })
+
 	chosen, err := l.to.Weapon(category, from, vary)
 	if err != nil {
 		return chosen, err
 	}
 
-	return chosen, l.record(traveller.ChoiceWeapon,
-		names(from, func(w traveller.WeaponName) string { return string(w) }), string(chosen))
+	return chosen, l.record(traveller.ChoiceWeapon, offer, string(chosen))
 }
 
 func (l logging) ReenlistIntent(from []traveller.Intent) (traveller.Intent, error) {
+	offer := names(from, traveller.Intent.String)
+
 	chosen, err := l.to.ReenlistIntent(from)
 	if err != nil {
 		return chosen, err
 	}
 
-	return chosen, l.record(traveller.ChoiceReenlistIntent, names(from, traveller.Intent.String), chosen.String())
+	return chosen, l.record(traveller.ChoiceReenlistIntent, offer, chosen.String())
 }
 
 func (l logging) MusterTable(from []traveller.MusterTable) (traveller.MusterTable, error) {
+	offer := names(from, traveller.MusterTable.String)
+
 	chosen, err := l.to.MusterTable(from)
 	if err != nil {
 		return chosen, err
 	}
 
-	return chosen, l.record(traveller.ChoiceMusterTable, names(from, traveller.MusterTable.String), chosen.String())
+	return chosen, l.record(traveller.ChoiceMusterTable, offer, chosen.String())
 }
 
 func (l logging) MusterTable1DM() (bool, error) {
@@ -150,6 +156,15 @@ func (l logging) MusterTable2DM() (bool, error) {
 func (l logging) MusterWeapon(
 	category traveller.WeaponCategory, from, received []traveller.WeaponName,
 ) (traveller.WeaponBenefit, error) {
+	// P. 22 offers the expertise beside the weapons, so the record of what
+	// was offered says so - and the gate has the whole offer to check
+	// against. Both halves are worded by the same functions that word the
+	// answer, so the comparison is like with like.
+	alternatives := names(from, func(w traveller.WeaponName) string { return string(w) })
+	for _, held := range received {
+		alternatives = append(alternatives, expertiseIn(held))
+	}
+
 	chosen, err := l.to.MusterWeapon(category, from, received)
 	if err != nil {
 		return chosen, err
@@ -160,15 +175,6 @@ func (l logging) MusterWeapon(
 	err = chosen.Fold(&described)
 	if err != nil {
 		return chosen, fmt.Errorf("describing the weapon benefit: %w", err)
-	}
-
-	// P. 22 offers the expertise beside the weapons, so the record of what
-	// was offered says so - and the gate has the whole offer to check
-	// against. Both halves are worded by the same functions that word the
-	// answer, so the comparison is like with like.
-	alternatives := names(from, func(w traveller.WeaponName) string { return string(w) })
-	for _, held := range received {
-		alternatives = append(alternatives, expertiseIn(held))
 	}
 
 	return chosen, l.record(traveller.ChoiceMusterWeapon, alternatives, described.text)
@@ -204,7 +210,10 @@ func (d *describeWeaponBenefit) TakeExpertise(weapon traveller.WeaponName) error
 //
 // It is the single gate: the decorator is the only way a decider reaches the
 // engine (generate.go wraps every one of them), and it already holds both
-// the offered set and the answer, because it records both. Checking here
+// the offered set and the answer, because it records both. Each method names
+// the offer before it asks, so what is checked is what the decider was
+// shown: a decider can write to the slice it is handed, and an offer named
+// afterwards would let it put its own answer there and pass. Checking here
 // rather than at each application site leaves one definition of answering
 // outside the offer, which two cannot disagree with.
 //
