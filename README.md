@@ -11,23 +11,6 @@ cite, and every place the text is silent or ambiguous has a recorded reading.
 
 ## Install
 
-A binary, needing no Go toolchain. This is the line for an Apple-silicon Mac:
-
-```sh
-curl -Lo ctchargen https://github.com/philoserf/ctchargen/releases/download/v1.0.0-beta.2/ctchargen-v1.0.0-beta.2-darwin-arm64
-chmod +x ctchargen
-```
-
-For another machine, substitute `darwin-amd64`, `linux-amd64` or `linux-arm64`
-in the filename. The tag is named rather than `releases/latest`, which resolves
-only to a non-prerelease and so resolves to nothing here. A `checksums.txt` is
-attached beside the binaries.
-
-`curl` is what the line uses because a **browser** download is quarantined and
-needs `xattr -d com.apple.quarantine ctchargen` before it will run. The
-binaries are also **unsigned**, so a recent macOS may refuse one regardless —
-if it does, the tool is not broken; install it with Go instead:
-
 ```sh
 go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.2
 ```
