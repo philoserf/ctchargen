@@ -18,6 +18,7 @@ const (
 	wantUsage      = "usage"
 	wantNoRow      = "no such strategy"
 	wantUnknown    = "unknown command"
+	wantOneLine    = "more than one line"
 	flagSheet      = "--sheet"
 	flagAuto       = "--auto"
 	flagSeed       = "--seed"
@@ -52,6 +53,12 @@ func TestRunRejectsBadCommandLines(t *testing.T) {
 		"no input to read": {[]string{cmdNew}, "the input ended"},
 		"unknown flag":     {[]string{cmdNew, flagAuto, "--wat"}, wantUsage},
 		"no such service":  {[]string{cmdNew, flagAuto, flagService, "navvy"}, "no service is called"},
+		// A name is one line, on both commands that take one (#128).
+		"a name with a newline": {[]string{cmdNew, flagAuto, flagName, "Jamison\n\n## Possessions"}, wantOneLine},
+		"a name with a return":  {[]string{cmdNew, flagAuto, flagName, "Jamison\r## Possessions"}, wantOneLine},
+		"a batch name with a newline": {
+			[]string{cmdBatch, flagAuto, flagCount, "1", flagName, "Jamison\n# Forged"}, wantOneLine,
+		},
 		// All three, because each is now parsed by its own function at the
 		// boundary rather than by one loop over a map. A test of one used
 		// to reach the branch the other two take; it no longer does, and a
