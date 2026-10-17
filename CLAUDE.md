@@ -53,17 +53,6 @@ record from a later build rather than refuse it before looking at its contents,
 so `minimum` is what the schema says and `TestThisBuildWritesShapeOne` is what
 holds this build to 1.
 
-**Windows binaries ship, and no document mentions Windows.**
-`release.yml` builds `windows/amd64` and `windows/arm64` alongside the other
-four and attaches them like the rest. Nothing else names the platform — not
-the README, not the help, not a release note, not a reply on an issue. The
-silence is the decision and not a gap in one: an artefact sitting on a
-releases page promises nothing, while a sentence saying either "supported" or
-"not supported" starts a conversation this repo has chosen not to have. A
-Windows defect is not a referee's finding in the sense that governs the work
-here. So: do not add the README line, and do not drop `windows` from the
-build loop for want of a document naming it.
-
 **The paragraphs above the `v1.0.0` ones** are the thing here that goes
 stale on its own — what is delivered, and which release is current. Bring
 them current in the release pass, with the rest of the release-set documents,
@@ -328,8 +317,8 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
 - Commits and PRs only when asked. Branch off `main` first; the history is
   squash-merged PRs with sentence-case subjects that say what changed
   ("Correct two typed ranges, name the font trap, and add milestone 0").
-- **Cutting a release bumps three things nothing checks**: the README's
-  `go install` line, the README's `curl` line — which names the tag twice, once
-  in the URL path and once in the filename — and the current-state paragraph
-  above. A published document that went stale while nobody noticed is what
-  issue #31 was, and none of these is held by the gate.
+- **Cutting a release bumps two things nothing checks**: the README's
+  `go install` line and the current-state paragraph above. No binaries are
+  built or attached; a release is a tag, installed with `go install`. A
+  published document that went stale while nobody noticed is what issue #31
+  was, and neither of these is held by the gate.
