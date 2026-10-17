@@ -32,15 +32,9 @@ func unusableFirst() io.Reader {
 func TestInteractiveWalksACharacter(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, answers("1", 200))
 
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
-		answers("1", 200), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
-
-	shown := out.String()
+	shown := out
 
 	for _, want := range []string{
 		// The procedure, shown as it runs. The headings carry their
@@ -91,15 +85,9 @@ func TestInteractiveWalksACharacter(t *testing.T) {
 func TestInteractiveReAsksWhatItCannotRead(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, unusableFirst())
 
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
-		unusableFirst(), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
-
-	shown := out.String()
+	shown := out
 
 	if strings.Count(shown, "answer with a number from 1 to") != 3 {
 		t.Errorf("three unusable answers drew %d re-prompts, want 3",
@@ -132,14 +120,9 @@ func TestInteractiveReAsksWhatItCannotRead(t *testing.T) {
 func TestABadAnswerDoesNotReprintTheMenu(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "7", flagSheet}, unusableFirst())
 
-	err := run([]string{cmdNew, flagSeed, "7", flagSheet}, unusableFirst(), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
-
-	shown := out.String()
+	shown := out
 
 	const question = "Which service will you try to enlist in?"
 
@@ -161,17 +144,11 @@ func TestABadAnswerDoesNotReprintTheMenu(t *testing.T) {
 func TestTheNumbersAPlayerWatchesDoNotSkip(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
-
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
-		answers("1", 200), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, answers("1", 200))
 
 	numbered := regexp.MustCompile(`(?m)^\s*(?:## )?(\d+)\. `)
 
-	lines := numbered.FindAllStringSubmatch(out.String(), -1)
+	lines := numbered.FindAllStringSubmatch(out, -1)
 	seen := make([]int, 0, len(lines))
 
 	for _, m := range lines {
@@ -184,7 +161,7 @@ func TestTheNumbersAPlayerWatchesDoNotSkip(t *testing.T) {
 	}
 
 	if len(seen) < 2 {
-		t.Fatalf("found %d numbered lines in\n%s", len(seen), out.String())
+		t.Fatalf("found %d numbered lines in\n%s", len(seen), out)
 	}
 
 	for i := 1; i < len(seen); i++ {
@@ -202,17 +179,11 @@ func TestTheNumbersAPlayerWatchesDoNotSkip(t *testing.T) {
 func TestTheTwoAdvancedEducationTablesReadDifferently(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
-
 	// Seed 4 in the Navy reaches a term offering all four tables, which
 	// needs the education 8+ gate open.
-	err := run([]string{cmdNew, flagSeed, "4", flagService, navy, flagSheet},
-		answers("1", 200), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "4", flagService, navy, flagSheet}, answers("1", 200))
 
-	shown := out.String()
+	shown := out
 	if !strings.Contains(shown, "Advanced Education Table\n") {
 		t.Fatalf("the run never offered the skills tables:\n%s", shown)
 	}
@@ -248,25 +219,15 @@ func TestInteractiveRefusesToInventAnAnswer(t *testing.T) {
 func TestInteractiveShowsWhatAutoDoesNot(t *testing.T) {
 	t.Parallel()
 
-	var asked, automatic strings.Builder
+	asked := mustRunTogether(t, []string{cmdNew, flagSeed, "7", flagService, other, flagSheet}, answers("1", 200))
 
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other, flagSheet},
-		answers("1", 200), &asked, &asked)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
+	automatic := mustRunTogether(t, []string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet}, nil)
 
-	err = run([]string{cmdNew, flagAuto, flagSeed, "7", flagService, other, flagSheet},
-		nil, &automatic, &automatic)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
-
-	if strings.Contains(automatic.String(), "survival: rolled") {
+	if strings.Contains(automatic, "survival: rolled") {
 		t.Error("--auto showed the procedure; nobody is reading, so it passes no observer")
 	}
 
-	if !strings.Contains(asked.String(), "survival: rolled") {
+	if !strings.Contains(asked, "survival: rolled") {
 		t.Error("the guided run did not show the survival throw")
 	}
 }
@@ -281,15 +242,9 @@ func TestInteractiveShowsWhatAutoDoesNot(t *testing.T) {
 func TestInteractiveAsksTheYesOrNoPoints(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "45", flagService, navy, flagSheet}, answers("1", 300))
 
-	err := run([]string{cmdNew, flagSeed, "45", flagService, navy, flagSheet},
-		answers("1", 300), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
-
-	shown := out.String()
+	shown := out
 
 	for _, want := range []string{
 		"Rejected. Submit to the draft? (p. 5)",
@@ -313,15 +268,9 @@ func TestInteractiveAsksTheYesOrNoPoints(t *testing.T) {
 func TestInteractiveOffersTheGamblingModifier(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out := mustRunTogether(t, []string{cmdNew, flagSeed, "3", flagService, other, flagSheet}, answers("2", 300))
 
-	err := run([]string{cmdNew, flagSeed, "3", flagService, other, flagSheet},
-		answers("2", 300), &out, &out)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
-
-	if !strings.Contains(out.String(), "Your gambling expertise allows +1 on this table") {
+	if !strings.Contains(out, "Your gambling expertise allows +1 on this table") {
 		t.Error("a character with Gambling was never offered the modifier p. 9 gives him")
 	}
 }
@@ -359,22 +308,16 @@ func TestInteractiveStopsWhenItCannotBeRead(t *testing.T) {
 func TestTheQuestionsStayOutOfTheRecord(t *testing.T) {
 	t.Parallel()
 
-	var record, asked strings.Builder
-
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
-		answers("1", 300), &record, &asked)
-	if err != nil {
-		t.Fatalf("walking a character: %v", err)
-	}
+	record, asked := mustRun(t, []string{cmdNew, flagSeed, "7", flagService, other}, answers("1", 300))
 
 	var written map[string]any
 
-	invalid := json.Unmarshal([]byte(record.String()), &written)
+	invalid := json.Unmarshal([]byte(record), &written)
 	if invalid != nil {
 		t.Fatalf("the data channel does not hold a record on its own: %v", invalid)
 	}
 
-	if !strings.Contains(asked.String(), "Which skills table?") {
+	if !strings.Contains(asked, "Which skills table?") {
 		t.Error("the questions did not go to the channel meant for them")
 	}
 
@@ -450,31 +393,20 @@ func TestANeverStartedSessionSaysSo(t *testing.T) {
 func TestAReplayReproducesTheTypedCharacter(t *testing.T) {
 	t.Parallel()
 
-	var typed strings.Builder
-
-	err := run([]string{cmdNew, flagSeed, "7", flagService, other},
-		answers("1", 200), &typed, io.Discard)
-	if err != nil {
-		t.Fatalf("typing a character: %v", err)
-	}
+	typed, _ := mustRun(t, []string{cmdNew, flagSeed, "7", flagService, other}, answers("1", 200))
 
 	// One "1" per choice the run made, which is what the operator typed.
-	made := strings.Count(typed.String(), `"kind": "choice"`)
+	made := strings.Count(typed, `"kind": "choice"`)
 	if made == 0 {
 		t.Fatal("the run made no choices, so a replay proves nothing")
 	}
 
-	var replayed strings.Builder
-
-	err = run([]string{
+	replayed, _ := mustRun(t, []string{
 		cmdNew, flagSeed, "7", flagService, other,
 		flagAnswers, strings.TrimSuffix(strings.Repeat("1,", made), ","),
-	}, nil, &replayed, io.Discard)
-	if err != nil {
-		t.Fatalf("replaying: %v", err)
-	}
+	}, nil)
 
-	if typed.String() != replayed.String() {
+	if typed != replayed {
 		t.Error("the replayed character is not the one that was typed")
 	}
 }

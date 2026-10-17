@@ -39,27 +39,22 @@ func TestABatchSaysHowManyDied(t *testing.T) {
 
 	const wanted = 100
 
-	var out, asking strings.Builder
-
-	err := run([]string{
+	out, asking := mustRun(t, []string{
 		cmdBatch, flagCount, strconv.Itoa(wanted), flagAuto, flagSeed, "1000", flagService, scouts,
-	}, nil, &out, &asking)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
+	}, nil)
 
-	written := livingCount(t, out.String())
+	written := livingCount(t, out)
 	if written.members != wanted || written.dead == 0 {
 		t.Fatalf("%d written, %d of them dead; the run this reads is not the one it means",
 			written.members, written.dead)
 	}
 
 	want := fmt.Sprintf("%d written, %d died", written.members, written.dead)
-	if got := strings.TrimSpace(asking.String()); got != want {
+	if got := strings.TrimSpace(asking); got != want {
 		t.Errorf("the closing line is %q, want %q", got, want)
 	}
 
-	if strings.Contains(out.String(), "written") {
+	if strings.Contains(out, "written") {
 		t.Error("the summary reached standard output, where it is not JSON")
 	}
 }
@@ -70,17 +65,12 @@ func TestSurvivorsWritesOnlyTheLiving(t *testing.T) {
 
 	const wanted = 20
 
-	var out, asking strings.Builder
-
-	err := run([]string{
+	out, asking := mustRun(t, []string{
 		cmdBatch, flagCount, "20", flagAuto, flagSeed, "1000", flagService, scouts,
 		flagSurvivors,
-	}, nil, &out, &asking)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
+	}, nil)
 
-	written := livingCount(t, out.String())
+	written := livingCount(t, out)
 	if written.members != wanted {
 		t.Errorf("%d written, want %d", written.members, wanted)
 	}
@@ -89,8 +79,8 @@ func TestSurvivorsWritesOnlyTheLiving(t *testing.T) {
 		t.Errorf("%d of the survivors are dead", written.dead)
 	}
 
-	if !strings.Contains(asking.String(), "passed over for dying") {
-		t.Errorf("the closing line does not say what was passed over: %q", asking.String())
+	if !strings.Contains(asking, "passed over for dying") {
+		t.Errorf("the closing line does not say what was passed over: %q", asking)
 	}
 }
 
@@ -103,37 +93,27 @@ func TestSurvivorsWritesOnlyTheLiving(t *testing.T) {
 func TestASurvivorRegeneratesFromItsOwnSeed(t *testing.T) {
 	t.Parallel()
 
-	var batched, asking strings.Builder
-
-	err := run([]string{
+	batched, _ := mustRun(t, []string{
 		cmdBatch, flagCount, "5", flagAuto, flagSeed, "1000", flagService, scouts, flagSurvivors,
-	}, nil, &batched, &asking)
-	if err != nil {
-		t.Fatalf("generating the batch: %v", err)
-	}
+	}, nil)
 
-	lines := strings.Split(strings.TrimSpace(batched.String()), "\n")
+	lines := strings.Split(strings.TrimSpace(batched), "\n")
 
-	seeds := seedsWritten(t, batched.String())
+	seeds := seedsWritten(t, batched)
 	if len(seeds) != len(lines) || len(seeds) < 2 {
 		t.Fatalf("%d members written", len(seeds))
 	}
 
 	for i, line := range lines {
-		var alone strings.Builder
-
-		err = run([]string{
+		alone, _ := mustRun(t, []string{
 			cmdNew, flagAuto, flagSeed, strconv.FormatUint(seeds[i], 10), flagService, scouts,
-		}, nil, &alone, io.Discard)
-		if err != nil {
-			t.Fatalf("regenerating seed %d: %v", seeds[i], err)
-		}
+		}, nil)
 
 		// Compared as records and not as text: batch writes JSONL and `new`
 		// writes indented JSON, so the bytes differ by formatting alone.
 		// The first version of this compared the strings and failed, which
 		// was the test being wrong about what it meant, not the tool.
-		if !sameRecord(t, line, alone.String()) {
+		if !sameRecord(t, line, alone) {
 			t.Errorf("seed %d does not regenerate the member the batch wrote", seeds[i])
 		}
 	}
@@ -345,17 +325,12 @@ func TestARefusedSurvivorBatchKeysOnTheSeedsItWrites(t *testing.T) {
 func survivorRun(t *testing.T, base uint64, count int) ([]uint64, uint64) {
 	t.Helper()
 
-	var out strings.Builder
-
-	err := run([]string{
+	out, _ := mustRun(t, []string{
 		cmdBatch, flagCount, strconv.Itoa(count), flagAuto,
 		flagSeed, strconv.FormatUint(base, 10), flagService, scouts, flagSurvivors,
-	}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("learning which seeds live: %v", err)
-	}
+	}, nil)
 
-	live := seedsWritten(t, out.String())
+	live := seedsWritten(t, out)
 	if len(live) < 2 {
 		t.Fatalf("%d members written", len(live))
 	}

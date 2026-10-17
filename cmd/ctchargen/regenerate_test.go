@@ -126,17 +126,11 @@ func TestAPrintedCommandReproducesWhatPrintedIt(t *testing.T) {
 func TestAPrintedCommandNamesEveryStrategy(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out, _ := mustRun(t, []string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagSheet}, nil)
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagSheet},
-		nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
-
-	printed, found := commandIn(out.String())
+	printed, found := commandIn(out)
 	if !found {
-		t.Fatalf("no command in\n%s", out.String())
+		t.Fatalf("no command in\n%s", out)
 	}
 
 	for _, want := range []string{
@@ -153,22 +147,16 @@ func TestAPrintedCommandNamesEveryStrategy(t *testing.T) {
 func TestAnAnsweredCharacterIsNotOfferedACommand(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out, _ := mustRun(t, []string{cmdNew, flagSeed, "145", flagService, other, flagSheet}, answers("1", 300))
 
-	err := run([]string{cmdNew, flagSeed, "145", flagService, other, flagSheet},
-		answers("1", 300), &out, io.Discard)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
-
-	_, hasCommand := commandIn(out.String())
+	_, hasCommand := commandIn(out)
 	if hasCommand {
-		t.Errorf("a sheet the player answered for offers a command:\n%s", out.String())
+		t.Errorf("a sheet the player answered for offers a command:\n%s", out)
 	}
 
 	for _, want := range []string{"Seed 145", "player", "does not bring this character back"} {
-		if !strings.Contains(out.String(), want) {
-			t.Errorf("the footer does not mention %q:\n%s", want, out.String())
+		if !strings.Contains(out, want) {
+			t.Errorf("the footer does not mention %q:\n%s", want, out)
 		}
 	}
 }
@@ -335,16 +323,11 @@ func TestARecordCannotSmuggleArgumentsIntoTheLine(t *testing.T) {
 		"name":    aBrokenLine,
 	})
 
-	var out strings.Builder
+	out, _ := mustRun(t, []string{cmdRender, path}, nil)
 
-	err := run([]string{cmdRender, path}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("rendering: %v", err)
-	}
-
-	printed, found := commandIn(out.String())
+	printed, found := commandIn(out)
 	if !found {
-		t.Fatalf("no command in\n%s", out.String())
+		t.Fatalf("no command in\n%s", out)
 	}
 
 	got, err := shellFields(printed)

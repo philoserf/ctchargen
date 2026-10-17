@@ -22,11 +22,7 @@ func writeRecord(t *testing.T) string {
 
 	path := filepath.Join(t.TempDir(), "character.json")
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagOutput, path},
-		nil, io.Discard, io.Discard)
-	if err != nil {
-		t.Fatalf("writing a record: %v", err)
-	}
+	mustRun(t, []string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagOutput, path}, nil)
 
 	return path
 }
@@ -62,19 +58,11 @@ func TestRenderReadsARecordBack(t *testing.T) {
 	}
 
 	// And the sheet render matches what generating it produced.
-	var direct, viaFile strings.Builder
+	direct, _ := mustRun(t, []string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagSheet}, nil)
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, "145", flagService, merchants, flagSheet}, nil, &direct, io.Discard)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
+	viaFile, _ := mustRun(t, []string{cmdRender, path}, nil)
 
-	err = run([]string{cmdRender, path}, nil, &viaFile, io.Discard)
-	if err != nil {
-		t.Fatalf("rendering: %v", err)
-	}
-
-	if direct.String() != viaFile.String() {
+	if direct != viaFile {
 		t.Error("a record read back rendered differently from the run that wrote it")
 	}
 }
@@ -85,10 +73,7 @@ func TestRenderWritesToAFile(t *testing.T) {
 	source := writeRecord(t)
 	out := filepath.Join(t.TempDir(), "sheet.md")
 
-	err := run([]string{cmdRender, flagOutput, out, source}, nil, io.Discard, io.Discard)
-	if err != nil {
-		t.Fatalf("render -o: %v", err)
-	}
+	mustRun(t, []string{cmdRender, flagOutput, out, source}, nil)
 
 	written, err := os.ReadFile(out)
 	if err != nil {
@@ -162,15 +147,10 @@ func TestOutputRefusesAPathItCannotOpen(t *testing.T) {
 func TestVersionReportsTheBuild(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
+	out, _ := mustRun(t, []string{cmdVersion}, nil)
 
-	err := run([]string{cmdVersion}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("version: %v", err)
-	}
-
-	if !strings.Contains(out.String(), "ctchargen") {
-		t.Errorf("version reported %q", out.String())
+	if !strings.Contains(out, "ctchargen") {
+		t.Errorf("version reported %q", out)
 	}
 }
 

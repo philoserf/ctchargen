@@ -122,19 +122,14 @@ func TestEveryDeclaredFlagIsListed(t *testing.T) {
 func TestHelpNamesTheStrategiesAndTheirDefaults(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
-
-	err := run([]string{cmdNew, flagHelp}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("new --help: %v", err)
-	}
+	out, _ := mustRun(t, []string{cmdNew, flagHelp}, nil)
 
 	for _, want := range []string{
 		"serve, retire, oneterm", "advanced, service, personal",
 		"cash, goods, spartan", "(default serve)", "(default advanced)",
 		"(default cash)", merchants, navy,
 	} {
-		if !strings.Contains(out.String(), want) {
+		if !strings.Contains(out, want) {
 			t.Errorf("the help does not mention %q", want)
 		}
 	}
@@ -146,19 +141,14 @@ func TestHelpNamesTheStrategiesAndTheirDefaults(t *testing.T) {
 func TestHelpDoesNotGenerate(t *testing.T) {
 	t.Parallel()
 
-	var out, asking strings.Builder
+	out, asking := mustRun(t, []string{cmdNew, flagHelp}, nil)
 
-	err := run([]string{cmdNew, flagHelp}, nil, &out, &asking)
-	if err != nil {
-		t.Fatalf("new --help: %v", err)
+	if len(asking) > 0 {
+		t.Errorf("new --help asked a question: %q", asking)
 	}
 
-	if asking.Len() > 0 {
-		t.Errorf("new --help asked a question: %q", asking.String())
-	}
-
-	if strings.Contains(out.String(), "UPP") {
-		t.Errorf("new --help rolled a character: %q", out.String())
+	if strings.Contains(out, "UPP") {
+		t.Errorf("new --help rolled a character: %q", out)
 	}
 }
 
