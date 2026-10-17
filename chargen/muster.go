@@ -58,8 +58,9 @@ func (r *run) chooseMusterTable(onTableTwo int) (traveller.MusterTable, error) {
 	// Cloned: MusterTables is an exported array and [:] is a window onto it,
 	// so a decider given that slice could write through it and change what
 	// every later character is offered. The gochecknoglobals exemption is
-	// argued and right; this was the one place the immutability was
-	// reachable (#55).
+	// argued and right; this is where the immutability was reachable through
+	// a global (#55), as rules.Weapons is where it was reachable through the
+	// shared ruleset (#137).
 	offered := make([]traveller.MusterTable, len(traveller.MusterTables))
 	copy(offered, traveller.MusterTables[:])
 

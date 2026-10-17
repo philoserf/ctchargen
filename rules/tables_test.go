@@ -156,6 +156,31 @@ func TestWeaponLists(t *testing.T) {
 	}
 }
 
+// A caller cannot write through a weapon list into the ruleset.
+//
+// Load is once per process, and the list goes straight to a decider, so a
+// write through it changed what every later character was offered (#137).
+func TestAWeaponListIsTheCallersOwn(t *testing.T) {
+	t.Parallel()
+
+	for _, category := range []traveller.WeaponCategory{traveller.Blade, traveller.Gun} {
+		given := load(t).Weapons(category)
+		if len(given) == 0 {
+			t.Fatalf("%v: no printed list, so this checks nothing", category)
+		}
+
+		printed := given[0]
+
+		given[0] = "Lightsaber"
+
+		again := load(t).Weapons(category)
+		if len(again) == 0 || again[0] != printed {
+			t.Errorf("%v: a write through one list reached the ruleset: now %v, want %q first",
+				category, again, printed)
+		}
+	}
+}
+
 // The Rank and Service Skills box (p. 23). Rank 0 means the grant is by
 // virtue of the service itself, which E005 reads as granted once on
 // entering it.
