@@ -60,7 +60,7 @@ func (r *run) promote(term traveller.Term) error {
 	if r.char.Rank >= r.service.MaxRank() {
 		r.log.outcomef(0, []traveller.Erratum{traveller.E013},
 			"already %s, the highest rank the %v print, so no promotion is thrown for in term %d",
-			r.rankTitle(), r.serviceName(), term)
+			r.rankName(), r.serviceName(), term)
 
 		return nil
 	}
@@ -90,11 +90,11 @@ func (r *run) promote(term traveller.Term) error {
 // whatever the Rank and Service Skills box grants at it (p. 23).
 func (r *run) raise(seq int, to traveller.Rank, eligibility int, how string) error {
 	r.char.Rank = to
-	r.char.RankTitle = r.rankTitle()
+	r.char.RankName = r.rankName()
 
 	r.eligible += eligibility
 
-	r.log.outcomef(seq, nil, "%s: %s", how, r.rankTitle())
+	r.log.outcomef(seq, nil, "%s: %s", how, r.rankName())
 
 	// No erratum is stamped here. E005 reads the timing of a service-wide
 	// entry, which the page leaves unstated; a rank entry's moment is exact
@@ -110,13 +110,13 @@ func (r *run) raise(seq int, to traveller.Rank, eligibility int, how string) err
 	return nil
 }
 
-// rankTitle is what the Table of Ranks calls the character's rank (p. 10),
+// rankName is what the Table of Ranks calls the character's rank (p. 10),
 // or "uncommissioned" where he holds none.
-func (r *run) rankTitle() string {
-	title, ok := r.service.Title(r.char.Rank)
+func (r *run) rankName() string {
+	name, ok := r.service.RankName(r.char.Rank)
 	if !ok {
 		return "uncommissioned"
 	}
 
-	return title
+	return name
 }

@@ -343,7 +343,7 @@ func TestTableOfRanks(t *testing.T) {
 		}
 
 		for i, title := range want.ranks {
-			got, ok := service.Title(traveller.Rank(i + 1))
+			got, ok := service.RankName(traveller.Rank(i + 1))
 			if !ok || got != title {
 				t.Errorf("%v rank %d: %q, want %q", name, i+1, got, title)
 			}
@@ -351,11 +351,11 @@ func TestTableOfRanks(t *testing.T) {
 
 		// Rank 0 is "not commissioned" and the table prints no title for
 		// it, nor for anything past the column's end.
-		if _, ok := service.Title(0); ok {
+		if _, ok := service.RankName(0); ok {
 			t.Errorf("%v: rank 0 has a title", name)
 		}
 
-		if _, ok := service.Title(service.MaxRank() + 1); ok {
+		if _, ok := service.RankName(service.MaxRank() + 1); ok {
 			t.Errorf("%v: a rank past the table has a title", name)
 		}
 	}

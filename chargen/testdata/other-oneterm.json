@@ -34,9 +34,9 @@
   "departure": {
     "how": "discharged"
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "knight/dame",
+    "title": "knight/dame",
     "assumed": true
   },
   "inputs": {

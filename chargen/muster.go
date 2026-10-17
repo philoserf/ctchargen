@@ -185,7 +185,7 @@ func (r *run) assessTitle() error {
 
 	r.log.step("titles", "p. 5; Book 3 p. 22")
 
-	r.char.Title = Title{Eligible: true, Rank: rank}
+	r.char.Nobility = Nobility{Eligible: true, Title: rank}
 
 	if r.dead {
 		r.log.outcomef(0, errata,
@@ -199,7 +199,7 @@ func (r *run) assessTitle() error {
 		return fmt.Errorf("assuming a title: %w", err)
 	}
 
-	r.char.Title.Assumed = assume
+	r.char.Nobility.Assumed = assume
 
 	r.log.outcomef(0, errata,
 		"social standing %d confers %v, %s assumed", social, rank,

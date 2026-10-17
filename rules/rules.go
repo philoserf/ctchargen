@@ -146,9 +146,13 @@ func (s Service) Promotion() (Throw, bool) { return s.promotion, s.Commissions()
 // next higher rank, so no promotion throw is made.
 func (s Service) MaxRank() traveller.Rank { return traveller.Rank(len(s.Ranks)) }
 
-// Title is the name the Table of Ranks gives a rank, and whether the service
-// prints one for it. Rank 0 is "not commissioned" and has no title.
-func (s Service) Title(r traveller.Rank) (string, bool) {
+// RankName is the name the Table of Ranks gives a rank, and whether the
+// service prints one for it. Rank 0 is "not commissioned" and has no name.
+//
+// Not "title": the book keeps that word for nobility (p. 5, Book 3 p. 22),
+// and calls Captain a rank (p. 10, and p. 25's "Merchant Captain (of rank 5
+// on the scale of ranks)").
+func (s Service) RankName(r traveller.Rank) (string, bool) {
 	if r < 1 || int(r) > len(s.Ranks) {
 		return "", false
 	}

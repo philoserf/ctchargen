@@ -20,7 +20,7 @@
   },
   "service": "Marines",
   "rank": 1,
-  "rankTitle": "Lieutenant",
+  "rankName": "Lieutenant",
   "skills": [
     {
       "name": "ATV",

@@ -44,9 +44,9 @@
     "how": "killed by the survival throw",
     "fatal": true
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "baron/baroness",
+    "title": "baron/baroness",
     "assumed": false
   },
   "inputs": {
