@@ -3,6 +3,7 @@ package chargen_test
 import (
 	"testing"
 
+	"github.com/philoserf/ctchargen/chargen"
 	"github.com/philoserf/ctchargen/traveller"
 )
 
@@ -78,5 +79,54 @@ func TestOneCharacterTrainsOnMoreThanOneTable(t *testing.T) {
 
 	if widest < spread {
 		t.Errorf("no fixture designates more than %d tables (%s is the widest)", widest, widestBy)
+	}
+}
+
+// reaching is the --auto policy, plus one attempt to take back the dice that
+// Vary leaves out. It records what it found rather than using it, so the
+// characters it decides are the policy's own.
+type reaching struct {
+	chargen.Policy
+
+	asked, reached *int
+}
+
+func (r reaching) Weapon(
+	category traveller.WeaponCategory, from []traveller.WeaponName, vary chargen.Vary,
+) (traveller.WeaponName, error) {
+	*r.asked++
+
+	if _, isRoller := vary.(chargen.Roller); isRoller {
+		*r.reached++
+	}
+
+	return r.Policy.Weapon(category, from, vary) //nolint:wrapcheck // the policy's own error, unchanged
+}
+
+// A decider handed a Vary cannot assert its way back to the Roller.
+//
+// The narrowing was by static type alone, so vary.(chargen.Roller) gave a
+// decider Die and TwoDice back, and the dice it threw reached no event: a
+// different character from the same seed, recorded as an honest one (#136).
+func TestADeciderCannotReachTheRollerThroughVary(t *testing.T) {
+	t.Parallel()
+
+	asked, reached := 0, 0
+
+	for _, fixture := range fixtures {
+		decider := reaching{Policy: fixture.policy, asked: &asked, reached: &reached}
+
+		_, err := chargen.Generate(fixture.inputs(), decider)
+		if err != nil {
+			t.Fatalf("%s: %v", fixture.name, err)
+		}
+	}
+
+	if asked == 0 {
+		t.Fatal("no fixture reaches the Weapon choice, so this checks nothing")
+	}
+
+	if reached > 0 {
+		t.Errorf("%d of %d Weapon calls asserted the Vary back to a Roller", reached, asked)
 	}
 }
