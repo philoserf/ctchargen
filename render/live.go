@@ -15,9 +15,9 @@ import (
 // before anything is written, so those lines cannot come to differ.
 //
 // Steps and choices are written here instead, and deliberately do differ.
-// A step's heading is unnumbered in the transcript, and a choice used to
-// render as nothing at all here; either leaves a gap a watcher reads as a
-// lost event, so both are written with their number. The choice is echoed
+// A step's heading is unnumbered in the transcript, and a choice is one the
+// player has just answered; leaving either out would leave a gap a watcher
+// reads as a lost event, so both are written with their number. The choice is echoed
 // as that number and the answer alone rather than the transcript's full
 // form, because the player has just been asked the question and can still
 // see the point, the decider and the alternatives above him; repeating them

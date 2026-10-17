@@ -37,9 +37,8 @@ type StepEvent struct {
 //
 // Every throw here has something to succeed at. A roll with nothing to meet
 // is a RollEvent, which is a separate case rather than this one with an empty
-// target (#50): the two used to be one type discriminated by
-// Target.Number() == 0, and every targetless roll was written to the record
-// as "succeeded": true, which is a claim about nothing.
+// target (#50). One type told apart by an empty target would write every
+// targetless roll as "succeeded": true, which is a claim about nothing.
 //
 // The dice are kept, not only their sum, because the log is what an auditor
 // walks against the page — and because a 12 exactly on the reenlistment

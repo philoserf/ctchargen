@@ -45,11 +45,10 @@ const PolicyVersion = 3
 
 // Career is the --auto career strategy: continue, retire, or take one term.
 //
-// It is a type and not a string because it names a closed set. The engine
-// used to carry a whole apparatus - a selfChecking interface, a validate()
-// call and a Policy.Validate method - whose only job was to notice a value
-// outside one of these three sets, and a runtime check for an impossible
-// value is a sign the type is wrong (#41). The zero value is the default, so
+// It is a type and not a string because it names a closed set: a value
+// outside the three is a parse error at the boundary rather than something a
+// runtime check has to notice, and a runtime check for an impossible value is
+// a sign the type is wrong (#41). The zero value is the default, so
 // Policy{} is DefaultPolicy().
 type Career int
 
@@ -216,11 +215,9 @@ func choices[T fmt.Stringer](all []T) string {
 // back to the first thing offered - which is book order, because that is the
 // order the engine builds an offered set in.
 //
-// The fallback used to be reachable with an empty ranked slice, when a map
-// literal keyed by an unrecognized strategy string yielded nil. The switches
-// below are exhaustive over closed types, so a ranked slice is now always
-// populated and the fallback means only what it says: nothing preferred was
-// offered.
+// The switches below are exhaustive over closed types, so a ranked slice is
+// always populated and the fallback means only what it says: nothing
+// preferred was offered.
 func prefer[T comparable](offered, ranked []T) T {
 	for _, want := range ranked {
 		if slices.Contains(offered, want) {
@@ -374,8 +371,8 @@ func thinnest(from []traveller.SkillTable, taken []int) []traveller.SkillTable {
 // admits it.
 //
 // Repeats can still take the same weapon again, which raises its level
-// (p. 12) and is the branch that produces a level above 1 - now by drawing
-// the same name twice rather than by always drawing it.
+// (p. 12) and is the branch that produces a level above 1, by drawing the
+// same name twice.
 func (p Policy) Weapon(
 	_ traveller.WeaponCategory, from []traveller.WeaponName, vary Vary,
 ) (traveller.WeaponName, error) {

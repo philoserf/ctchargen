@@ -92,18 +92,15 @@ func writeUsageText(out io.Writer, text string) error {
 // three subcommands are never handed, and which would put `new --help | less`
 // on the wrong stream. It cannot reach a `-o` file: parsing happens before
 // openDestination, and a run that comes here never opens one.
-// A word after a help flag is refused, not discarded.
 //
-// #69 made refusing an unexpected word its whole subject, because `new
-// extra-arg` used to start an interactive session on a drawn seed. Four paths
-// still dropped one in silence and disagreed with the top level about it:
-// `ctchargen help junk` refused, while `new --help junk`, `batch --help junk`,
-// `render --help junk` and `version --help junk` printed the help and exited 0
-// (#84). The flag package returns ErrHelp before a command reaches its own
-// NArg check, so the word was never looked at.
+// A word after a help flag is refused, not discarded, the same as everywhere
+// else a command meets an unexpected word (#69): `new --help junk`, `batch
+// --help junk`, `render --help junk` and `version --help junk` refuse it as
+// `ctchargen help junk` does (#84). The flag package returns ErrHelp before a
+// command reaches its own NArg check, so the word has to be looked at here.
 //
-// Nobody loses a character to it. It is the inconsistency the help work set
-// out to remove, and the kind a referee finds by typing.
+// Nobody loses a character to it. It is consistency, and the kind of thing a
+// referee finds by typing.
 func writeHelp(out io.Writer, line string, flags *flag.FlagSet) error {
 	if flags.NArg() > 0 {
 		return fmt.Errorf("%w: %s; help takes no arguments, and was given %q",

@@ -76,10 +76,10 @@ type wireMustering struct {
 	} `json:"rolls"`
 	Names map[string]string `json:"names"`
 
-	// Prices and the resale rate were one object keyed by passage class,
-	// which forced the field to any and the lift to assert its way back to a
-	// number (#49). Separating them lets the type carry what the lift used
-	// to check: a price that is not a number now fails on the way in.
+	// Prices and the resale rate are separate fields, so the type carries
+	// what the lift would otherwise check: a price that is not a number
+	// fails on the way in (#49). One object keyed by passage class would
+	// force the field to any and the lift to assert its way back.
 	Passages struct {
 		Prices        map[string]int64 `json:"prices"`
 		ResalePercent int              `json:"resalePercent"`

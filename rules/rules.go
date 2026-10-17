@@ -365,10 +365,8 @@ type Muster struct {
 //
 // Each is a bare procedural bound - it indexes no printed table - so it is a
 // constant beside the code that applies it rather than a row of
-// mustering.json (#43, and CLAUDE.md's Authority point 6). They used to be
-// data, and the comment inside Rolls used to argue that they should be: "the
-// page's numbers, so they are data with a cite rather than constants written
-// here". Being printed is not the test. Indexing a printed table is.
+// mustering.json (#43, and CLAUDE.md's Authority point 6). Being printed is
+// not the test; indexing a printed table is.
 const (
 	rollsPerTerm            = 1
 	extraRollsForRank1or2   = 1

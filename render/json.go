@@ -57,13 +57,9 @@ func JSON(character *chargen.Character) ([]byte, error) {
 //
 // It is 1 until v1.0.0, and counts from there. That is not the same as
 // counting every change: the record is free to move before the freeze (#62),
-// so #95 changed the event shape and left this alone, and two shapes that
-// both say 1 are the price of that freedom rather than a defect in it.
-//
-// The comment here used to say a build that changed no field left this alone,
-// which read as a promise to move when one did, and the code has never kept
-// it. #96 settled which of the two was wrong: the number is right and the
-// sentence was not.
+// so a build that changes the shape before then leaves this alone, and two
+// shapes that both say 1 are the price of that freedom rather than a defect
+// in it (#96).
 //
 // From v1.0.0 the shape is a public contract and a build that changes it says
 // so here. Nothing reads it yet, because until then there is only one value
@@ -73,8 +69,7 @@ func JSON(character *chargen.Character) ([]byte, error) {
 // statement about what a reader must accept, not about what this build writes:
 // a reader holding the v1.0.0 schema has to validate a record from a later
 // build rather than refuse it before looking at its contents. What holds this
-// build to 1 is ctchargen.TestThisBuildWritesShapeOne, which is the job the
-// schema's `const` used to be doing as a side effect.
+// build to 1 is ctchargen.TestThisBuildWritesShapeOne.
 const recordShape = 1
 
 type record struct {

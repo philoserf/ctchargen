@@ -205,20 +205,19 @@ func (p *player) sayf(format string, args ...any) {
 
 // watch shows the player the procedure between his questions.
 //
-// Every event now renders to something: the choices used to come back empty
-// and were skipped here, which is what left holes in the numbering. Nothing
-// returns nothing, so there is no longer anything to skip - writeEvent's own
-// default writes a line even for a kind this build does not know.
+// Every event renders to something, so nothing is skipped here and the
+// numbering has no holes - writeEvent's own default writes a line even for a
+// kind this build does not know.
 func (p *player) watch(event traveller.Event) {
 	p.sayf("%s", render.EventLine(event))
 }
 
 // choose asks for one of a numbered list and returns its index.
 //
-// The list is printed once. A bad answer used to re-print the whole thing,
-// which buried the complaint under six lines of menu and read as though the
-// tool had said nothing at all - the reported behaviour. Now the complaint
-// names what was typed and the prompt comes back on its own.
+// The list is printed once. A bad answer gets a complaint naming what was
+// typed, and the prompt comes back on its own: re-printing the whole list
+// would bury the complaint under six lines of menu and read as though the tool
+// had said nothing at all.
 func (p *player) choose(question string, options []string) (int, error) {
 	p.sayf("\n%s\n", question)
 
