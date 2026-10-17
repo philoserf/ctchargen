@@ -5,8 +5,8 @@
 // business of a Target (Book 1 pp. 2-3), which lives in the traveller
 // package; keeping that out of here is what lets dice depend on nothing.
 //
-// Two properties of this package are load-bearing, in the sense that a seed
-// means nothing without them:
+// These properties of this package are load-bearing, in the sense that a
+// seed means nothing without them:
 //
 //   - The die is IntN(6) + 1. An IntN(36), or a masked Uint64, is the same
 //     PCG under the same seed and an entirely different character.
@@ -14,7 +14,7 @@
 //   - Among is IntN(n), drawn from the same stream, for the choices the book
 //     leaves to a player without naming a basis.
 //
-// Changing either changes every seeded character. That is an ordinary
+// Changing any of them changes every seeded character. That is an ordinary
 // change, not a breaking one, but it is never an accidental one.
 package dice
 
