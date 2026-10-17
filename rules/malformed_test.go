@@ -1,6 +1,7 @@
 package rules //nolint:testpackage // the lift's guards are unexported
 
 import (
+	"errors"
 	"strings"
 	"testing"
 )
@@ -32,6 +33,8 @@ func refuses(t *testing.T, name string, err error, mentions string) {
 		t.Errorf("%s: lifted without complaint", name)
 	case !strings.Contains(err.Error(), mentions):
 		t.Errorf("%s: error %q does not mention %q", name, err, mentions)
+	case !errors.Is(err, errMalformed):
+		t.Errorf("%s: error %q is not a malformed table; every lift error wraps errMalformed", name, err)
 	}
 }
 
