@@ -83,8 +83,8 @@ func TestEveryReadingIsStampedWhereItsConditionHolds(t *testing.T) {
 
 	oneConditionEach(t, readings)
 
-	stampedSomewhere := map[traveller.Erratum]bool{}
-	disagreements := map[traveller.Erratum]int{}
+	stampedSomewhere := make(map[traveller.Erratum]bool)
+	disagreements := make(map[traveller.Erratum]int)
 
 	for _, rec := range readRecords(t) {
 		for _, r := range readings {
@@ -204,7 +204,7 @@ func TestEveryStepTheConditionsReadIsFound(t *testing.T) {
 func oneConditionEach(t *testing.T, readings []reading) {
 	t.Helper()
 
-	conditions := map[traveller.Erratum]int{}
+	conditions := make(map[traveller.Erratum]int)
 	for _, r := range readings {
 		conditions[r.id]++
 	}

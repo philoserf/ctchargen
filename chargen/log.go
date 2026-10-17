@@ -24,7 +24,7 @@ type log struct {
 }
 
 func newLog() *log {
-	return &log{errata: map[traveller.Erratum]bool{}}
+	return &log{errata: make(map[traveller.Erratum]bool)}
 }
 
 func (l *log) next() int {
