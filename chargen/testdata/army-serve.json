@@ -20,7 +20,7 @@
   },
   "service": "Army",
   "rank": 6,
-  "rankTitle": "General",
+  "rankName": "General",
   "skills": [
     {
       "name": "ATV",
@@ -72,9 +72,9 @@
   "departure": {
     "how": "retired"
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "marquis/marchioness",
+    "title": "marquis/marchioness",
     "assumed": true
   },
   "inputs": {

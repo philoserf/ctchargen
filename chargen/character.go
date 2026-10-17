@@ -22,7 +22,7 @@ type Character struct {
 	// declined the draft and never did (p. 5).
 	Enlistment traveller.Enlistment
 	Rank       traveller.Rank
-	RankTitle  string
+	RankName   string
 
 	Skills   []traveller.Skill
 	Benefits Benefits
@@ -37,9 +37,9 @@ type Character struct {
 	// never joined one.
 	Departure traveller.Departure
 
-	// Title is the nobility a final Social Standing of 11 or greater
-	// confers, assessed once at the end of generation (E011).
-	Title Title
+	// Nobility is what a final Social Standing of 11 or greater confers,
+	// assessed once at the end of generation (E011).
+	Nobility Nobility
 
 	Inputs Inputs
 	Events []traveller.Event
@@ -61,12 +61,13 @@ type Character struct {
 	Build string
 }
 
-// Title is what the record carries about nobility: whether the character was
-// eligible, which rank the value confers, and whether he assumed it. A
-// character who died is assessed but not asked (E011).
-type Title struct {
+// Nobility is what the record carries about the hereditary title of p. 5:
+// whether the character was eligible, which title the value confers (Book 3
+// p. 22), and whether he assumed it. A character who died is assessed but not
+// asked (E011).
+type Nobility struct {
 	Eligible bool
-	Rank     traveller.Title
+	Title    traveller.Title
 	Assumed  bool
 }
 

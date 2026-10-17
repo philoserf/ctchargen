@@ -20,7 +20,7 @@
   },
   "service": "Merchants",
   "rank": 5,
-  "rankTitle": "Captain",
+  "rankName": "Captain",
   "skills": [
     {
       "name": "Bribery",
@@ -77,9 +77,9 @@
   "departure": {
     "how": "retired"
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "knight/dame",
+    "title": "knight/dame",
     "assumed": true
   },
   "inputs": {

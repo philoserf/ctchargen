@@ -99,8 +99,8 @@ func headline(r record) (string, error) {
 	}
 
 	serving := r.Service
-	if r.RankTitle != "" {
-		serving += " " + r.RankTitle
+	if r.RankName != "" {
+		serving += " " + r.RankName
 	}
 
 	whose, err := whoseService(r)
@@ -110,8 +110,8 @@ func headline(r record) (string, error) {
 
 	parts = append(parts, serving+whose+", "+terms(r.Terms))
 
-	if r.Title != nil && r.Title.Assumed {
-		parts = append(parts, r.Title.Rank)
+	if r.Nobility != nil && r.Nobility.Assumed {
+		parts = append(parts, r.Nobility.Title)
 	}
 
 	if r.Departure != nil {

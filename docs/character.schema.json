@@ -75,9 +75,9 @@
       "maximum": 6,
       "description": "An index into the service's own Table of Ranks (p. 10). Absent where the character holds none: rank 0 is not commissioned, and the Scouts and Other print no ranks at all."
     },
-    "rankTitle": {
+    "rankName": {
       "type": "string",
-      "description": "What the Table of Ranks calls that rank in that service (p. 10)."
+      "description": "What the Table of Ranks calls that rank in that service (p. 10). A name and not a title: the book keeps that word for nobility."
     },
     "skills": {
       "type": "array",
@@ -169,14 +169,14 @@
         }
       }
     },
-    "title": {
+    "nobility": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["eligible", "rank", "assumed"],
+      "required": ["eligible", "title", "assumed"],
       "description": "Assessed once, at the end of generation, against the final Social Standing, for every character including the dead - who are assessed but not asked (E011).",
       "properties": {
         "eligible": { "const": true },
-        "rank": {
+        "title": {
           "enum": ["knight/dame", "baron/baroness", "marquis/marchioness", "count/countess", "duke/duchess"],
           "description": "Book 3 p. 22, for Social Standing 11 through 15."
         },

@@ -20,7 +20,7 @@
   },
   "service": "Merchants",
   "rank": 4,
-  "rankTitle": "1st Officer",
+  "rankName": "1st Officer",
   "skills": [
     {
       "name": "Electronic",

@@ -20,7 +20,7 @@
   },
   "service": "Navy",
   "rank": 5,
-  "rankTitle": "Captain",
+  "rankName": "Captain",
   "skills": [
     {
       "name": "Engineer",
@@ -62,9 +62,9 @@
   "departure": {
     "how": "retired"
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "duke/duchess",
+    "title": "duke/duchess",
     "assumed": true
   },
   "inputs": {

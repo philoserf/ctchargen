@@ -20,7 +20,7 @@
   },
   "service": "Merchants",
   "rank": 2,
-  "rankTitle": "3rd Officer",
+  "rankName": "3rd Officer",
   "skills": [
     {
       "name": "Cudgel",

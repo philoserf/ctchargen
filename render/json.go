@@ -87,12 +87,12 @@ type record struct {
 	Enlistment      enlistmentRecord  `json:"enlistment"`
 	Service         string            `json:"service,omitempty"`
 	Rank            int               `json:"rank,omitempty"`
-	RankTitle       string            `json:"rankTitle,omitempty"`
+	RankName        string            `json:"rankName,omitempty"`
 	Skills          []skillRecord     `json:"skills"`
 	Benefits        benefitsRecord    `json:"benefits"`
 	Pension         int64             `json:"annualRetirementPay,omitempty"`
 	Departure       *departureRecord  `json:"departure,omitempty"`
-	Title           *titleRecord      `json:"title,omitempty"`
+	Nobility        *nobilityRecord   `json:"nobility,omitempty"`
 	Inputs          inputsRecord      `json:"inputs"`
 	Errata          []string          `json:"errata"`
 	Ruleset         string            `json:"ruleset"`
@@ -138,9 +138,9 @@ type departureRecord struct {
 	Characteristic string `json:"characteristic,omitempty"`
 }
 
-type titleRecord struct {
+type nobilityRecord struct {
 	Eligible bool   `json:"eligible"`
-	Rank     string `json:"rank"`
+	Title    string `json:"title"`
 	Assumed  bool   `json:"assumed"`
 }
 
@@ -182,7 +182,7 @@ func project(character *chargen.Character) (record, error) {
 		Terms:           character.Terms,
 		Enlistment:      foldEnlistment(character.Enlistment),
 		Rank:            int(character.Rank),
-		RankTitle:       character.RankTitle,
+		RankName:        character.RankName,
 		Skills:          make([]skillRecord, 0, len(character.Skills)),
 		Benefits:        projectBenefits(character.Benefits, character.DuplicateShips),
 		Pension:         int64(character.Pension),
@@ -223,9 +223,9 @@ func project(character *chargen.Character) (record, error) {
 		out.Departure = &departure
 	}
 
-	if character.Title.Eligible {
-		out.Title = &titleRecord{
-			Eligible: true, Rank: character.Title.Rank.String(), Assumed: character.Title.Assumed,
+	if character.Nobility.Eligible {
+		out.Nobility = &nobilityRecord{
+			Eligible: true, Title: character.Nobility.Title.String(), Assumed: character.Nobility.Assumed,
 		}
 	}
 

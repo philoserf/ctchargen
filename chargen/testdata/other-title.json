@@ -35,9 +35,9 @@
   "departure": {
     "how": "forced out"
   },
-  "title": {
+  "nobility": {
     "eligible": true,
-    "rank": "baron/baroness",
+    "title": "baron/baroness",
     "assumed": true
   },
   "inputs": {

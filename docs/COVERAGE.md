@@ -62,7 +62,7 @@ and Book 2 pp. 18–19 give the two ships the benefits name.
 | Commission: once per term until achieved                                                        | 1:6, 10          | `chargen.run.commission`    | golden `navy-captain`                           |
 | Promotion: the commissioning term and every term after                                          | 1:6, 10          | `chargen.run.promote`       | golden `navy-captain`                           |
 | A commission or promotion confers one skill eligibility                                         | 1:6              | `chargen.run.raise`         | `rules.TestEligibility`; golden transcripts     |
-| Ranks and their titles, per the Table of Ranks                                                  | 1:10             | `rules.Service.Title`       | `rules.TestTableOfRanks`                        |
+| Ranks and their names, per the Table of Ranks                                                   | 1:10             | `rules.Service.RankName`    | `rules.TestTableOfRanks`                        |
 | No promotion at the top of the ranks table                                                      | 1:6, 10 (E013)   | `chargen.run.promote`       | golden `merchants-captain`                      |
 
 ## Skills and training

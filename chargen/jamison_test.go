@@ -305,8 +305,8 @@ func TestTheWorkedExampleReproduces(t *testing.T) {
 	}
 
 	service, served := jamison.ServedIn()
-	if !served || service != traveller.Merchants || jamison.RankTitle != "Captain" {
-		t.Errorf("%v %s (served %v), want Merchants Captain", service, jamison.RankTitle, served)
+	if !served || service != traveller.Merchants || jamison.RankName != "Captain" {
+		t.Errorf("%v %s (served %v), want Merchants Captain", service, jamison.RankName, served)
 	}
 
 	// "of rank 5 on the scale of ranks".
