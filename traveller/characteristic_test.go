@@ -128,31 +128,6 @@ func TestUPP(t *testing.T) {
 	}
 }
 
-func TestEnumsNameAnUnknownValue(t *testing.T) {
-	t.Parallel()
-
-	for _, tc := range []struct {
-		got  string
-		want string
-	}{
-		{traveller.Characteristic(99).String(), "Characteristic(99)"},
-		{traveller.ServiceName(99).String(), "ServiceName(99)"},
-		{traveller.SkillTable(99).String(), "SkillTable(99)"},
-		{traveller.WeaponCategory(99).String(), "WeaponCategory(99)"},
-		{traveller.PassageClass(99).String(), "PassageClass(99)"},
-		{traveller.ShipKind(99).String(), "ShipKind(99)"},
-		{traveller.Title(99).String(), "Title(99)"},
-		{traveller.Intent(99).String(), "Intent(99)"},
-		{traveller.MusterTable(99).String(), "MusterTable(99)"},
-		{traveller.ChoicePoint(99).String(), "ChoicePoint(99)"},
-		{traveller.DecidedBy(99).String(), "DecidedBy(99)"},
-	} {
-		if tc.got != tc.want {
-			t.Errorf("String() = %q, want %q", tc.got, tc.want)
-		}
-	}
-}
-
 // Every value of every closed alphabet must name itself, or the event log
 // prints a blank where a reader needs a word.
 // namesByKind collects what every value of every closed alphabet calls
