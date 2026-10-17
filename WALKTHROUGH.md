@@ -89,6 +89,8 @@ three or less, and a bare number must be thrown exactly. A `Target` is that
 number plus which of the three it is. `traveller/target.go`, the modality
 constants:
 
+`traveller/target.go` — `Modality`
+
 ```go
 // The three modalities (pp. 2-3).
 //
@@ -109,6 +111,8 @@ the reprint's font: under text extraction a printed minus becomes a digit, so an
 `N-` target silently reads as `N3`. It also accepts two different minus glyphs,
 because someone transcribing p. 11 types what he sees on the page.
 `traveller/target.go`, `minusSigns` and `ParseTarget`:
+
+`traveller/target.go` — `ParseTarget`
 
 ```go
 // minusSigns are the two characters a minus may arrive as: the ASCII hyphen
@@ -168,6 +172,8 @@ case is missing, and neither will the `exhaustive` linter. So the six places
 where "exactly one of" is the rule are written as **sealed interfaces with a fold**.
 `traveller/sums.go`, the file's opening comment:
 
+`traveller/sums.go` — `the sums`
+
 ```go
 // The sums: the places where "exactly one of" is the rule.
 //
@@ -187,6 +193,8 @@ where "exactly one of" is the rule are written as **sealed interfaces with a fol
 exactly three ways p. 5's enlistment step can end, and "declined the draft" is a
 case of the type rather than a nil service with a flag beside it.
 `traveller/sums.go`, `Enlistment` through its last seal:
+
+`traveller/sums.go` — `Enlistment`
 
 ```go
 // Enlistment is how — or whether — a character entered a service (p. 5).
@@ -249,6 +257,8 @@ traveller/sums.go:269:type WeaponBenefitCases interface {
 values. The package's own doc comment says why the lift is where validation
 lives. `rules/rules.go`, the package doc:
 
+`rules/rules.go` — `package rules`
+
 ```go
 // Package rules holds every table of Book 1 pp. 4-25 as embedded data, and
 // lifts it into the domain values of the traveller package.
@@ -286,6 +296,8 @@ Table's data, `rules/data/services.json` through its `draft` row — the six
 services of p. 10, their enlistment throws, the die modifiers that apply, and the
 draft number of each:
 
+`rules/data/services.json` — `services`
+
 ```json
 {
   "_cite": "Book 1 p. 10 (Prior Service Table, Table of Ranks); p. 21 (Annual Retirement Pay); p. 23 (Rank and Service Skills)",
@@ -310,6 +322,8 @@ against the domain's own closed alphabet, indexing each type by the name its
 values give themselves — so a data file's spelling is checked against the type
 and against nothing else. `rules/parse.go`, `named` and the indexes built with
 it:
+
+`rules/parse.go` — `named`
 
 ```go
 // named indexes an alphabet by the name its values give themselves, so that
@@ -337,6 +351,8 @@ var (
 Some checks are about a whole row rather than a cell. The draft row is the one
 the draft die indexes, so it is held at load to what `Rules.Draft` needs of it.
 `rules/lift.go`, `checkDraft`:
+
+`rules/lift.go` — `checkDraft`
 
 ```go
 // checkDraft holds the draft row to what Draft needs of it (p. 5): one die
@@ -366,6 +382,8 @@ func checkDraft(draft []int) error {
 The tables are loaded once per process and validated on the way in.
 `rules/rules.go`, `Load`:
 
+`rules/rules.go` — `Load`
+
 ```go
 // Load returns the lifted rules, loading and validating them once.
 //
@@ -387,14 +405,31 @@ Because `Load` hands every caller in a process the same `*Rules`, nothing on it
 is a field a caller can write. The tables are reached through methods, and a
 method that returns a slice returns a copy. `rules/rules.go`, the accessors:
 
-```go
+`rules/rules.go` — `Rules.Aging`
 
+```go
+// Aging is the Aging Table (p. 9) and the medical crisis of pp. 7-8.
+func (r *Rules) Aging() Aging { return r.aging }
+
+// Muster is what p. 9's notes fix about mustering out.
+func (r *Rules) Muster() Muster { return r.muster }
+
+// Eligibility is the Basic Skill Eligibility box (p. 6).
+func (r *Rules) Eligibility() Eligibility { return r.eligibility }
+
+// Education is the gate on the fourth Acquired Skills table (p. 11).
+func (r *Rules) Education() Gate { return r.education }
+
+// Retirement is the Annual Retirement Pay table (p. 21).
+func (r *Rules) Retirement() Retirement { return r.retirement }
 ```
 
 `Service` returns its column through `clone`, which copies the ranks and every
 throw's modifiers; `Aging.At` returns a clone of the effects it collects; and
 `Weapons` copies its list, because that list goes straight to a decider.
 `rules/rules.go`, `Weapons`:
+
+`rules/rules.go` — `Rules.Weapons`
 
 ```go
 // Weapons is the printed list for a category (pp. 12-13), column-major.
@@ -415,6 +450,8 @@ func (r *Rules) Weapons(c traveller.WeaponCategory) []traveller.WeaponName {
 `dice` is thirty lines of substance. Its whole contract is that a seed means
 something, and the package doc states the properties that make it so.
 `dice/dice.go`, the package doc:
+
+`dice/dice.go` — `package dice`
 
 ```go
 // Package dice draws the die rolls Classic Traveller's character generation
@@ -444,6 +481,8 @@ blade list — the tool draws rather than always taking the first name. It draws
 from the same stream, so a varied choice consumes like a throw does and the same
 seed still makes the same character. `dice/dice.go`, `Stream.Among`:
 
+`dice/dice.go` — `Stream.Among`
+
 ```go
 // Among returns an index into a set of n alternatives: 0 through n-1.
 //
@@ -468,6 +507,8 @@ func (s *Stream) Among(n int) int {
 `chargen.Generate` is the whole public entry point. It loads the tables, builds a
 `run`, applies options, wraps the caller's `Decider` in the logging decorator,
 and walks the procedure. `chargen/generate.go`, `Generate`:
+
+`chargen/generate.go` — `Generate`
 
 ```go
 // Generate walks Book 1's character generation procedure, pp. 4-25, rolling
@@ -520,6 +561,8 @@ who declined the draft — returns before `serve` is ever entered, and that the
 dead skip mustering out but are still assessed for a title.
 `chargen/generate.go`, `run.generate`:
 
+`chargen/generate.go` — `run.generate`
+
 ```go
 func (r *run) generate() error {
 	r.rollProfile()
@@ -560,6 +603,8 @@ that is a **contract on the `Roller`**, not a property of the function, and the
 comment says so. A test roller that answers every 2D throw with 12 would never
 return. `chargen/serve.go`, `run.serve`:
 
+`chargen/serve.go` — `run.serve`
+
 ```go
 // serve runs terms until one of them ends the service.
 //
@@ -587,6 +632,8 @@ func (r *run) serve() error {
 `run.term` is the six steps of a term, in the order the exposition gives rather
 than the order the book's worked example rolls them (E002), with the aging round
 last (E006). `chargen/serve.go`, `run.term`:
+
+`chargen/serve.go` — `run.term`
 
 ```go
 func (r *run) term(term traveller.Term) (bool, error) {
@@ -677,8 +724,13 @@ method.
 Every decider — the auto policy, the interactive player, the scripted test
 deciders — reaches the engine through one decorator, `chargen/logging.go`. It
 must implement all twelve to compile, so a choice point cannot reach the engine
-without reaching the log. Its `record` method does two jobs.
+without reaching the log. Each of its methods names the offer before it asks,
+so what `record` checks an answer against is what the decider was shown, not
+whatever the decider left in its slice afterwards. `record` itself does two
+jobs.
 `chargen/logging.go`, `logging.record`:
+
+`chargen/logging.go` — `logging.record`
 
 ```go
 // record writes the answer into the generation record, and refuses one that
@@ -735,6 +787,8 @@ dynamic type, and one type assertion would give the decider the dice back, so
 `WeaponPick` in `chargen/enlist.go` hands it a wrapper with nothing on it but
 `Among`. `chargen/roller.go`, `varyOnly`:
 
+`chargen/roller.go` — `varyOnly`
+
 ```go
 // varyOnly is the Vary a decider is handed: a Roller with everything but
 // Among taken off it, so the narrowing is the value's and not only the
@@ -757,6 +811,8 @@ nothing: the engine never offers an empty one.
 Three orthogonal strategies, each a closed type rather than a string — which is
 why `chargen` has no `Validate` method. `chargen/policy.go`, the skills and
 mustering out constants and the three strategy sets:
+
+`chargen/policy.go` — `Skills`
 
 ```go
 // The skills strategies of docs/POLICY.md, in its order.
@@ -789,6 +845,8 @@ A flag word becomes a domain value once, at the boundary, and past there a
 together and hands back the policy they name. `chargen/policy.go`, `ParsePolicy`,
 its doc and signature:
 
+`chargen/policy.go` — `ParsePolicy`
+
 ```go
 // ParsePolicy turns the three strategy flags' words into the policy they name.
 //
@@ -806,6 +864,8 @@ in the rules costs a character a failed attempt. Three are more interesting.
 after its printed modifier, and takes the best, ties going to book order. It is
 not a table and not a rule; it is arithmetic over what the offer carries.
 `chargen/policy.go`, `odds`:
+
+`chargen/policy.go` — `odds`
 
 ```go
 // odds is the chance of meeting an offer's target on two dice after its
@@ -835,6 +895,8 @@ though p. 11's first table is exactly how that is done. The engine hands the
 decider a `taken` slice parallel to `from`, and the policy prefers the tables he
 has trained on least before applying its ranking. `chargen/policy.go`,
 `thinnest`:
+
+`chargen/policy.go` — `thinnest`
 
 ```go
 // thinnest is the offered tables the character has had fewest results off.
@@ -872,6 +934,8 @@ into JSON, a character sheet, or a transcript. The domain types are the
 interface; JSON is a projection, and where the two disagree the codec absorbs it.
 `render/json.go`, the package doc:
 
+`render/json.go` — `package render`
+
 ```go
 // Package render projects a generated character into the shapes a reader
 // wants: JSON, a character sheet in the book's own style, and a transcript
@@ -889,6 +953,8 @@ and `docs/character.schema.json` describes it in draft 2020-12. The names follow
 the book: a service rank's name is `rankName` ("Captain"), and the hereditary
 title of p. 5 is `nobility`, whose own `title` field is the title it confers.
 `render/json.go`, `record`:
+
+`render/json.go` — `record`
 
 ```go
 type record struct {
@@ -931,7 +997,7 @@ A transcript of `grep -n 'Codec struct\|^func fold' render/fold.go`, run while w
 33:func foldEnlistment(from traveller.Enlistment) enlistmentRecord {
 46:type departureCodec struct{ out departureRecord }
 80:func foldDeparture(from traveller.Departure) departureRecord {
-158:type eventCodec struct {
+157:type eventCodec struct {
 ```
 
 The **read** side is not. `render/decode.go` unmarshals into the same `record`
@@ -940,6 +1006,8 @@ struct and deliberately does not rebuild domain types, so `SheetFrom` and
 `traveller.ScoutShip.String()`. The compiler cannot see those comparisons; what
 holds them is a round-trip test. `render/decode.go`, `errNotARecord` and the head
 of `decode`:
+
+`render/decode.go` — `errNotARecord`
 
 ```go
 var errNotARecord = errors.New("not a character record")
@@ -964,6 +1032,8 @@ The command is built out of the record, and the record is not something this
 tool wrote — `render` reads whatever it is handed — so every value goes through
 a shell quoter before it reaches a line a person is told to paste.
 `render/provenance.go`, `safeToken` and `shellQuote`:
+
+`render/provenance.go` — `safeToken`
 
 ```go
 // No `=`: zsh sets EQUALS by default, so a word beginning with one is
@@ -1007,6 +1077,8 @@ And a character whose choices were made at the keyboard gets a different line,
 because the seed alone does not bring him back. `render/provenance.go`,
 `provenance`:
 
+`render/provenance.go` — `provenance`
+
 ```go
 // provenance is how a reader gets this character back, or why he cannot.
 //
@@ -1016,8 +1088,8 @@ because the seed alone does not bring him back. `render/provenance.go`,
 //
 // What it prints is the command rather than the seed, because running it is
 // what the reader wants to do with it. The strategies are named even where
-// they are the defaults: a default that moves under a reader is exactly how
-// a published page came to document flags that no longer work.
+// they are the defaults: a line that leans on a default stops reproducing its
+// character when the default moves.
 func provenance(r record, rendering string) (string, error) {
 	byPlayer, err := decidedByPlayer(r)
 	if err != nil {
@@ -1039,6 +1111,8 @@ func provenance(r record, rendering string) (string, error) {
 that decides the exit status: 0 for a run that did what it was asked and 1 for
 one that did not, whichever kind of failure it was. `cmd/ctchargen/main.go`,
 `main` and `exitStatus`:
+
+`cmd/ctchargen/main.go` — `main`
 
 ```go
 func main() {
@@ -1069,6 +1143,8 @@ channel — the record, the sheet, the transcript — and `asking` is where the 
 talks to the person driving it. Note too that help asked for leaves by `out` and
 returns nil, so `--help` exits 0; a bare `ctchargen` with no arguments stays an
 error, because nothing was asked for. `cmd/ctchargen/main.go`, `run`:
+
+`cmd/ctchargen/main.go` — `run`
 
 ```go
 // run takes the two output channels apart. `out` is the data channel - the
@@ -1131,6 +1207,8 @@ types and defaults are declared once, in `declareCharacterFlags`, and each
 command supplies only its own descriptions; from there they travel as one value,
 so five adjacent strings cannot be transposed on the way in.
 `cmd/ctchargen/new.go`, `characterFlags`:
+
+`cmd/ctchargen/new.go` — `characterFlags`
 
 ```go
 // characterFlags are the flags both generating subcommands take: what a
@@ -1392,6 +1470,8 @@ It skips the line where no record was written, and for a failed `--survivors`
 search, whose error already carries the counts. `cmd/ctchargen/batch.go`,
 `tally.reportStopped`:
 
+`cmd/ctchargen/batch.go` — `tally.reportStopped`
+
 ```go
 // reportStopped writes the closing line of a run that failed partway. It says
 // the run stopped, because the error printed after it does, and a line that
@@ -1465,8 +1545,9 @@ navy-captain.transcript.md
 
 Three of the documents in `docs/` — `ERRATA.md`, `POLICY.md` and `COVERAGE.md`
 — are held to the code in both directions by `internal/docsgate`,
-a package with no non-test code. It also holds the exported Go API to a
-checked-in baseline:
+a package with no non-test code. It also holds the schema's three strategy
+enums to the strategies the code takes, and the exported Go API to a checked-in
+baseline:
 
 A transcript of `grep -h '^func Test' internal/docsgate/*.go | sed 's/func //; s/(t \*testing.T) {//'`, run while writing:
 

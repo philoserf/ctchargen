@@ -5,6 +5,86 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+## 1.0.0-beta.3
+
+Every character this build generates is the character beta.2 generated from
+the same seed. What changed is what surrounds a character: two record fields
+are renamed to the book's words, the schema says what it actually accepts, and
+the exported Go API and the command line are held to a baseline ahead of the
+`v1.0.0` freeze.
+
+### Install
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.3
+```
+
+**No binaries are attached.** A release is a tag, installed with `go install`.
+Earlier releases' binaries stay on their own release pages.
+
+### What a referee will notice
+
+**Two record fields are renamed, to the book's words.** Book 1 keeps "title"
+for nobility (p. 5; Book 3 p. 22) and calls Captain a rank (pp. 10, 25), so:
+
+```json
+"rank": 4, "rankName": "Captain", "nobility": { "eligible": true, "title": "duke/duchess", "assumed": true }
+```
+
+This replaces `rankTitle` and `title: { eligible, rank, assumed }`. The sheet
+and the transcript print exactly what they printed before. The record is
+still `record: 1`: the shape moves freely until `v1.0.0`.
+
+**`--name` is one line.** A name carrying a line break is refused, because the
+sheet prints it as a heading and a newline would start sections the character
+does not have.
+
+**A batch that stops partway says what it wrote**, as
+`2 written before the run stopped, none died`, before its error.
+
+**The exit status is 0 or 1**, and the README says so. A character who died is
+a delivered record and exits 0.
+
+### What changed in the schema
+
+**An event of a kind this build does not write is refused.** beta.2's notes
+said a reader holding the schema could load a record carrying a new event
+kind; the schema never allowed that, and now says so. The root still accepts a
+new top-level section, and `ctchargen render` still prints `(unknown event
+kind …)` for a record it cannot validate.
+
+The schema's `point` and strategy enums stay closed: they describe the rules
+this build has.
+
+### For Go importers
+
+`v1.0.0` freezes the exported API of `traveller`, `dice`, `rules`, `chargen`
+and `render` under ordinary Go rules, and this release settles it:
+
+- Six names nothing outside their package used are unexported:
+  `rules.ErrMalformed`, `rules.ErrNoSuchRow`, `render.ErrNotARecord`,
+  `traveller.ErrTarget`, `traveller.MaxCharacteristic`,
+  `traveller.MinUnderAging`.
+- `rules.Rules` hands out nothing a caller can write to. `Aging`, `Muster`,
+  `Eligibility`, `Education` and `Retirement` are methods rather than fields,
+  and `Service`, `Weapons` and `Aging.At` return copies.
+- `rules.Service.Title` is `RankName`, `chargen.Character.RankTitle` is
+  `RankName`, and `chargen.Title` is `chargen.Nobility` with a `Title` field.
+- `chargen.ParsePolicy` replaces `ParseCareer`, `ParseSkills` and
+  `ParseMuster`.
+- A `Decider` cannot reach the run's dice through the `Vary` it is handed, and
+  cannot answer with something it wrote into its own offer.
+
+### Notes
+
+The repository's gate gained three baselines, each verified by breaking it:
+the exported API, held both ways; each command's flags, types, defaults and
+exit status; and the schema's strategy enums against the strategies the code
+takes. There is no CI; `task` is the gate.
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation.
+
 ## v1.0.0-beta.2 — 2026-09-08
 
 The tracker is empty, and this is the shape `v1.0.0` will freeze. Nothing here
