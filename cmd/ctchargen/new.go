@@ -230,6 +230,13 @@ func (f characterFlags) inputs() (chargen.Inputs, chargen.Policy, error) {
 		return chargen.Inputs{}, policy, fmt.Errorf("%w: %w", errUsage, err)
 	}
 
+	// A name is one line. The sheet and the transcript print it as markdown,
+	// so a line break in it starts sections the character does not have
+	// (#128). Carriage return too: markdown ends a line at either.
+	if strings.ContainsAny(*f.name, "\n\r") {
+		return chargen.Inputs{}, policy, fmt.Errorf("%w: --name %q is more than one line", errUsage, *f.name)
+	}
+
 	in := chargen.Inputs{
 		Seed: *f.seed, Name: *f.name,
 		Career: policy.Career, Skills: policy.Skills, Muster: policy.Muster,
