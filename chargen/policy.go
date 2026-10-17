@@ -16,6 +16,10 @@ import (
 // needs to know that an option is legal, the engine supplies that by what it
 // puts in the offered set, never by the strategy reaching into the
 // character.
+//
+// Every offered set must be non-empty. The engine never offers an empty
+// one, so nothing here checks; a caller handing a Policy one directly gets
+// the panic of indexing it (#131).
 type Policy struct {
 	Career Career
 	Skills Skills
