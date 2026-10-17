@@ -60,6 +60,14 @@ audit log first and a character sheet second.
   governed.
 - A **choice point** is a place the procedure asks a question with more than one
   legal answer. There are exactly twelve.
+- A **rank** is a position in a service's column of the Table of Ranks (p. 10),
+  and what that column prints for it is the rank's _name_ —
+  `rules.Service.RankName`, `chargen.Character.RankName`, `rankName` in the
+  record. A **title** is nobility and nothing else (p. 5, Book 3 p. 22):
+  `traveller.Title`, held by `chargen.Nobility` and written as
+  `nobility{eligible,title,assumed}`. The code's words are the book's words,
+  because the book is the authority on the domain's vocabulary as well as its
+  rules; `RankName`'s own comment carries the cites for why it is not "title".
 
 ## The organizing ideas
 
@@ -135,7 +143,13 @@ Three corollaries you must hold:
 - A `Decider` gets `Vary`, not `Roller`. A decider handed the whole roller could
   throw dice the procedure never makes, moving a seed's meaning somewhere no page
   governs. `Vary` is `interface{ Among(n int) int }` and that is the only variation
-  a decider may take.
+  a decider may take. The narrowing is the value's and not only the parameter's:
+  the one site that hands a decider a `Vary` (`chargen/enlist.go`, `applyResult`'s
+  `WeaponPick`) passes `varyOnly{a.run.roll}`, a wrapper with nothing on it but
+  `Among`, so a type assertion back to `Roller` finds nothing. The run's own
+  `Roller` passed bare would have kept its dynamic type, and the dice with it.
+  `TestADeciderCannotReachTheRollerThroughVary` holds it, and refuses to pass
+  vacuously if no fixture reaches the Weapon choice.
 - Reproducibility is promised **within** a build and explicitly not across builds.
   `render/provenance.go` prints "the same seed on a different build is a different
   character" onto every sheet that carries a build stamp.
@@ -149,6 +163,14 @@ answer is legal**: `reenlist.go`'s `intent` settles a single-option case without
 asking, because "a question with one answer is not a choice, and asking it would
 put an entry in the generation record that no reader could have decided
 differently."
+
+The engine also never offers an _empty_ set, and `Policy` is written on that
+premise: its doc comment says every offered set must be non-empty, that nothing
+in it checks, and that a direct caller handing it one gets the panic of indexing
+it. That is a stated precondition rather than an enforced one, deliberately — a
+guard for a set the engine cannot produce is the runtime check #41 removed, and
+answering an empty offer would return the zero value of an alphabet, which is a
+real-looking answer.
 
 The log is not added afterwards, "because a log that is added afterwards records
 what the author remembered." Every event carries a sequence number, and an
@@ -182,6 +204,15 @@ end: `rules.liftWeapons` refuses a weapon listed twice.
 This is the tightest reasoning in the repository. Understand it before you touch
 `logging.go`.
 
+One thing it does not check is the offer itself. Each method names `from` _after_
+the wrapped decider has returned, and the slice it names is the one the decider
+was handed. Every offered set is the decider's own — built fresh for the
+question, or copied out of the ruleset — so a decider that writes to it cannot
+reach a later character. But it can still rewrite this question's offer and
+answer with what it wrote, and `record` will find the answer in the offer and log
+both. The premise that a decider is a pure function of what it is handed is what
+holds that, and nothing enforces it; see the findings below.
+
 ### 7. The documents are code, and each gate is verified by breaking it
 
 `internal/docsgate` has no non-test code and is the one package allowed to know
@@ -194,22 +225,56 @@ and regex over the documents' own heading forms:
 - every `ChoicePoint` ↔ every `Decider` method;
 - `chargen.PolicyVersion` ↔ the version `POLICY.md` names;
 - every `COVERAGE.md` row's cited test and golden ↔ files that exist;
-- and, in `errata_test.go`, **each erratum's stamping condition as a predicate over
+- in `errata_test.go`, **each erratum's stamping condition as a predicate over
   a finished record** — written from the document's prose, never from the stamping
   code, because "a condition transcribed from the thing it checks is one reading
   written twice."
+
+- and, in `api_test.go`'s `TestTheExportedAPIIsTheBaseline`, **the exported Go
+  API of `traveller`, `dice`, `rules`, `chargen` and `render` against
+  `testdata/api.txt`**, one line per exported declaration, field and method, read
+  through `go/importer`'s source importer. Both ways: a line gone is a removed
+  name or a changed signature, which breaks a caller; a line arrived is a new
+  promise, which Go's rules allow but only on purpose. Either is answered by
+  `go test ./internal/docsgate -regenerate` and reading the diff.
+
+The command line has the same kind of baseline, beside the code it holds rather
+than in `docsgate`. `cmd/ctchargen/cli_test.go` types out each subcommand's
+flags with their types and defaults and holds them **one way**
+(`TestEveryBaselineFlagIsStillDeclared`): a flag gone, or retyped, or with a
+moved default breaks a script that passed it, while a new flag breaks nobody and
+is held instead by `usage_test.go`'s `TestEveryDeclaredFlagIsListed`, which walks
+the declared set against the help's list. `TestTheExitStatusIsZeroOrOne` holds
+`main`'s `exitStatus` to real runs. These are the three things `v1.0.0` freezes —
+the record, the exported API, the CLI — and each has a gate. The API is frozen
+under ordinary Go rules, so an exported name is a promise: a sentinel error
+nothing matches with `errors.Is`, or a bound only its own file reads, stays
+lowercase in its package rather than being promised by the baseline.
 
 `CLAUDE.md` adds the discipline that makes these worth having: "A new invariant is
 not done until a deliberate mutation has been shown to kill it, and the failure
 names what was broken."
 
+The converse holds too: a test exists because it holds something. An assertion
+whose only possible failure is an edit to a `fmt.Sprintf` fallback's format
+string holds nothing about the rules or the record, and the tree does not keep
+such tests to lower an uncovered-statement count. The ratchet in
+`coverage.ratchet` records what the tests reach; it is not a target to write
+tests toward.
+
+**The gate is local.** There is no CI. `task` is the gate, and a change is checked
+when someone runs it and not otherwise — so every "held by" in this document
+means "held by `task`, when it is run."
+
 ## The seams
 
 ### The package arrows
 
-`traveller` imports nothing in the module. `rules` and `chargen` import
-`traveller`. `render` imports `chargen` and `traveller`. `cmd/ctchargen` imports
-all three. Verified against `go list`; the rule in `CLAUDE.md` holds.
+`traveller` imports nothing in the module, and `dice` imports nothing but
+`math/rand/v2`. `rules` and `chargen` import `traveller`, and `chargen` also
+imports `rules` and `dice`. `render` imports `chargen` and `traveller`.
+`cmd/ctchargen` imports `chargen`, `render` and `traveller`. Verified against
+`go list`; the rule in `CLAUDE.md` holds.
 
 `traveller` is the domain — alphabets, values, sums. It does not roll dice, read a
 table, or marshal JSON. `rules` holds the printed tables as embedded JSON and lifts
@@ -217,7 +282,23 @@ them into domain values, and **the lift is the validation**: a cell naming no
 service, no characteristic, no benefit any row prints, or a target in a notation
 pp. 2–3 do not use fails at `Load()`, which happens once. A table that will not lift
 is a build defect that surfaces immediately, not a runtime condition some path
-might reach.
+might reach. That reaches the Prior Service Table's draft row too: `rules/lift.go`'s
+`checkDraft` holds it to one die face per service, each face printed once, so a
+draft die always names a service and `Rules.Draft` cannot miss for any die the
+engine throws.
+
+**The shared ruleset is read-only in fact.** `Load` is `sync.OnceValues`, so every
+caller in a process holds the same `*Rules`, and nothing it hands out can write
+to it. Its tables are unexported fields reached through methods (`Aging()`,
+`Muster()`, `Eligibility()`, `Education()`, `Retirement()`, each returning a
+value), `Retirement`'s pay map is unexported, and every method that returns a
+slice returns a copy: `Weapons`, `Service` (its ranks and the DMs of all four
+throws, through `Service.clone` and `Throw.clone`), and `Aging.At`. The comment
+beside `Load` states it once, and `rules/tables_test.go`'s
+`TestAWeaponListIsTheCallersOwn` and `TestNothingTheRulesHandOutIsShared` hold
+it by writing through each and reading a fresh `Load()`. A new method that hands
+out a slice of the ruleset without copying it is the defect those tests exist to
+catch, and they catch it only for the slices they name.
 
 ### The record boundary — the thinnest seam in the system
 
@@ -245,24 +326,55 @@ tests, and `render/provenance.go` says so plainly of its own flag constants:
 If you rename a `String()` on a domain value, the write side moves and the read
 side silently does not. This is the seam to be careful at.
 
-`docs/character.schema.json` is the third participant, and the three do not quite
-agree — see the findings below.
+`docs/character.schema.json` is the third participant, and it describes the rules
+this build has, not some perhaps future. The root is open — a later build may add
+a top-level section, and a reader holding this schema loads the record and
+renders what it understands. Everything inside is closed: the fourteen nested
+objects refuse an unknown key, and the event kinds, the choice-point names and
+the three strategy vocabularies are closed enums. `render/transcript.go` prints
+`(unknown event kind %q)` for a kind it does not know, which is how a reader
+survives a record it could not validate — not a reason to validate it.
+`render/schema_test.go`'s `TestAnUnknownEventKindDoesNotValidate` holds the
+schema to that, and `TestALaterShapeWithAnUnknownFieldStillValidatesAndRenders`
+holds the open root.
+
+`render` prints what the record carries and escapes nothing. The one string an
+operator types into a record is the name, and it is held at the command line
+rather than here — see below.
 
 ### The command line
 
 `cmd/ctchargen` is where strings become domain values and where they stop being
-strings. `withStrategies` parses the three `--auto` strategies once, at the
-boundary: "past here a `Career` is a `Career`, and no part of the engine asks again
-whether it is one of three. That is why `chargen` has no `Validate` any more (#41)."
+strings. `new` and `batch` declare their six generating flags once, as
+`characterFlags` (`declareCharacterFlags`), and `characterFlags.inputs()` is the
+one parse both share. It calls `chargen.ParsePolicy` once for all three `--auto`
+strategies, at the boundary: "past here a Career is a Career, and no part of the
+engine asks again whether it is one of three. That is why chargen has no Validate
+any more (#41)." The `Inputs` and the `Policy` are both written from that one
+parse, so what a record says it was given and what decided it cannot name
+different strategies.
+
+The same parse refuses a `--name` containing a line break, `\n` or `\r`. The
+sheet and the transcript print the name as markdown, so a line break in it would
+start sections the character does not have. That is the whole of the defence:
+`render` does not escape, and a hand-edited record still prints whatever it
+carries.
 
 The two output channels are separated deliberately: `out` carries the record, the
 sheet, the transcript; `asking` carries everything the tool says to the person
 driving it, so that `ctchargen new --seed 7 | jq` pipes a record and not a
 conversation. `batch`'s closing tally goes to `asking` for the same reason — "a
-summary on standard output would be a line of JSONL that is not JSON."
+summary on standard output would be a line of JSONL that is not JSON." A batch
+that stops partway still says what it wrote: the tally goes to `asking`, worded
+as "written before the run stopped", ahead of the error — except where nothing
+was written, and for `errSearch`, whose message already carries the counts.
 
-`run` returns `nil` for help asked for, so help exits 0. Only a bare `ctchargen`
-with no arguments is an error.
+The exit status is 0 or 1 and nothing else. `main` hands `run`'s error to
+`exitStatus`, the one place that decides it: 0 for a run that did what it was
+asked, 1 for one that did not. A character who died is a delivered record and
+exits 0; help asked for returns `nil` and exits 0; a bare `ctchargen` is a usage
+error. `errUsage` and `errSearch` differ in the message a person reads, not in
+the status a script sees.
 
 ## What the system is shaped to accommodate
 
@@ -274,15 +386,29 @@ document's prose**. The gates will tell you what you forgot in both directions.
 
 **A new choice point.** Add the `Decider` method; the compiler names every
 implementation that must learn it. Add the `ChoicePoint` constant and the
-`POLICY.md` row; `docsgate` holds the three together. Then read the finding about
-the schema's `point` enum, because that part the compiler cannot reach.
+`POLICY.md` row; `docsgate` holds the three together. The schema's `point` enum
+is the part the compiler cannot reach, and it is held by a chain of tests instead:
+`docsgate`'s `TestEveryChoicePointIsReachedByARecord` demands a golden that
+reaches the new point, and `render/schema_test.go`'s
+`TestEveryGoldenMatchesTheSchema` refuses that golden until the enum learns the
+name. The exported-API baseline will also report `Decider` as changed, which is
+true — see the freeze, below.
 
 **A new `--auto` strategy for an existing question.** Add the constant, the
-`String()` case, the entry in the unexported strategy slice, the `POLICY.md` row,
-and bump `PolicyVersion` if an existing answer moved. Same schema caveat.
+`String()` case, the entry in the unexported strategy slice (`careerStrategies`,
+`skillsStrategies`, `musterStrategies`), the `POLICY.md` row, the schema's
+`inputs` enum, and bump `PolicyVersion` if an existing answer moved. Here the
+schema has no chain behind it: nothing requires a golden to use every strategy,
+so a strategy no golden names can be added with the enum left behind and every
+test green. Every strategy today happens to appear in some golden.
 
 **A new mustering-out benefit or departure kind.** Add the case to the sum and
 follow the compiler across `chargen` and `render`.
+
+**A new rank or title name.** Use the book's word for the book's thing. A
+service's position is a rank and what the Table of Ranks prints is its name;
+"title" belongs to nobility. One word with two meanings is how two fields of one
+record come to name each other's thing.
 
 **A new rules table.** Add the JSON under `rules/data/`, a wire type in `lift.go`,
 a lift function that validates every cell against a closed alphabet, and — this is
@@ -291,10 +417,22 @@ same visual reading pass. Retyping the second copy from the first checks nothing
 
 ## What would require rethinking something fundamental
 
-**Concurrency.** `rules.Load()` is `sync.OnceValues` over a mutable `*Rules` shared
-process-wide. Generation is single-threaded everywhere today; `batch` is a
-sequential loop. Parallelising it would need the ruleset made immutable in fact and
-not only by convention — see the first finding.
+**Concurrency.** `rules.Load()` is `sync.OnceValues` over one `*Rules` shared
+process-wide, and that value now hands out nothing that can write to it, so the
+ruleset is no longer the obstacle. Generation is single-threaded everywhere today;
+`batch` is a sequential loop, and each member's seed is a function of its index
+(`memberSeed`). I did not audit the rest of the tree for shared state, so I claim
+only that the ruleset would not stand in the way of parallelising it.
+
+**The routine extensions, after `v1.0.0`.** The tag freezes the exported Go API
+under ordinary Go rules, and the extensions this tree is shaped for are, in Go's
+terms, breaking. A new choice point adds a method to the exported `Decider`
+interface, which breaks any implementation outside the module; a new case on a
+sum adds a method to its exported `…Cases` interface, which breaks any fold
+outside it. The compiler-error discipline of idea 1 is exactly what a caller in
+another module would experience as a break. The baseline in `docsgate` will
+report it as a line gone. What the freeze means for those two extension points is
+not written down anywhere I found — see the uncertainties.
 
 **Cross-build record compatibility, before `v1.0.0`.** Deliberately unpromised.
 `recordShape` is 1 and stays 1 until the tag; #96 explicitly declined the reading
@@ -307,8 +445,16 @@ last column hands one a _count_ of twelves for precisely this reason (#54). Noth
 enforces the contract.
 
 **Injecting a decider that mutates what it is offered.** The engine's whole
-premise is that a decider is a pure function of what it is handed. One site defends
-that (`chooseMusterTable` clones); the others do not.
+premise is that a decider is a pure function of what it is handed. Every offered
+set is the decider's own: `chooseService`, `offeredTables` and
+`offeredIntents` build theirs per question, `chooseMusterTable` copies
+`traveller.MusterTables`, and `rules.Weapons` copies its list. So a write cannot
+reach a later character. It can still reach this one: `logging` reads the
+offer after the decider returns, so a decider that rewrites its slice and answers
+with what it wrote passes the single gate, and the record shows the forged offer
+as what was offered. `WeaponName` is a string, so at `Weapon` and `MusterWeapon`
+that is a weapon no page prints; `takeWeapon` deliberately does not re-check the
+answer, because the gate is meant to have.
 
 ## Where a maintainer who did not understand the theory would cause damage
 
@@ -328,6 +474,21 @@ that (`chooseMusterTable` clones); the others do not.
   has it.
 - **Reading a table out of `pdftotext`, or retyping the second transcription from
   the first.** Both defeat the defence the whole repository is built around.
+- **Returning a slice of the ruleset from a new `rules` method.** `Load` hands
+  every caller the same value, so a slice handed out uncopied is a way for one
+  character's decider to change the next character's tables. Copy it, and add it
+  to `TestNothingTheRulesHandOutIsShared`.
+- **Handing a decider the `Roller`, or anything that can be asserted back to
+  one.** `varyOnly` is what makes `Vary` the only variation a decider takes.
+- **Escaping in `render`, or relaxing the `--name` check.** The name is held to
+  one line at the command line and `render` prints what it is given. Doing the
+  first moves the defence to a place that would change every sheet; doing the
+  second removes it.
+- **Writing a test to move the ratchet.** A test that can fail only when a format
+  string is edited holds nothing. Coverage is reported, not chased.
+- **Regenerating `internal/docsgate/testdata/api.txt` without reading the diff.**
+  A line gone is a break to callers once `v1.0.0` is tagged; `-regenerate` makes
+  the gate pass, and the diff is the only place the break is visible.
 - **Consulting the repository's own history at or before `41a213a`.** The clean
   room covers it, at every rank but one: only that tree's _errata_ may be
   consulted, only where the page and `ERRATA.md` are both silent, and only as a
@@ -348,18 +509,31 @@ discipline is the only thing that would.
 **`docs/PRD.md` "governs nothing," but code still appeals to it.**
 `CLAUDE.md`'s document table says the PRD governs nothing now and is kept as
 history. Yet `cmd/ctchargen/render.go` justifies a parse decision with "the PRD's
-CLI sketch says so plainly: flags precede the filename," and `new.go` argues from
-"Neither flag is in the PRD's CLI sketch." Both are historical rationales rather
-than live authority, and I read them that way — but a maintainer could reasonably
-read them as the PRD still governing the CLI. I did not file this: nothing is
+CLI sketch says so plainly: flags precede the filename," `new.go` argues from
+"Neither flag is in the PRD's CLI sketch," and `traveller/choice.go` quotes the
+PRD's "a rendering of that interface, never a second list kept parallel to it"
+as the standard `ChoicePoint` is held to. All three are historical rationales
+rather than live authority, and I read them that way — but a maintainer could
+reasonably read them as the PRD still governing. I did not file this: nothing is
 wrong, and the fix is a wording preference.
 
-**Whether the `v1.0.0` freeze is meant to cover the strategy vocabulary.**
-`CLAUDE.md` says the _record's shape_ freezes. The record contains
-`inputs.career`/`skills`/`muster` as closed enums, so growing the `--auto`
-vocabulary is a shape change under a literal reading. Whether that is the intended
-consequence or an unnoticed one I genuinely cannot tell from the tree; the finding
-below asks rather than asserts.
+**Settled: the strategy vocabulary is part of the record's shape.** The schema
+describes the rules this build has, so `inputs.career`/`skills`/`muster`, the
+choice-point names and the event kinds are closed enums, and growing any of them
+after `v1.0.0` is a change to a frozen shape, said in the record's `record`
+number. That is a decision, not an oversight. What is _not_ settled is the
+narrower point under "A new `--auto` strategy" above: the strategy enums, unlike
+`point`, are held to the code only by whichever goldens happen to use each
+strategy.
+
+**What the Go API freeze means for `Decider` and the `…Cases` interfaces.**
+`CLAUDE.md` and the baseline test say the exported API freezes under ordinary Go
+rules. Under those rules, adding a method to an exported interface that callers
+may implement is a breaking change — and adding a method to `Decider` or to a
+sum's cases interface is how idea 1 says this tree grows. I cannot tell from the
+tree whether the freeze intends a new choice point or a new sum case to mean
+`v2`, or intends those interfaces to be read as implementable only inside the
+module. Nothing says which.
 
 **The `Roller` termination contract is documented and unenforced**, and I take that
 as deliberate rather than as drift — the comment names the failure mode and the one
@@ -378,17 +552,16 @@ The count is right.
 
 ## Index
 
-| #   | Severity | Issue                                                                        | Primary location                                            |
-| --- | -------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1   | medium   | `weapon-list-handed-to-deciders-is-the-shared-singleton`                     | `rules/rules.go:174`, `chargen/enlist.go:172`               |
-| 2   | medium   | `schema-refuses-the-unknown-event-kind-its-own-description-cites`            | `docs/character.schema.json:6,225-237`, `CLAUDE.md:52-58`   |
-| 3   | medium   | `freezing-the-schema-closes-two-extension-points-the-code-treats-as-routine` | `docs/character.schema.json:290-300`, `chargen/decider.go`  |
-| 4   | low      | `errsearch-is-distinguished-in-prose-and-nowhere-a-script-can-read`          | `cmd/ctchargen/main.go:18-27`, `cmd/ctchargen/batch.go:203` |
+Where the code is in tension with the theory above. None is filed.
 
-**Total: 4 issues (0 critical, 0 high, 3 medium, 1 low)**
+| #   | Severity | Finding                                                                                               | Primary location                                                   |
+| --- | -------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | medium   | The single gate names the offer after the decider returns, so a decider can forge its own offer       | `chargen/logging.go` — `record` and each method; `takeWeapon`      |
+| 2   | medium   | The Go API freeze makes the tree's routine extensions — a `Decider` method, a sum case — breaking     | `chargen/decider.go` — `Decider`; `traveller` — the `…Cases` types |
+| 3   | low      | The schema's strategy enums are held to the code only by the goldens that happen to use each strategy | `docs/character.schema.json` — `inputs`; `chargen/policy.go`       |
 
-Findings 2 and 3 share a root — the record's closed vocabularies versus the
-extensions the code plans to make — and both are materially cheaper to settle
-before `v1.0.0` than after, because the schema is what the freeze makes a public
-contract. Finding 1 touches the `rules` package's exported API, which the tag
-freezes in the other sense.
+**Total: 3 findings (0 critical, 0 high, 2 medium, 1 low)**
+
+Finding 2 is cheapest to settle before `v1.0.0`, because after the tag the
+answer is constrained by what was promised. Finding 1 is reachable only by a
+decider written to forge, which the tool's own three are not.

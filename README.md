@@ -153,6 +153,10 @@ refused, and so is a `batch` any of whose members would replace one — the
 whole batch, before a byte is written, so a refusal leaves the directory as it
 was.
 
+**A name is one line.** `--name` is printed as the sheet's heading, so a name
+carrying a line break is refused rather than allowed to start sections the
+character does not have.
+
 Death is an outcome and not an error: a character killed by a survival throw
 (Book 1 p. 5) gets a complete record like anyone else, and no flag rerolls him.
 
@@ -170,6 +174,8 @@ standard error after `ctchargen:`.
 | [docs/COVERAGE.md](docs/COVERAGE.md)                     | Every implemented rule mapped to its page cite, its implementation and its test. |
 | [docs/character.schema.json](docs/character.schema.json) | What the tool writes, with a minimal and a complete example beside it.           |
 | [docs/PRERELEASE.md](docs/PRERELEASE.md)                 | What each tag ships with open, and the review that preceded it.                  |
+| [THEORY.md](THEORY.md)                                   | What the code believes and where each belief is enforced. Binds nothing.         |
+| [WALKTHROUGH.md](WALKTHROUGH.md)                         | A linear read of the code in execution order. Binds nothing.                     |
 | [CLAUDE.md](CLAUDE.md)                                   | Authority, source precedence, and the working rules for agents.                  |
 
 ## The gate
@@ -180,8 +186,10 @@ task
 
 `go mod tidy -diff`, `go vet`, golangci-lint, NilAway, `go test -race`, and a
 coverage ratchet that holds each package's count of uncovered statements, and
-prettier over the non-Go files. There is no CI (#149); a change is checked
-when this is run, and not otherwise.
+prettier over the non-Go files. The tests hold the three things `v1.0.0`
+freezes: every record against the schema, the exported Go API against a
+baseline, and each command's flags, defaults and exit status. There is no CI
+(#149); a change is checked when this is run, and not otherwise.
 
 The toolchain is unpinned on purpose, and golangci-lint runs with
 `default: all`, so a linter added upstream arrives switched on. Formatting is
