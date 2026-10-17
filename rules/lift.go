@@ -340,7 +340,7 @@ func liftServiceColumn(wire wireServices, i int, name traveller.ServiceName) (Se
 
 	service.Reenlist, err = traveller.ParseTarget(wire.Reenlist[i])
 	if err != nil {
-		return Service{}, fmt.Errorf("%v reenlist: %w", name, err)
+		return Service{}, fmt.Errorf("%w: %v reenlist: %w", errMalformed, name, err)
 	}
 
 	// P. 10 makes ranks, commissions and promotions one fact: "Ranks,
