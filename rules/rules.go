@@ -57,13 +57,13 @@ type Rules struct {
 }
 
 // Load returns the lifted rules, loading and validating them once.
+//
+// Every caller in a process gets the same Rules, so nothing on it hands out a
+// way to write to it: the tables are reached through methods, and a method
+// that returns a slice returns a copy (#137).
 func Load() (*Rules, error) { return loaded() }
 
 var loaded = sync.OnceValues(load)
-
-// Load hands every caller in a process the same Rules, so nothing below hands
-// out a way to write to it: the tables are reached through methods, and a
-// method that returns a slice returns a copy (#137).
 
 // Aging is the Aging Table (p. 9) and the medical crisis of pp. 7-8.
 func (r *Rules) Aging() Aging { return r.aging }

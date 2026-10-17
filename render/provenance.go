@@ -39,10 +39,9 @@ const (
 
 // provenance is how a reader gets this character back, or why he cannot.
 //
-// A sheet is what a referee reads and what he keeps. The seed reached the
-// JSON record and the transcript's opening line and never reached here, so a
-// sheet spun, read and liked was a character discarded - which is the whole
-// of the finding this answers.
+// A sheet is what a referee reads and what he keeps. The seed is in the JSON
+// record and on the transcript's opening line, and without this line a sheet
+// spun, read and liked would be a character discarded.
 //
 // What it prints is the command rather than the seed, because running it is
 // what the reader wants to do with it. The strategies are named even where
@@ -164,7 +163,7 @@ var safeToken = regexp.MustCompile(`^[A-Za-z0-9@%+:,./_-]+$`)
 // Not strconv.Quote, which is Go's syntax rather than the shell's. A shell
 // still expands `$`, a backtick and a backslash inside double quotes, so
 // strconv.Quote("a`id`") produces a command substitution the moment it is
-// pasted - which is what the earlier quoting of --name did. Single quotes
+// pasted. Single quotes
 // expand nothing at all, and a single quote inside them is closed, escaped
 // and reopened.
 //

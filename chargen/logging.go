@@ -226,9 +226,8 @@ func (d *describeWeaponBenefit) TakeExpertise(weapon traveller.WeaponName) error
 // What it costs is an assumption. The check is sound exactly as long as
 // String() is injective on every alphabet the engine offers - two values that
 // spelled the same would let a decider answer with one and have the other
-// recorded, and nothing would notice. That was true when this was written and
-// stated nowhere (#48). It is stated here now, and held by
-// traveller.TestNoTwoValuesOfAnAlphabetShareASpelling.
+// recorded, and nothing would notice. It holds, and
+// traveller.TestNoTwoValuesOfAnAlphabetShareASpelling holds it (#48).
 func (l logging) record(point traveller.ChoicePoint, from []string, chosen string) error {
 	if !slices.Contains(from, chosen) {
 		return fmt.Errorf("%w: %v offered %v, and was answered %q",
