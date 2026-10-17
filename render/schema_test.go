@@ -172,10 +172,9 @@ func example(t *testing.T, name string) map[string]any {
 // the field, and one that refused the field would not care what the number
 // said.
 //
-// The reading half was already true - decode ignores what it does not know,
-// and the transcript says so for an event kind it does not know - so the
-// schema was contradicting behaviour the tool already had. This holds the two
-// together.
+// The reading half was already true - decode ignores what it does not know -
+// so the schema was contradicting behaviour the tool already had. This holds
+// the two together.
 func TestALaterShapeWithAnUnknownFieldStillValidatesAndRenders(t *testing.T) {
 	t.Parallel()
 
@@ -263,5 +262,31 @@ func TestAnUnknownKeyInsideAnEventDoesNotValidate(t *testing.T) {
 
 	if schema.Validate(body) == nil {
 		t.Error("an unknown key inside an event validated; the record's own structures are not pinned")
+	}
+}
+
+// An event of a kind this build does not write does not validate.
+//
+// The events are one of the five kinds the procedure logs, and the schema says
+// so rather than leaving room for a kind no rule produces (#129). render still
+// reads such a record and says the kind is unknown, which is
+// TestAnUnknownEventKindIsSaidToBeUnknown; validating it is a different
+// question, and this is the answer.
+func TestAnUnknownEventKindDoesNotValidate(t *testing.T) {
+	t.Parallel()
+
+	schema := compileSchema(t)
+
+	body := example(t, "character.minimal.json")
+
+	events, ok := body["events"].([]any)
+	if !ok || len(events) == 0 {
+		t.Fatal("the minimal example logs no events, so adding one proves nothing")
+	}
+
+	body["events"] = append(events, map[string]any{"seq": float64(9999), "kind": "portent"})
+
+	if schema.Validate(body) == nil {
+		t.Error("an event of an unknown kind validated; the schema no longer pins the five kinds")
 	}
 }
