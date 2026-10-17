@@ -114,6 +114,39 @@ func TestRunWritesEachRendering(t *testing.T) {
 	}
 }
 
+// mustRun runs a command line expected to work, and returns what it wrote to
+// each channel, standard output first. A run that does not work fails the
+// test, naming the command line.
+func mustRun(t *testing.T, args []string, in io.Reader) (string, string) {
+	t.Helper()
+
+	var o, a strings.Builder
+
+	err := run(args, in, &o, &a)
+	if err != nil {
+		t.Fatalf("ctchargen %s: %v", strings.Join(args, " "), err)
+	}
+
+	return o.String(), a.String()
+}
+
+// mustRunTogether is mustRun with both channels written into one, in the
+// order they were written: an interactive session reads as a conversation
+// only when its questions and its record are interleaved as the player saw
+// them.
+func mustRunTogether(t *testing.T, args []string, in io.Reader) string {
+	t.Helper()
+
+	var both strings.Builder
+
+	err := run(args, in, &both, &both)
+	if err != nil {
+		t.Fatalf("ctchargen %s: %v", strings.Join(args, " "), err)
+	}
+
+	return both.String()
+}
+
 // parsedInputs is what new's flag set makes of a command line, without
 // generating anything.
 func parsedInputs(t *testing.T, args ...string) chargen.Inputs {

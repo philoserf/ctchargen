@@ -30,19 +30,11 @@ func TestOneMemberIsTheSameCharacterAsNew(t *testing.T) {
 
 	const seed = "42"
 
-	var alone, batched strings.Builder
+	alone, _ := mustRun(t, []string{cmdNew, flagAuto, flagSeed, seed, flagService, other}, nil)
 
-	err := run([]string{cmdNew, flagAuto, flagSeed, seed, flagService, other}, nil, &alone, io.Discard)
-	if err != nil {
-		t.Fatalf("new: %v", err)
-	}
+	batched, _ := mustRun(t, []string{cmdBatch, flagCount, "1", flagAuto, flagSeed, seed, flagService, other}, nil)
 
-	err = run([]string{cmdBatch, flagCount, "1", flagAuto, flagSeed, seed, flagService, other}, nil, &batched, io.Discard)
-	if err != nil {
-		t.Fatalf("batch: %v", err)
-	}
-
-	if compact(t, alone.String()) != compact(t, strings.TrimSpace(batched.String())) {
+	if compact(t, alone) != compact(t, strings.TrimSpace(batched)) {
 		t.Error("batch --count 1 --seed 42 is not the character new --seed 42 produces")
 	}
 }
@@ -64,18 +56,13 @@ func TestEachMemberCarriesItsOwnSeed(t *testing.T) {
 	}
 
 	// Regenerating a member from its own recorded seed reproduces it.
-	var again strings.Builder
-
-	err := run([]string{
+	again, _ := mustRun(t, []string{
 		cmdNew, flagAuto, flagSeed, strconv.FormatUint(members[3].Inputs.Seed, 10), flagService, other,
-	}, nil, &again, io.Discard)
-	if err != nil {
-		t.Fatalf("regenerating member 3: %v", err)
-	}
+	}, nil)
 
 	var reproduced batchMember
 
-	err = json.Unmarshal([]byte(again.String()), &reproduced)
+	err := json.Unmarshal([]byte(again), &reproduced)
 	if err != nil {
 		t.Fatalf("reading the regenerated member: %v", err)
 	}
@@ -135,12 +122,9 @@ func TestBatchIntoADirectory(t *testing.T) {
 
 	dir := t.TempDir()
 
-	err := run([]string{
+	mustRun(t, []string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
-	}, nil, io.Discard, io.Discard)
-	if err != nil {
-		t.Fatalf("batch into a directory: %v", err)
-	}
+	}, nil)
 
 	written, err := filepath.Glob(filepath.Join(dir, "*.json"))
 	if err != nil {
@@ -178,18 +162,13 @@ type batchMember struct {
 func generateBatch(t *testing.T, seed string, count int) []batchMember {
 	t.Helper()
 
-	var out strings.Builder
-
-	err := run([]string{
+	out, _ := mustRun(t, []string{
 		cmdBatch, flagCount, strconv.Itoa(count), flagAuto, flagSeed, seed, flagService, other,
-	}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("batch: %v", err)
-	}
+	}, nil)
 
 	var members []batchMember
 
-	for line := range strings.SplitSeq(strings.TrimSpace(out.String()), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(out), "\n") {
 		var m batchMember
 
 		err := json.Unmarshal([]byte(line), &m)
@@ -236,12 +215,9 @@ func TestBatchCreatesTheOutputDirectory(t *testing.T) {
 
 	dir := filepath.Join(t.TempDir(), "characters") + string(filepath.Separator)
 
-	err := run([]string{
+	mustRun(t, []string{
 		cmdBatch, flagCount, "3", flagAuto, flagSeed, "7", flagService, other, flagOutput, dir,
-	}, nil, io.Discard, io.Discard)
-	if err != nil {
-		t.Fatalf("batch into a directory that is not there yet: %v", err)
-	}
+	}, nil)
 
 	written, err := filepath.Glob(filepath.Join(dir, "*.json"))
 	if err != nil {

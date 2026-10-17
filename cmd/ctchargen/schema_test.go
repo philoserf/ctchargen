@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -107,14 +106,9 @@ func TestWhatTheCommandWritesMatchesTheSchema(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			var out strings.Builder
+			out, _ := mustRun(t, tc.args, strings.NewReader(tc.in))
 
-			err := run(tc.args, strings.NewReader(tc.in), &out, io.Discard)
-			if err != nil {
-				t.Fatalf("generating: %v", err)
-			}
-
-			mustMatch(t, compiled, name, out.String())
+			mustMatch(t, compiled, name, out)
 		})
 	}
 }
@@ -125,15 +119,9 @@ func TestEveryBatchMemberMatchesTheSchema(t *testing.T) {
 
 	compiled := schema(t)
 
-	var out strings.Builder
+	out, _ := mustRun(t, []string{cmdBatch, flagCount, "5", flagAuto, flagSeed, "145", flagService, merchants}, nil)
 
-	err := run([]string{cmdBatch, flagCount, "5", flagAuto, flagSeed, "145", flagService, merchants},
-		nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("generating a batch: %v", err)
-	}
-
-	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	lines := strings.Split(strings.TrimSpace(out), "\n")
 	if len(lines) != 5 {
 		t.Fatalf("the batch wrote %d lines, want 5", len(lines))
 	}
@@ -155,12 +143,7 @@ func TestEveryBatchMemberMatchesTheSchema(t *testing.T) {
 func TestThisBuildWritesShapeOne(t *testing.T) {
 	t.Parallel()
 
-	var out strings.Builder
-
-	err := run([]string{cmdNew, flagAuto, flagSeed, "4", flagService, navy}, nil, &out, io.Discard)
-	if err != nil {
-		t.Fatalf("generating: %v", err)
-	}
+	out, _ := mustRun(t, []string{cmdNew, flagAuto, flagSeed, "4", flagService, navy}, nil)
 
 	// Into a field of the right type rather than a map, whose numbers are
 	// float64 and would compare against an untyped 1 for the wrong reason.
@@ -168,7 +151,7 @@ func TestThisBuildWritesShapeOne(t *testing.T) {
 		Record int `json:"record"`
 	}
 
-	err = json.Unmarshal([]byte(out.String()), &written)
+	err := json.Unmarshal([]byte(out), &written)
 	if err != nil {
 		t.Fatalf("what the command wrote is not JSON: %v", err)
 	}
