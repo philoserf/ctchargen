@@ -18,6 +18,9 @@ var errUsage = errors.New("usage")
 // errSearch reports a run that was asked for correctly and could not deliver
 // it. The command line was well formed; what failed was the search, and a
 // reader told "usage" goes looking for a flag he typed wrong.
+//
+// The difference is in the message, not the exit status: every failure exits
+// 1, which is what the README promises (#121).
 var errSearch = errors.New("search")
 
 func main() {
