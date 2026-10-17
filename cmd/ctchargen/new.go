@@ -115,7 +115,7 @@ func flagsThatContradict(auto, replaying, sheet, history bool) error {
 
 // newRendering is what the flags say to do with the character once it exists,
 // gathered so that newCharacter reads as the four steps it takes rather than
-// as eleven flags threaded through them.
+// as its whole flag set threaded through them.
 type newRendering struct {
 	auto, sheet, history, force bool
 	output                      string
