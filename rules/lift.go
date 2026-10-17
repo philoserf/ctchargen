@@ -281,6 +281,11 @@ func (r *Rules) liftPriorService(wire wireServices) error {
 		}
 	}
 
+	err = checkDraft(wire.Draft)
+	if err != nil {
+		return err
+	}
+
 	for i, name := range traveller.ServiceNames {
 		service, err := liftServiceColumn(wire, i, name)
 		if err != nil {
@@ -288,6 +293,29 @@ func (r *Rules) liftPriorService(wire wireServices) error {
 		}
 
 		r.services[i] = service
+	}
+
+	return nil
+}
+
+// checkDraft holds the draft row to what Draft needs of it (p. 5): one die
+// face per service, each face printed once. Six distinct faces over six
+// services is every face, so a draft die always names a service.
+func checkDraft(draft []int) error {
+	seen := make(map[int]bool, len(draft))
+
+	for i, face := range draft {
+		if face < 1 || face > Faces {
+			return fmt.Errorf("%w: prior service table, draft, %v: %d is not a die face",
+				ErrMalformed, traveller.ServiceNames[i], face)
+		}
+
+		if seen[face] {
+			return fmt.Errorf("%w: prior service table, draft: %d is printed twice",
+				ErrMalformed, face)
+		}
+
+		seen[face] = true
 	}
 
 	return nil
