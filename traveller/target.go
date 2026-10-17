@@ -40,9 +40,9 @@ func (m Modality) String() string {
 	return fmt.Sprintf("Modality(%d)", int(m))
 }
 
-// ErrTarget reports a target that is not in the notation pp. 2-3 print.
+// errTarget reports a target that is not in the notation pp. 2-3 print.
 // Every parse failure wraps it and then says what was read.
-var ErrTarget = errors.New("malformed target")
+var errTarget = errors.New("malformed target")
 
 // Target is a throw's target: a number and the modality that says how to
 // meet it. It is parsed once, when a table lifts, and never re-parsed at
@@ -72,14 +72,14 @@ const minusSigns = "-−"
 func ParseTarget(s string) (Target, error) {
 	runes := []rune(strings.TrimSpace(s))
 	if len(runes) == 0 {
-		return Target{}, fmt.Errorf("%w: it is empty", ErrTarget)
+		return Target{}, fmt.Errorf("%w: it is empty", errTarget)
 	}
 
 	modality := Exactly
 
 	if last := runes[len(runes)-1]; last == '+' || strings.ContainsRune(minusSigns, last) {
 		if len(runes) == 1 {
-			return Target{}, fmt.Errorf("%w %q: a sign with no number", ErrTarget, s)
+			return Target{}, fmt.Errorf("%w %q: a sign with no number", errTarget, s)
 		}
 
 		modality = AtLeast
@@ -96,12 +96,12 @@ func ParseTarget(s string) (Target, error) {
 	// sign." A leading sign here means a DM was passed off as a target.
 	digits := string(runes)
 	if digits == "" || digits[0] == '+' || digits[0] == '-' || strings.HasPrefix(digits, "−") {
-		return Target{}, fmt.Errorf("%w %q: a leading sign marks a modifier, not a throw", ErrTarget, s)
+		return Target{}, fmt.Errorf("%w %q: a leading sign marks a modifier, not a throw", errTarget, s)
 	}
 
 	number, err := strconv.Atoi(digits)
 	if err != nil {
-		return Target{}, fmt.Errorf("%w %q: %w", ErrTarget, s, err)
+		return Target{}, fmt.Errorf("%w %q: %w", errTarget, s, err)
 	}
 
 	return Target{number: number, modality: modality}, nil

@@ -40,7 +40,7 @@ func lookup[T any](index map[string]T, name, kind string) (T, error) {
 	if !ok {
 		var zero T
 
-		return zero, fmt.Errorf("%w: %q is not a %s", ErrMalformed, name, kind)
+		return zero, fmt.Errorf("%w: %q is not a %s", errMalformed, name, kind)
 	}
 
 	return value, nil
@@ -82,7 +82,7 @@ func parseAlteration(cell string) (traveller.Characteristic, int, bool, error) {
 
 	size, err := strconv.Atoi(match[2])
 	if err != nil {
-		return 0, 0, false, fmt.Errorf("%w: alteration %q: %w", ErrMalformed, cell, err)
+		return 0, 0, false, fmt.Errorf("%w: alteration %q: %w", errMalformed, cell, err)
 	}
 
 	if match[1] != "+" {
@@ -91,7 +91,7 @@ func parseAlteration(cell string) (traveller.Characteristic, int, bool, error) {
 
 	characteristic, err := parseCharacteristic(match[3])
 	if err != nil {
-		return 0, 0, false, fmt.Errorf("%w: alteration %q: %w", ErrMalformed, cell, err)
+		return 0, 0, false, fmt.Errorf("%w: alteration %q: %w", errMalformed, cell, err)
 	}
 
 	return characteristic, size, true, nil
@@ -103,17 +103,17 @@ func parseAlteration(cell string) (traveller.Characteristic, int, bool, error) {
 func parseDM(amount int, condition string) (DM, error) {
 	name, threshold, ok := strings.CutLast(condition, " ")
 	if !ok {
-		return DM{}, fmt.Errorf("%w: die modifier %q: want a characteristic and a threshold", ErrMalformed, condition)
+		return DM{}, fmt.Errorf("%w: die modifier %q: want a characteristic and a threshold", errMalformed, condition)
 	}
 
 	characteristic, err := parseCharacteristic(name)
 	if err != nil {
-		return DM{}, fmt.Errorf("%w: die modifier %q: %w", ErrMalformed, condition, err)
+		return DM{}, fmt.Errorf("%w: die modifier %q: %w", errMalformed, condition, err)
 	}
 
 	target, err := traveller.ParseTarget(threshold)
 	if err != nil {
-		return DM{}, fmt.Errorf("%w: die modifier %q: %w", ErrMalformed, condition, err)
+		return DM{}, fmt.Errorf("%w: die modifier %q: %w", errMalformed, condition, err)
 	}
 
 	return DM{Amount: amount, Characteristic: characteristic, Threshold: target}, nil
@@ -155,7 +155,7 @@ func parseTableResult(cell string, normalize map[string]string) (traveller.Table
 	}
 
 	if startsWithSign(cell) {
-		return nil, fmt.Errorf("%w: %q begins with a sign but is not a characteristic alteration", ErrMalformed, cell)
+		return nil, fmt.Errorf("%w: %q begins with a sign but is not a characteristic alteration", errMalformed, cell)
 	}
 
 	spelled := expand(cell, normalize)
@@ -201,7 +201,7 @@ func parseBenefitRow(cell string, normalize map[string]string) (traveller.Benefi
 		return traveller.WeaponCategoryBenefit{Category: category}, nil
 	}
 
-	return nil, fmt.Errorf("%w: %q is not a benefit any row of Table 1 prints", ErrMalformed, cell)
+	return nil, fmt.Errorf("%w: %q is not a benefit any row of Table 1 prints", errMalformed, cell)
 }
 
 // emDash is what Table 1 prints where a service has no benefit at that row.

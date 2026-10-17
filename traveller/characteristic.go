@@ -50,19 +50,19 @@ func (c Characteristic) String() string {
 //
 // The quotation is the page's; the constants below are what it fixes.
 const (
-	// MaxCharacteristic is the ceiling, and it is unconditional.
-	MaxCharacteristic = 15
+	// maxCharacteristic is the ceiling, and it is unconditional.
+	maxCharacteristic = 15
 
 	// MinCharacteristic is the floor for every ordinary alteration,
 	// including the procedure's one negative table result, Other's -1
 	// Social (p. 11).
 	MinCharacteristic = 1
 
-	// MinUnderAging is how far aging alone may carry a characteristic.
+	// minUnderAging is how far aging alone may carry a characteristic.
 	// The page opens the floor for aging without saying how far; E010
 	// reads it as 0, which is the only value below 1 the rules give any
 	// meaning to — a medical crisis, resolved at pp. 7-8.
-	MinUnderAging = 0
+	minUnderAging = 0
 )
 
 // Profile is a character's six characteristics, indexed by Characteristic.
@@ -78,7 +78,7 @@ type Profile [len(Characteristics)]int
 //
 // Aging does not go through here. See AgeReduce.
 func (p Profile) Alter(c Characteristic, delta int) Profile {
-	p[c] = clamp(p[c]+delta, MinCharacteristic, MaxCharacteristic)
+	p[c] = clamp(p[c]+delta, MinCharacteristic, maxCharacteristic)
 
 	return p
 }
@@ -90,7 +90,7 @@ func (p Profile) Alter(c Characteristic, delta int) Profile {
 // clamped at 1 unconditionally would make the medical crisis of pp. 7-8
 // unreachable, and with it every path that puts months on a character's age.
 func (p Profile) AgeReduce(c Characteristic, delta int) Profile {
-	p[c] = clamp(p[c]-delta, MinUnderAging, MaxCharacteristic)
+	p[c] = clamp(p[c]-delta, minUnderAging, maxCharacteristic)
 
 	return p
 }
