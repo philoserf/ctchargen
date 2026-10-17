@@ -27,8 +27,20 @@ func main() {
 	err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ctchargen:", err)
-		os.Exit(1)
 	}
+
+	os.Exit(exitStatus(err))
+}
+
+// exitStatus is 0 for a run that did what it was asked and 1 for one that did
+// not. Those are the two the README promises (#121), and this is the one
+// place that decides them.
+func exitStatus(err error) int {
+	if err == nil {
+		return 0
+	}
+
+	return 1
 }
 
 // run takes the two output channels apart. `out` is the data channel - the

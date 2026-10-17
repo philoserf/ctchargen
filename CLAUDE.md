@@ -260,6 +260,7 @@ narrower than a task, in a loop:
 go test ./chargen                     # one package
 go test ./chargen -run TestGoldens    # one test
 go test ./chargen -regenerate         # rewrite the goldens
+go test ./internal/docsgate -regenerate  # rewrite the exported API baseline
 go run ./cmd/ctchargen new --auto --seed 145 --sheet
 ```
 
@@ -302,6 +303,12 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
   that is an ordinary change, not a breaking one — regenerate the goldens and
   read the diff.
 - **Goldens are regenerated, never hand-edited.**
+- **The exported Go API and the CLI are held to a baseline (#126).** The API
+  is `internal/docsgate/testdata/api.txt`, held both ways: a line gone is a
+  break, a line new is a promise, and either is regenerated only on purpose.
+  The CLI's flags, types and defaults are typed out in
+  `cmd/ctchargen/cli_test.go` and held one way, because a new flag breaks
+  nobody; the exit status beside them is 0 or 1.
 - **A new invariant is not done until a deliberate mutation has been shown to
   kill it**, and the failure names what was broken.
 - **An erratum's stamping condition is machine-checked, not just reachable**
