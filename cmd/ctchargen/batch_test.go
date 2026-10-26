@@ -295,25 +295,33 @@ var errRefused = errors.New("refused")
 
 func (refusingWriter) Write([]byte) (int, error) { return 0, errRefused }
 
-// A write that fails is reported as the write, and closes what it opened
-// rather than leaving the descriptor held.
-func TestAFailedWriteIsReportedAndClosed(t *testing.T) {
+// A write that fails is reported as the write, and abandons what it opened
+// rather than leaving the descriptor held or finishing a partial record.
+func TestAFailedWriteIsReportedAndAbandoned(t *testing.T) {
 	t.Parallel()
 
-	closed := false
+	finished, abandoned := false, false
 
-	where := destination{out: refusingWriter{}, close: func() error {
-		closed = true
+	where := destination{
+		out: refusingWriter{},
+		close: func() error {
+			finished = true
 
-		return nil
-	}}
+			return nil
+		},
+		abandon: func() { abandoned = true },
+	}
 
 	err := where.write("anything")
 	if !errors.Is(err, errRefused) {
 		t.Errorf("a failed write was reported as %v, want the write's own error", err)
 	}
 
-	if !closed {
+	if finished {
+		t.Error("a failed write finished the destination as though it went through")
+	}
+
+	if !abandoned {
 		t.Error("a failed write left the destination open")
 	}
 }
@@ -373,5 +381,103 @@ func TestAStoppedBatchThatCannotReportSaysBoth(t *testing.T) {
 
 	if !errors.Is(err, errRefused) || !strings.Contains(err.Error(), "is a directory") {
 		t.Errorf("a stopped batch that could not report said %v, want both failures", err)
+	}
+}
+
+// --force leaves the record it replaces whole until the new one is (#191).
+// Opening with a truncating flag emptied the old record before the first byte
+// of the new one, so a write that failed left neither.
+func TestForceKeepsTheOldRecordUntilTheNewOneIsWhole(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "sheet.txt")
+
+	err := os.WriteFile(path, []byte("last week's\n"), recordFileMode)
+	if err != nil {
+		t.Fatalf("planting the old record: %v", err)
+	}
+
+	where, err := openDestination(nil, path, true)
+	if err != nil {
+		t.Fatalf("opening with --force: %v", err)
+	}
+
+	if got := mustRead(t, path); got != "last week's\n" {
+		t.Errorf("opening with --force left the old record as %q", got)
+	}
+
+	where.out = refusingWriter{}
+
+	err = where.write("this week's\n")
+	if !errors.Is(err, errRefused) {
+		t.Fatalf("a failed write was reported as %v, want the write's own error", err)
+	}
+
+	if got := mustRead(t, path); got != "last week's\n" {
+		t.Errorf("a failed --force write left the old record as %q", got)
+	}
+
+	where, err = openDestination(nil, path, true)
+	if err != nil {
+		t.Fatalf("reopening with --force: %v", err)
+	}
+
+	err = where.write("this week's\n")
+	if err != nil {
+		t.Fatalf("writing with --force: %v", err)
+	}
+
+	if got := mustRead(t, path); got != "this week's\n" {
+		t.Errorf("a whole --force write left %q", got)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("listing the directory: %v", err)
+	}
+
+	if len(entries) != 1 {
+		t.Errorf("--force left %d files beside the record, want none", len(entries)-1)
+	}
+}
+
+func mustRead(t *testing.T, path string) string {
+	t.Helper()
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+
+	return string(data)
+}
+
+// Where the record cannot be staged, --force says so and leaves the old one.
+func TestForceThatCannotStageLeavesTheOldRecord(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "sheet.txt")
+
+	err := os.WriteFile(path, []byte("last week's\n"), recordFileMode)
+	if err != nil {
+		t.Fatalf("planting the old record: %v", err)
+	}
+
+	err = os.Chmod(dir, 0o500)
+	if err != nil {
+		t.Fatalf("closing the directory: %v", err)
+	}
+
+	t.Cleanup(func() { _ = os.Chmod(dir, recordDirMode) })
+
+	_, err = openDestination(nil, path, true)
+	if err == nil || !strings.Contains(err.Error(), "staging") {
+		t.Errorf("--force into a closed directory said %v, want the staging failure", err)
+	}
+
+	if got := mustRead(t, path); got != "last week's\n" {
+		t.Errorf("a --force that could not stage left the old record as %q", got)
 	}
 }

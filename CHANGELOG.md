@@ -5,6 +5,10 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- `--force` no longer empties the file it replaces before writing the new
+  one. The record is written beside it and renamed into place, so a write that
+  fails partway leaves last week's record whole (#191).
+
 ## 1.0.0-beta.3
 
 Every character this build generates is the character beta.2 generated from
