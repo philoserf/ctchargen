@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"syscall"
 )
 
 // errWouldOverwrite reports an output path that already holds something.
@@ -26,32 +28,80 @@ const recordDirMode = 0o700
 // the whole reason the flag exists: a referee who regenerates a character
 // into the file holding last week's has lost last week's, and the tool that
 // did it said nothing.
+//
+// close finishes a write that went through; abandon gives up one that did
+// not. They differ only under --force, where finishing puts the new record in
+// place and abandoning leaves the old one.
 type destination struct {
-	out   io.Writer
-	close func() error
+	out     io.Writer
+	close   func() error
+	abandon func()
 }
 
 func openDestination(out io.Writer, path string, force bool) (destination, error) {
 	if path == "" {
-		return destination{out: out, close: func() error { return nil }}, nil
+		return destination{out: out, close: func() error { return nil }, abandon: func() {}}, nil
 	}
 
-	file, err := create(path, force)
+	if force {
+		return replacing(path)
+	}
+
+	file, err := create(path)
 	if err != nil {
 		return destination{}, err
 	}
 
-	return destination{out: file, close: file.Close}, nil
+	return destination{out: file, close: file.Close, abandon: func() { _ = file.Close() }}, nil
 }
 
-// create opens a file for writing, refusing to replace one unless told to.
-func create(path string, force bool) (*os.File, error) {
-	flags := os.O_WRONLY | os.O_CREATE | os.O_EXCL
-	if force {
-		flags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+// replacing stages a record beside path and renames it over path only once
+// the whole of it is written (#191).
+//
+// A truncating open emptied the old record before the first byte of the new
+// one landed, so a full disk or an I/O error partway through left neither.
+// The rename is atomic on one filesystem. os.CreateTemp creates at 0600,
+// which is recordFileMode, so the record is not widened on its way through.
+//
+// A path that is a directory is refused as the open refused it: a rename
+// would report it as "file exists", which reads as the --force refusal.
+func replacing(path string) (destination, error) {
+	if isDirectory(path) {
+		return destination{}, fmt.Errorf("opening %s: %w", path,
+			&fs.PathError{Op: "open", Path: path, Err: syscall.EISDIR})
 	}
 
-	file, err := os.OpenFile(path, flags, recordFileMode)
+	staged, err := os.CreateTemp(filepath.Dir(path), ".ctchargen-*")
+	if err != nil {
+		return destination{}, fmt.Errorf("staging %s: %w", path, err)
+	}
+
+	finish := func() error {
+		err := staged.Close()
+		if err == nil {
+			err = os.Rename(staged.Name(), path)
+		}
+
+		if err != nil {
+			_ = os.Remove(staged.Name())
+
+			return fmt.Errorf("putting %s in place: %w", path, err)
+		}
+
+		return nil
+	}
+
+	abandon := func() {
+		_ = staged.Close()
+		_ = os.Remove(staged.Name())
+	}
+
+	return destination{out: staged, close: finish, abandon: abandon}, nil
+}
+
+// create opens a file for writing, refusing to replace one.
+func create(path string) (*os.File, error) {
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, recordFileMode)
 	if err != nil {
 		if errors.Is(err, os.ErrExist) {
 			return nil, fmt.Errorf("%w: %s %w; pass --force to replace it",
@@ -96,9 +146,10 @@ func isDirectory(path string) bool {
 func (d destination) write(text string) error {
 	_, err := io.WriteString(d.out, text)
 	if err != nil {
-		// Close anyway - a failed write still holds the descriptor - but
+		// Give it up - a failed write still holds the descriptor, and under
+		// --force finishing would put the partial record in place - but
 		// report the write, which is what went wrong.
-		_ = d.close()
+		d.abandon()
 
 		return fmt.Errorf("writing: %w", err)
 	}
