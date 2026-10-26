@@ -309,10 +309,10 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
 
 ## Working conventions
 
-- Markdown written here is reflowed by prettier immediately after the write
+- Markdown written here is reflowed by `bun fmt` immediately after the write
   (a user-level `PostToolUse` hook, not repo config). The reflow is expected;
   leave it alone rather than reverting it.
-- **`docs/character.schema.json` is hand-formatted.** Never run prettier over
+- **`docs/character.schema.json` is hand-formatted.** Never run `bun fmt` over
   it; the reflow hook is a markdown one and this file is outside it.
 - Commits and PRs only when asked. Branch off `main` first; the history is
   squash-merged PRs with sentence-case subjects that say what changed
