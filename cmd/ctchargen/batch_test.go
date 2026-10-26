@@ -384,6 +384,9 @@ func TestAStoppedBatchThatCannotReportSaysBoth(t *testing.T) {
 	}
 }
 
+// oldRecord is what a --force test plants before replacing it.
+const oldRecord = "last week's\n"
+
 // --force leaves the record it replaces whole until the new one is (#191).
 // Opening with a truncating flag emptied the old record before the first byte
 // of the new one, so a write that failed left neither.
@@ -393,7 +396,7 @@ func TestForceKeepsTheOldRecordUntilTheNewOneIsWhole(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "sheet.txt")
 
-	err := os.WriteFile(path, []byte("last week's\n"), recordFileMode)
+	err := os.WriteFile(path, []byte(oldRecord), recordFileMode)
 	if err != nil {
 		t.Fatalf("planting the old record: %v", err)
 	}
@@ -403,7 +406,7 @@ func TestForceKeepsTheOldRecordUntilTheNewOneIsWhole(t *testing.T) {
 		t.Fatalf("opening with --force: %v", err)
 	}
 
-	if got := mustRead(t, path); got != "last week's\n" {
+	if got := mustRead(t, path); got != oldRecord {
 		t.Errorf("opening with --force left the old record as %q", got)
 	}
 
@@ -414,7 +417,7 @@ func TestForceKeepsTheOldRecordUntilTheNewOneIsWhole(t *testing.T) {
 		t.Fatalf("a failed write was reported as %v, want the write's own error", err)
 	}
 
-	if got := mustRead(t, path); got != "last week's\n" {
+	if got := mustRead(t, path); got != oldRecord {
 		t.Errorf("a failed --force write left the old record as %q", got)
 	}
 
@@ -460,24 +463,27 @@ func TestForceThatCannotStageLeavesTheOldRecord(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "sheet.txt")
 
-	err := os.WriteFile(path, []byte("last week's\n"), recordFileMode)
+	err := os.WriteFile(path, []byte(oldRecord), recordFileMode)
 	if err != nil {
 		t.Fatalf("planting the old record: %v", err)
 	}
 
-	err = os.Chmod(dir, 0o500)
+	err = os.Chmod(dir, 0o400)
 	if err != nil {
 		t.Fatalf("closing the directory: %v", err)
 	}
-
-	t.Cleanup(func() { _ = os.Chmod(dir, recordDirMode) })
 
 	_, err = openDestination(nil, path, true)
 	if err == nil || !strings.Contains(err.Error(), "staging") {
 		t.Errorf("--force into a closed directory said %v, want the staging failure", err)
 	}
 
-	if got := mustRead(t, path); got != "last week's\n" {
+	err = os.Chmod(dir, recordDirMode)
+	if err != nil {
+		t.Fatalf("reopening the directory: %v", err)
+	}
+
+	if got := mustRead(t, path); got != oldRecord {
 		t.Errorf("a --force that could not stage left the old record as %q", got)
 	}
 }
