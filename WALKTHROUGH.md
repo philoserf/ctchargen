@@ -1595,7 +1595,7 @@ The whole gate is `task`, and there is no CI: a change is checked when someone
 runs `task` and not otherwise. It runs `go mod tidy -diff`, `go vet`,
 golangci-lint (which also reports formatting), NilAway, `go test -race`, a
 coverage ratchet that counts _uncovered statements per package_ and fails in
-both directions, and `prettier --check`. Here is the test suite alone, with the
+both directions, and `bun fmt --check`. Here is the test suite alone, with the
 timings stripped so the output is stable:
 
 A transcript of `go test ./... -count=1 2>&1 | sed -E 's/[[:space:]]+[0-9.]+s$//'`, run while writing:

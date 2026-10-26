@@ -176,16 +176,16 @@ tasks:
 
   docs:
     desc: Markdown, JSON and YAML are formatted
-    # prettier is to every non-Go file what gofumpt is to the Go files. It
+    # `bun fmt` is to every non-Go file what gofumpt is to the Go files. It
     # runs in --check here because the gate reports rather than repairs;
     # `task docs:fix` is the writer.
     cmds:
-      - prettier --check .
+      - bun fmt --check
 
   docs:fix:
-    desc: Format Markdown, JSON and YAML with prettier
+    desc: Format Markdown, JSON and YAML with bun fmt
     cmds:
-      - prettier --write .
+      - bun fmt
 
   build:
     desc: Build every package

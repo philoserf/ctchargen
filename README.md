@@ -169,7 +169,7 @@ task
 
 `go mod tidy -diff`, `go vet`, golangci-lint, NilAway, `go test -race`, and a
 coverage ratchet that holds each package's count of uncovered statements, and
-prettier over the non-Go files. The tests hold the three things `v1.0.0`
+`bun fmt` over the non-Go files. The tests hold the three things `v1.0.0`
 freezes: every record against the schema, the exported Go API against a
 baseline, and each command's flags, defaults and exit status. There is no CI
 (#149); a change is checked when this is run, and not otherwise.
