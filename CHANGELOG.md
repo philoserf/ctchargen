@@ -5,9 +5,38 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
-- `--force` no longer empties the file it replaces before writing the new
-  one. The record is written beside it and renamed into place, so a write that
-  fails partway leaves last week's record whole (#191).
+## 1.0.0-beta.4
+
+Every character this build generates is the character beta.3 generated from
+the same seed. One change reaches a referee: `--force` no longer loses the
+record it was asked to replace when the write fails.
+
+### Install
+
+```sh
+go install github.com/philoserf/ctchargen/cmd/ctchargen@v1.0.0-beta.4
+```
+
+**No binaries are attached.** A release is a tag, installed with `go install`.
+Earlier releases' binaries stay on their own release pages.
+
+### What a referee will notice
+
+**`--force` no longer empties the file it replaces before writing the new
+one** (#191). The record is written beside it and renamed into place, so a
+write that fails partway leaves last week's record whole. A replaced record is
+written with the same `0600` mode as every other record, rather than keeping
+the old file's mode. Without `--force` nothing changes: an existing file is
+still refused.
+
+### Notes
+
+The repository's non-Go files are formatted with `bun fmt` rather than
+prettier, against the same `.prettierrc.json` and `.prettierignore`; no file
+was reformatted by the switch (#189). There is no CI; `task` is the gate.
+
+**Do not install `v1.0.0-alpha.1` or `v1.0.0-alpha.2`.** Both predate the
+rebuild at `41a213a` and are builds of a different implementation.
 
 ## 1.0.0-beta.3
 
