@@ -631,7 +631,7 @@ inputs.
   covered statement and one uncovered; an integer count trips on the
   first.
 - **The gate is `task`** — formatting, `go vet`, golangci-lint, NilAway,
-  `go test -race` — and CI runs exactly `task`. **The toolchain is
+  govulncheck, `go test -race` — and CI runs exactly `task`. **The toolchain is
   deliberately unpinned**: the gate is meant to fail when a tool moves
   rather than drift behind it, so a red gate on untouched code is the
   signal working. Answer the finding; do not pin a tool to silence it.

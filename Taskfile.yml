@@ -66,6 +66,7 @@ tasks:
       - task: vet
       - task: lint
       - task: nilaway
+      - task: vuln
       - task: test
       - task: ratchet
       - task: docs
@@ -108,6 +109,11 @@ tasks:
     desc: Flow-sensitive nil-dereference analysis with NilAway
     cmds:
       - nilaway ./...
+
+  vuln:
+    desc: Known vulnerabilities in the code this module actually calls, from govulncheck
+    cmds:
+      - govulncheck ./...
 
   test:
     desc: The suite, with the race detector, writing a coverage profile
