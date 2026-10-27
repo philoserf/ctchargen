@@ -167,7 +167,7 @@ standard error after `ctchargen:`.
 task
 ```
 
-`go mod tidy -diff`, `go vet`, golangci-lint, NilAway, `go test -race`, and a
+`go mod tidy -diff`, `go vet`, golangci-lint, NilAway, govulncheck, `go test -race`, and a
 coverage ratchet that holds each package's count of uncovered statements, and
 `bun fmt` over the non-Go files. The tests hold the three things `v1.0.0`
 freezes: every record against the schema, the exported Go API against a

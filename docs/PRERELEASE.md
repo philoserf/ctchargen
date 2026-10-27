@@ -152,7 +152,7 @@ does, not against memory of it.
   numbering from zero, `--service` forcing only the attempt, and the build
   stamp read from `debug.ReadBuildInfo`.
 - **The README's gate list** against `Taskfile.yml`'s `default` — tidy, vet,
-  lint, nilaway, test, ratchet, in that order.
+  lint, nilaway, vuln, test, ratchet, in that order.
 - **FR8's record fields**, against goldens that carry each: rank and
   `rankTitle`, `annualRetirementPay` (CR 8,000 at seven terms, absent for
   the Scouts), the ship with its age and remaining payments, and the dead
