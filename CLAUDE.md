@@ -261,7 +261,7 @@ go run ./cmd/ctchargen new --auto --seed 145 --sheet
 - **`task fix` is not a safe blind operation here**, on a repository that
   quotes a primary source. Two of its fixers have already rewritten this tree
   incorrectly: `godot` appended a period after a closing quotation mark in
-  eleven doc comments, and `dupword` deleted a word from a verbatim quotation
+  doc comments, and `dupword` deleted a word from a verbatim quotation
   of Book 1 p. 3. Both are configured off that behaviour now. Read the diff.
 - **`go test ./chargen -regenerate` rewrites more than `chargen/testdata/`.**
   The same fixtures write `docs/character.minimal.json` and
