@@ -6,10 +6,9 @@ linters:
   # and reports nothing -- so this file disables no check that is not
   # already being made.
   #
-  # Anything else that has ever been considered for this list was measured
+  # Anything else that has ever been considered for this list was read
   # instead, and then either fixed or configured. If a linter is added here
-  # it needs the same: a count, and a reason that survives reading the
-  # findings.
+  # it needs the same: a reason that survives reading the findings.
   default: all
 
   disable:
@@ -17,21 +16,21 @@ linters:
     - wsl # replaced by wsl_v5, which is on
     - gomodguard # replaced by gomodguard_v2, which is on
 
-    # 22 findings, and the linter takes no settings in this release, so the
-    # choice is all or nothing. Every one is a type filled in stages by the
-    # lift, or a type whose zero value is load-bearing: an unset Target is
-    # "0 exactly", which no throw of dice satisfies, and that is what makes
-    # a target nobody set fail closed rather than succeed silently. Naming
-    # every field at every literal would bury the design it protects.
+    # The linter takes no settings in this release, so the choice is all or
+    # nothing. Every finding is a type filled in stages by the lift, or a
+    # type whose zero value is load-bearing: an unset Target is "0 exactly",
+    # which no throw of dice satisfies, and that is what makes a target
+    # nobody set fail closed rather than succeed silently. Naming every
+    # field at every literal would bury the design it protects.
     - exhaustruct_v5
 
-    # 24 findings, and the linter takes no settings, so the choice is all or
-    # nothing. Every one is an immutable table: the closed alphabets' own
-    # iteration orders, the indexes the lift checks a printed name against,
-    # and the memoized load. Go has no const for an array, a slice or a map,
-    # so the alternative is an accessor that clones on every call - in the
-    # engine's term loop, to prevent a mutation nothing in this module
-    # performs and the alphabet tests would catch.
+    # The linter takes no settings, so the choice is all or nothing. Every
+    # finding is an immutable table: the closed alphabets' own iteration
+    # orders, the indexes the lift checks a printed name against, and the
+    # memoized load. Go has no const for an array, a slice or a map, so the
+    # alternative is an accessor that clones on every call - in the engine's
+    # term loop, to prevent a mutation nothing in this module performs and
+    # the alphabet tests would catch.
     - gochecknoglobals
 
   settings:
@@ -39,8 +38,8 @@ linters:
       # An exhaustive switch over a closed alphabet has the complexity of
       # the alphabet: ChoicePoint.String is twelve cases because there are
       # twelve choice points. Ten would penalise the design; fifteen still
-      # catches a genuine tangle, and did - two functions over it were
-      # split rather than exempted.
+      # catches a genuine tangle, and did - what it caught was split rather
+      # than exempted.
       max-complexity: 15
 
     depguard:
@@ -105,8 +104,8 @@ linters:
     godot:
       # Nearly every doc comment here ends in a quotation from the page, and
       # a quotation ends with its closing quotation mark. This linter's
-      # autofix appended a period after the quote in eleven comments,
-      # putting punctuation outside the quotation it belonged to.
+      # autofix appended a period after the quote, putting punctuation
+      # outside the quotation it belonged to.
       exclude: ['"$']
 
     govet:
@@ -177,8 +176,8 @@ linters:
       # The sums are folds: every concrete case has a one-line Fold that
       # dispatches to its own method, and a Sequence that returns its own
       # field. What they mean is documented once, on the interface and on the
-      # cases interface beside it. Two dozen restatements of "dispatches to
-      # its case" would be ceremony, not documentation.
+      # cases interface beside it. Restating "dispatches to its case" on
+      # every one would be ceremony, not documentation.
       - linters: [revive]
         path: traveller/
         text: "exported method \\S+\\.(Fold|Sequence) should have comment"
@@ -209,7 +208,7 @@ formatters:
 
 issues:
   # Show every finding. The defaults cap output per linter and per repeated
-  # message, which on a gate running default: all would let a count read
-  # smaller than it is.
+  # message, which on a gate running default: all would hide findings past
+  # the cap.
   max-issues-per-linter: 0
   max-same-issues: 0
